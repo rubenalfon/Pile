@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Pile</string>
+
+    <string name="your_piles">Your Piles</string>
+    <string name="all_documents">All Documents</string>
+    <string name="see_more">See more</string>
+
+    <string name="edit">Edit</string>
+
+
+
+<!--    <string name=""></string>-->
 </resources>
