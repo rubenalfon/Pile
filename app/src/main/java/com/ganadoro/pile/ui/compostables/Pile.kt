@@ -35,7 +35,7 @@ data class Pile(
 
 @Preview
 @Composable
-private fun PileFolderPreview() {
+private fun PileFolder() {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column {
             val pile1 =
@@ -43,15 +43,15 @@ private fun PileFolderPreview() {
             val pile2 = Pile(name = "Mis Pilas 2", icon = Icons.Default.Add)
             val pile3 = Pile(name = "Mis Pilas 3")
 
-            PileFolder(modifier = Modifier.width(60.dp), pile = pile1)
-            PileFolder(modifier = Modifier.width(60.dp), pile = pile2)
-            PileFolder(modifier = Modifier.width(60.dp), pile = pile3)
+            Pile(modifier = Modifier.width(60.dp), pile = pile1)
+            Pile(modifier = Modifier.width(60.dp), pile = pile2)
+            Pile(modifier = Modifier.width(60.dp), pile = pile3)
         }
     }
 }
 
 @Composable
-fun PileFolder(
+fun Pile(
     modifier: Modifier = Modifier,
     pile: Pile
 ) {

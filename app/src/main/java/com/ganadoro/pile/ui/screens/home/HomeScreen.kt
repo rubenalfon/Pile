@@ -1,11 +1,24 @@
 package com.ganadoro.pile.ui.screens.home
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,6 +31,8 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
+import com.ganadoro.pile.models.Document
+import com.ganadoro.pile.ui.compostables.DocumentGrid
 import com.ganadoro.pile.ui.screens.home.compostables.DocumentsDivider
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
 import com.ganadoro.pile.ui.screens.home.compostables.PileGrid
@@ -40,44 +55,97 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
     val uiState by viewModel.uiState.collectAsState()
 
-    Column(
-        Modifier
-            .fillMaxSize()
-            .semantics { isTraversalGroup = true },
+    Box(
+        modifier.windowInsetsPadding(WindowInsets.safeDrawing),
+        contentAlignment = Alignment.BottomEnd
     ) {
-        SearchBar(
+        LazyColumn(
             Modifier
-                .align(alignment = Alignment.CenterHorizontally)
-                .semantics { traversalIndex = 0f }
-                .padding(horizontal = 16.dp)
-        )
+                .fillMaxSize()
+                .semantics { isTraversalGroup = true }
+        ) {
+            item {
+                SearchBar(
+                    Modifier
+                        .semantics { traversalIndex = 0f }
+                        .padding(horizontal = 16.dp)
+                )
+            }
+            item { Spacer(Modifier.height(24.dp)) }
+            item {
+                HomeScreenSectionTitle(
+                    title = stringResource(R.string.your_piles),
+                    trailingButtonText = stringResource(R.string.edit),
+                    trailingButtonOnClick = { Napier.d { "Clicked on edit your piles" } },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+            item {
+//                PileGrid(
+//                    piles = uiState.piles,
+//                    modifier = Modifier.padding(horizontal = 8.dp)
+//                )
+            }
+            item { Spacer(Modifier.height(30.dp)) }
+            item {
+                HomeScreenSectionTitle(
+                    title = stringResource(R.string.all_documents),
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+            item { Spacer(Modifier.height(8.dp)) }
+            item {
+//                DocumentsCompleteList(documents = uiState.documents)
+            }
+            item { Spacer(Modifier.height(52.dp)) }
+        }
 
-        Spacer(Modifier.height(24.dp))
+        Fab()
+    }
 
-        HomeScreenSectionTitle(
-            title = stringResource(R.string.your_piles),
-            trailingButtonText = stringResource(R.string.edit),
-            trailingButtonOnClick = { Napier.d { "Clicked on edit your piles" } },
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
+}
 
-        PileGrid(
-            modifier = Modifier.padding(horizontal = 8.dp),
-            piles = uiState.piles
-        )
+@Composable
+private fun Fab(modifier: Modifier = Modifier) {
+    FloatingActionButton(
+        onClick = { Napier.d { "Clicked on add document" } },
+        modifier = modifier.padding(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                imageVector = Icons.Default.Add,
+                contentDescription = null
+            )
+            Spacer(Modifier.padding(horizontal = 4.dp))
+            Text(
+                stringResource(R.string.add_document),
+                modifier = Modifier.padding(end = 4.dp),
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+    }
+}
 
-        Spacer(Modifier.height(30.dp))
-
-        HomeScreenSectionTitle(
-            title = stringResource(R.string.all_documents),
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-
-        Spacer(Modifier.height(8.dp))
-
+@Composable
+fun DocumentsCompleteList(
+    modifier: Modifier = Modifier,
+    documents: List<Document>
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
         DocumentsDivider(
             date = LocalDate.now(),
             modifier = Modifier.padding(horizontal = 16.dp)
+        )
+
+        DocumentGrid(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            documents = documents
         )
     }
 }
