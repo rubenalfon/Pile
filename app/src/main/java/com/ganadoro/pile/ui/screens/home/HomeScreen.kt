@@ -81,10 +81,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 )
             }
             item {
-//                PileGrid(
-//                    piles = uiState.piles,
-//                    modifier = Modifier.padding(horizontal = 8.dp)
-//                )
+                PileGrid(
+                    piles = uiState.piles,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
             }
             item { Spacer(Modifier.height(30.dp)) }
             item {
@@ -95,7 +95,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             }
             item { Spacer(Modifier.height(8.dp)) }
             item {
-//                DocumentsCompleteList(documents = uiState.documents)
+                DocumentsCompleteList(documents = uiState.documents)
             }
             item { Spacer(Modifier.height(52.dp)) }
         }
