@@ -1,5 +1,6 @@
 package com.ganadoro.pile.ui.compostables
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,7 +31,8 @@ import androidx.compose.ui.unit.dp
 data class Pile(
     val name: String,
     val icon: ImageVector? = null,
-    val color: Color? = null
+    val color: Color? = null,
+    val isSelected: Boolean = false
 )
 
 @Preview
@@ -41,7 +43,7 @@ private fun PileFolder() {
             val pile1 =
                 Pile(name = "Mis Pilas 1", icon = Icons.Default.Add, color = Color.Red)
             val pile2 = Pile(name = "Mis Pilas 2", icon = Icons.Default.Add)
-            val pile3 = Pile(name = "Mis Pilas 3")
+            val pile3 = Pile(name = "Mis Pilas 3", isSelected = true)
 
             Pile(modifier = Modifier.width(60.dp), pile = pile1)
             Pile(modifier = Modifier.width(60.dp), pile = pile2)
@@ -83,6 +85,8 @@ fun Pile(
                     style = MaterialTheme.typography.displaySmall,
                 )
             }
+
+            Box(Modifier.size(10.dp).clip(CircleShape).background(Color.Red))
         }
         Spacer(modifier = Modifier.height(4.dp))
         Text(

@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.compose.material)
     implementation(libs.compose.material.icons)
     implementation(libs.compose.activity)
+    implementation(libs.androidx.navigation.compose)
 
     // Koin
     implementation(libs.koin.core)

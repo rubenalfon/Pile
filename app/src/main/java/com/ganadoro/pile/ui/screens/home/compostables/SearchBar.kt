@@ -50,54 +50,31 @@ fun SearchBar(modifier: Modifier = Modifier) {
         expanded = expanded,
         onExpandedChange = { expanded = it },
     ) {
-        Column(Modifier.verticalScroll(rememberScrollState())) {
-            repeat(4) { idx ->
-                val resultText = "Suggestion $idx"
-                ListItem(
-                    headlineContent =
-                        {
-                            Text(resultText)
-                        },
-                    supportingContent = { Text("Additional info") },
-                    leadingContent = {
-                        Icon(
-                            Icons.Filled.Star,
-                            contentDescription = null
-                        )
-                    },
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                    modifier = Modifier
-                        .clickable {
-                            text = resultText
-                            expanded = false
-                        }
-                        .fillMaxWidth()
-//                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                )
-            }
-        }
-    }
-//        LazyColumn(
-//            contentPadding = PaddingValues(
-//                start = 16.dp,
-//                top = 72.dp,
-//                end = 16.dp,
-//                bottom = 16.dp
-//            ),
-//            verticalArrangement = Arrangement.spacedBy(8.dp),
-//            modifier = Modifier.semantics {
-//                traversalIndex = 1f
-//            },
-//        ) {
-//            val list = List(100) { "Text $it" }
-//            items(count = list.size) {
-//                Text(
-//                    text = list[it],
+//        Column(Modifier.verticalScroll(rememberScrollState())) {
+//            repeat(4) { idx ->
+//                val resultText = "Suggestion $idx"
+//                ListItem(
+//                    headlineContent =
+//                        {
+//                            Text(resultText)
+//                        },
+//                    supportingContent = { Text("Additional info") },
+//                    leadingContent = {
+//                        Icon(
+//                            Icons.Filled.Star,
+//                            contentDescription = null
+//                        )
+//                    },
+//                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
 //                    modifier = Modifier
+//                        .clickable {
+//                            text = resultText
+//                            expanded = false
+//                        }
 //                        .fillMaxWidth()
-//                        .padding(horizontal = 16.dp),
+////                        .padding(horizontal = 16.dp, vertical = 4.dp)
 //                )
 //            }
 //        }
-//    }
+    }
 }
