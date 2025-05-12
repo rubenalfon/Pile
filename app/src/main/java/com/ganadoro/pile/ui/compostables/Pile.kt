@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.sharp.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -27,6 +28,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+
 
 data class Pile(
     val name: String,
@@ -62,32 +64,58 @@ fun Pile(
         modifier = modifier
     ) {
         Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .aspectRatio(1f)
-                .clip(CircleShape)
-                .border(
-                    5.dp,
-                    pile.color ?: MaterialTheme.colorScheme.outlineVariant,
-                    CircleShape
-                )
+            Modifier                .fillMaxSize(),
+            contentAlignment = Alignment.BottomEnd
         ) {
-            if (pile.icon != null) {
-                Icon(
-                    imageVector = pile.icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(42.dp)
-                )
-            } else {
-                Text(
-                    pile.name.substring(0, 1).uppercase(),
-                    style = MaterialTheme.typography.displaySmall,
-                )
+
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .clip(CircleShape)
+                    .border(
+                        5.dp,
+                        pile.color ?: MaterialTheme.colorScheme.outlineVariant,
+                        CircleShape
+                    )
+            ) {
+                if (pile.icon != null) {
+                    Icon(
+                        imageVector = pile.icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(42.dp)
+                    )
+                } else {
+                    Text(
+                        pile.name.substring(0, 1).uppercase(),
+                        style = MaterialTheme.typography.displaySmall,
+                    )
+                }
             }
 
-            Box(Modifier.size(10.dp).clip(CircleShape).background(Color.Red))
+            if (pile.isSelected) {
+                Box(
+                    Modifier
+                        .size(23.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(2.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Sharp.Check,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(15.dp)
+                    )
+                }
+            }
         }
+
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             pile.name,
