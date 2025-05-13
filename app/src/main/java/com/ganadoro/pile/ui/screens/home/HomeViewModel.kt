@@ -3,6 +3,9 @@ package com.ganadoro.pile.ui.screens.home
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddRoad
+import androidx.compose.material.icons.filled.Bedtime
+import androidx.compose.material.icons.filled.CircleNotifications
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.ganadoro.pile.models.Document
@@ -26,12 +29,10 @@ class HomeViewModel(
     init {
         Napier.d { "HomeViewModel init" }
         _uiState.value.piles = listOf(
-            Pile(name = "Mis Pilas 1", icon = Icons.Default.Add, color = Color.Red),
-            Pile(name = "Mis Pilas 2", icon = Icons.Default.AddRoad),
-            Pile(name = "Mis Pilas2"),
-            Pile(name = "Mis Pilas 1", icon = Icons.Default.Add, color = Color.Red),
-            Pile(name = "Mis Pilas 2", icon = Icons.Default.AddRoad),
-            Pile(name = "Banco")
+            Pile(name = "Home", icon = Icons.Default.Home, color = Color.Blue),
+            Pile(name = "Work", icon = Icons.Default.AddRoad),
+            Pile(name = "Church", icon = Icons.Default.CircleNotifications, color = Color.Red),
+            Pile(name = "Nightime", icon = Icons.Default.Bedtime),
         )
 
         _uiState.value.documents = listOf(

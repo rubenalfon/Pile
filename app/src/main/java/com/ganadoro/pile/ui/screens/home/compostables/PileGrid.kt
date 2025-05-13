@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddRoad
+import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.CastForEducation
+import androidx.compose.material.icons.filled.CircleNotifications
 import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,17 +37,11 @@ private fun PilePreview() {
     Surface {
         PileGrid(
             piles = listOf(
-                Pile(name = "Mis Pilas 1", icon = Icons.Default.Add, color = Color.Red),
-                Pile(name = "Mis Pilas 2", icon = Icons.Default.AddRoad),
-                Pile(name = "Mis Pilas 3"),
-                Pile(
-                    name = "Mis Pilas 1",
-                    icon = Icons.Default.CastForEducation,
-                    color = Color.Red
-                ),
-                Pile(name = "Mis Pilas 2", icon = Icons.Default.CloudUpload),
-                Pile(name = "Banco")
-            )
+                Pile(name = "Home", icon = Icons.Default.Home, color = Color.Red),
+                Pile(name = "Work", icon = Icons.Default.AddRoad),
+                Pile(name = "Church", icon = Icons.Default.CircleNotifications, color = Color.Red),
+                Pile(name = "Nightime", icon = Icons.Default.Bedtime),
+                )
         )
     }
 }
@@ -56,9 +53,9 @@ fun PileGrid(
 ) {
     AdaptiveSizeFlowRow(
         modifier = modifier,
-        minimumItemWidth = 70.dp,
-        horizontalSpacing = 16.dp,
-        verticalSpacing = 16.dp,
+        minimumItemWidth = 160.dp,
+        horizontalSpacing = 8.dp,
+        verticalSpacing = 8.dp,
         horizontalAlignment = Alignment.Start
     ) { itemWidth ->
         piles.forEach { pile ->
