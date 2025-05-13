@@ -37,8 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
 import com.ganadoro.pile.models.Document
@@ -70,7 +68,10 @@ private fun LazyListState.isScrollingUp(): Boolean {
 }
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    navigateToEditPiles: () -> Unit
+) {
     val viewModel = getViewModel<HomeViewModel>()
 
     val uiState by viewModel.uiState.collectAsState()
@@ -94,7 +95,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             )
         },
 
-    ) { innerPadding ->
+        ) { innerPadding ->
         LazyColumn(
             Modifier
                 .fillMaxSize(),
