@@ -23,9 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.AdaptiveSizeFlowRow
 import com.ganadoro.pile.ui.compostables.Pile
 import kotlin.math.floor
@@ -53,7 +55,7 @@ fun PileGrid(
 ) {
     AdaptiveSizeFlowRow(
         modifier = modifier,
-        minimumItemWidth = 160.dp,
+        minimumItemWidth = 140.dp,
         horizontalSpacing = 8.dp,
         verticalSpacing = 8.dp,
         horizontalAlignment = Alignment.Start
@@ -65,5 +67,10 @@ fun PileGrid(
                     .width(itemWidth)
             )
         }
+        Pile(
+            pile = Pile(name = stringResource(R.string.new_pile), icon = Icons.Default.Add),
+            modifier = Modifier
+                .width(itemWidth)
+        )
     }
 }

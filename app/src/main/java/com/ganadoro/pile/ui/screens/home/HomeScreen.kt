@@ -9,6 +9,7 @@ import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,8 +18,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FabPosition
@@ -30,11 +31,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -48,24 +48,6 @@ import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
 import io.github.aakira.napier.Napier
 import org.koin.androidx.compose.getViewModel
 import java.time.LocalDate
-
-@Composable
-private fun LazyListState.isScrollingUp(): Boolean {
-    var previousIndex by remember(this) { mutableStateOf(firstVisibleItemIndex) }
-    var previousScrollOffset by remember(this) { mutableStateOf(firstVisibleItemScrollOffset) }
-    return remember(this) {
-        derivedStateOf {
-            if (previousIndex != firstVisibleItemIndex) {
-                previousIndex > firstVisibleItemIndex
-            } else {
-                previousScrollOffset >= firstVisibleItemScrollOffset
-            }.also {
-                previousIndex = firstVisibleItemIndex
-                previousScrollOffset = firstVisibleItemScrollOffset
-            }
-        }
-    }.value
-}
 
 @Composable
 fun HomeScreen(
@@ -98,6 +80,7 @@ fun HomeScreen(
         ) { innerPadding ->
         LazyColumn(
             Modifier
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                 .fillMaxSize(),
             state = listState
         ) {
@@ -106,27 +89,47 @@ fun HomeScreen(
             item {
                 HomeScreenSectionTitle(
                     title = stringResource(R.string.your_piles),
-                    trailingButtonText = stringResource(R.string.edit),
-                    trailingButtonOnClick = { Napier.d { "Clicked on edit your piles" } },
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-            }
-            item {
-                PileGrid(
-                    piles = uiState.piles,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-            }
-            item { Spacer(Modifier.height(30.dp)) }
-            item {
-                HomeScreenSectionTitle(
-                    title = stringResource(R.string.all_documents),
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
             item { Spacer(Modifier.height(8.dp)) }
             item {
-                DocumentsCompleteList(documents = uiState.documents)
+                PileGrid(
+                    piles = uiState.piles,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(16.dp)
+                )
+            }
+            item { Spacer(Modifier.height(30.dp)) }
+            item {
+                Column(
+                    Modifier
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 24.dp,
+                                topEnd =   24.dp
+                            )
+                        )
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(top = 16.dp)
+                ) {
+                    HomeScreenSectionTitle(
+                        title = stringResource(R.string.all_documents),
+                        modifier = Modifier
+
+                            .padding(horizontal = 16.dp)
+                    )
+                    Spacer(Modifier.height(8.dp))
+                }
+            }
+            item {
+                DocumentsCompleteList(
+                    documents = uiState.documents,
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+                )
             }
             item { Spacer(Modifier.height(52.dp)) }
         }

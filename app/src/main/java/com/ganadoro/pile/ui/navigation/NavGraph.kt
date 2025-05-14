@@ -28,7 +28,7 @@ private fun addHomeScreen(
         HomeScreen(
             navigateToEditPiles = {
                 navController.navigate(NavRoute.EditPiles.path)
-            },
+            }
 //            navigateToCalendarEntry = { id ->
 //                navController.navigate(
 //                    NavRoute.CalendarEntry.withArgs(

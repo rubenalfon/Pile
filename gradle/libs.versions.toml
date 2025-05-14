@@ -16,6 +16,8 @@ lifecycle = "2.9.0"
 
 koin = "3.4.0"
 
+materialColorUtilities = "1.0.0-alpha01"
+
 napier = "2.7.1"
 
 [libraries]
@@ -47,6 +49,7 @@ lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel
 lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 
+material-color-utilities = { module = "dev.sasikanth:material-color-utilities", version.ref = "materialColorUtilities" }
 
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }

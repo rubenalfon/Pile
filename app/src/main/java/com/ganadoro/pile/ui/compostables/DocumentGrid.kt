@@ -53,7 +53,7 @@ fun DocumentGrid(
 ) {
     AdaptiveSizeFlowRow(
         modifier = modifier,
-        minimumItemWidth = 100.dp,
+        minimumItemWidth = 120.dp,
         horizontalSpacing = 16.dp,
         verticalSpacing = 16.dp,
         horizontalAlignment = Alignment.Start

@@ -19,8 +19,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             PileTheme {
                 Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     val navController = rememberNavController()
                     NavGraph(navController = navController)
