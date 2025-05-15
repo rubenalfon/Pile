@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -68,6 +69,7 @@ fun HomeScreen(
 
     Scaffold(
         modifier = modifier,
+        containerColor = Color.Transparent,
         floatingActionButtonPosition = FabPosition.EndOverlay,
         floatingActionButton = { Fab(isListOnTop = isListOnTop) },
         topBar = {
@@ -75,13 +77,10 @@ fun HomeScreen(
                 Modifier
                     .padding(horizontal = 16.dp)
             )
-        },
-
-        ) { innerPadding ->
+        }
+    ) { innerPadding ->
         LazyColumn(
-            Modifier
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                .fillMaxSize(),
+            Modifier.fillMaxSize(),
             state = listState
         ) {
             item { Spacer(Modifier.height(innerPadding.calculateTopPadding())) }
@@ -96,11 +95,7 @@ fun HomeScreen(
             item {
                 PileGrid(
                     piles = uiState.piles,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(16.dp)
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
             item { Spacer(Modifier.height(30.dp)) }
@@ -110,7 +105,7 @@ fun HomeScreen(
                         .clip(
                             RoundedCornerShape(
                                 topStart = 24.dp,
-                                topEnd =   24.dp
+                                topEnd = 24.dp
                             )
                         )
                         .background(MaterialTheme.colorScheme.surface)

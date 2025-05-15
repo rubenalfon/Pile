@@ -17,10 +17,12 @@ class App : Application() {
         Napier.base(DebugAntilog())
 //        }
 
-        startKoin {
+        startKoin(
+        ) {
             androidLogger()
             androidContext(this@App)
             modules(
+
                 viewmodelModule
             )
         }
