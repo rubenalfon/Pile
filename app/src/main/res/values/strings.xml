@@ -10,6 +10,16 @@
     <string name="edit">Edit</string>
     <string name="add_document">Add Document</string>
 
+    <string name="import_pdf_file">Import PDF file</string>
+    <string name="import_from_gallery">Import From Gallery</string>
+    <string name="take_a_photo">Take a photo</string>
+
+
+    <string name="expanded">Expanded</string>
+    <string name="collapsed">Collapsed</string>
+    <string name="toggle_menu">Toggle menu</string>
+    <string name="close_menu">Close menu</string>
+
 
 
 <!--    <string name=""></string>-->
