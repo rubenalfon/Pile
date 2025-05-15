@@ -18,7 +18,8 @@ import java.util.UUID
 fun PileGrid(
     modifier: Modifier = Modifier,
     pileModels: List<PileModel>,
-    onPileClick: (id: UUID) -> Unit = {}
+    onPileClick: (id: UUID) -> Unit = {},
+    onNewPileClick: () -> Unit = {}
 ) {
     AdaptiveSizeFlowRow(
         modifier = modifier,
@@ -41,7 +42,7 @@ fun PileGrid(
                 icon = Icons.Default.Add
             ),
             modifier = Modifier.width(itemWidth),
-            onClick = onPileClick
+            onClick = { onNewPileClick.invoke() }
         )
     }
 }

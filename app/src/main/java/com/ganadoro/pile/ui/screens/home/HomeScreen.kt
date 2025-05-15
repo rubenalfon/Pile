@@ -62,6 +62,7 @@ import com.ganadoro.pile.ui.screens.home.compostables.DocumentsDivider
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
 import com.ganadoro.pile.ui.screens.home.compostables.PileGrid
 import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
+import io.github.aakira.napier.Napier
 import org.koin.androidx.compose.getViewModel
 import java.time.LocalDate
 import java.util.UUID
@@ -123,7 +124,8 @@ fun HomeScreen(
                 PileGrid(
                     pileModels = uiState.pileModels,
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    onPileClick = navigateToEditPiles
+                    onPileClick = navigateToEditPiles,
+                    onNewPileClick = { Napier.d("New pile clicked") }
                 )
             }
             item { Spacer(Modifier.height(30.dp)) }
