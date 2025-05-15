@@ -40,7 +40,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
-import com.ganadoro.pile.models.Document
+import com.ganadoro.pile.models.DocumentModel
 import com.ganadoro.pile.ui.compostables.DocumentGrid
 import com.ganadoro.pile.ui.screens.home.compostables.DocumentsDivider
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
@@ -49,11 +49,12 @@ import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
 import io.github.aakira.napier.Napier
 import org.koin.androidx.compose.getViewModel
 import java.time.LocalDate
+import java.util.UUID
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    navigateToEditPiles: () -> Unit
+    navigateToEditPiles: (id: UUID) -> Unit
 ) {
     val viewModel = getViewModel<HomeViewModel>()
 
@@ -94,8 +95,9 @@ fun HomeScreen(
             item { Spacer(Modifier.height(8.dp)) }
             item {
                 PileGrid(
-                    piles = uiState.piles,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    pileModels = uiState.pileModels,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    onPileClick = navigateToEditPiles
                 )
             }
             item { Spacer(Modifier.height(30.dp)) }
@@ -122,7 +124,7 @@ fun HomeScreen(
             }
             item {
                 DocumentsCompleteList(
-                    documents = uiState.documents,
+                    documentModels = uiState.documentModels,
                     modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                 )
             }
@@ -181,7 +183,7 @@ private fun Fab(
 @Composable
 fun DocumentsCompleteList(
     modifier: Modifier = Modifier,
-    documents: List<Document>
+    documentModels: List<DocumentModel>
 ) {
     Column(
         modifier = modifier,
@@ -194,7 +196,7 @@ fun DocumentsCompleteList(
 
         DocumentGrid(
             modifier = Modifier.padding(horizontal = 16.dp),
-            documents = documents
+            documentModels = documentModels
         )
     }
 }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -23,27 +22,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
-import com.ganadoro.pile.models.Document
-
-@Preview
-@Composable
-private fun DocumentPreview() {
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Column(Modifier) {
-            val document = Document(
-                id = java.util.UUID.randomUUID(),
-                title = "Mi documento",
-                documentRoute = ""
-            )
-
-            Document(document = document)
-        }
-    }
-}
+import com.ganadoro.pile.models.DocumentModel
 
 @Composable
 fun Document(
-    document: Document,
+    documentModel: DocumentModel,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -62,6 +45,6 @@ fun Document(
 
         Spacer(modifier = Modifier.padding(4.dp))
 
-        Text(text = document.title, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+        Text(text = documentModel.title, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
     }
 }

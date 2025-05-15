@@ -4,12 +4,11 @@ package com.ganadoro.pile.ui.navigation
 sealed class NavRoute(val path: String) {
 
     data object Home : NavRoute("home")
-    data object EditPiles : NavRoute("editPiles")
 
-//    data object Pile : NavRoute("Pile") {
-//        const val id = "id"
-//    }
-//
+    data object PileDetail : NavRoute("PileDetail") {
+        const val id = "id"
+    }
+
 //    data object Document : NavRoute("Document") {
 //        const val id = "id"
 //    }

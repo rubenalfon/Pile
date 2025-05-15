@@ -9,16 +9,16 @@ import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Work
 import androidx.lifecycle.ViewModel
-import com.ganadoro.pile.models.Document
-import com.ganadoro.pile.ui.compostables.Pile
+import com.ganadoro.pile.models.DocumentModel
+import com.ganadoro.pile.models.PileModel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 data class HomeUiState(
-    var piles: List<Pile> = emptyList(),
-    var documents: List<Document> = emptyList()
+    var pileModels: List<PileModel> = emptyList(),
+    var documentModels: List<DocumentModel> = emptyList()
 )
 
 class HomeViewModel(
@@ -29,46 +29,46 @@ class HomeViewModel(
 
     init {
         Napier.d { "HomeViewModel init" }
-        _uiState.value.piles = listOf(
-            Pile(name = "Home", icon = Icons.Default.Home, colorNumber = 0),
-            Pile(name = "Work", icon = Icons.Default.AddRoad, colorNumber = 1),
-            Pile(name = "Church", icon = Icons.Default.CircleNotifications, colorNumber = 23),
-            Pile(name = "Legal", icon = Icons.Default.Work, colorNumber = 7),
-            Pile(name = "Vehicles", icon = Icons.Default.DirectionsCar, colorNumber = 29),
-            Pile(name = "Nightime", icon = Icons.Default.Bedtime)
+        _uiState.value.pileModels = listOf(
+            PileModel(name = "Home", icon = Icons.Default.Home, colorNumber = 0),
+            PileModel(name = "Work", icon = Icons.Default.AddRoad, colorNumber = 1),
+            PileModel(name = "Church", icon = Icons.Default.CircleNotifications, colorNumber = 23),
+            PileModel(name = "Legal", icon = Icons.Default.Work, colorNumber = 7),
+            PileModel(name = "Vehicles", icon = Icons.Default.DirectionsCar, colorNumber = 29),
+            PileModel(name = "Nightime", icon = Icons.Default.Bedtime)
 
         )
 
-        _uiState.value.documents = listOf(
-            Document(
+        _uiState.value.documentModels = listOf(
+            DocumentModel(
                 id = java.util.UUID.randomUUID(),
                 title = "Mi documento",
                 documentRoute = ""
             ),
-            Document(
+            DocumentModel(
                 id = java.util.UUID.randomUUID(),
                 title = "Mi documento",
                 documentRoute = ""
-            ), Document(
-                id = java.util.UUID.randomUUID(),
-                title = "Mi documento",
-                documentRoute = ""
-            ),
-            Document(
-                id = java.util.UUID.randomUUID(),
-                title = "Mi documento",
-                documentRoute = ""
-            ), Document(
+            ), DocumentModel(
                 id = java.util.UUID.randomUUID(),
                 title = "Mi documento",
                 documentRoute = ""
             ),
-            Document(
+            DocumentModel(
+                id = java.util.UUID.randomUUID(),
+                title = "Mi documento",
+                documentRoute = ""
+            ), DocumentModel(
                 id = java.util.UUID.randomUUID(),
                 title = "Mi documento",
                 documentRoute = ""
             ),
-            Document(
+            DocumentModel(
+                id = java.util.UUID.randomUUID(),
+                title = "Mi documento",
+                documentRoute = ""
+            ),
+            DocumentModel(
                 id = java.util.UUID.randomUUID(),
                 title = "Mi documento",
                 documentRoute = ""

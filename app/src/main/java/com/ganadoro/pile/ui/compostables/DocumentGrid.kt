@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ganadoro.pile.models.Document
+import com.ganadoro.pile.models.DocumentModel
 
 
 @Preview
@@ -23,18 +23,18 @@ private fun DocumentGridPreview() {
             item {
                 DocumentGrid(
                     modifier = Modifier.padding(horizontal = 8.dp),
-                    documents = listOf(
-                        Document(
+                    documentModels = listOf(
+                        DocumentModel(
                             id = java.util.UUID.randomUUID(),
                             title = "Mi documento",
                             documentRoute = ""
                         ),
-                        Document(
+                        DocumentModel(
                             id = java.util.UUID.randomUUID(),
                             title = "Mi documento",
                             documentRoute = ""
                         ),
-                        Document(
+                        DocumentModel(
                             id = java.util.UUID.randomUUID(),
                             title = "Mi documento",
                             documentRoute = ""
@@ -49,7 +49,7 @@ private fun DocumentGridPreview() {
 @Composable
 fun DocumentGrid(
     modifier: Modifier = Modifier,
-    documents: List<Document>
+    documentModels: List<DocumentModel>
 ) {
     AdaptiveSizeFlowRow(
         modifier = modifier,
@@ -58,9 +58,9 @@ fun DocumentGrid(
         verticalSpacing = 16.dp,
         horizontalAlignment = Alignment.Start
     ) { itemWidth ->
-        documents.forEach { document ->
+        documentModels.forEach { document ->
             Document(
-                document = document,
+                documentModel = document,
                 modifier = Modifier.width(itemWidth)
             )
         }

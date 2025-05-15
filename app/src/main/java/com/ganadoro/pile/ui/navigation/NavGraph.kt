@@ -1,14 +1,16 @@
 package com.ganadoro.pile.ui.navigation
 
-import androidx.compose.foundation.background
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.ganadoro.pile.ui.pileDetail.PileDetailScreen
 import com.ganadoro.pile.ui.screens.home.HomeScreen
+import java.util.UUID
 
 @Composable
 fun NavGraph(modifier: Modifier = Modifier, navController: NavHostController) {
@@ -18,6 +20,7 @@ fun NavGraph(modifier: Modifier = Modifier, navController: NavHostController) {
         modifier = modifier
     ) {
         addHomeScreen(navController = navController, navGraphBuilder = this)
+        addPileDetailScreen(navController = navController, navGraphBuilder = this)
     }
 }
 
@@ -26,17 +29,33 @@ private fun addHomeScreen(
 ) {
     navGraphBuilder.composable(route = NavRoute.Home.path) {
         HomeScreen(
-            navigateToEditPiles = {
-                navController.navigate(NavRoute.EditPiles.path)
+            navigateToEditPiles = { id ->
+                navController.navigate(
+                    NavRoute.PileDetail.withArgs(
+                        id.toString()
+                    )
+                )
             }
-//            navigateToCalendarEntry = { id ->
-//                navController.navigate(
-//                    NavRoute.CalendarEntry.withArgs(
-//                        id.toString()
-//                    )
-//                )
-//            }
         )
 
+    }
+}
+
+private fun addPileDetailScreen(
+    navController: NavHostController, navGraphBuilder: NavGraphBuilder
+) {
+    navGraphBuilder.composable(
+        route = NavRoute.PileDetail.withArgsFormat(NavRoute.PileDetail.id),
+        arguments = listOf(navArgument(NavRoute.PileDetail.id) {
+            type = NavType.StringType
+        })
+    ) { navBackStackEntry ->
+        val args = navBackStackEntry.arguments
+        PileDetailScreen(
+            id = UUID.fromString(args?.getString(NavRoute.PileDetail.id)),
+            popBackStack = {
+                navController.popBackStack()
+            }
+        )
     }
 }
