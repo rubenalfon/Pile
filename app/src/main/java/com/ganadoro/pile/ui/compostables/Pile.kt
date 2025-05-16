@@ -36,31 +36,12 @@ fun Pile(
     pileModel: PileModel,
     onClick: (UUID) -> Unit = {}
 ) {
-    var isBeingClicked by remember { mutableStateOf(false) }
-
-    val scale by animateFloatAsState(
-        targetValue = if (isBeingClicked) 0.96f else 1f,
-        label = "ClickScale"
-    )
-
-    LaunchedEffect(isBeingClicked) {
-        if (isBeingClicked) {
-            delay(120)
-            isBeingClicked = false
-        }
-    }
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
             .clip(RoundedCornerShape(if (pileModel.colorNumber != null) 8.dp else 100.dp))
             .clickable {
-                isBeingClicked = true
                 onClick(pileModel.id)
             }
             .background(pileModel.colorNumber?.let { ExtendedTheme.colors.customColorList.getOrNull(it)?.colorContainer }
