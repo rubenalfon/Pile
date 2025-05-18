@@ -1,4 +1,4 @@
-package com.ganadoro.pile.ui.screens.home.compostables
+package com.ganadoro.pile.ui.compostables
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -8,14 +8,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import androidx.compose.ui.platform.LocalConfiguration
 import java.time.format.FormatStyle
 import java.util.Locale
 
@@ -33,7 +31,8 @@ private fun DocumentsDividerPreview() {
 @Composable
 fun DocumentsDivider(
     modifier: Modifier = Modifier,
-    date: LocalDate
+    date: LocalDate,
+    showDivider: Boolean = false
 ) {
     Row(
         modifier = modifier,
@@ -45,6 +44,7 @@ fun DocumentsDivider(
 
         Text(text = date.format(formatter), color = MaterialTheme.colorScheme.outline)
 
-        HorizontalDivider()
+        if (showDivider)
+            HorizontalDivider()
     }
 }

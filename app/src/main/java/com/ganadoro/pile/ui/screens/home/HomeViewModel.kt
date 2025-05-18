@@ -15,10 +15,11 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.time.LocalDate
 
 data class HomeUiState(
     var pileModels: List<PileModel> = emptyList(),
-    var documentModels: List<DocumentModel> = emptyList()
+    var documentList: List<DocumentModel> = emptyList()
 )
 
 class HomeViewModel(
@@ -39,7 +40,7 @@ class HomeViewModel(
 
         )
 
-        _uiState.value.documentModels = listOf(
+        _uiState.value.documentList = listOf(
             DocumentModel(
                 id = java.util.UUID.randomUUID(),
                 title = "Mi documento",
@@ -48,24 +49,62 @@ class HomeViewModel(
             DocumentModel(
                 id = java.util.UUID.randomUUID(),
                 title = "Mi documento",
+                date = LocalDate.of(2025, 4, 1),
                 documentRoute = ""
             ), DocumentModel(
                 id = java.util.UUID.randomUUID(),
                 title = "Mi documento",
+                date = LocalDate.of(2025, 4, 1),
                 documentRoute = ""
             ),
             DocumentModel(
                 id = java.util.UUID.randomUUID(),
                 title = "Mi documento",
+                date = LocalDate.of(2025, 4, 1),
                 documentRoute = ""
             ), DocumentModel(
                 id = java.util.UUID.randomUUID(),
                 title = "Mi documento",
+                date = LocalDate.of(2025, 4, 1),
                 documentRoute = ""
             ),
             DocumentModel(
                 id = java.util.UUID.randomUUID(),
                 title = "Mi documento",
+                date = LocalDate.of(2025, 4, 1),
+                documentRoute = ""
+            ), DocumentModel(
+                id = java.util.UUID.randomUUID(),
+                title = "Mi documento",
+                date = LocalDate.of(2025, 4, 1),
+                documentRoute = ""
+            ),
+            DocumentModel(
+                id = java.util.UUID.randomUUID(),
+                title = "Mi documento",
+                date = LocalDate.of(2025, 4, 1),
+                documentRoute = ""
+            ), DocumentModel(
+                id = java.util.UUID.randomUUID(),
+                title = "Mi documento",
+                date = LocalDate.of(2025, 4, 1),
+                documentRoute = ""
+            ),
+            DocumentModel(
+                id = java.util.UUID.randomUUID(),
+                title = "Mi documento",
+                date = LocalDate.of(2025, 4, 5),
+                documentRoute = ""
+            ), DocumentModel(
+                id = java.util.UUID.randomUUID(),
+                title = "Mi documento",
+                date = LocalDate.of(2025, 4, 5),
+                documentRoute = ""
+            ),
+            DocumentModel(
+                id = java.util.UUID.randomUUID(),
+                title = "Mi documento",
+                date = LocalDate.of(2025, 4, 5),
                 documentRoute = ""
             ),
             DocumentModel(

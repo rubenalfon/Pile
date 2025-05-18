@@ -12,7 +12,7 @@ import java.util.UUID
 
 data class PileDetailUiState(
     var pile: PileModel? = null,
-    var documentModels: List<DocumentModel> = emptyList()
+    var documentList: List<DocumentModel> = emptyList()
 )
 
 class PileDetailViewModel(
@@ -25,8 +25,8 @@ class PileDetailViewModel(
         // TODO: Llamar a db
 
         _uiState.value.pile =
-            PileModel(name = "Correos", icon = Icons.Default.Email, colorNumber = 1)
-        _uiState.value.documentModels = listOf(
+            PileModel(name = "Gato de natalia   ", icon = Icons.Default.Email, colorNumber = 1)
+        _uiState.value.documentList = listOf(
             DocumentModel(
                 id = UUID.randomUUID(),
                 title = "Mi documento",

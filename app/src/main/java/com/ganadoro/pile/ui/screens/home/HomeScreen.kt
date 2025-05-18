@@ -3,8 +3,6 @@ package com.ganadoro.pile.ui.screens.home
 import android.view.MotionEvent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -43,8 +41,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -56,15 +55,12 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
-import com.ganadoro.pile.models.DocumentModel
-import com.ganadoro.pile.ui.compostables.DocumentGrid
-import com.ganadoro.pile.ui.screens.home.compostables.DocumentsDivider
+import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
-import com.ganadoro.pile.ui.screens.home.compostables.PileGrid
 import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
+import com.ganadoro.pile.ui.screens.home.compostables.itemPileGrid
 import io.github.aakira.napier.Napier
 import org.koin.androidx.compose.getViewModel
-import java.time.LocalDate
 import java.util.UUID
 
 @Composable
@@ -97,9 +93,19 @@ fun HomeScreen(
             )
         }
     ) { innerPadding ->
+
+        val documentsColorSection = MaterialTheme.colorScheme.surface
+
+        var availableWidth by remember { mutableStateOf(0.dp) }
+        val density = LocalDensity.current
+
         LazyColumn(
             Modifier
                 .fillMaxSize()
+                .onGloballyPositioned { coordinates ->
+                    val widthPx = coordinates.size.width
+                    availableWidth = with(density) { widthPx.toDp() }.value.dp
+                }
                 .pointerInteropFilter {
                     when (it.action) {
                         MotionEvent.ACTION_DOWN -> {
@@ -107,7 +113,7 @@ fun HomeScreen(
 
                         }
                     }
-                    false // IMPORTANTE: devuelve false para no consumirlo
+                    false
                 },
             state = listState
         ) {
@@ -120,14 +126,14 @@ fun HomeScreen(
                 )
             }
             item { Spacer(Modifier.height(8.dp)) }
-            item {
-                PileGrid(
-                    pileModels = uiState.pileModels,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    onPileClick = navigateToEditPiles,
-                    onNewPileClick = { Napier.d("New pile clicked") }
-                )
-            }
+
+            itemPileGrid(
+                availableWidth = availableWidth,
+                piles = uiState.pileModels,
+                onPileClick = navigateToEditPiles,
+                onNewPileClick = { Napier.d("New pile clicked") }
+            )
+
             item { Spacer(Modifier.height(30.dp)) }
             item {
                 Column(
@@ -138,7 +144,7 @@ fun HomeScreen(
                                 topEnd = 24.dp
                             )
                         )
-                        .background(MaterialTheme.colorScheme.surface)
+                        .background(documentsColorSection)
                         .padding(top = 16.dp)
                 ) {
                     HomeScreenSectionTitle(
@@ -150,18 +156,17 @@ fun HomeScreen(
                     Spacer(Modifier.height(8.dp))
                 }
             }
-            item {
-                DocumentsCompleteList(
-                    documentModels = uiState.documentModels,
-                    modifier = Modifier.background(MaterialTheme.colorScheme.surface)
-                )
-            }
+            itemDocumentsCompleteList(
+                availableWidth = availableWidth,
+                backgroundColor = documentsColorSection,
+                documents = uiState.documentList
+            )
             item {
                 Box(
                     Modifier
                         .height(52.dp)
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface)
+                        .background(documentsColorSection)
                 )
             }
         }
@@ -170,7 +175,7 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun FabMenu(
+private fun FabMenu(
     modifier: Modifier = Modifier,
     fabMenuExpanded: Boolean,
     updateFabMenuExpanded: (Boolean) -> Unit = {}
@@ -242,25 +247,4 @@ fun FabMenu(
         }
     }
 
-}
-
-@Composable
-fun DocumentsCompleteList(
-    modifier: Modifier = Modifier,
-    documentModels: List<DocumentModel>
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        DocumentsDivider(
-            date = LocalDate.now(),
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-
-        DocumentGrid(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            documentModels = documentModels
-        )
-    }
 }
