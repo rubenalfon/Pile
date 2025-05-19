@@ -61,6 +61,7 @@ import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
 import com.ganadoro.pile.ui.screens.home.compostables.itemPileGrid
 import io.github.aakira.napier.Napier
 import org.koin.androidx.compose.getViewModel
+import java.io.File
 import java.util.UUID
 
 @Composable
@@ -83,7 +84,15 @@ fun HomeScreen(
         floatingActionButton = {
             FabMenu(
                 fabMenuExpanded = fabMenuExpanded,
-                updateFabMenuExpanded = { fabMenuExpanded = it }
+                updateFabMenuExpanded = { fabMenuExpanded = it },
+                onImportPDF = {
+                    viewModel.importPDFIntent()
+                },
+                onImportFromGallery = {
+                    viewModel.importFromGalleryIntent()
+                },
+                onTakeAPhoto = { }
+
             )
         },
         topBar = {
@@ -178,13 +187,16 @@ fun HomeScreen(
 private fun FabMenu(
     modifier: Modifier = Modifier,
     fabMenuExpanded: Boolean,
-    updateFabMenuExpanded: (Boolean) -> Unit = {}
+    updateFabMenuExpanded: (Boolean) -> Unit = {},
+    onImportPDF: () -> Unit = {},
+    onImportFromGallery: () -> Unit = {},
+    onTakeAPhoto: () -> Unit = {}
 ) {
-    val items: List<Pair<Painter, String>> =
+    val items: List<Triple<Painter, String, () -> Unit>> =
         listOf(
-            painterResource(R.drawable.ic_clip) to stringResource(R.string.import_pdf_file),
-            rememberVectorPainter(Icons.Filled.Photo) to stringResource(R.string.import_from_gallery),
-            rememberVectorPainter(Icons.Filled.CameraAlt) to stringResource(R.string.take_a_photo)
+            Triple(painterResource(R.drawable.ic_clip), stringResource(R.string.import_pdf_file), onImportPDF),
+            Triple(rememberVectorPainter(Icons.Filled.Photo), stringResource(R.string.import_pdf_file), onImportFromGallery),
+            Triple(rememberVectorPainter(Icons.Filled.CameraAlt), stringResource(R.string.import_pdf_file), onTakeAPhoto)
         )
 
     BackHandler(fabMenuExpanded) { updateFabMenuExpanded(false) }
@@ -233,6 +245,7 @@ private fun FabMenu(
                                     CustomAccessibilityAction(
                                         label = closeMenu,
                                         action = {
+                                            item.third
                                             updateFabMenuExpanded(false)
                                             true
                                         }
@@ -240,7 +253,10 @@ private fun FabMenu(
                                 )
                         }
                     },
-                onClick = { updateFabMenuExpanded(false) },
+                onClick = {
+                    item.third.invoke()
+                    updateFabMenuExpanded(false)
+                },
                 icon = { Icon(item.first, contentDescription = null) },
                 text = { Text(text = item.second) },
             )
