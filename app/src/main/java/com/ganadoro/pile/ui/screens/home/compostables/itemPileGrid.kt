@@ -7,9 +7,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
-import com.ganadoro.pile.models.PileModel
-import com.ganadoro.pile.ui.compostables.Pile
+import com.ganadoro.pile.models.PileModelLocal
 import com.ganadoro.pile.ui.compostables.adaptiveSizeItemsGrid
 import java.util.UUID
 
@@ -17,13 +17,16 @@ import java.util.UUID
 fun LazyListScope.itemPileGrid(
     availableWidth: Dp,
     piles: List<PileModel>,
-    onPileClick: (id: UUID) -> Unit = {},
+    onPileClick: (id: String) -> Unit = {},
     onNewPileClick: () -> Unit = {}
 ) {
     val addPile = PileModel(
+        id = "0",
         name = "",
-        icon = Icons.Default.Add
+        icon = Icons.Default.Add,
+        colorNumber = null
     )
+
     val pilesAddPile = piles + addPile
     adaptiveSizeItemsGrid(
         backgroundColor = Color.Transparent,
@@ -43,8 +46,10 @@ fun LazyListScope.itemPileGrid(
             } else {
                 Pile(
                     pileModel = PileModel(
+                        id = "0",
                         name = stringResource(R.string.new_pile),
-                        icon = Icons.Default.Add
+                        icon = Icons.Default.Add,
+                        colorNumber = null
                     ),
                     modifier = modifier,
                     onClick = { onNewPileClick.invoke() }

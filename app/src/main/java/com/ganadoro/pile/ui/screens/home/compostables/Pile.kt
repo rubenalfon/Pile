@@ -1,4 +1,4 @@
-package com.ganadoro.pile.ui.compostables
+package com.ganadoro.pile.ui.screens.home.compostables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,7 +17,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.ganadoro.pile.models.PileModel
+import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.models.PileModelLocal
 import com.ganadoro.pile.ui.theme.ExtendedTheme
 import java.util.UUID
 
@@ -25,7 +26,7 @@ import java.util.UUID
 fun Pile(
     modifier: Modifier = Modifier,
     pileModel: PileModel,
-    onClick: (UUID) -> Unit = {}
+    onClick: (String) -> Unit = {}
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -37,7 +38,7 @@ fun Pile(
             }
             .background(pileModel.colorNumber?.let {
                 ExtendedTheme.colors.customColorList.getOrNull(
-                    it
+                    it.toInt()
                 )?.colorContainer
             }
                 ?: MaterialTheme.colorScheme.surface)
@@ -46,7 +47,7 @@ fun Pile(
         Icon(
             imageVector = pileModel.icon,
             contentDescription = null,
-            tint = pileModel.colorNumber?.let { ExtendedTheme.colors.customColorList.getOrNull(it)?.onColorContainer }
+            tint = pileModel.colorNumber?.let { ExtendedTheme.colors.customColorList.getOrNull(it.toInt())?.onColorContainer }
                 ?: MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .size(32.dp)
@@ -56,7 +57,7 @@ fun Pile(
             pileModel.name,
             style = MaterialTheme.typography.labelLarge,
             textAlign = TextAlign.Left,
-            color = pileModel.colorNumber?.let { ExtendedTheme.colors.customColorList.getOrNull(it)?.onColorContainer }
+            color = pileModel.colorNumber?.let { ExtendedTheme.colors.customColorList.getOrNull(it.toInt())?.onColorContainer }
                 ?: MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(horizontal = 8.dp)
         )

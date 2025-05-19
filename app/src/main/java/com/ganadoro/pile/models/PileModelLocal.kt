@@ -3,7 +3,7 @@ package com.ganadoro.pile.models
 import androidx.compose.ui.graphics.vector.ImageVector
 import java.util.UUID
 
-data class PileModel(
+data class PileModelLocal(
     val id: UUID = UUID.randomUUID(),
     val name: String,
     val icon: ImageVector,

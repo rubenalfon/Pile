@@ -1,4 +1,4 @@
-package com.ganadoro.pile.ui.pileDetail
+package com.ganadoro.pile.ui.screens.pileDetail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row

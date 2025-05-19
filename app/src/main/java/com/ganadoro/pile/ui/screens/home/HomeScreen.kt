@@ -67,7 +67,7 @@ import java.util.UUID
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    navigateToEditPiles: (id: UUID) -> Unit
+    navigateToEditPiles: (id: String) -> Unit
 ) {
     val viewModel = getViewModel<HomeViewModel>()
 

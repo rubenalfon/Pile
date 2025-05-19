@@ -1,0 +1,36 @@
+import androidx.compose.ui.graphics.vector.ImageVector;
+
+CREATE TABLE IF NOT EXISTS PileModel(
+    id              TEXT        PRIMARY KEY,
+    name            TEXT        NOT NULL,
+    icon            TEXT        AS ImageVector NOT NULL ,
+    colorNumber     INTEGER
+);
+
+insertPileModel:
+INSERT INTO PileModel(id, name, icon, colorNumber)
+VALUES(?,?,?,?);
+
+selectAllPileModels:
+SELECT PileModel.*
+FROM PileModel;
+
+selectPileModelById:
+SELECT PileModel.*
+FROM PileModel
+WHERE PileModel.id = ?;
+
+updatePileModelName:
+UPDATE PileModel
+SET name = ?
+WHERE id = ?;
+
+updatePileModelIcon:
+UPDATE PileModel
+SET icon = ?
+WHERE id = ?;
+
+removePileModel:
+DELETE FROM PileModel
+WHERE PileModel.id = ?;
+

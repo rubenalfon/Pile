@@ -21,6 +21,9 @@ materialColorUtilities = "1.0.0-alpha01"
 napier = "2.7.1"
 material = "1.12.0"
 
+sqlDelight = "2.0.2"
+sqlDelightAndroidDriver = "2.1.0"
+
 [libraries]
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
@@ -58,8 +61,11 @@ koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = 
 napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
+sqlDelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelightAndroidDriver" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
 

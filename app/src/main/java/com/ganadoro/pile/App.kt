@@ -1,6 +1,8 @@
 package com.ganadoro.pile
 
 import android.app.Application
+import com.ganadoro.pile.di.databaseModule
+import com.ganadoro.pile.di.repositoriesModule
 import com.ganadoro.pile.di.viewmodelModule
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
@@ -21,6 +23,8 @@ class App : Application() {
             androidLogger()
             androidContext(this@App)
             modules(
+                databaseModule,
+                repositoriesModule,
                 viewmodelModule
             )
         }

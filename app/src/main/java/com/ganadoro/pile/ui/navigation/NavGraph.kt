@@ -8,7 +8,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.ganadoro.pile.ui.pileDetail.PileDetailScreen
+import com.ganadoro.pile.ui.screens.pileDetail.PileDetailScreen
 import com.ganadoro.pile.ui.screens.home.HomeScreen
 import java.util.UUID
 
@@ -32,7 +32,7 @@ private fun addHomeScreen(
             navigateToEditPiles = { id ->
                 navController.navigate(
                     NavRoute.PileDetail.withArgs(
-                        id.toString()
+                        id
                     )
                 )
             }

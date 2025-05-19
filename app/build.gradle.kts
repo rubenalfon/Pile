@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.sqlDelight)
 }
 
 android {
@@ -43,6 +44,10 @@ android {
 }
 
 dependencies {
+
+    // SQL Delight Driver
+    implementation(libs.sqlDelight.android.driver)
+
     // Material color utilities
     implementation(libs.material.color.utilities)
 
@@ -86,4 +91,12 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+sqldelight {
+    databases {
+        create("Database") {
+            packageName.set("com.ganadoro.pile")
+        }
+    }
 }
