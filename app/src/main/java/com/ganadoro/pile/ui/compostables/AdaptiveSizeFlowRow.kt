@@ -70,36 +70,3 @@ fun <T> LazyListScope.adaptiveSizeItemsGrid(
         }
     }
 }
-
-@Composable
-fun AdaptiveSizeFlowRow(
-    modifier: Modifier = Modifier,
-    minimumItemWidth: Dp,
-    horizontalSpacing: Dp,
-    verticalSpacing: Dp,
-    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    content: @Composable (itemWidth: Dp) -> Unit
-) {
-    var widthDp by remember { mutableStateOf(0.dp) }
-    val density = LocalDensity.current
-
-    val nItemsPerRow =
-        floor((widthDp + horizontalSpacing) / (minimumItemWidth + horizontalSpacing)).toInt()
-            .coerceAtLeast(1)
-    val itemWidth = (widthDp - horizontalSpacing * (nItemsPerRow - 1)) / nItemsPerRow
-
-    FlowRow(
-        modifier = modifier
-            .onGloballyPositioned { coordinates ->
-                val widthPx = coordinates.size.width
-                widthDp = with(density) { widthPx.toDp() }.value.dp
-            }
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(
-            space = horizontalSpacing,
-            alignment = horizontalAlignment
-        ),
-        verticalArrangement = Arrangement.spacedBy(verticalSpacing),
-        content = { content(itemWidth) }
-    )
-}

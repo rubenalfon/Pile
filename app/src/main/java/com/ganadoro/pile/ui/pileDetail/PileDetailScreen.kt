@@ -1,6 +1,5 @@
 package com.ganadoro.pile.ui.pileDetail
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -35,10 +34,10 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun PileDetailScreen(
+    modifier: Modifier = Modifier,
     id: UUID,
     popBackStack: () -> Unit,
-    viewModel: PileDetailViewModel = getViewModel<PileDetailViewModel>(),
-    modifier: Modifier = Modifier
+    viewModel: PileDetailViewModel = getViewModel<PileDetailViewModel>()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -52,7 +51,7 @@ fun PileDetailScreen(
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeFlexibleTopAppBar(
                 title = {
