@@ -1,27 +1,37 @@
 package com.ganadoro.pile.ui.screens.pileDetail
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingToolbarDefaults.ScreenOffset
+import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,8 +39,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
 import org.koin.androidx.compose.getViewModel
 import java.util.UUID
@@ -54,55 +67,27 @@ fun PileDetailScreen(
     }
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
+    var isUpdatePileExpanded by rememberSaveable { mutableStateOf(false) }
+
+    var isDeletePileExpanded by rememberSaveable { mutableStateOf(false) }
+
+
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            LargeFlexibleTopAppBar(
-                title = {
-                    Text(
-                        uiState.pile!!.name,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                titleHorizontalAlignment = Alignment.Start,
-                navigationIcon = {
-                    IconButton(onClick = popBackStack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description"
-                        )
-                    }
-                },
-                actions = {
-                    Row {
-                        IconButton(onClick = { }) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "Localized description"
-                            )
-                        }
-                        IconButton(onClick = { }) {
-                            Icon(
-                                imageVector = Icons.Filled.Search,
-                                contentDescription = "Localized description"
-                            )
-                        }
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-                colors = topAppBarColors(
-                    containerColor = Color.Transparent
-                )
+            TopAppBar(
+                uiState = uiState,
+                popBackStack = popBackStack,
+                onSearchClick = {},
+                scrollBehavior = scrollBehavior
             )
-        },
-        content = { innerPadding ->
-
+        }) { innerPadding ->
+        Box(Modifier.padding(innerPadding)) {
             var availableWidth by remember { mutableStateOf(0.dp) }
             val density = LocalDensity.current
 
             LazyColumn(
-                contentPadding = innerPadding,
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.surface)
                     .onGloballyPositioned { coordinates ->
@@ -114,6 +99,177 @@ fun PileDetailScreen(
                     availableWidth = availableWidth,
                     documents = uiState.documentList
                 )
+            }
+
+            HorizontalFloatingToolbar(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .offset(y = -ScreenOffset),
+                expanded = true,
+                content = {
+                    IconButton(onClick = {
+                        isUpdatePileExpanded = true
+                    }) {
+                        Icon(
+                            painter = painterResource(R.drawable.edit_24px),
+                            contentDescription = stringResource(R.string.edit_pile)
+                        )
+                    }
+                    IconButton(onClick = {
+                        isDeletePileExpanded = true
+                    }) {
+                        Icon(
+                            painter = painterResource(R.drawable.delete_24px),
+                            contentDescription = stringResource(R.string.delete_pile)
+                        )
+                    }
+                }
+            )
+        }
+
+        if (isUpdatePileExpanded) {
+            AlertEditPile(
+                pileName = uiState.pile!!.name,
+                onDismiss = { isUpdatePileExpanded = false },
+                onConfirm = { pileName ->
+                    isUpdatePileExpanded = false
+                    viewModel.updatePileName(pileName)
+                }
+            )
+        }
+
+        if (isDeletePileExpanded) {
+            AlertDeletePile(
+                onDismiss = { isDeletePileExpanded = false },
+                onConfirm = {
+                    isDeletePileExpanded = false
+                    viewModel.deletePile()
+                    popBackStack()
+                }
+            )
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+private fun TopAppBar(
+    uiState: PileDetailUiState,
+    popBackStack: () -> Unit,
+    onSearchClick: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior
+) {
+    LargeFlexibleTopAppBar(
+        title = {
+            Text(
+                uiState.pile!!.name,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        titleHorizontalAlignment = Alignment.Start,
+        navigationIcon = {
+            IconButton(onClick = popBackStack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.return_)
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = onSearchClick) {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = stringResource(R.string.search)
+                )
+            }
+        },
+        scrollBehavior = scrollBehavior,
+        colors = topAppBarColors(
+            containerColor = Color.Transparent
+        )
+    )
+}
+
+
+@Composable
+private fun AlertEditPile(
+    modifier: Modifier = Modifier,
+    pileName: String,
+    onDismiss: () -> Unit,
+    onConfirm: (pileName: String) -> Unit
+) {
+    var newPileName by rememberSaveable { mutableStateOf(pileName) }
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.edit_pile)) },
+        text = {
+            OutlinedTextField(
+                value = newPileName,
+                onValueChange = { newPileName = it },
+                label = { Text(stringResource(R.string.pile_name)) },
+                trailingIcon = {
+                    if (newPileName.isNotEmpty()) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = null,
+                            modifier = Modifier.clickable { newPileName = "" })
+                    }
+                }
+            )
+        },
+        confirmButton = {
+            TextButton(
+                enabled = newPileName.isNotEmpty(),
+                onClick = {
+                    onConfirm.invoke(newPileName)
+                }
+            ) {
+                Text(stringResource(R.string.edit))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = {
+                onDismiss.invoke()
+            }) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+
+@Composable
+private fun AlertDeletePile(
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        icon = {
+            Icon(
+                painter = painterResource(R.drawable.warning_24px),
+                contentDescription = null
+            )
+        },
+        modifier = modifier,
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.delete_pile_alert_title)) },
+
+        text = {
+            Text( stringResource(R.string.delete_pile_alert_body))
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm
+            ) {
+                Text(stringResource(R.string.delete))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
             }
         }
     )

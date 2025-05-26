@@ -6,13 +6,16 @@
     <string name="search_your_documents">Search your Documents</string>
     <string name="see_more">See more</string>
 
-    <string name="new_">New</string>">
+    <string name="new_">New</string>
     <string name="edit">Edit</string>
     <string name="cancel">Cancel</string>
     <string name="rename">Rename</string>
+    <string name="delete">Delete</string>
+    <string name="search">Search</string>
 
-    <string name="add_pile">Add Pile</string>">
-    <string name="pile_name">Pile Name</string>">
+
+    <string name="add_pile">Add Pile</string>
+    <string name="pile_name">Pile Name</string>
 
     <string name="add_document">Add Document</string>
 
@@ -26,7 +29,13 @@
     <string name="toggle_menu">Toggle menu</string>
     <string name="close_menu">Close menu</string>
 
+    <string name="edit_pile">Edit Pile</string>
+    <string name="delete_pile">Delete Pile</string>
+    <string name="delete_pile_alert_title">Delete Pile?</string>
+    <string name="delete_pile_alert_body">Documents will remain, but this pile will be removed from them.</string>
+
+    <string name="return_">Return</string>
 
 
-<!--    <string name=""></string>-->
+    <!--    <string name=""></string>-->
 </resources>

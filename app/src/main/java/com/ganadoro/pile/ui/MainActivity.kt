@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.ganadoro.pile.ui.navigation.NavGraph
 import com.ganadoro.pile.ui.theme.PileTheme
-import io.github.aakira.napier.Napier
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

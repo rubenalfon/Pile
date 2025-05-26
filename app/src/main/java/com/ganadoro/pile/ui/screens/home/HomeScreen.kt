@@ -203,7 +203,7 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun FabMenu(
+fun FabMenu( // TODO: Move
     modifier: Modifier = Modifier,
     fabMenuExpanded: Boolean,
     updateFabMenuExpanded: (Boolean) -> Unit = {},
