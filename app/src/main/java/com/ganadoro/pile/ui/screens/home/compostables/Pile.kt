@@ -18,7 +18,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.PileModel
-import com.ganadoro.pile.models.PileModelLocal
 import com.ganadoro.pile.ui.theme.ExtendedTheme
 import java.util.UUID
 

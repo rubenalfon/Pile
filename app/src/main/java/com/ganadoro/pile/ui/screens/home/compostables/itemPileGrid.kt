@@ -9,7 +9,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
-import com.ganadoro.pile.models.PileModelLocal
 import com.ganadoro.pile.ui.compostables.adaptiveSizeItemsGrid
 import java.util.UUID
 
@@ -47,7 +46,7 @@ fun LazyListScope.itemPileGrid(
                 Pile(
                     pileModel = PileModel(
                         id = "0",
-                        name = stringResource(R.string.new_pile),
+                        name = stringResource(R.string.new_),
                         icon = Icons.Default.Add,
                         colorNumber = null
                     ),

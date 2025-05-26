@@ -3,15 +3,15 @@ package com.ganadoro.pile.ui.screens.pileDetail
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.lifecycle.ViewModel
+import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.models.DocumentModelLocal
-import com.ganadoro.pile.models.PileModelLocal
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.UUID
 
 data class PileDetailUiState(
-    var pile: PileModelLocal? = null,
+    var pile: PileModel? = null,
     var documentList: List<DocumentModelLocal> = emptyList()
 )
 
@@ -25,7 +25,7 @@ class PileDetailViewModel(
         // TODO: Llamar a db
 
         _uiState.value.pile =
-            PileModelLocal(name = "Gato de natalia   ", icon = Icons.Default.Email, colorNumber = 1)
+            PileModel(name = "Gato de natalia   ", icon = Icons.Default.Email, colorNumber = 1, id = "")
         _uiState.value.documentList = listOf(
             DocumentModelLocal(
                 id = UUID.randomUUID(),

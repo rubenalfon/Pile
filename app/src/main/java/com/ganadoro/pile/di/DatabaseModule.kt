@@ -43,7 +43,7 @@ val databaseModule = module {
                 runCatching { AppIcon.valueOf(databaseValue).imageVector }
                     .getOrElse { Icons.AutoMirrored.Filled.Help }
 
-            override fun encode(value: ImageVector): String = value.name
+            override fun encode(value: ImageVector): String = value.name.substringAfter(".")
         }
     }
 

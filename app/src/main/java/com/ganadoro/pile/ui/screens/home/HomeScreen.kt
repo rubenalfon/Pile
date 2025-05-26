@@ -2,7 +2,11 @@ package com.ganadoro.pile.ui.screens.home
 
 import android.view.MotionEvent
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,14 +22,17 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Photo
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.runtime.Composable
@@ -61,8 +68,6 @@ import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
 import com.ganadoro.pile.ui.screens.home.compostables.itemPileGrid
 import io.github.aakira.napier.Napier
 import org.koin.androidx.compose.getViewModel
-import java.io.File
-import java.util.UUID
 
 @Composable
 fun HomeScreen(
@@ -76,6 +81,7 @@ fun HomeScreen(
     val listState = rememberLazyListState() // TODO: Send to viewmodel
 
     var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
+    var isNewPileAlertExpanded by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier,
@@ -91,7 +97,9 @@ fun HomeScreen(
                 onImportFromGallery = {
                     viewModel.importFromGalleryIntent()
                 },
-                onTakeAPhoto = { }
+                onTakeAPhoto = {
+
+                }
 
             )
         },
@@ -140,7 +148,7 @@ fun HomeScreen(
                 availableWidth = availableWidth,
                 piles = uiState.pileModels,
                 onPileClick = navigateToEditPiles,
-                onNewPileClick = { Napier.d("New pile clicked") }
+                onNewPileClick = { isNewPileAlertExpanded = true }
             )
 
             item { Spacer(Modifier.height(30.dp)) }
@@ -179,6 +187,17 @@ fun HomeScreen(
                 )
             }
         }
+
+
+        if (isNewPileAlertExpanded) {
+            AlertNewPile(
+                onDismiss = { isNewPileAlertExpanded = false },
+                onConfirm = { pileName ->
+                    isNewPileAlertExpanded = false
+                    viewModel.addPile(pileName)
+                }
+            )
+        }
     }
 }
 
@@ -192,19 +211,45 @@ private fun FabMenu(
     onImportFromGallery: () -> Unit = {},
     onTakeAPhoto: () -> Unit = {}
 ) {
+
+    val pickMedia =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uri ->
+            // Callback is invoked after the user selects a media item or closes the
+            // photo picker.
+            if (uri != null) {
+                Napier.d { "PhotoPicker: $uri" }
+                onTakeAPhoto.invoke()
+            } else {
+                Napier.d { "PhotoPicker: No media selected" }
+            }
+        }
+
     val items: List<Triple<Painter, String, () -> Unit>> =
         listOf(
-            Triple(painterResource(R.drawable.ic_clip), stringResource(R.string.import_pdf_file), onImportPDF),
-            Triple(rememberVectorPainter(Icons.Filled.Photo), stringResource(R.string.import_pdf_file), onImportFromGallery),
-            Triple(rememberVectorPainter(Icons.Filled.CameraAlt), stringResource(R.string.import_pdf_file), onTakeAPhoto)
+            Triple(
+                painterResource(R.drawable.ic_clip),
+                stringResource(R.string.import_pdf_file),
+                onImportPDF
+            ),
+            Triple(
+                rememberVectorPainter(Icons.Filled.Photo),
+                stringResource(R.string.import_from_gallery)
+            ) {
+                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
+            Triple(
+                rememberVectorPainter(Icons.Filled.CameraAlt),
+                stringResource(R.string.take_a_photo),
+                onTakeAPhoto
+            )
         )
 
     BackHandler(fabMenuExpanded) { updateFabMenuExpanded(false) }
 
-    val expanded = stringResource(R.string.expanded)
-    val collapsed = stringResource(R.string.collapsed)
-    val toggleMenu = stringResource(R.string.toggle_menu)
-    val closeMenu = stringResource(R.string.close_menu)
+    val expandedString = stringResource(R.string.expanded)
+    val collapsedString = stringResource(R.string.collapsed)
+    val toggleMenuString = stringResource(R.string.toggle_menu)
+    val closeMenuString = stringResource(R.string.close_menu)
 
     FloatingActionButtonMenu(
         modifier = modifier,
@@ -215,8 +260,8 @@ private fun FabMenu(
                     Modifier
                         .semantics {
                             traversalIndex = -1f
-                            stateDescription = if (fabMenuExpanded) expanded else collapsed
-                            contentDescription = toggleMenu
+                            stateDescription = if (fabMenuExpanded) expandedString else collapsedString
+                            contentDescription = toggleMenuString
                         },
                 checked = fabMenuExpanded,
                 onCheckedChange = { updateFabMenuExpanded(it) }
@@ -243,7 +288,7 @@ private fun FabMenu(
                             customActions =
                                 listOf(
                                     CustomAccessibilityAction(
-                                        label = closeMenu,
+                                        label = closeMenuString,
                                         action = {
                                             item.third
                                             updateFabMenuExpanded(false)
@@ -263,4 +308,50 @@ private fun FabMenu(
         }
     }
 
+}
+
+@Composable
+private fun AlertNewPile(
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit,
+    onConfirm: (pileName: String) -> Unit
+) {
+    var pileName by rememberSaveable { mutableStateOf("") }
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.add_pile)) },
+        text = {
+            OutlinedTextField(
+                value = pileName,
+                onValueChange = { pileName = it },
+                label = { Text(stringResource(R.string.pile_name)) },
+                trailingIcon = {
+                    if (pileName.isNotEmpty()) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = null,
+                            modifier = Modifier.clickable { pileName = "" })
+                    }
+                }
+            )
+        },
+        confirmButton = {
+            TextButton(
+                enabled = pileName.isNotEmpty(),
+                onClick = {
+                    onConfirm.invoke(pileName)
+                }
+            ) {
+                Text(stringResource(R.string.new_))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = {
+                onDismiss.invoke()
+            }) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }

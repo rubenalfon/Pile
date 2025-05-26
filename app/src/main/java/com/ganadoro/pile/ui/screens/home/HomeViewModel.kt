@@ -3,19 +3,20 @@ package com.ganadoro.pile.ui.screens.home
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddRoad
 import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.CircleNotifications
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material.icons.filled.Work
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.models.DocumentModelLocal
-import com.ganadoro.pile.models.PileModelLocal
 import com.ganadoro.pile.repositories.PileModelRepository
 import com.ganadoro.pile.util.createSimplePdf
 import io.github.aakira.napier.Napier
@@ -42,8 +43,6 @@ class HomeViewModel(
     var uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
-        Napier.d { "HomeViewModel init" }
-
         viewModelScope.launch {
             launch {
                 if (pileModelRepository.getAllPileModels().isEmpty()) {
@@ -169,6 +168,22 @@ class HomeViewModel(
         )
     }
 
+    fun addPile(pileName: String) {
+        viewModelScope.launch {
+            val newPile = PileModel( // TODO
+                id = UUID.randomUUID().toString(),
+                name = pileName,
+                icon = Icons.Default.Quiz,
+                colorNumber = null
+            )
+
+            pileModelRepository.insertPileModel(newPile)
+            Napier.d("Pile added: $pileName")
+
+            _uiState.value = _uiState.value.copy(pileModels = pileModelRepository.getAllPileModels())
+        }
+    }
+
     fun importPDFIntent() {
         val fileName = "FILE3.pdf"
         val file = File(context.filesDir, fileName)
@@ -198,25 +213,25 @@ class HomeViewModel(
 
     fun importFromGalleryIntent() {
         Napier.d { "importFromGalleryIntent" }
-
-        val file = File(context.filesDir, "FILE3.pdf")
-
-        if (!file.exists()) {
-            Napier.d("Archivo no existe en: ${file.absolutePath}")
-            return
-        }
-
-        val uri = FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.provider",
-            file
-        )
-
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(uri, "application/pdf")
-            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-
-        context.startActivity(intent)
+// TODO: Mover esto a donde se tenga que abrir el pdf del file
+//        val file = File(context.filesDir, "FILE3.pdf")
+//
+//        if (!file.exists()) {
+//            Napier.d("Archivo no existe en: ${file.absolutePath}")
+//            return
+//        }
+//
+//        val uri = FileProvider.getUriForFile(
+//            context,
+//            "${context.packageName}.provider",
+//            file
+//        )
+//
+//        val intent = Intent(Intent.ACTION_VIEW).apply {
+//            setDataAndType(uri, "application/pdf")
+//            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+//        }
+//
+//        context.startActivity(intent)
     }
 }
