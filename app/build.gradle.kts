@@ -49,9 +49,6 @@ dependencies {
     implementation(libs.sqlDelight.android.driver)
     implementation(libs.sqlDelight.coroutines.extensions)
 
-    // Material color utilities
-    implementation(libs.material.color.utilities)
-
     // Compose
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling)
