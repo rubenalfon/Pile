@@ -4,10 +4,12 @@ import android.content.Context
 import android.graphics.pdf.PdfDocument
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.net.Uri
+import android.util.Size
 import java.io.File
 import java.io.FileOutputStream
 
-fun createSimplePdf(context: Context, fileName: String = "FILE.pdf") : PdfDocument {// TODO: REEMPLAZAR
+fun createSimplePdf(context: Context, fileName: String = "FILE.pdf") : PdfDocument {// TODO: Borrar
     val file = File(context.filesDir, fileName)
 
     // Crea un nuevo documento PDF
@@ -33,3 +35,25 @@ fun createSimplePdf(context: Context, fileName: String = "FILE.pdf") : PdfDocume
 
     return pdfDocument
 }
+
+suspend fun createPdfWithImages(context: Context, imageUris: List<Uri>, outputFile: File) {
+    val pdfDocument = PdfDocument()
+
+    imageUris.forEachIndexed { index, uri ->
+        val bitmap = prepareBitmapFromUri(context, uri, Size(595, 842)) ?: return@forEachIndexed
+
+        val pageInfo = PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, index + 1).create()
+        val page = pdfDocument.startPage(pageInfo)
+        val canvas = page.canvas
+
+        canvas.drawBitmap(bitmap, 0f, 0f, null)
+        pdfDocument.finishPage(page)
+    }
+
+    outputFile.outputStream().use {
+        pdfDocument.writeTo(it)
+    }
+
+    pdfDocument.close()
+}
+
