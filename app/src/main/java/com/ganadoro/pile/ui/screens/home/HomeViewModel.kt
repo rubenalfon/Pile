@@ -2,17 +2,8 @@ package com.ganadoro.pile.ui.screens.home
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddRoad
-import androidx.compose.material.icons.filled.Bedtime
-import androidx.compose.material.icons.filled.CircleNotifications
-import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Quiz
-import androidx.compose.material.icons.filled.Work
-import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.PileModel
@@ -139,7 +130,8 @@ class HomeViewModel(
             pileModelRepository.insertPileModel(newPile)
             Napier.d("Pile added: $pileName")
 
-            _uiState.value = _uiState.value.copy(pileModels = pileModelRepository.getAllPileModels())
+            _uiState.value =
+                _uiState.value.copy(pileModels = pileModelRepository.getAllPileModels())
         }
     }
 
