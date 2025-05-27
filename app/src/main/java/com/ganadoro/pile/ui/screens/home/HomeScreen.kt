@@ -101,7 +101,6 @@ fun HomeScreen(
                 onTakeAPhoto = {
 
                 }
-
             )
         },
         topBar = {
@@ -111,81 +110,85 @@ fun HomeScreen(
             )
         }
     ) { innerPadding ->
-
         val documentsColorSection = MaterialTheme.colorScheme.surface
 
         var availableWidth by remember { mutableStateOf(0.dp) }
         val density = LocalDensity.current
 
-        LazyColumn(
+        Box(
             Modifier
                 .fillMaxSize()
-                .onGloballyPositioned { coordinates ->
-                    val widthPx = coordinates.size.width
-                    availableWidth = with(density) { widthPx.toDp() }.value.dp
-                }
-                .pointerInteropFilter {
-                    when (it.action) {
-                        MotionEvent.ACTION_DOWN -> {
-                            fabMenuExpanded = false
-
-                        }
-                    }
-                    false
-                },
-            state = listState
+                .background(documentsColorSection)
         ) {
-            item { Spacer(Modifier.height(innerPadding.calculateTopPadding())) }
-            item { Spacer(Modifier.height(24.dp)) }
-            item {
-                HomeScreenSectionTitle(
-                    title = stringResource(R.string.your_piles),
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-            }
-            item { Spacer(Modifier.height(8.dp)) }
+            LazyColumn(
+                Modifier
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .onGloballyPositioned { coordinates ->
+                        val widthPx = coordinates.size.width
+                        availableWidth = with(density) { widthPx.toDp() }.value.dp
+                    }
+                    .pointerInteropFilter {
+                        when (it.action) {
+                            MotionEvent.ACTION_DOWN -> {
+                                fabMenuExpanded = false
 
-            itemPileGrid(
-                availableWidth = availableWidth,
-                piles = uiState.pileModels,
-                onPileClick = navigateToEditPiles,
-                onNewPileClick = { isNewPileAlertExpanded = true }
-            )
-
-            item { Spacer(Modifier.height(30.dp)) }
-            item {
-                Column(
-                    Modifier
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 24.dp,
-                                topEnd = 24.dp
-                            )
-                        )
-                        .background(documentsColorSection)
-                        .padding(top = 16.dp)
-                ) {
+                            }
+                        }
+                        false
+                    },
+                state = listState
+            ) {
+                item { Spacer(Modifier.height(innerPadding.calculateTopPadding())) }
+                item { Spacer(Modifier.height(24.dp)) }
+                item {
                     HomeScreenSectionTitle(
-                        title = stringResource(R.string.all_documents),
-                        modifier = Modifier
-
-                            .padding(horizontal = 16.dp)
+                        title = stringResource(R.string.your_piles),
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
-                    Spacer(Modifier.height(8.dp))
                 }
-            }
-            itemDocumentsCompleteList(
-                availableWidth = availableWidth,
-                backgroundColor = documentsColorSection,
-                documents = uiState.documentList
-            )
-            item {
-                Box(
-                    Modifier
-                        .height(52.dp)
-                        .fillMaxWidth()
-                        .background(documentsColorSection)
+                item { Spacer(Modifier.height(8.dp)) }
+
+                itemPileGrid(
+                    availableWidth = availableWidth,
+                    piles = uiState.pileModels,
+                    onPileClick = navigateToEditPiles,
+                    onNewPileClick = { isNewPileAlertExpanded = true }
                 )
+
+                item { Spacer(Modifier.height(30.dp)) }
+                item {
+                    Column(
+                        Modifier
+                            .clip(
+                                RoundedCornerShape(
+                                    topStart = 24.dp,
+                                    topEnd = 24.dp
+                                )
+                            )
+                            .background(documentsColorSection)
+                            .padding(top = 16.dp)
+                    ) {
+                        HomeScreenSectionTitle(
+                            title = stringResource(R.string.all_documents),
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                        )
+                        Spacer(Modifier.height(8.dp))
+                    }
+                }
+                itemDocumentsCompleteList(
+                    availableWidth = availableWidth,
+                    backgroundColor = documentsColorSection,
+                    documents = uiState.documentList
+                )
+                item {
+                    Box(
+                        Modifier
+                            .height(52.dp)
+                            .fillMaxWidth()
+                            .background(documentsColorSection)
+                    )
+                }
             }
         }
 

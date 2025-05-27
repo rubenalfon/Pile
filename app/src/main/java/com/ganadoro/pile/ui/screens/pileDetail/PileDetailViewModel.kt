@@ -23,13 +23,13 @@ class PileDetailViewModel(
     private val _uiState = MutableStateFlow(PileDetailUiState())
     val uiState: StateFlow<PileDetailUiState> = _uiState.asStateFlow()
 
-    fun loadPile(pileId: UUID) {
+    fun loadPile(pileId: String) {
         viewModelScope.launch {
-            val pile = pileModelRepository.getPileModelById(pileId.toString())
+            val pile = pileModelRepository.getPileModelById(pileId)
             _uiState.value = _uiState.value.copy(pile = pile)
         }
 
-        _uiState.value.documentList = listOf(
+        _uiState.value.documentList = listOf( // TODO: Remove and search in db
             DocumentModel(
                 id = UUID.randomUUID().toString(),
                 title = "Mi documento",

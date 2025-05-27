@@ -3,6 +3,7 @@ package com.ganadoro.pile.ui.screens.pileDetail
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -46,32 +47,26 @@ import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
 import org.koin.androidx.compose.getViewModel
-import java.util.UUID
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PileDetailScreen(
     modifier: Modifier = Modifier,
-    id: UUID,
+    pileID: String,
     popBackStack: () -> Unit,
     viewModel: PileDetailViewModel = getViewModel<PileDetailViewModel>()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     if (uiState.pile == null) {
-        viewModel.loadPile(id)
-    }
-
-    if (uiState.pile == null || uiState.documentList.isEmpty()) {
+        viewModel.loadPile(pileID)
         return
     }
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     var isUpdatePileExpanded by rememberSaveable { mutableStateOf(false) }
-
     var isDeletePileExpanded by rememberSaveable { mutableStateOf(false) }
-
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -91,6 +86,7 @@ fun PileDetailScreen(
 
             LazyColumn(
                 modifier = Modifier
+                    .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surface)
                     .onGloballyPositioned { coordinates ->
                         val widthPx = coordinates.size.width

@@ -8,9 +8,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.ganadoro.pile.ui.screens.pileDetail.PileDetailScreen
 import com.ganadoro.pile.ui.screens.home.HomeScreen
-import java.util.UUID
+import com.ganadoro.pile.ui.screens.pileDetail.PileDetailScreen
 
 @Composable
 fun NavGraph(modifier: Modifier = Modifier, navController: NavHostController) {
@@ -37,7 +36,6 @@ private fun addHomeScreen(
                 )
             }
         )
-
     }
 }
 
@@ -51,8 +49,15 @@ private fun addPileDetailScreen(
         })
     ) { navBackStackEntry ->
         val args = navBackStackEntry.arguments
+        val pileID = args?.getString(NavRoute.PileDetail.id)
+
+        if (pileID.isNullOrBlank()) {
+            navController.popBackStack()
+            return@composable
+        }
+
         PileDetailScreen(
-            id = UUID.fromString(args?.getString(NavRoute.PileDetail.id)),
+            pileID = pileID,
             popBackStack = {
                 navController.popBackStack()
             }
