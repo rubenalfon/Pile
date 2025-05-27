@@ -16,11 +16,12 @@ lifecycle = "2.9.0"
 
 koin = "3.4.0"
 
-
 napier = "2.7.1"
 material = "1.12.0"
 
 sqlDelight = "2.1.0"
+
+kotlinxSerializationJson = "1.8.1"
 
 [libraries]
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
@@ -61,9 +62,14 @@ material = { group = "com.google.android.material", name = "material", version.r
 sqlDelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
 sqlDelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
 
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
 sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
 

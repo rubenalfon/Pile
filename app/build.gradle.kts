@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.sqlDelight)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 android {
@@ -44,6 +45,9 @@ android {
 }
 
 dependencies {
+
+    // Serialization
+    implementation(libs.kotlinx.serialization.json)
 
     // SQL Delight Driver and Extension
     implementation(libs.sqlDelight.android.driver)

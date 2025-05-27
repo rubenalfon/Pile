@@ -8,11 +8,16 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.ganadoro.pile.Database
 import com.ganadoro.pile.DatabaseQueries
+import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.models.DocumentDetail
 import com.ganadoro.pile.util.AppIcon
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import java.time.LocalDate
+import kotlinx.serialization.json.Json
+
+
 
 val databaseModule = module {
     single<Database> {
@@ -20,6 +25,14 @@ val databaseModule = module {
             driver = get(),
             PileModelAdapter = PileModel.Adapter(
                 iconAdapter = get(named("ImageVectorStringAdapter"))
+            ),
+            DocumentModelAdapter = DocumentModel.Adapter(
+                creationDateAdapter = get(named("LocalDateStringAdapter")),
+                modificationDateAdapter = get(named("LocalDateStringAdapter")),
+                documentPileIdsAdapter = get(named("StringListAdapter")),
+                documentDetailsAdapter = get(named("DocumentDetailListAdapter")),
+                documentOrganizationIdsAdapter = get(named("StringListAdapter"))
+
             )
         )
     }
@@ -57,6 +70,28 @@ val databaseModule = module {
                 }
 
             override fun encode(value: LocalDate): String = value.toString()
+        }
+    }
+
+    single<ColumnAdapter<List<String>, String>>(named("StringListAdapter")) {
+        object : ColumnAdapter<List<String>, String> {
+            override fun decode(databaseValue: String): List<String> {
+                return Json.decodeFromString(databaseValue)
+            }
+            override fun encode(value: List<String>): String {
+                return Json.encodeToString(value)
+            }
+        }
+    }
+
+    single<ColumnAdapter<List<DocumentDetail>, String>>(named("DocumentDetailListAdapter")) {
+        object : ColumnAdapter<List<DocumentDetail>, String> {
+            override fun decode(databaseValue: String): List<DocumentDetail> {
+                return Json.decodeFromString(databaseValue)
+            }
+            override fun encode(value: List<DocumentDetail>): String {
+                return Json.encodeToString(value)
+            }
         }
     }
 }

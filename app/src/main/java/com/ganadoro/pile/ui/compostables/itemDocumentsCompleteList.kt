@@ -10,17 +10,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ganadoro.pile.models.DocumentModelLocal
+import com.ganadoro.pile.DocumentModel
 import java.time.LocalDate
 
 fun LazyListScope.itemDocumentsCompleteList(
     availableWidth: Dp,
     backgroundColor: Color = Color.Transparent,
-    documents: List<DocumentModelLocal>,
+    documents: List<DocumentModel>,
 ) {
-    val groupedDocuments: List<Pair<LocalDate, List<DocumentModelLocal>>> =
+    val groupedDocuments: List<Pair<LocalDate, List<DocumentModel>>> =
         documents
-            .groupBy { it.date }
+            .groupBy { it.modificationDate }
             .toSortedMap(compareByDescending { it })
             .map { (date, docs) -> date to docs }
 

@@ -1,9 +1,16 @@
 import androidx.compose.ui.graphics.vector.ImageVector;
+import com.ganadoro.pile.models.DocumentDetail;
+import java.time.LocalDate;
+import kotlin.String;
+import kotlin.collections.List;
+
+
+-- PileModel
 
 CREATE TABLE IF NOT EXISTS PileModel(
-    id              TEXT        PRIMARY KEY,
-    name            TEXT        NOT NULL,
-    icon            TEXT        AS ImageVector NOT NULL ,
+    id              TEXT                    PRIMARY KEY,
+    name            TEXT                    NOT NULL,
+    icon            TEXT AS ImageVector     NOT NULL ,
     colorNumber     INTEGER
 );
 
@@ -34,3 +41,82 @@ removePileModel:
 DELETE FROM PileModel
 WHERE PileModel.id = ?;
 
+
+-- DocumentOrganization
+
+CREATE TABLE IF NOT EXISTS DocumentOrganization(
+    id              TEXT        PRIMARY KEY,
+    name            TEXT        NOT NULL
+);
+
+insertDocumentOrganization:
+INSERT INTO DocumentOrganization(id, name)
+VALUES(?, ?);
+
+selectAllDocumentOrganizations:
+SELECT *
+FROM DocumentOrganization;
+
+selectDocumentOrganizationById:
+SELECT *
+FROM DocumentOrganization
+WHERE id = ?;
+
+removeDocumentOrganization:
+DELETE FROM DocumentOrganization
+WHERE id = ?;
+
+
+-- DocumentModel
+
+CREATE TABLE IF NOT EXISTS DocumentModel(
+    id                          TEXT                            PRIMARY KEY,
+    title                       TEXT                            NOT NULL,
+    creationDate                TEXT AS LocalDate               NOT NULL,
+    modificationDate            TEXT AS LocalDate               NOT NULL,
+    documentPileIds             TEXT AS List<String>            NOT NULL,
+    documentDetails             TEXT AS List<DocumentDetail>    NOT NULL,
+    documentOrganizationIds     TEXT AS List<String>            NOT NULL
+);
+
+insertDocumentModel:
+INSERT INTO DocumentModel(id, title, creationDate, modificationDate, documentPileIds, documentDetails, documentOrganizationIds)
+VALUES(?, ?, ?, ?, ?, ?, ?);
+
+selectAllDocumentModels:
+SELECT *
+FROM DocumentModel;
+
+selectDocumentModelById:
+SELECT *
+FROM DocumentModel
+WHERE id = ?;
+
+removeDocumentModel:
+DELETE FROM DocumentModel
+WHERE id = ?;
+
+updateDocumentTitle:
+UPDATE DocumentModel
+SET title = ?
+WHERE id = ?;
+
+updateDocumentModificationDate:
+UPDATE DocumentModel
+SET modificationDate = ?
+WHERE id = ?;
+
+updateDocumentPileIds:
+UPDATE DocumentModel
+SET documentPileIds = ?
+WHERE id = ?;
+
+updateDocumentDetails:
+UPDATE DocumentModel
+SET documentDetails = ?
+WHERE id = ?;
+
+updateDocumentOrganizationIds:
+UPDATE DocumentModel
+SET documentOrganizationIds = ?
+WHERE id = ?;

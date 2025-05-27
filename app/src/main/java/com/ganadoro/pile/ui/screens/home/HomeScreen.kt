@@ -1,5 +1,6 @@
 package com.ganadoro.pile.ui.screens.home
 
+import android.net.Uri
 import android.view.MotionEvent
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -94,8 +95,8 @@ fun HomeScreen(
                 onImportPDF = {
                     viewModel.importPDFIntent()
                 },
-                onImportFromGallery = {
-                    viewModel.importFromGalleryIntent()
+                onImportFromGallery = { uriList ->
+                    viewModel.importFromGalleryIntent(uriList)
                 },
                 onTakeAPhoto = {
 
@@ -208,20 +209,19 @@ fun FabMenu( // TODO: Move
     fabMenuExpanded: Boolean,
     updateFabMenuExpanded: (Boolean) -> Unit = {},
     onImportPDF: () -> Unit = {},
-    onImportFromGallery: () -> Unit = {},
+    onImportFromGallery: (uriList: List<Uri>) -> Unit = {},
     onTakeAPhoto: () -> Unit = {}
 ) {
 
     val pickMedia =
-        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uri ->
-            // Callback is invoked after the user selects a media item or closes the
-            // photo picker.
-            if (uri != null) {
-                Napier.d { "PhotoPicker: $uri" }
-                onTakeAPhoto.invoke()
-            } else {
+        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uriList ->
+            if (uriList == null) {
                 Napier.d { "PhotoPicker: No media selected" }
+                return@rememberLauncherForActivityResult
             }
+
+            Napier.d { "PhotoPicker: $uriList" }
+            onImportFromGallery.invoke(uriList)
         }
 
     val items: List<Triple<Painter, String, () -> Unit>> =
@@ -256,13 +256,13 @@ fun FabMenu( // TODO: Move
         expanded = fabMenuExpanded,
         button = {
             ToggleFloatingActionButton(
-                modifier =
-                    Modifier
-                        .semantics {
-                            traversalIndex = -1f
-                            stateDescription = if (fabMenuExpanded) expandedString else collapsedString
-                            contentDescription = toggleMenuString
-                        },
+                modifier = Modifier
+                    .semantics {
+                        traversalIndex = -1f
+                        stateDescription =
+                            if (fabMenuExpanded) expandedString else collapsedString
+                        contentDescription = toggleMenuString
+                    },
                 checked = fabMenuExpanded,
                 onCheckedChange = { updateFabMenuExpanded(it) }
             ) {
@@ -285,17 +285,16 @@ fun FabMenu( // TODO: Move
                     Modifier.semantics {
                         isTraversalGroup = true
                         if (i == items.size - 1) {
-                            customActions =
-                                listOf(
-                                    CustomAccessibilityAction(
-                                        label = closeMenuString,
-                                        action = {
-                                            item.third
-                                            updateFabMenuExpanded(false)
-                                            true
-                                        }
-                                    )
+                            customActions = listOf(
+                                CustomAccessibilityAction(
+                                    label = closeMenuString,
+                                    action = {
+                                        item.third
+                                        updateFabMenuExpanded(false)
+                                        true
+                                    }
                                 )
+                            )
                         }
                     },
                 onClick = {

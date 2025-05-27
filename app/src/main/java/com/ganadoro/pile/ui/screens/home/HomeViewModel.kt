@@ -2,12 +2,14 @@ package com.ganadoro.pile.ui.screens.home
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Quiz
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
-import com.ganadoro.pile.models.DocumentModelLocal
+import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
 import com.ganadoro.pile.util.createSimplePdf
 import io.github.aakira.napier.Napier
@@ -23,13 +25,14 @@ import java.util.UUID
 
 data class HomeUiState(
     var pileModels: List<PileModel> = emptyList(),
-    var documentList: List<DocumentModelLocal> = emptyList()
+    var documentList: List<DocumentModel> = emptyList()
 )
 
 @SuppressLint("StaticFieldLeak")
 class HomeViewModel(
     private val context: Context, // Is safe,
-    private val pileModelRepository: PileModelRepository
+    private val pileModelRepository: PileModelRepository,
+    private val documentModelRepository: DocumentModelRepository
 ) : ViewModel() {
     private var _uiState = MutableStateFlow(HomeUiState())
     var uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -41,80 +44,37 @@ class HomeViewModel(
                     _uiState.update { it.copy(pileModels = piles) }
                 }
             }
+            launch {
+                if (documentModelRepository.getAllDocumentModels().isEmpty()) {
+                    val newDocument = DocumentModel(
+                        id = UUID.randomUUID().toString(),
+                        title = "Mi documento",
+                        creationDate = LocalDate.of(2025, 4, 1),
+                        modificationDate = LocalDate.of(2025, 4, 1),
+                        documentDetails = emptyList(),
+                        documentOrganizationIds = emptyList(),
+                        documentPileIds = emptyList()
+                    )
+
+                    documentModelRepository.insertDocumentModel(newDocument)
+                }
+
+                documentModelRepository.documentModels.collect { documents ->
+                    _uiState.update { it.copy(documentList = documents) }
+                }
+            }
         }
 
         _uiState.value.documentList = listOf(
-            DocumentModelLocal(
-                id = UUID.randomUUID(),
+            DocumentModel(
+                id = UUID.randomUUID().toString(),
                 title = "Mi documento",
-                documentRoute = ""
+                creationDate = LocalDate.of(2025, 4, 1),
+                modificationDate = LocalDate.of(2025, 4, 1),
+                documentDetails = emptyList(),
+                documentOrganizationIds = emptyList(),
+                documentPileIds = emptyList()
             ),
-            DocumentModelLocal(
-                id = UUID.randomUUID(),
-                title = "Mi documento",
-                date = LocalDate.of(2025, 4, 1),
-                documentRoute = ""
-            ), DocumentModelLocal(
-                id = UUID.randomUUID(),
-                title = "Mi documento",
-                date = LocalDate.of(2025, 4, 1),
-                documentRoute = ""
-            ),
-            DocumentModelLocal(
-                id = UUID.randomUUID(),
-                title = "Mi documento",
-                date = LocalDate.of(2025, 4, 1),
-                documentRoute = ""
-            ), DocumentModelLocal(
-                id = UUID.randomUUID(),
-                title = "Mi documento",
-                date = LocalDate.of(2025, 4, 1),
-                documentRoute = ""
-            ),
-            DocumentModelLocal(
-                id = UUID.randomUUID(),
-                title = "Mi documento",
-                date = LocalDate.of(2025, 4, 1),
-                documentRoute = ""
-            ), DocumentModelLocal(
-                id = UUID.randomUUID(),
-                title = "Mi documento",
-                date = LocalDate.of(2025, 4, 1),
-                documentRoute = ""
-            ),
-            DocumentModelLocal(
-                id = UUID.randomUUID(),
-                title = "Mi documento",
-                date = LocalDate.of(2025, 4, 1),
-                documentRoute = ""
-            ), DocumentModelLocal(
-                id = UUID.randomUUID(),
-                title = "Mi documento",
-                date = LocalDate.of(2025, 4, 1),
-                documentRoute = ""
-            ),
-            DocumentModelLocal(
-                id = UUID.randomUUID(),
-                title = "Mi documento",
-                date = LocalDate.of(2025, 4, 5),
-                documentRoute = ""
-            ), DocumentModelLocal(
-                id = UUID.randomUUID(),
-                title = "Mi documento",
-                date = LocalDate.of(2025, 4, 5),
-                documentRoute = ""
-            ),
-            DocumentModelLocal(
-                id = UUID.randomUUID(),
-                title = "Mi documento",
-                date = LocalDate.of(2025, 4, 5),
-                documentRoute = ""
-            ),
-            DocumentModelLocal(
-                id = UUID.randomUUID(),
-                title = "Mi documento",
-                documentRoute = ""
-            )
         )
     }
 
@@ -162,9 +122,12 @@ class HomeViewModel(
         }
     }
 
-    fun importFromGalleryIntent() {
+    fun importFromGalleryIntent(uriList: List<Uri>) {
         Napier.d { "importFromGalleryIntent" }
+
+
 // TODO: Mover esto a donde se tenga que abrir el pdf del file
+//
 //        val file = File(context.filesDir, "FILE3.pdf")
 //
 //        if (!file.exists()) {

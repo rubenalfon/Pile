@@ -19,15 +19,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.R
-import com.ganadoro.pile.models.DocumentModelLocal
 import java.util.UUID
 
 @Composable
 fun Document(
-    documentModel: DocumentModelLocal,
+    documentModel: DocumentModel,
     modifier: Modifier = Modifier,
-    onClick: (id: UUID) -> Unit = {}
+    onClick: (id: String) -> Unit = {}
 ) {
     Column(
         modifier = modifier
