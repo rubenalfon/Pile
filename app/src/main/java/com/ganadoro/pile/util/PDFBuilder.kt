@@ -7,7 +7,7 @@ import android.graphics.Paint
 import java.io.File
 import java.io.FileOutputStream
 
-fun createSimplePdf(context: Context, fileName: String = "FILE.pdf") : PdfDocument {
+fun createSimplePdf(context: Context, fileName: String = "FILE.pdf") : PdfDocument {// TODO: REEMPLAZAR
     val file = File(context.filesDir, fileName)
 
     // Crea un nuevo documento PDF

@@ -46,6 +46,9 @@ android {
 
 dependencies {
 
+    // ExifInterface
+    implementation(libs.androidx.exifinterface)
+
     // Serialization
     implementation(libs.kotlinx.serialization.json)
 
