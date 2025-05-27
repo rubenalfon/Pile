@@ -21,7 +21,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.R
-import java.util.UUID
 
 @Composable
 fun Document(
