@@ -23,6 +23,7 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -45,51 +46,9 @@ class HomeViewModel(
     init {
         viewModelScope.launch {
             launch {
-                if (pileModelRepository.getAllPileModels().isEmpty()) {
-                    val exampleList = listOf(
-                        PileModel(
-                            id = UUID.randomUUID().toString(),
-                            name = "Home",
-                            icon = Icons.Default.Home,
-                            colorNumber = 0
-                        ),
-                        PileModel(
-                            id = UUID.randomUUID().toString(),
-                            name = "Work",
-                            icon = Icons.Default.AddRoad,
-                            colorNumber = 1
-                        ),
-                        PileModel(
-                            id = UUID.randomUUID().toString(),
-                            name = "Church",
-                            icon = Icons.Default.CircleNotifications,
-                            colorNumber = 23
-                        ),
-                        PileModel(
-                            id = UUID.randomUUID().toString(),
-                            name = "Legal",
-                            icon = Icons.Default.Work,
-                            colorNumber = 7
-                        ),
-                        PileModel(
-                            id = UUID.randomUUID().toString(),
-                            name = "Vehicles",
-                            icon = Icons.Default.DirectionsCar,
-                            colorNumber = 29
-                        ),
-                        PileModel(
-                            id = UUID.randomUUID().toString(),
-                            name = "Nighttime",
-                            icon = Icons.Default.Bedtime,
-                            colorNumber = null
-                        )
-                    )
-                    for (pile in exampleList) {
-                        pileModelRepository.insertPileModel(pile)
-                    }
+                pileModelRepository.pileModels.collect { piles ->
+                    _uiState.update { it.copy(pileModels = piles) }
                 }
-
-                _uiState.value.pileModels = pileModelRepository.getAllPileModels()
             }
         }
 

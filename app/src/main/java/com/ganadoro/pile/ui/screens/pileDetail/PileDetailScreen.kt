@@ -83,7 +83,9 @@ fun PileDetailScreen(
                 scrollBehavior = scrollBehavior
             )
         }) { innerPadding ->
-        Box(Modifier.padding(innerPadding)) {
+        Box(Modifier
+            .padding(innerPadding)
+            .padding(top = 8.dp)) {
             var availableWidth by remember { mutableStateOf(0.dp) }
             val density = LocalDensity.current
 
@@ -101,29 +103,12 @@ fun PileDetailScreen(
                 )
             }
 
-            HorizontalFloatingToolbar(
+            ToolBar(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .offset(y = -ScreenOffset),
-                expanded = true,
-                content = {
-                    IconButton(onClick = {
-                        isUpdatePileExpanded = true
-                    }) {
-                        Icon(
-                            painter = painterResource(R.drawable.edit_24px),
-                            contentDescription = stringResource(R.string.edit_pile)
-                        )
-                    }
-                    IconButton(onClick = {
-                        isDeletePileExpanded = true
-                    }) {
-                        Icon(
-                            painter = painterResource(R.drawable.delete_24px),
-                            contentDescription = stringResource(R.string.delete_pile)
-                        )
-                    }
-                }
+                onPileUpdateClicked = { isUpdatePileExpanded = true },
+                onPileDeleteClicked = { isDeletePileExpanded = true }
             )
         }
 
@@ -152,14 +137,43 @@ fun PileDetailScreen(
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private fun ToolBar(
+    modifier: Modifier = Modifier,
+    onPileUpdateClicked: () -> Unit,
+    onPileDeleteClicked: () -> Unit
+) {
+    HorizontalFloatingToolbar(
+        modifier = modifier,
+        expanded = true,
+        content = {
+            IconButton(onClick = onPileUpdateClicked) {
+                Icon(
+                    painter = painterResource(R.drawable.edit_24px),
+                    contentDescription = stringResource(R.string.edit_pile)
+                )
+            }
+            IconButton(onClick = onPileDeleteClicked) {
+                Icon(
+                    painter = painterResource(R.drawable.delete_24px),
+                    contentDescription = stringResource(R.string.delete_pile)
+                )
+            }
+        }
+    )
+}
+
+@Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 private fun TopAppBar(
+    modifier: Modifier = Modifier,
     uiState: PileDetailUiState,
     popBackStack: () -> Unit,
     onSearchClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     LargeFlexibleTopAppBar(
+        modifier = modifier,
         title = {
             Text(
                 uiState.pile!!.name,
@@ -258,7 +272,7 @@ private fun AlertDeletePile(
         title = { Text(stringResource(R.string.delete_pile_alert_title)) },
 
         text = {
-            Text( stringResource(R.string.delete_pile_alert_body))
+            Text(stringResource(R.string.delete_pile_alert_body))
         },
         confirmButton = {
             TextButton(

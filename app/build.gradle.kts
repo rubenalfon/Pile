@@ -45,8 +45,9 @@ android {
 
 dependencies {
 
-    // SQL Delight Driver
+    // SQL Delight Driver and Extension
     implementation(libs.sqlDelight.android.driver)
+    implementation(libs.sqlDelight.coroutines.extensions)
 
     // Material color utilities
     implementation(libs.material.color.utilities)

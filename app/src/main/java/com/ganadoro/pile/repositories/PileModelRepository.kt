@@ -1,10 +1,15 @@
 package com.ganadoro.pile.repositories
 
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import com.ganadoro.pile.DatabaseQueries
 import com.ganadoro.pile.PileModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 
 
 interface PileModelRepository {
+    val pileModels: Flow<List<PileModel>>
     suspend fun getAllPileModels(): List<PileModel>
     suspend fun getPileModelById(id: String): PileModel?
     suspend fun insertPileModel(pileModel: PileModel)
@@ -15,6 +20,12 @@ interface PileModelRepository {
 class PileModelRepositoryImpl(
     private val databaseQueries: DatabaseQueries
 ) : PileModelRepository {
+
+    override val pileModels: Flow<List<PileModel>> = databaseQueries.selectAllPileModels()
+        .asFlow()
+        .mapToList(Dispatchers.IO)
+
+
     override suspend fun getAllPileModels(): List<PileModel> {
         return databaseQueries.selectAllPileModels().executeAsList()
     }
