@@ -1,23 +1,53 @@
 package com.ganadoro.pile.ui.screens.editPDF
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
-import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.repositories.DocumentModelRepository
-import com.ganadoro.pile.ui.screens.home.HomeUiState
+import com.ganadoro.pile.util.renderPdfPages
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import java.io.File
 
 
 data class EditPDFUiState(
     var documentModel: DocumentModel? = null,
-    var documentList: List<DocumentModel> = emptyList()
+    var bitmaps: List<Bitmap> = emptyList(),
+    var selectedImageIndex: Int = 0
 )
 
+@SuppressLint("StaticFieldLeak")
 class EditPDFViewModel(
+    private val context: Context, // Safe
     private val documentModelRepository: DocumentModelRepository
-): ViewModel() {
+) : ViewModel() {
     private var _uiState = MutableStateFlow(EditPDFUiState())
     var uiState: StateFlow<EditPDFUiState> = _uiState.asStateFlow()
+
+    fun loadDocument(documentId: String) {
+        viewModelScope.launch {
+            launch {
+                _uiState.value.documentModel =
+                    documentModelRepository.getDocumentModelById(documentId)
+            }
+            launch {
+                val file = File(context.filesDir, documentId)
+
+                _uiState.value.bitmaps = renderPdfPages(file)
+            }
+        }
+    }
+
+    fun setSelectedImageIndex(index: Int) {
+        _uiState.value = _uiState.value.copy(selectedImageIndex = index)
+    }
+
+    fun addNewImage() {
+
+    }
 }

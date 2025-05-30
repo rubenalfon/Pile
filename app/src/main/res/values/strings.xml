@@ -12,6 +12,7 @@
     <string name="rename">Rename</string>
     <string name="delete">Delete</string>
     <string name="search">Search</string>
+    <string name="add">Add</string>
 
 
     <string name="add_pile">Add Pile</string>
@@ -22,6 +23,16 @@
     <string name="import_pdf_file">Import PDF file</string>
     <string name="import_from_gallery">Import From Gallery</string>
     <string name="take_a_photo">Take a photo</string>
+
+
+    <string name="preview">Preview</string>
+    <string name="edit_image_colors">Edit Image Colors</string>
+    <string name="resize_image">Resize Image</string>
+    <string name="delete_image">Delete Image</string>
+    <string name="add_image">Add Image</string>
+    <string name="image_number">Image number %1$d</string>
+
+
 
 
     <string name="expanded">Expanded</string>

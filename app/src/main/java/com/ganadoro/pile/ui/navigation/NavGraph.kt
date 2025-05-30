@@ -8,6 +8,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.ganadoro.pile.ui.screens.editPDF.EditPDFScreen
 import com.ganadoro.pile.ui.screens.home.HomeScreen
 import com.ganadoro.pile.ui.screens.pileDetail.PileDetailScreen
 
@@ -19,7 +20,10 @@ fun NavGraph(modifier: Modifier = Modifier, navController: NavHostController) {
         modifier = modifier
     ) {
         addHomeScreen(navController = navController, navGraphBuilder = this)
+
         addPileDetailScreen(navController = navController, navGraphBuilder = this)
+
+        addEditPDFScreen(navController = navController, navGraphBuilder = this)
     }
 }
 
@@ -34,6 +38,13 @@ private fun addHomeScreen(
                         id
                     )
                 )
+            },
+            navigateToEditPDF = { id ->
+                navController.navigate(
+                    NavRoute.EditPDF.withArgs(
+                        id
+                    )
+                )
             }
         )
     }
@@ -43,13 +54,13 @@ private fun addPileDetailScreen(
     navController: NavHostController, navGraphBuilder: NavGraphBuilder
 ) {
     navGraphBuilder.composable(
-        route = NavRoute.PileDetail.withArgsFormat(NavRoute.PileDetail.id),
-        arguments = listOf(navArgument(NavRoute.PileDetail.id) {
+        route = NavRoute.PileDetail.withArgsFormat(NavRoute.PileDetail.pileId),
+        arguments = listOf(navArgument(NavRoute.PileDetail.pileId) {
             type = NavType.StringType
         })
     ) { navBackStackEntry ->
         val args = navBackStackEntry.arguments
-        val pileID = args?.getString(NavRoute.PileDetail.id)
+        val pileID = args?.getString(NavRoute.PileDetail.pileId)
 
         if (pileID.isNullOrBlank()) {
             navController.popBackStack()
@@ -58,6 +69,32 @@ private fun addPileDetailScreen(
 
         PileDetailScreen(
             pileID = pileID,
+            popBackStack = {
+                navController.popBackStack()
+            }
+        )
+    }
+}
+
+private fun addEditPDFScreen(
+    navController: NavHostController, navGraphBuilder: NavGraphBuilder
+) {
+    navGraphBuilder.composable(
+        route = NavRoute.EditPDF.withArgsFormat(NavRoute.EditPDF.documentId),
+        arguments = listOf(navArgument(NavRoute.EditPDF.documentId) {
+            type = NavType.StringType
+        })
+    ) { navBackStackEntry ->
+        val args = navBackStackEntry.arguments
+        val documentId = args?.getString(NavRoute.EditPDF.documentId)
+
+        if (documentId.isNullOrBlank()) {
+            navController.popBackStack()
+            return@composable
+        }
+
+        EditPDFScreen(
+            documentId = documentId,
             popBackStack = {
                 navController.popBackStack()
             }

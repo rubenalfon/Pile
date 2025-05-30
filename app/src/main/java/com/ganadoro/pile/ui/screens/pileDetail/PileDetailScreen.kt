@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
@@ -78,9 +77,11 @@ fun PileDetailScreen(
                 scrollBehavior = scrollBehavior
             )
         }) { innerPadding ->
-        Box(Modifier
-            .padding(innerPadding)
-            .padding(top = 8.dp)) {
+        Box(
+            Modifier
+                .padding(innerPadding)
+                .padding(top = 8.dp)
+        ) {
             var availableWidth by remember { mutableStateOf(0.dp) }
             val density = LocalDensity.current
 
@@ -181,7 +182,7 @@ private fun TopAppBar(
         navigationIcon = {
             IconButton(onClick = popBackStack) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    painter = painterResource(R.drawable.arrow_back_24px),
                     contentDescription = stringResource(R.string.return_)
                 )
             }

@@ -73,9 +73,13 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    navigateToEditPiles: (id: String) -> Unit
+    navigateToEditPiles: (pileId: String) -> Unit,
+    navigateToEditPDF: (documentId: String) -> Unit
 ) {
+
     val viewModel = getViewModel<HomeViewModel>()
+
+    viewModel.navigateToEditPDF = navigateToEditPDF
 
     val uiState by viewModel.uiState.collectAsState()
 
@@ -179,7 +183,8 @@ fun HomeScreen(
                 itemDocumentsCompleteList(
                     availableWidth = availableWidth,
                     backgroundColor = documentsColorSection,
-                    documents = uiState.documentList
+                    documents = uiState.documentList,
+                    onDocumentClick = navigateToEditPDF
                 )
                 item {
                     Box(

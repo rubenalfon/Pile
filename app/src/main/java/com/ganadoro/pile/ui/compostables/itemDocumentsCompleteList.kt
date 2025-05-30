@@ -17,6 +17,7 @@ fun LazyListScope.itemDocumentsCompleteList(
     availableWidth: Dp,
     backgroundColor: Color = Color.Transparent,
     documents: List<DocumentModel>,
+    onDocumentClick: (documentId: String) -> Unit = {}
 ) {
     val groupedDocuments: List<Pair<LocalDate, List<DocumentModel>>> =
         documents
@@ -57,7 +58,8 @@ fun LazyListScope.itemDocumentsCompleteList(
             content = { modifier, document ->
                 Document(
                     documentModel = document,
-                    modifier = modifier
+                    modifier = modifier,
+                    onClick = onDocumentClick
                 )
             }
         )

@@ -1,40 +1,15 @@
 package com.ganadoro.pile.util
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.pdf.PdfDocument
-import android.graphics.Canvas
-import android.graphics.Paint
+import android.graphics.pdf.PdfRenderer
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import android.util.Size
+import androidx.core.graphics.createBitmap
 import java.io.File
-import java.io.FileOutputStream
 
-fun createSimplePdf(context: Context, fileName: String = "FILE.pdf") : PdfDocument {// TODO: Borrar
-    val file = File(context.filesDir, fileName)
-
-    // Crea un nuevo documento PDF
-    val pdfDocument = PdfDocument()
-
-    // Define el tamaño de página (A4 estándar, 595x842 puntos)
-    val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
-
-    // Crea una página
-    val page = pdfDocument.startPage(pageInfo)
-    val canvas: Canvas = page.canvas
-
-    val paint = Paint().apply {
-        textSize = 16f
-        isAntiAlias = true
-    }
-
-    // Dibuja texto en el canvas
-    canvas.drawText("¡Hola, esto es un PDF!", 100f, 100f, paint)
-
-    // Finaliza la página
-    pdfDocument.finishPage(page)
-
-    return pdfDocument
-}
 
 suspend fun createPdfWithImages(context: Context, imageUris: List<Uri>, outputFile: File) {
     val pdfDocument = PdfDocument()
@@ -55,5 +30,27 @@ suspend fun createPdfWithImages(context: Context, imageUris: List<Uri>, outputFi
     }
 
     pdfDocument.close()
+}
+
+
+suspend fun renderPdfPages(pdfFile: File): List<Bitmap> { // TODO: Rename
+    val bitmaps = mutableListOf<Bitmap>()
+
+    val fileDescriptor = ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY)
+    val renderer = PdfRenderer(fileDescriptor)
+
+    for (i in 0 until renderer.pageCount) {
+        renderer.openPage(i).use { page ->
+            val bitmap = createBitmap(page.width, page.height)
+
+            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+            bitmaps.add(bitmap)
+        }
+    }
+
+    renderer.close()
+    fileDescriptor.close()
+
+    return bitmaps
 }
 

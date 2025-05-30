@@ -6,12 +6,12 @@ sealed class NavRoute(val path: String) {
     data object Home : NavRoute("home")
 
     data object PileDetail : NavRoute("PileDetail") {
-        const val id = "id"
+        const val pileId = "pileId"
     }
 
-//    data object Document : NavRoute("Document") {
-//        const val id = "id"
-//    }
+    data object EditPDF : NavRoute("EditPDF") {
+        const val documentId = "documentId"
+    }
 
     // build navigation path (for screen navigation)
     fun withArgs(vararg args: String): String {
