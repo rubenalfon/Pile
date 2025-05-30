@@ -100,10 +100,10 @@ class HomeViewModel(
 
         val file = File(context.filesDir, document.id)
 
-        if (file.exists()) { // TODO: Gestionar error
-            Napier.d("No se puede guardar el archivo, ya existe con la ruta: ${file.absolutePath}")
-            return
-        }
+//        if (file.exists()) { // TODO: Gestionar error
+//            Napier.d("No se puede guardar el archivo, ya existe con la ruta: ${file.absolutePath}")
+//            return
+//        }
 
         viewModelScope.launch { // Add a loading indicator maybe in the repository and navigate to editpdf directly
             launch {

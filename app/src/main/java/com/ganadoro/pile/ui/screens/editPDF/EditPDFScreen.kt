@@ -51,9 +51,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,7 +65,6 @@ import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.screens.editPDF.composables.AddItemCarousel
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -175,25 +171,17 @@ private fun ImagePager(
         pageCount = { images.size }
     )
 
-    var isScrollingFromCode by remember { mutableStateOf(false) }
-    var isUserScroll by remember { mutableStateOf(false) }
-
     LaunchedEffect(selectedImageIndex) {
-        if (!isUserScroll && pagerState.currentPage != selectedImageIndex) {
-            Napier.d("Scrolling to $selectedImageIndex")
-            isScrollingFromCode = true
+        if (pagerState.currentPage != selectedImageIndex) {
             pagerState.animateScrollToPage(selectedImageIndex)
-            isScrollingFromCode = false
         }
     }
 
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }
-            .debounce(100)
+            .debounce(120)
             .distinctUntilChanged()
             .collect { page ->
-                Napier.d { "Pager page selected: $page" }
-
                 onSelectImage(page)
             }
     }
@@ -226,6 +214,7 @@ private fun ThumbnailCarousel(
     onNewImage: () -> Unit
 ) {
     val state = rememberCarouselState { images.count() + 1 }
+    // TODO: Navigate to selectedImageIndex when changed from pager
 
     HorizontalMultiBrowseCarousel(
         state = state,

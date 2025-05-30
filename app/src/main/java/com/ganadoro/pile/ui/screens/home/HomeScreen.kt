@@ -342,6 +342,7 @@ private fun UnsavedDocumentCard(
 ) {
     Card(
         modifier = modifier.padding(horizontal = 16.dp),
+        onClick = { onNavigateUnsavedDocument() },
         shape = RoundedCornerShape(16.dp),
         colors = CardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -359,9 +360,7 @@ private fun UnsavedDocumentCard(
                 Modifier.weight(1f)
             )
 
-            IconButton(
-                onClick = onNavigateUnsavedDocument
-            ) {
+            IconButton({}) {
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
                     contentDescription = stringResource(R.string.navigate_to_edit_unsaved_document),
