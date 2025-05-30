@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
 import com.ganadoro.pile.util.createPdfWithImages
@@ -88,7 +89,7 @@ class HomeViewModel(
 
     fun importFromGalleryIntent(uriList: List<Uri>) {
         val document = DocumentModel(
-            id = UUID.randomUUID().toString(),
+            id = TEMP_DOCUMENT_ID,
             title = "",
             creationDate = LocalDate.now(),
             modificationDate = LocalDate.now(),

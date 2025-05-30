@@ -59,7 +59,6 @@ fun PileDetailScreen(
 
     if (uiState.pile == null) {
         viewModel.loadPile(pileID)
-        return
     }
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -71,9 +70,9 @@ fun PileDetailScreen(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                uiState = uiState,
+                pileName = uiState.pile?.name ?: "",
                 popBackStack = popBackStack,
-                onSearchClick = {},
+                onSearchClick = {}, // TODO: Implement search
                 scrollBehavior = scrollBehavior
             )
         }) { innerPadding ->
@@ -85,19 +84,21 @@ fun PileDetailScreen(
             var availableWidth by remember { mutableStateOf(0.dp) }
             val density = LocalDensity.current
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface)
-                    .onGloballyPositioned { coordinates ->
-                        val widthPx = coordinates.size.width
-                        availableWidth = with(density) { widthPx.toDp() }.value.dp
-                    }
-            ) {
-                itemDocumentsCompleteList(
-                    availableWidth = availableWidth,
-                    documents = uiState.documentList
-                )
+            if (uiState.pile != null) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surface)
+                        .onGloballyPositioned { coordinates ->
+                            val widthPx = coordinates.size.width
+                            availableWidth = with(density) { widthPx.toDp() }.value.dp
+                        }
+                ) {
+                    itemDocumentsCompleteList(
+                        availableWidth = availableWidth,
+                        documents = uiState.documentList
+                    )
+                }
             }
 
             ToolBar(
@@ -164,7 +165,7 @@ private fun ToolBar(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 private fun TopAppBar(
     modifier: Modifier = Modifier,
-    uiState: PileDetailUiState,
+    pileName: String,
     popBackStack: () -> Unit,
     onSearchClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
@@ -173,7 +174,7 @@ private fun TopAppBar(
         modifier = modifier,
         title = {
             Text(
-                uiState.pile!!.name,
+                pileName,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

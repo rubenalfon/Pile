@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.util.renderPdfPages
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,7 +31,7 @@ class EditPDFViewModel(
     var uiState: StateFlow<EditPDFUiState> = _uiState.asStateFlow()
 
     fun loadDocument(documentId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             launch {
                 _uiState.value.documentModel =
                     documentModelRepository.getDocumentModelById(documentId)

@@ -66,6 +66,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
+import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.screens.editPDF.composables.AddItemCarousel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.FlowPreview
@@ -85,7 +86,6 @@ fun EditPDFScreen(
 
     if (uiState.documentModel == null) {
         viewModel.loadDocument(documentId)
-        return
     }
 
     Scaffold(
@@ -95,38 +95,40 @@ fun EditPDFScreen(
             ScreenTopAppBar(popBackStack = popBackStack)
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+        LoadingWrapper(
+            uiState.documentModel == null || uiState.bitmaps.isEmpty()
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                ImagePager(
+                    modifier = Modifier.weight(1f),
+                    images = uiState.bitmaps,
+                    selectedImageIndex = uiState.selectedImageIndex,
+                    onSelectImage = { index ->
+                        viewModel.setSelectedImageIndex(index)
+                    }
+                )
+                ThumbnailCarousel(
+                    images = uiState.bitmaps,
+                    selectedImageIndex = uiState.selectedImageIndex,
+                    onSelectImage = { index ->
+                        viewModel.setSelectedImageIndex(index)
+                    },
+                    onNewImage = { viewModel.addNewImage() }
+                )
 
-
-            ImagePager(
-                modifier = Modifier.weight(1f),
-                images = uiState.bitmaps,
-                selectedImageIndex = uiState.selectedImageIndex,
-                onSelectImage = { index ->
-                    viewModel.setSelectedImageIndex(index)
-                }
-            )
-            ThumbnailCarousel(
-                images = uiState.bitmaps,
-                selectedImageIndex = uiState.selectedImageIndex,
-                onSelectImage = { index ->
-                    viewModel.setSelectedImageIndex(index)
-                },
-                onNewImage = { viewModel.addNewImage() }
-            )
-
-            ToolBar(
-                onEditImageColors = { },
-                onResizeImage = { },
-                onDeleteImage = { },
-                onAddDocument = { }
-            )
+                ToolBar(
+                    onEditImageColors = { },
+                    onResizeImage = { },
+                    onDeleteImage = { },
+                    onAddDocument = { }
+                )
+            }
         }
     }
 }
@@ -173,7 +175,6 @@ private fun ImagePager(
         pageCount = { images.size }
     )
 
-
     var isScrollingFromCode by remember { mutableStateOf(false) }
     var isUserScroll by remember { mutableStateOf(false) }
 
@@ -196,17 +197,6 @@ private fun ImagePager(
                 onSelectImage(page)
             }
     }
-
-//    LaunchedEffect(pagerState) {
-//        snapshotFlow { pagerState.currentPage }
-//            .distinctUntilChanged()
-//            .collect { page ->
-//                Napier.d { "Pager page selected: $page" }
-//                if (!isScrollingFromCode && selectedImageIndex != page) {
-//                    onSelectImage(page)
-//                }
-//            }
-//    }
 
     HorizontalPager(
         state = pagerState,

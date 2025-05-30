@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,14 +22,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -63,6 +68,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
+import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
 import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
 import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
@@ -76,7 +82,6 @@ fun HomeScreen(
     navigateToEditPiles: (pileId: String) -> Unit,
     navigateToEditPDF: (documentId: String) -> Unit
 ) {
-
     val viewModel = getViewModel<HomeViewModel>()
 
     viewModel.navigateToEditPDF = navigateToEditPDF
@@ -143,7 +148,20 @@ fun HomeScreen(
                 state = listState
             ) {
                 item { Spacer(Modifier.height(innerPadding.calculateTopPadding())) }
-                item { Spacer(Modifier.height(24.dp)) }
+                item { Spacer(Modifier.height(16.dp)) }
+
+                if (uiState.documentList.any { it.id == TEMP_DOCUMENT_ID }) {
+                    item {
+                        UnsavedDocumentCard(
+                            onNavigateUnsavedDocument = {
+                                navigateToEditPDF(TEMP_DOCUMENT_ID)
+                            }
+                        )
+                    }
+                }
+
+                item { Spacer(Modifier.height(16.dp)) }
+
                 item {
                     HomeScreenSectionTitle(
                         title = stringResource(R.string.your_piles),
@@ -315,6 +333,42 @@ fun FabMenu( // TODO: Move
         }
     }
 
+}
+
+@Composable
+private fun UnsavedDocumentCard(
+    modifier: Modifier = Modifier,
+    onNavigateUnsavedDocument: () -> Unit
+) {
+    Card(
+        modifier = modifier.padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer
+        )
+    ) {
+        Row(
+            Modifier
+                .padding(16.dp)
+        ) {
+            Text(
+                stringResource(R.string.user_document_unsaved_changes),
+                Modifier.weight(1f)
+            )
+
+            IconButton(
+                onClick = onNavigateUnsavedDocument
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = stringResource(R.string.navigate_to_edit_unsaved_document),
+                )
+            }
+        }
+    }
 }
 
 @Composable

@@ -27,16 +27,6 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
 
                     NavGraph(navController = navController)
-//                    // TODO: Remove
-//                    var hasNavegated by rememberSaveable { mutableStateOf(false) }
-//                    if (!hasNavegated) {
-//                        hasNavegated = true
-//                        navController.navigate(
-//                            NavRoute.EditPDF.withArgs(
-//                                "4704d1c8-1fa3-41df-940c-e54b7b297e5d"
-//                            )
-//                        )
-//                    }
                 }
             }
         }
