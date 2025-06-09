@@ -100,10 +100,16 @@ class HomeViewModel(
 
         val file = File(context.filesDir, document.id)
 
-//        if (file.exists()) { // TODO: Gestionar error
-//            Napier.d("No se puede guardar el archivo, ya existe con la ruta: ${file.absolutePath}")
-//            return
-//        }
+        viewModelScope.launch {
+            if (file.exists() || documentModelRepository.getDocumentModelById(document.id) != null) { // TODO: Gestionar error
+//                Napier.d("No se puede guardar el archivo, ya existe con la ruta: ${file.absolutePath}")
+//                return@launch
+
+                file.delete()
+                documentModelRepository.deleteDocumentModel(document.id)
+
+            }
+        }
 
         viewModelScope.launch { // Add a loading indicator maybe in the repository and navigate to editpdf directly
             launch {
@@ -122,6 +128,21 @@ class HomeViewModel(
                 }
             }
         }
+    }
+
+    fun deleteUnsavedDocument() {
+        _uiState.value =
+            _uiState.value.copy(documentList = _uiState.value.documentList.filter { it.id != TEMP_DOCUMENT_ID }) // TODO: Delete
+
+//        viewModelScope.launch {
+//            launch {
+//                documentModelRepository.deleteDocumentModel(TEMP_DOCUMENT_ID)
+//            }
+//            launch(Dispatchers.IO) {
+//                val file = File(context.filesDir, TEMP_DOCUMENT_ID)
+//                file.delete()
+//            }
+//        }
     }
 }
 

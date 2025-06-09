@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -27,10 +28,14 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingToolbarDefaults.ScreenOffset
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,8 +43,10 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconButtonDefaults.smallContainerSize
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.carousel.CarouselDefaults
@@ -51,6 +58,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,11 +76,11 @@ import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.screens.editPDF.composables.AddItemCarousel
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.androidx.compose.getViewModel
 
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun EditPDFScreen(
     modifier: Modifier = Modifier,
@@ -119,6 +129,8 @@ fun EditPDFScreen(
                 )
 
                 ToolBar(
+                    modifier = Modifier
+                        .padding(bottom = ScreenOffset),
                     onEditImageColors = { },
                     onResizeImage = { },
                     onDeleteImage = { },
@@ -159,7 +171,6 @@ private fun ScreenTopAppBar(
     )
 }
 
-@OptIn(FlowPreview::class)
 @Composable
 private fun ImagePager(
     modifier: Modifier = Modifier,
@@ -172,14 +183,15 @@ private fun ImagePager(
     )
 
     LaunchedEffect(selectedImageIndex) {
-        if (pagerState.currentPage != selectedImageIndex) {
-            pagerState.animateScrollToPage(selectedImageIndex)
-        }
+        if (pagerState.isScrollInProgress) return@LaunchedEffect
+
+        if (pagerState.currentPage == selectedImageIndex) return@LaunchedEffect
+
+        pagerState.animateScrollToPage(selectedImageIndex)
     }
 
     LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.currentPage }
-            .debounce(120)
+        snapshotFlow { pagerState.currentPage } // TODO: Fix Performance hit
             .distinctUntilChanged()
             .collect { page ->
                 onSelectImage(page)
@@ -238,8 +250,8 @@ private fun ThumbnailCarousel(
         val isSelected = i == selectedImageIndex
 
         val animatedCornerRadius by animateDpAsState(
-            if (isSelected) 200.dp else 20.dp,
-            animationSpec = MaterialTheme.motionScheme.slowEffectsSpec()
+            if (isSelected) 42.dp else 20.dp,
+            animationSpec = MaterialTheme.motionScheme.slowEffectsSpec(),
         )
 
         Box(
@@ -301,39 +313,101 @@ private fun ToolBar(
     onDeleteImage: () -> Unit,
     onAddDocument: () -> Unit
 ) {
-    HorizontalFloatingToolbar(
+    var isDeleteImageAlertExpanded by rememberSaveable { mutableStateOf(false) }
+
+    Row(
         modifier = modifier,
-        expanded = true,
-        content = {
-            IconButton(onClick = onEditImageColors) {
-                Icon(
-                    painter = painterResource(R.drawable.monochrome_photos_24px),
-                    contentDescription = stringResource(R.string.edit_image_colors)
-                )
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        HorizontalFloatingToolbar(
+            expanded = true,
+            content = {
+                IconButton(onClick = onEditImageColors) {
+                    Icon(
+                        painter = painterResource(R.drawable.monochrome_photos_24px),
+                        contentDescription = stringResource(R.string.edit_image_colors)
+                    )
+                }
+                IconButton(onClick = onResizeImage) {
+                    Icon(
+                        painter = painterResource(R.drawable.transform_24px),
+                        contentDescription = stringResource(R.string.resize_image)
+                    )
+                }
+                IconButton(onClick = onDeleteImage) {
+                    Icon(
+                        painter = painterResource(R.drawable.delete_24px),
+                        contentDescription = stringResource(R.string.delete_image)
+                    )
+                }
             }
-            IconButton(onClick = onResizeImage) {
-                Icon(
-                    painter = painterResource(R.drawable.transform_24px),
-                    contentDescription = stringResource(R.string.resize_image)
-                )
+        )
+        FloatingActionButton(
+            onClick = { isDeleteImageAlertExpanded = true },
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.warning_24px),
+                contentDescription = stringResource(R.string.add_document)
+            )
+        }
+    }
+
+    if (isDeleteImageAlertExpanded) {
+        AlertDeleteImage(
+            onDismiss = { isDeleteImageAlertExpanded = false },
+            onConfirm = { pileName ->
+                isDeleteImageAlertExpanded = false
+                onDeleteImage.invoke()
             }
-            IconButton(onClick = onDeleteImage) {
-                Icon(
-                    painter = painterResource(R.drawable.delete_24px),
-                    contentDescription = stringResource(R.string.delete_image)
-                )
+        )
+    }
+}
+
+
+@Composable
+private fun AlertDeleteImage(
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit,
+    onConfirm: (pileName: String) -> Unit
+) {
+    var pileName by rememberSaveable { mutableStateOf("") }
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.add_pile)) },
+        text = {
+            OutlinedTextField(
+                value = pileName,
+                onValueChange = { pileName = it },
+                label = { Text(stringResource(R.string.pile_name)) },
+                trailingIcon = {
+                    if (pileName.isNotEmpty()) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = null,
+                            modifier = Modifier.clickable { pileName = "" })
+                    }
+                }
+            )
+        },
+        confirmButton = {
+            TextButton(
+                enabled = pileName.isNotEmpty(),
+                onClick = {
+                    onConfirm.invoke(pileName)
+                }
+            ) {
+                Text(stringResource(R.string.new_))
             }
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddDocument,
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.warning_24px),
-                    contentDescription = stringResource(R.string.add_document)
-                )
+        dismissButton = {
+            TextButton(onClick = {
+                onDismiss.invoke()
+            }) {
+                Text(stringResource(R.string.cancel))
             }
         }
     )

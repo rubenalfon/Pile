@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.util.renderPdfPages
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -45,10 +46,18 @@ class EditPDFViewModel(
     }
 
     fun setSelectedImageIndex(index: Int) {
+        viewModelScope.launch {
+
+        Napier.d { "EditPDFViewModel.setSelectedImageIndex: $index" }
         _uiState.value = _uiState.value.copy(selectedImageIndex = index)
+        }
     }
 
     fun addNewImage() {
+
+    }
+
+    fun deleteSelectedImage() {
 
     }
 }
