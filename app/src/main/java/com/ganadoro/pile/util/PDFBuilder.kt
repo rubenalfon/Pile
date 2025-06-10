@@ -54,3 +54,20 @@ suspend fun renderPdfPages(pdfFile: File): List<Bitmap> { // TODO: Rename
     return bitmaps
 }
 
+fun renderFirstPDFPage(pdfFile: File): Bitmap {
+    var bitmap: Bitmap
+
+    val fileDescriptor = ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY)
+    val renderer = PdfRenderer(fileDescriptor)
+
+    renderer.openPage(0).use { page ->
+        bitmap = createBitmap(page.width, page.height)
+
+        page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+    }
+
+    renderer.close()
+    fileDescriptor.close()
+
+    return bitmap
+}

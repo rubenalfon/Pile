@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -44,7 +43,6 @@ import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -67,7 +65,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
@@ -403,23 +400,21 @@ private fun SwipeBox(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
+                if (icon == null) return@Box
+
                 val dismissIndicatorWidth = abs((itemOffset - 16.dp).value).dp
                 Box(
                     contentAlignment = alignment ?: Alignment.TopStart,
                     modifier = Modifier
                         .padding(contentPaddingValues)
-                    .clip(MaterialTheme.shapes.medium)
+                        .clip(MaterialTheme.shapes.medium)
                         .fillMaxHeight()
                         .width(dismissIndicatorWidth)
                         .background(color ?: Color.Transparent)
                 ) {
-                    if (icon == null) return@Box
-
-                        Napier.d { "dismissIndicatorWidth: $dismissIndicatorWidth" }
-
                     this@SwipeToDismissBox.AnimatedVisibility(
                         visible = dismissIndicatorWidth >= 50.dp,
-                        enter = fadeIn(tween( 150)),
+                        enter = fadeIn(tween(150)),
                         exit = fadeOut(tween(100))
                     ) {
                         Icon(
@@ -428,7 +423,6 @@ private fun SwipeBox(
                         )
                     }
                 }
-
             }
         }
     ) {
