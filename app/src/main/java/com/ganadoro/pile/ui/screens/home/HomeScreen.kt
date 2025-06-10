@@ -6,7 +6,11 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -14,10 +18,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,6 +44,7 @@ import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -67,6 +75,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -86,6 +95,7 @@ import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
 import com.ganadoro.pile.ui.screens.home.compostables.itemPileGrid
 import io.github.aakira.napier.Napier
 import org.koin.androidx.compose.getViewModel
+import kotlin.math.abs
 
 @Composable
 fun HomeScreen(
@@ -379,13 +389,10 @@ private fun SwipeBox(
         SwipeToDismissBoxValue.Settled -> {}
     }
 
-    Napier.d { "swipeState" }
-    Napier.d { "swipeState currentValue ordinal: ${swipeState.currentValue.ordinal}" }
-    Napier.d { "swipeState currentValue name: ${swipeState.currentValue.name}" }
-    Napier.d { "swipeState targetValue: ${swipeState.targetValue.ordinal}" }
-    Napier.d { "swipeState targetValue: ${swipeState.targetValue}" }
-    Napier.d { "swipeState progress: ${swipeState.progress}" }
+    val density = LocalDensity.current
+    var itemOffset by remember { mutableStateOf(0.dp) }
 
+    Napier.d { "Swipe: $itemOffset" }
 
     SwipeToDismissBox(
         modifier = modifier.animateContentSize(),
@@ -395,21 +402,43 @@ private fun SwipeBox(
                 contentAlignment = alignment ?: Alignment.TopStart,
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(color ?: Color.Transparent)
             ) {
-                if (icon == null) return@Box
+                val dismissIndicatorWidth = abs((itemOffset - 16.dp).value).dp
+                Box(
+                    contentAlignment = alignment ?: Alignment.TopStart,
+                    modifier = Modifier
+                        .padding(contentPaddingValues)
+                    .clip(MaterialTheme.shapes.medium)
+                        .fillMaxHeight()
+                        .width(dismissIndicatorWidth)
+                        .background(color ?: Color.Transparent)
+                ) {
+                    if (icon == null) return@Box
 
-                Icon(
-                    modifier = Modifier.minimumInteractiveComponentSize(),
-                    imageVector = icon, contentDescription = null
-                )
+                        Napier.d { "dismissIndicatorWidth: $dismissIndicatorWidth" }
+
+                    this@SwipeToDismissBox.AnimatedVisibility(
+                        visible = dismissIndicatorWidth >= 50.dp,
+                        enter = fadeIn(tween( 150)),
+                        exit = fadeOut(tween(100))
+                    ) {
+                        Icon(
+                            modifier = Modifier.minimumInteractiveComponentSize(),
+                            imageVector = icon, contentDescription = null
+                        )
+                    }
+                }
+
             }
         }
     ) {
         Box(
             Modifier
                 .padding(contentPaddingValues)
-                .alpha(0.3f) // TODO: Remove
+                .onGloballyPositioned { coordinates ->
+                    val positionInRoot = coordinates.positionInRoot()
+                    itemOffset = with(density) { positionInRoot.x.toDp() }.value.dp
+                }
         ) {
             content()
         }
