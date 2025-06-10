@@ -28,8 +28,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -43,7 +41,6 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconButtonDefaults.smallContainerSize
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -75,7 +72,6 @@ import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.screens.editPDF.composables.AddItemCarousel
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.androidx.compose.getViewModel
 
@@ -131,9 +127,12 @@ fun EditPDFScreen(
                 ToolBar(
                     modifier = Modifier
                         .padding(bottom = ScreenOffset),
+                    bitmapCount = uiState.bitmaps.count(),
                     onEditImageColors = { },
                     onResizeImage = { },
-                    onDeleteImage = { },
+                    onDeleteImage = {
+                        viewModel.deleteSelectedImage()
+                    },
                     onAddDocument = { }
                 )
             }
@@ -308,6 +307,7 @@ private fun ThumbnailCarousel(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun ToolBar(
     modifier: Modifier = Modifier,
+    bitmapCount: Int,
     onEditImageColors: () -> Unit,
     onResizeImage: () -> Unit,
     onDeleteImage: () -> Unit,
@@ -335,7 +335,10 @@ private fun ToolBar(
                         contentDescription = stringResource(R.string.resize_image)
                     )
                 }
-                IconButton(onClick = onDeleteImage) {
+                IconButton(
+                    enabled = bitmapCount > 1,
+                    onClick = { isDeleteImageAlertExpanded = true }
+                ) {
                     Icon(
                         painter = painterResource(R.drawable.delete_24px),
                         contentDescription = stringResource(R.string.delete_image)
@@ -344,7 +347,7 @@ private fun ToolBar(
             }
         )
         FloatingActionButton(
-            onClick = { isDeleteImageAlertExpanded = true },
+            onClick = onAddDocument,
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ) {
@@ -358,7 +361,7 @@ private fun ToolBar(
     if (isDeleteImageAlertExpanded) {
         AlertDeleteImage(
             onDismiss = { isDeleteImageAlertExpanded = false },
-            onConfirm = { pileName ->
+            onConfirm = {
                 isDeleteImageAlertExpanded = false
                 onDeleteImage.invoke()
             }
@@ -371,36 +374,26 @@ private fun ToolBar(
 private fun AlertDeleteImage(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
-    onConfirm: (pileName: String) -> Unit
+    onConfirm: () -> Unit
 ) {
-    var pileName by rememberSaveable { mutableStateOf("") }
     AlertDialog(
-        modifier = modifier,
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.add_pile)) },
-        text = {
-            OutlinedTextField(
-                value = pileName,
-                onValueChange = { pileName = it },
-                label = { Text(stringResource(R.string.pile_name)) },
-                trailingIcon = {
-                    if (pileName.isNotEmpty()) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = null,
-                            modifier = Modifier.clickable { pileName = "" })
-                    }
-                }
+        icon = {
+            Icon(
+                painter = painterResource(R.drawable.delete_24px),
+                contentDescription = null
             )
         },
+        modifier = modifier,
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.delete_image)) },
+        text = { Text(stringResource(R.string.delete_image_body)) },
         confirmButton = {
             TextButton(
-                enabled = pileName.isNotEmpty(),
                 onClick = {
-                    onConfirm.invoke(pileName)
+                    onConfirm.invoke()
                 }
             ) {
-                Text(stringResource(R.string.new_))
+                Text(stringResource(R.string.delete))
             }
         },
         dismissButton = {

@@ -48,8 +48,8 @@ class EditPDFViewModel(
     fun setSelectedImageIndex(index: Int) {
         viewModelScope.launch {
 
-        Napier.d { "EditPDFViewModel.setSelectedImageIndex: $index" }
-        _uiState.value = _uiState.value.copy(selectedImageIndex = index)
+            Napier.d { "EditPDFViewModel.setSelectedImageIndex: $index" }
+            _uiState.value = _uiState.value.copy(selectedImageIndex = index)
         }
     }
 
@@ -58,6 +58,15 @@ class EditPDFViewModel(
     }
 
     fun deleteSelectedImage() {
+        Napier.d { "DeleteImage selectedImageIndex: ${uiState.value.selectedImageIndex}" }
+
+        val filteredBitmaps = _uiState.value.bitmaps.filterIndexed { index, _ ->
+            index != uiState.value.selectedImageIndex
+        }
+
+        _uiState.value =
+            _uiState.value.copy(bitmaps = filteredBitmaps)
+
 
     }
 }

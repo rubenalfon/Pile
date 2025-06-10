@@ -33,6 +33,7 @@
     <string name="delete_image">Delete Image</string>
     <string name="add_image">Add Image</string>
     <string name="image_number">Image number %1$d</string>
+    <string name="delete_image_body">Are you sure you want to delete this image?</string>
 
 
 
