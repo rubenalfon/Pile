@@ -82,6 +82,7 @@ fun EditPDFScreen(
     modifier: Modifier = Modifier,
     documentId: String,
     popBackStack: () -> Unit,
+    navigateToAddDocument: () -> Unit,
     viewModel: EditPDFViewModel = getViewModel<EditPDFViewModel>()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -133,7 +134,7 @@ fun EditPDFScreen(
                     onDeleteImage = {
                         viewModel.deleteSelectedImage()
                     },
-                    onAddDocument = { }
+                    onAddDocument = navigateToAddDocument
                 )
             }
         }
@@ -181,19 +182,31 @@ private fun ImagePager(
         pageCount = { images.size }
     )
 
+    var isSelectedImageIndexRecent by rememberSaveable { mutableStateOf(false) }
+    var isChangedFromCarouselRecent by rememberSaveable { mutableStateOf(false) }
+
     LaunchedEffect(selectedImageIndex) {
+        if (isChangedFromCarouselRecent) return@LaunchedEffect
+
         if (pagerState.isScrollInProgress) return@LaunchedEffect
 
         if (pagerState.currentPage == selectedImageIndex) return@LaunchedEffect
 
+        isSelectedImageIndexRecent = true
         pagerState.animateScrollToPage(selectedImageIndex)
+        isSelectedImageIndexRecent = false
     }
 
     LaunchedEffect(pagerState) {
+
         snapshotFlow { pagerState.currentPage } // TODO: Fix Performance hit
             .distinctUntilChanged()
             .collect { page ->
+                if (isSelectedImageIndexRecent) return@collect
+
+                isChangedFromCarouselRecent = true
                 onSelectImage(page)
+                isChangedFromCarouselRecent = false
             }
     }
 
@@ -205,7 +218,7 @@ private fun ImagePager(
     ) { page ->
         Image(
             bitmap = images[page].asImageBitmap(),
-            contentDescription = "Image $page",
+            contentDescription = stringResource(R.string.image_number, page + 1),
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(28.dp))
@@ -352,7 +365,7 @@ private fun ToolBar(
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ) {
             Icon(
-                painter = painterResource(R.drawable.warning_24px),
+                painter = painterResource(R.drawable.check_24px),
                 contentDescription = stringResource(R.string.add_document)
             )
         }

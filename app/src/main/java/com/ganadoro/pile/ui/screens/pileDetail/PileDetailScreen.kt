@@ -225,10 +225,11 @@ private fun AlertEditPile(
                     if (newPileName.isNotEmpty()) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.delete_text),
                             modifier = Modifier.clickable { newPileName = "" })
                     }
-                }
+                },
+                singleLine = true
             )
         },
         confirmButton = {

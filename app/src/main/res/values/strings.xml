@@ -15,6 +15,7 @@
     <string name="delete">Delete</string>
     <string name="search">Search</string>
     <string name="add">Add</string>
+    <string name="delete_text">Delete text</string>
 
 
     <string name="add_pile">Add Pile</string>
@@ -34,6 +35,9 @@
     <string name="add_image">Add Image</string>
     <string name="image_number">Image number %1$d</string>
     <string name="delete_image_body">Are you sure you want to delete this image?</string>
+
+    <string name="document_first_image">Document first image</string>
+    <string name="document_name">Document name</string>
 
 
 

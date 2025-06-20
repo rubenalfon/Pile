@@ -13,6 +13,10 @@ sealed class NavRoute(val path: String) {
         const val documentId = "documentId"
     }
 
+    data object AddDocument : NavRoute("AddDocument") {
+        const val documentId = "documentId"
+    }
+
     // build navigation path (for screen navigation)
     fun withArgs(vararg args: String): String {
         return buildString {

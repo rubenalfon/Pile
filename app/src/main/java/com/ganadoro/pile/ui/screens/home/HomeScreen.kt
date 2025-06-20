@@ -517,10 +517,11 @@ private fun AlertNewPile(
                     if (pileName.isNotEmpty()) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.delete_text),
                             modifier = Modifier.clickable { pileName = "" })
                     }
-                }
+                },
+                singleLine = true
             )
         },
         confirmButton = {

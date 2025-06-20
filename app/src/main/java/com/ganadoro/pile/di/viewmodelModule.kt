@@ -16,6 +16,7 @@
  
 package com.ganadoro.pile.di
 
+import com.ganadoro.pile.ui.screens.addDocument.AddDocumentViewModel
 import com.ganadoro.pile.ui.screens.editPDF.EditPDFViewModel
 import com.ganadoro.pile.ui.screens.pileDetail.PileDetailViewModel
 import com.ganadoro.pile.ui.screens.home.HomeViewModel
@@ -26,4 +27,5 @@ val viewmodelModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::PileDetailViewModel)
     viewModelOf(::EditPDFViewModel)
+    viewModelOf(::AddDocumentViewModel)
 }
