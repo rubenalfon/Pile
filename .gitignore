@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+/.idea/codeStyles/Project.xml
+/.idea/codeStyles/codeStyleConfig.xml
