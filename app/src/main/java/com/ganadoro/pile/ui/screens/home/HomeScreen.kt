@@ -97,7 +97,8 @@ import kotlin.math.abs
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    navigateToEditPiles: (pileId: String) -> Unit,
+    navigateToPileDetail: (pileId: String) -> Unit,
+    navigateToDocumentDetail: (documentId: String) -> Unit,
     navigateToEditPDF: (documentId: String) -> Unit
 ) {
     val viewModel = getViewModel<HomeViewModel>()
@@ -195,7 +196,7 @@ fun HomeScreen(
                 itemPileGrid(
                     availableWidth = availableWidth,
                     piles = uiState.pileModels,
-                    onPileClick = navigateToEditPiles,
+                    onPileClick = navigateToPileDetail,
                     onNewPileClick = { isNewPileAlertExpanded = true }
                 )
 
@@ -224,7 +225,7 @@ fun HomeScreen(
                     availableWidth = availableWidth,
                     backgroundColor = documentsColorSection,
                     documents = uiState.documentList,
-                    onDocumentClick = navigateToEditPDF
+                    onDocumentClick = navigateToDocumentDetail
                 )
                 item {
                     Box(

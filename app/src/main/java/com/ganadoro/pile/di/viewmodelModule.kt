@@ -17,6 +17,7 @@
 package com.ganadoro.pile.di
 
 import com.ganadoro.pile.ui.screens.addDocument.AddDocumentViewModel
+import com.ganadoro.pile.ui.screens.documentDetail.DocumentDetailViewModel
 import com.ganadoro.pile.ui.screens.editPDF.EditPDFViewModel
 import com.ganadoro.pile.ui.screens.pileDetail.PileDetailViewModel
 import com.ganadoro.pile.ui.screens.home.HomeViewModel
@@ -26,6 +27,7 @@ import org.koin.dsl.module
 val viewmodelModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::PileDetailViewModel)
+    viewModelOf(::DocumentDetailViewModel)
     viewModelOf(::EditPDFViewModel)
     viewModelOf(::AddDocumentViewModel)
 }

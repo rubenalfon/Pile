@@ -22,6 +22,14 @@
     <string name="pile_name">Pile Name</string>
 
     <string name="add_document">Add Document</string>
+    <string name="change_document_title">Change document title</string>
+    <string name="delete_document">Delete document</string>
+    <string name="save_document">Save document</string>
+    <string name="share_document">Share document</string>
+    <string name="edit_document">Edit document</string>
+
+    <string name="delete_document_alert_title">Delete Document?</string>
+    <string name="delete_document_alert_body">Are you sure you want to delete this document? This action cannot be undone.</string>
 
     <string name="import_pdf_file">Import PDF file</string>
     <string name="import_from_gallery">Import From Gallery</string>

@@ -57,6 +57,33 @@ class PileDetailViewModel(
                 documentOrganizationIds = emptyList(),
                 documentPileIds = emptyList()
             ),
+            DocumentModel(
+                id = UUID.randomUUID().toString(),
+                title = "Mi documento",
+                creationDate = LocalDate.of(2025, 3, 1),
+                modificationDate = LocalDate.of(2025, 3, 1),
+                documentDetails = emptyList(),
+                documentOrganizationIds = emptyList(),
+                documentPileIds = emptyList()
+            ),
+            DocumentModel(
+                id = UUID.randomUUID().toString(),
+                title = "Mi documento",
+                creationDate = LocalDate.of(2025, 3, 1),
+                modificationDate = LocalDate.of(2025, 3, 1),
+                documentDetails = emptyList(),
+                documentOrganizationIds = emptyList(),
+                documentPileIds = emptyList()
+            ),
+            DocumentModel(
+                id = UUID.randomUUID().toString(),
+                title = "Mi documento",
+                creationDate = LocalDate.of(2025, 1, 1),
+                modificationDate = LocalDate.of(2025, 1, 1),
+                documentDetails = emptyList(),
+                documentOrganizationIds = emptyList(),
+                documentPileIds = emptyList()
+            ),
         )
     }
 
