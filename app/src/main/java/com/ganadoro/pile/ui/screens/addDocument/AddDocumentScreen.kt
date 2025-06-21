@@ -69,7 +69,7 @@ fun AddDocumentScreen(
         },
         floatingActionButton = {
             MediumFloatingActionButton(
-                onClick = { /*TODO*/ },
+                onClick = { viewModel.saveDocument() },
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             ) {
