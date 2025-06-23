@@ -35,50 +35,50 @@ class DocumentDetailViewModel(
     fun loadDocument(documentId: String) {
         viewModelScope.launch {
             launch {
-                _uiState.value.documentModel =
-                    documentModelRepository.getDocumentModelById(documentId)
+                _uiState.value = _uiState.value.copy(
+                    documentModel = documentModelRepository.getDocumentModelById(documentId)
+                )
             }
             launch {
                 val file = File(context.filesDir, documentId)
-
-                _uiState.value.bitmaps = renderPdfPages(file)
+                _uiState.value = _uiState.value.copy(bitmaps = renderPdfPages(file))
             }
             launch {
                 try {
-                    _uiState.value.documentPileModels =
-                        _uiState.value.documentModel!!.documentPileIds.map {
+                    _uiState.value = _uiState.value.copy(
+                        documentPileModels = _uiState.value.documentModel!!.documentPileIds.map {
                             pileModelRepository.getPileModelById(it)!!
                         }
+                    )
                 } catch (ex: Exception) {
                     Napier.e("Error loading document piles", ex) // TODO error handling
-                    _uiState.value.documentPileModels = emptyList()
+                    _uiState.value = _uiState.value.copy(documentPileModels = emptyList())
+
                 }
             }
         }
     }
 
-    fun updateDocumentNote(newText: String) {
+    fun updateDocumentNote(newDocumentNote: String) {
         viewModelScope.launch {
-            val updatedDocumentModel = _uiState.value.documentModel?.copy(documentNote = newText)
+            val updatedDocumentModel =
+                _uiState.value.documentModel?.copy(documentNote = newDocumentNote)
+                    ?: return@launch
 
-            if (updatedDocumentModel != null) { // TODO error handling
-                _uiState.value.documentModel = updatedDocumentModel
+            _uiState.value = _uiState.value.copy(documentModel = updatedDocumentModel)
 
-                documentModelRepository.updateDocumentModel(updatedDocumentModel)
-            }
+            documentModelRepository.updateDocumentModel(updatedDocumentModel)
         }
     }
 
     fun renameDocument(newDocumentName: String) {
         viewModelScope.launch {
-            val updatedDocumentModel =
-                _uiState.value.documentModel?.copy(title = newDocumentName)
+            val updatedDocumentModel = _uiState.value.documentModel?.copy(title = newDocumentName)
+                ?: return@launch
 
-            _uiState.value.documentModel = updatedDocumentModel
+            _uiState.value = _uiState.value.copy(documentModel = updatedDocumentModel)
 
-            if (updatedDocumentModel != null) { // TODO error handling
-                documentModelRepository.updateDocumentModel(updatedDocumentModel)
-            }
+            documentModelRepository.updateDocumentModel(updatedDocumentModel)
         }
     }
 

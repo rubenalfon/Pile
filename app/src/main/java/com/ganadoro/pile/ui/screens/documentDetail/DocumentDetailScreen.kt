@@ -123,74 +123,13 @@ fun DocumentDetailScreen(
                     // Details
 
                     // Note
+
                     item {
-                        var isEditing by rememberSaveable { mutableStateOf(false) }
-
-                        var uneditedDocumentNoteDetail by rememberSaveable(stateSaver = TextFieldValueSaver) {
-                            mutableStateOf(
-                                TextFieldValue(documentModel?.documentNote ?: "")
-                            )
-                        }
-
-
-
-                        SectionTitleBar(
-                            title = stringResource(R.string.note),
-                            modifier = Modifier.padding(start = 16.dp, end = 8.dp, bottom = 8.dp),
-                            isSaveMode = isEditing,
-                            onButtonCLick = {
-                                if (isEditing) {
-                                    viewModel.updateDocumentNote(uneditedDocumentNoteDetail.text)
-                                }
-
-                                isEditing = !isEditing
-                            }
+                        DocumentNoteSection(
+                            documentModel = uiState.documentModel,
+                            onUpdateDocumentNote = viewModel::updateDocumentNote
                         )
-
-                        Card(
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                contentColor = MaterialTheme.colorScheme.onSurface
-                            ),
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            if (isEditing) {
-                                val focusRequester = remember { FocusRequester() }
-
-                                LaunchedEffect(Unit) {
-                                    focusRequester.requestFocus()
-                                    uneditedDocumentNoteDetail.copy(
-                                        selection = TextRange(uneditedDocumentNoteDetail.text.length)
-                                    )
-                                }
-
-                                BasicTextField(
-                                    value = uneditedDocumentNoteDetail,
-                                    onValueChange = { newText ->
-                                        uneditedDocumentNoteDetail = newText
-                                    },
-                                    modifier = Modifier
-                                        .focusRequester(focusRequester)
-                                        .padding(16.dp)
-                                        .fillMaxWidth(),
-                                    textStyle = MaterialTheme.typography.bodyMedium.copy(
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    ),
-                                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
-                                )
-                            } else {
-                                Text(
-                                    text = documentModel?.documentNote ?: "",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(16.dp)
-                                )
-                            }
-                        }
                     }
-
 
                     item { Spacer(Modifier.height(16.dp)) }
 
@@ -205,8 +144,6 @@ fun DocumentDetailScreen(
                     item {
                         AddedSection(documentModel = documentModel!!)
                     }
-
-
                 }
             }
 
@@ -247,6 +184,76 @@ fun DocumentDetailScreen(
                 popBackStack()
             }
         )
+    }
+}
+
+@Composable
+private fun DocumentNoteSection(
+    documentModel: DocumentModel?,
+    onUpdateDocumentNote: (newText: String) -> Unit
+) {
+    var isEditing by rememberSaveable { mutableStateOf(false) }
+
+    var uneditedDocumentNoteDetail by rememberSaveable(stateSaver = TextFieldValueSaver) {
+        mutableStateOf(
+            TextFieldValue(documentModel?.documentNote ?: "")
+        )
+    }
+
+    SectionTitleBar(
+        title = stringResource(R.string.note),
+        modifier = Modifier.padding(start = 16.dp, end = 8.dp, bottom = 8.dp),
+        isSaveMode = isEditing,
+        onButtonCLick = {
+            if (isEditing) {
+                onUpdateDocumentNote.invoke(uneditedDocumentNoteDetail.text)
+            }
+
+            isEditing = !isEditing
+        }
+    )
+
+    Card(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        if (isEditing) {
+            val focusRequester = remember { FocusRequester() }
+
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+                uneditedDocumentNoteDetail = uneditedDocumentNoteDetail.copy(
+                    selection = TextRange(uneditedDocumentNoteDetail.text.length)
+                )
+            }
+
+            BasicTextField(
+                value = uneditedDocumentNoteDetail,
+                onValueChange = { newText ->
+                    uneditedDocumentNoteDetail = newText
+                },
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
+            )
+        } else {
+            Text(
+                text = documentModel?.documentNote ?: "",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     }
 }
 
