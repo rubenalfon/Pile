@@ -41,13 +41,11 @@ class AddDocumentViewModel(
     fun loadDocument(documentId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             launch {
-                _uiState.value.documentModel =
-                    documentModelRepository.getDocumentModelById(documentId)
+                _uiState.value = _uiState.value.copy(documentModel = documentModelRepository.getDocumentModelById(documentId))
             }
             launch {
                 val file = File(context.filesDir, documentId)
-
-                _uiState.value.firstPageBitmap = renderFirstPDFPage(file)
+                _uiState.value = _uiState.value.copy(firstPageBitmap = renderFirstPDFPage(file))
             }
         }
     }
@@ -55,7 +53,7 @@ class AddDocumentViewModel(
     fun loadPiles() {
         viewModelScope.launch(Dispatchers.IO) {
             launch {
-                _uiState.value.allPileModels = pileModelRepository.getAllPileModels()
+                _uiState.value = _uiState.value.copy(allPileModels = pileModelRepository.getAllPileModels())
             }
         }
     }

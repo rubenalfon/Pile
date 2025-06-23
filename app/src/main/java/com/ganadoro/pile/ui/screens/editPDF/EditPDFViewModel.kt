@@ -34,20 +34,19 @@ class EditPDFViewModel(
     fun loadDocument(documentId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             launch {
-                _uiState.value.documentModel =
-                    documentModelRepository.getDocumentModelById(documentId)
+                _uiState.value = _uiState.value.copy(
+                    documentModel = documentModelRepository.getDocumentModelById(documentId)
+                )
             }
             launch {
                 val file = File(context.filesDir, documentId)
-
-                _uiState.value.bitmaps = renderPdfPages(file)
+                _uiState.value = _uiState.value.copy(bitmaps = renderPdfPages(file))
             }
         }
     }
 
     fun setSelectedImageIndex(index: Int) {
         viewModelScope.launch {
-
             Napier.d { "EditPDFViewModel.setSelectedImageIndex: $index" }
             _uiState.value = _uiState.value.copy(selectedImageIndex = index)
         }
@@ -64,9 +63,6 @@ class EditPDFViewModel(
             index != uiState.value.selectedImageIndex
         }
 
-        _uiState.value =
-            _uiState.value.copy(bitmaps = filteredBitmaps)
-
-
+        _uiState.value = _uiState.value.copy(bitmaps = filteredBitmaps)
     }
 }

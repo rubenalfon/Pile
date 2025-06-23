@@ -54,24 +54,11 @@ class HomeViewModel(
                 }
             }
         }
-
-        _uiState.value.documentList = listOf(
-            DocumentModel(
-                id = UUID.randomUUID().toString(),
-                title = "Mi documento",
-                creationDate = LocalDate.of(2025, 4, 1),
-                modificationDate = LocalDate.of(2025, 4, 1),
-                documentDetails = emptyList(),
-                documentOrganizationIds = emptyList(),
-                documentNote = "",
-                documentPileIds = emptyList()
-            ),
-        )
     }
 
     fun addPile(pileName: String) {
         viewModelScope.launch {
-            val newPile = PileModel( // TODO
+            val newPile = PileModel( // TODO icono y color seleccionado por el usuario
                 id = UUID.randomUUID().toString(),
                 name = pileName,
                 icon = Icons.Default.Quiz,
@@ -81,8 +68,7 @@ class HomeViewModel(
             pileModelRepository.insertPileModel(newPile)
             Napier.d("Pile added: $pileName")
 
-            _uiState.value =
-                _uiState.value.copy(pileModels = pileModelRepository.getAllPileModels())
+            _uiState.update { it.copy(pileModels = pileModelRepository.getAllPileModels()) }
         }
     }
 
@@ -133,9 +119,10 @@ class HomeViewModel(
         }
     }
 
-    fun deleteUnsavedDocument() {
-        _uiState.value =
-            _uiState.value.copy(documentList = _uiState.value.documentList.filter { it.id != TEMP_DOCUMENT_ID }) // TODO: Delete
+    fun deleteUnsavedDocument() { // TODO: Delete
+        _uiState.update {
+            it.copy(documentList = _uiState.value.documentList.filter { document -> document.id != TEMP_DOCUMENT_ID })
+        }
 
 //        viewModelScope.launch {
 //            launch {
