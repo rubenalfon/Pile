@@ -1,22 +1,25 @@
 package com.ganadoro.pile.models
 
-import java.time.LocalDate
+import kotlinx.serialization.Serializable
 
+@Serializable
 sealed interface DocumentDetail {
     val name: String
 }
-
+@Serializable
 data class StringDetail(
     override val name: String,
     val value: String
 ) : DocumentDetail
 
+@Serializable
 data class FloatDetail(
     override val name: String,
     val value: Float
 ) : DocumentDetail
 
-data class DateDetail(
-    override val name: String,
-    val value: LocalDate
-) : DocumentDetail
+//@Serializable TODO hacer esto
+//data class DateDetail(
+//    override val name: String,
+//    val value: LocalDate
+//) : DocumentDetail

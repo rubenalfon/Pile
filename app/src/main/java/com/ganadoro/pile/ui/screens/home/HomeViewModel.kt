@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.random.Random
 
 data class HomeUiState(
     var pileModels: List<PileModel> = emptyList(),
@@ -62,6 +63,7 @@ class HomeViewModel(
                 modificationDate = LocalDate.of(2025, 4, 1),
                 documentDetails = emptyList(),
                 documentOrganizationIds = emptyList(),
+                documentNote = "",
                 documentPileIds = emptyList()
             ),
         )
@@ -73,7 +75,7 @@ class HomeViewModel(
                 id = UUID.randomUUID().toString(),
                 name = pileName,
                 icon = Icons.Default.Quiz,
-                colorNumber = null
+                colorNumber = Random.nextInt(31).toLong()
             )
 
             pileModelRepository.insertPileModel(newPile)
@@ -95,6 +97,7 @@ class HomeViewModel(
             modificationDate = LocalDate.now(),
             documentDetails = emptyList(),
             documentOrganizationIds = emptyList(),
+            documentNote = "",
             documentPileIds = emptyList()
         )
 

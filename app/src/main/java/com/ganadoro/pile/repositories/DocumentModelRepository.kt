@@ -38,6 +38,7 @@ class DocumentModelRepositoryImpl(
             modificationDate = documentModel.modificationDate,
             documentPileIds = documentModel.documentPileIds,
             documentDetails = documentModel.documentDetails,
+            documentNote = documentModel.documentNote,
             documentOrganizationIds = documentModel.documentOrganizationIds
         )
     }
@@ -47,6 +48,7 @@ class DocumentModelRepositoryImpl(
         databaseQueries.updateDocumentModificationDate(documentModel.modificationDate, documentModel.id)
         databaseQueries.updateDocumentPileIds(documentModel.documentPileIds, documentModel.id)
         databaseQueries.updateDocumentDetails(documentModel.documentDetails, documentModel.id)
+        databaseQueries.updateDocumentNote(documentModel.documentNote, documentModel.id)
         databaseQueries.updateDocumentOrganizationIds(documentModel.documentOrganizationIds, documentModel.id)
     }
 

@@ -108,6 +108,13 @@ private fun addDocumentDetailScreen(
 
         DocumentDetailScreen(
             documentId = documentId,
+            navigateToPileDetail = { id ->
+                navController.navigate(
+                    NavRoute.PileDetail.withArgs(
+                        id
+                    )
+                )
+            },
             popBackStack = {
                 navController.popBackStack()
             }

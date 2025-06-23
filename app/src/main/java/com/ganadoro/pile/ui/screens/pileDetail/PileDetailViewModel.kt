@@ -37,6 +37,7 @@ class PileDetailViewModel(
                 modificationDate = LocalDate.of(2025, 4, 1),
                 documentDetails = emptyList(),
                 documentOrganizationIds = emptyList(),
+                documentNote = "",
                 documentPileIds = emptyList()
             ),
             DocumentModel(
@@ -46,6 +47,7 @@ class PileDetailViewModel(
                 modificationDate = LocalDate.of(2025, 4, 1),
                 documentDetails = emptyList(),
                 documentOrganizationIds = emptyList(),
+                documentNote = "",
                 documentPileIds = emptyList()
             ),
             DocumentModel(
@@ -55,6 +57,7 @@ class PileDetailViewModel(
                 modificationDate = LocalDate.of(2025, 4, 1),
                 documentDetails = emptyList(),
                 documentOrganizationIds = emptyList(),
+                documentNote = "",
                 documentPileIds = emptyList()
             ),
             DocumentModel(
@@ -64,6 +67,7 @@ class PileDetailViewModel(
                 modificationDate = LocalDate.of(2025, 3, 1),
                 documentDetails = emptyList(),
                 documentOrganizationIds = emptyList(),
+                documentNote = "",
                 documentPileIds = emptyList()
             ),
             DocumentModel(
@@ -73,6 +77,7 @@ class PileDetailViewModel(
                 modificationDate = LocalDate.of(2025, 3, 1),
                 documentDetails = emptyList(),
                 documentOrganizationIds = emptyList(),
+                documentNote = "",
                 documentPileIds = emptyList()
             ),
             DocumentModel(
@@ -82,6 +87,7 @@ class PileDetailViewModel(
                 modificationDate = LocalDate.of(2025, 1, 1),
                 documentDetails = emptyList(),
                 documentOrganizationIds = emptyList(),
+                documentNote = "",
                 documentPileIds = emptyList()
             ),
         )

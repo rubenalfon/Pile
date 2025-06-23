@@ -76,12 +76,13 @@ CREATE TABLE IF NOT EXISTS DocumentModel(
     modificationDate            TEXT AS LocalDate               NOT NULL,
     documentPileIds             TEXT AS List<String>            NOT NULL,
     documentDetails             TEXT AS List<DocumentDetail>    NOT NULL,
+    documentNote                TEXT                            NOT NULL,
     documentOrganizationIds     TEXT AS List<String>            NOT NULL
 );
 
 insertDocumentModel:
-INSERT INTO DocumentModel(id, title, creationDate, modificationDate, documentPileIds, documentDetails, documentOrganizationIds)
-VALUES(?, ?, ?, ?, ?, ?, ?);
+INSERT INTO DocumentModel(id, title, creationDate, modificationDate, documentPileIds, documentDetails, documentNote, documentOrganizationIds)
+VALUES(?, ?, ?, ?, ?, ?, ?, ?);
 
 selectAllDocumentModels:
 SELECT *
@@ -114,6 +115,11 @@ WHERE id = ?;
 updateDocumentDetails:
 UPDATE DocumentModel
 SET documentDetails = ?
+WHERE id = ?;
+
+updateDocumentNote:
+UPDATE DocumentModel
+SET documentNote = ?
 WHERE id = ?;
 
 updateDocumentOrganizationIds:

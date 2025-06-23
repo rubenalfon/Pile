@@ -6,9 +6,11 @@ import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
+import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
 import com.ganadoro.pile.util.renderPdfPages
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +19,8 @@ import java.io.File
 
 data class DocumentDetailUiState(
     var documentModel: DocumentModel? = null,
-    var bitmaps: List<Bitmap> = emptyList()
+    var bitmaps: List<Bitmap> = emptyList(),
+    var documentPileModels: List<PileModel>? = null
 )
 
 @SuppressLint("StaticFieldLeak")
@@ -39,6 +42,29 @@ class DocumentDetailViewModel(
                 val file = File(context.filesDir, documentId)
 
                 _uiState.value.bitmaps = renderPdfPages(file)
+            }
+            launch {
+                try {
+                    _uiState.value.documentPileModels =
+                        _uiState.value.documentModel!!.documentPileIds.map {
+                            pileModelRepository.getPileModelById(it)!!
+                        }
+                } catch (ex: Exception) {
+                    Napier.e("Error loading document piles", ex) // TODO error handling
+                    _uiState.value.documentPileModels = emptyList()
+                }
+            }
+        }
+    }
+
+    fun updateDocumentNote(newText: String) {
+        viewModelScope.launch {
+            val updatedDocumentModel = _uiState.value.documentModel?.copy(documentNote = newText)
+
+            if (updatedDocumentModel != null) { // TODO error handling
+                _uiState.value.documentModel = updatedDocumentModel
+
+                documentModelRepository.updateDocumentModel(updatedDocumentModel)
             }
         }
     }
