@@ -1,5 +1,8 @@
 package com.ganadoro.pile.ui.screens.documentDetail
 
+import android.graphics.Bitmap
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -49,10 +54,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -98,31 +107,31 @@ fun DocumentDetailScreen(
                 popBackStack = popBackStack,
                 title = documentModel?.title ?: ""
             ) // TODO is this correct?
-        },
-        floatingActionButton = {
-
         }
     ) { innerPadding ->
         Box(
             Modifier
                 .padding(innerPadding)
-                .padding(top = 8.dp)
         ) {
             LoadingWrapper(
                 documentModel == null || uiState.documentPileModels == null
             ) {
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
+                        .fillMaxSize(),
                     horizontalAlignment = Alignment.Start
                 ) {
                     // Carousel
-
+                    item {
+                        ThumbnailCarousel(
+                            images = uiState.bitmaps,
+                            onClick = { /*TODO open the pdf*/ }
+                        )
+                    }
+                    item { Spacer(Modifier.height(16.dp)) }
 
                     // Details
-
-                    // Note
+//                    item { Spacer(Modifier.height(16.dp)) }
 
                     item {
                         DocumentNoteSection(
@@ -144,6 +153,7 @@ fun DocumentDetailScreen(
                     item {
                         AddedSection(documentModel = documentModel!!)
                     }
+                    item { Spacer(Modifier.height(330.dp)) }
                 }
             }
 
@@ -183,6 +193,74 @@ fun DocumentDetailScreen(
                 viewModel.deleteDocument()
                 popBackStack()
             }
+        )
+    }
+}
+
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+private fun ScreenTopAppBar(
+    modifier: Modifier = Modifier,
+    title: String,
+    popBackStack: () -> Unit,
+) {
+    TopAppBar(
+        modifier = modifier,
+        title = {
+            Text(
+                text = title,
+                maxLines = 1
+            )
+        },
+        navigationIcon = {
+            FilledIconButton(
+                modifier = Modifier
+                    .padding(start = 14.dp, end = 4.dp)
+                    .size(smallContainerSize(IconButtonDefaults.IconButtonWidthOption.Wide)),
+                onClick = popBackStack
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.arrow_back_24px),
+                    contentDescription = stringResource(R.string.return_)
+                )
+            }
+        },
+        colors = topAppBarColors(
+            containerColor = Color.Transparent
+        )
+    )
+}
+
+
+@Composable
+private fun ThumbnailCarousel(
+    modifier: Modifier = Modifier,
+    images: List<Bitmap>,
+    onClick: () -> Unit
+) {
+    val pagerState = rememberPagerState(
+        pageCount = { images.size }
+    )
+
+    HorizontalPager(
+        state = pagerState,
+        pageSpacing = 8.dp,
+        modifier = modifier
+            .height(500.dp)
+            .padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(28.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .clickable { onClick.invoke() }
+    ) { page ->
+        Image(
+            bitmap = images[page].asImageBitmap(),
+            contentDescription = stringResource(R.string.image_number, page + 1),
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(28.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+            contentScale = ContentScale.Fit
         )
     }
 }
@@ -248,49 +326,18 @@ private fun DocumentNoteSection(
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
             )
         } else {
+            val text = if (documentModel?.documentNote.isNullOrEmpty()) stringResource(R.string.add_a_note)
+            else documentModel!!.documentNote
             Text(
-                text = documentModel?.documentNote ?: "",
+                text = text,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .alpha(if (documentModel?.documentNote.isNullOrEmpty()) 0.5f else 1f)
             )
         }
     }
 }
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
-private fun ScreenTopAppBar(
-    modifier: Modifier = Modifier,
-    title: String,
-    popBackStack: () -> Unit,
-) {
-    TopAppBar(
-        modifier = modifier,
-        title = {
-            Text(
-                text = title,
-                maxLines = 1
-            )
-        },
-        navigationIcon = {
-            FilledIconButton(
-                modifier = Modifier
-                    .padding(start = 14.dp, end = 4.dp)
-                    .size(smallContainerSize(IconButtonDefaults.IconButtonWidthOption.Wide)),
-                onClick = popBackStack
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.arrow_back_24px),
-                    contentDescription = stringResource(R.string.return_)
-                )
-            }
-        },
-        colors = topAppBarColors(
-            containerColor = Color.Transparent
-        )
-    )
-}
-
 
 private fun LazyListScope.documentPilesSection(
     documentPileModels: List<PileModel>,
@@ -331,8 +378,24 @@ private fun LazyListScope.documentPilesSection(
             Spacer(Modifier.height(4.dp))
         }
     }
-}
 
+    if (documentPileModels.isEmpty()) {
+        item {
+            Card(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(stringResource(R.string.no_piles_in_document), modifier = Modifier.padding(16.dp))
+            }
+        }
+    }
+}
 
 @Composable
 private fun AddedSection(

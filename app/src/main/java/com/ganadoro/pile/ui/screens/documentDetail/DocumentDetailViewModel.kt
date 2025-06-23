@@ -84,12 +84,8 @@ class DocumentDetailViewModel(
 
     fun deleteDocument() {
         viewModelScope.launch {
-            val documentId = _uiState.value.documentModel?.id
-            if (documentId != null) { // TODO error handling
-                documentModelRepository.deleteDocumentModel(documentId)
-            }
+            val documentId = _uiState.value.documentModel?.id ?: return@launch
+            documentModelRepository.deleteDocumentModel(documentId)
         }
-
     }
-
 }
