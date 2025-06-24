@@ -27,7 +27,7 @@ data class AddDocumentUiState(
     var firstPageBitmap: Bitmap? = null,
     var documentName: String = "",
     var allPileModels: List<PileModel>? = null,
-    var selectedPileModels: List<PileModel> = emptyList(),
+    var selectedPileModelIds: List<String> = emptyList(),
     var noDocumentNameError: Boolean = false
 )
 
@@ -96,7 +96,7 @@ class AddDocumentViewModel(
                     title = _uiState.value.documentName,
                     creationDate = LocalDate.now(),
                     modificationDate = LocalDate.now(),
-                    documentPileIds = _uiState.value.selectedPileModels.map { it.id },
+                    documentPileIds = _uiState.value.selectedPileModelIds,
                     documentDetails = emptyList(),
                     documentOrganizationIds = emptyList()
                 )
@@ -120,7 +120,15 @@ class AddDocumentViewModel(
         }
     }
 
-    fun setSelectedPiles(piles: List<PileModel>) {
-        _uiState.update { it.copy(selectedPileModels = piles) }
+    fun updatePileSelectState(pileId: String) {
+        val piles = _uiState.value.selectedPileModelIds.toMutableList()
+
+        if (piles.contains(pileId)) {
+            piles.remove(pileId)
+        } else {
+            piles.add(pileId)
+        }
+
+        _uiState.update { it.copy(selectedPileModelIds = piles) }
     }
 }

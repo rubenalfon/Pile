@@ -18,7 +18,8 @@ fun LazyListScope.itemPileGrid(
     piles: List<PileModel>,
     coloredPileIds: List<String>,
     onPileClick: (id: String) -> Unit = {},
-    onNewPileClick: () -> Unit = {}
+    onNewPileClick: (() -> Unit)? = null,
+    backgroundColor: Color = Color.Transparent
 ) {
     val addPile = PileModel(
         id = "0",
@@ -27,9 +28,10 @@ fun LazyListScope.itemPileGrid(
         colorNumber = null
     )
 
-    val pilesAddPile = piles + addPile
+    val pilesAddPile = if (onNewPileClick == null) piles else piles + addPile
+
     adaptiveSizeItemsGrid(
-        backgroundColor = Color.Transparent,
+        backgroundColor = backgroundColor,
         availableWidth = availableWidth,
         itemList = pilesAddPile,
         minimumItemWidth = 190.dp,
@@ -53,7 +55,7 @@ fun LazyListScope.itemPileGrid(
                         colorNumber = null
                     ),
                     modifier = modifier,
-                    onClick = { onNewPileClick.invoke() },
+                    onClick = { onNewPileClick?.invoke() },
                     isColored = false
                 )
             }

@@ -22,6 +22,7 @@
     <string name="pile_name">Pile Name</string>
 
     <string name="add_document">Add Document</string>
+    <string name="add_to_piles">Add to piles</string>
     <string name="change_document_title">Change document title</string>
     <string name="delete_document">Delete document</string>
     <string name="save_document">Save document</string>
