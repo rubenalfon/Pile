@@ -49,6 +49,7 @@ fun AddDocumentScreen(
     modifier: Modifier = Modifier,
     documentId: String,
     popBackStack: () -> Unit,
+    navigateToDocumentDetail: (String) -> Unit,
     viewModel: AddDocumentViewModel = getViewModel<AddDocumentViewModel>()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -60,10 +61,10 @@ fun AddDocumentScreen(
         if (uiState.allPileModels == null) {
             viewModel.loadPiles()
         }
+        if (viewModel.navigateToDocumentDetail == null) {
+            viewModel.navigateToDocumentDetail = navigateToDocumentDetail
+        }
     }
-
-
-
 
     Scaffold(
         modifier = modifier,
@@ -125,7 +126,13 @@ fun AddDocumentScreen(
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = 16.dp),
+                    isError = uiState.noDocumentNameError,
+                    supportingText = {
+                        if (uiState.noDocumentNameError) {
+                            Text(stringResource(R.string.document_no_name_error))
+                        }
+                    }
                 )
             }
         }

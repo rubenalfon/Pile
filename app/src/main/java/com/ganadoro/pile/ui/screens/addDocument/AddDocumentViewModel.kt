@@ -27,7 +27,8 @@ data class AddDocumentUiState(
     var firstPageBitmap: Bitmap? = null,
     var documentName: String = "",
     var allPileModels: List<PileModel>? = null,
-    var selectedPileModels: List<PileModel> = emptyList()
+    var selectedPileModels: List<PileModel> = emptyList(),
+    var noDocumentNameError: Boolean = false
 )
 
 @SuppressLint("StaticFieldLeak")
@@ -39,10 +40,18 @@ class AddDocumentViewModel(
     private var _uiState = MutableStateFlow(AddDocumentUiState())
     var uiState: StateFlow<AddDocumentUiState> = _uiState.asStateFlow()
 
+    var navigateToDocumentDetail: ((String) -> Unit)? = null
+
     fun loadDocument(documentId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             launch {
-                _uiState.update { it.copy(documentModel = documentModelRepository.getDocumentModelById(documentId)) }
+                _uiState.update {
+                    it.copy(
+                        documentModel = documentModelRepository.getDocumentModelById(
+                            documentId
+                        )
+                    )
+                }
             }
             launch {
                 val file = File(context.filesDir, documentId)
@@ -64,16 +73,22 @@ class AddDocumentViewModel(
     }
 
     fun saveDocument() {
+        if (_uiState.value.documentName.isBlank()) {
+            _uiState.update { it.copy(noDocumentNameError = true) }
+            return
+        }
+        _uiState.update { it.copy(noDocumentNameError = false) }
+
         viewModelScope.launch(Dispatchers.IO) {
             val newDocumentId = UUID.randomUUID().toString()
             val newDocumentFile = File(context.filesDir, newDocumentId)
 
             if (newDocumentFile.exists()) {
-                Napier.e  { "No se puede crear el documento, ya existe" } // TODO Error handling
+                Napier.e { "No se puede crear el documento, ya existe" } // TODO Error handling
                 return@launch
             }
 
-            launch {
+            val dbJob = launch {
                 var documentModel = _uiState.value.documentModel ?: return@launch
 
                 documentModel = documentModel.copy(
@@ -91,10 +106,16 @@ class AddDocumentViewModel(
                 documentModelRepository.deleteDocumentModel(TEMP_DOCUMENT_ID)
             }
 
-            launch {
+            val fileJob = launch {
                 val oldDocumentFile = File(context.filesDir, TEMP_DOCUMENT_ID)
 
                 oldDocumentFile.renameTo(newDocumentFile)
+            }
+
+            listOf(dbJob, fileJob).forEach { it.join() }
+
+            launch(Dispatchers.Main) {
+                navigateToDocumentDetail?.invoke(newDocumentId)
             }
         }
     }

@@ -176,6 +176,17 @@ private fun addAddDocumentScreen(
             documentId = documentId,
             popBackStack = {
                 navController.popBackStack()
+            },
+            navigateToDocumentDetail = { id ->
+                navController.navigate(
+                    NavRoute.DocumentDetail.withArgs(
+                        id
+                    )
+                ) {
+                    popUpTo(route = NavRoute.Home.path) {
+                        inclusive = false
+                    }
+                }
             }
         )
     }

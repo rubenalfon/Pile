@@ -39,6 +39,7 @@
 
     <string name="add_a_note">Add a note…</string>
     <string name="no_piles_in_document">No piles found in this document.</string>
+    <string name="document_no_name_error">Añade un nombre al documento.</string>
 
     <string name="piles">Piles</string>
     <string name="note">Note</string>
