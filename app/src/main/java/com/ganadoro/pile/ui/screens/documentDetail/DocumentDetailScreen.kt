@@ -49,23 +49,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
@@ -73,7 +67,7 @@ import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.compostables.Pile
 import com.ganadoro.pile.ui.screens.documentDetail.composables.SectionTitleBar
-import com.ganadoro.pile.util.TextFieldValueSaver
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.getViewModel
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -270,25 +264,23 @@ private fun DocumentNoteSection(
     documentModel: DocumentModel?,
     onUpdateDocumentNote: (newText: String) -> Unit
 ) {
-    var isEditing by rememberSaveable { mutableStateOf(false) }
-
-    var uneditedDocumentNoteDetail by rememberSaveable(stateSaver = TextFieldValueSaver) {
+    var unsavedDocumentNoteDetail by rememberSaveable {
         mutableStateOf(
-            TextFieldValue(documentModel?.documentNote ?: "")
+            documentModel?.documentNote ?: ""
         )
+    }
+
+    LaunchedEffect(unsavedDocumentNoteDetail) {
+        delay(500)
+
+        if (unsavedDocumentNoteDetail == documentModel?.documentNote) return@LaunchedEffect
+
+        onUpdateDocumentNote.invoke(unsavedDocumentNoteDetail)
     }
 
     SectionTitleBar(
         title = stringResource(R.string.note),
-        modifier = Modifier.padding(start = 16.dp, end = 8.dp, bottom = 8.dp),
-        isSaveMode = isEditing,
-        onButtonCLick = {
-            if (isEditing) {
-                onUpdateDocumentNote.invoke(uneditedDocumentNoteDetail.text)
-            }
-
-            isEditing = !isEditing
-        }
+        modifier = Modifier.padding(start = 16.dp, end = 8.dp, bottom = 8.dp)
     )
 
     Card(
@@ -301,40 +293,32 @@ private fun DocumentNoteSection(
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
-        if (isEditing) {
-            val focusRequester = remember { FocusRequester() }
-
-            LaunchedEffect(Unit) {
-                focusRequester.requestFocus()
-                uneditedDocumentNoteDetail = uneditedDocumentNoteDetail.copy(
-                    selection = TextRange(uneditedDocumentNoteDetail.text.length)
-                )
-            }
-
+        Box(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+        ) {
             BasicTextField(
-                value = uneditedDocumentNoteDetail,
+                value = unsavedDocumentNoteDetail,
                 onValueChange = { newText ->
-                    uneditedDocumentNoteDetail = newText
+                    unsavedDocumentNoteDetail = newText
                 },
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .padding(16.dp)
-                    .fillMaxWidth(),
+
+                modifier = Modifier.fillMaxWidth(),
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface
                 ),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
             )
-        } else {
-            val text = if (documentModel?.documentNote.isNullOrEmpty()) stringResource(R.string.add_a_note)
-            else documentModel!!.documentNote
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .alpha(if (documentModel?.documentNote.isNullOrEmpty()) 0.5f else 1f)
-            )
+
+            if (unsavedDocumentNoteDetail.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.add_a_note),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    modifier = Modifier.fillMaxWidth() // Asegura que el hint se alinee igual que el texto
+                )
+            }
         }
     }
 }
@@ -391,7 +375,11 @@ private fun LazyListScope.documentPilesSection(
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(stringResource(R.string.no_piles_in_document), modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.bodyMedium )
+                Text(
+                    stringResource(R.string.no_piles_in_document),
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
         }
     }

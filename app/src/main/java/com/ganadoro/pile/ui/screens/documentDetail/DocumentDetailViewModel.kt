@@ -60,6 +60,7 @@ class DocumentDetailViewModel(
     }
 
     fun updateDocumentNote(newDocumentNote: String) {
+       Napier.d { "DocumentDetailViewModel.updateDocumentNote: $newDocumentNote" }
         viewModelScope.launch {
             val updatedDocumentModel =
                 _uiState.value.documentModel?.copy(documentNote = newDocumentNote)
