@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -26,7 +25,6 @@ fun AddItemCarousel(
 ) {
     Column(
         modifier
-            .fillMaxWidth()
             .background(MaterialTheme.colorScheme.tertiaryContainer)
             .clickable { onItemClick.invoke() }
             .padding(10.dp),

@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -42,6 +44,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -99,86 +102,98 @@ fun AddDocumentScreen(
             val density = LocalDensity.current
 
             val colorScheme = MaterialTheme.colorScheme
+            val layoutDirection = LocalLayoutDirection.current
 
-            LazyColumn(
-                modifier = Modifier
+            Box(
+                Modifier
+                    .padding(
+                        top = innerPadding.calculateTopPadding(),
+                        start = innerPadding.calculateStartPadding(layoutDirection),
+                        end = innerPadding.calculateEndPadding(layoutDirection)
+                    )
                     .fillMaxSize()
-                    .padding(innerPadding)
-                    .onGloballyPositioned { coordinates ->
-                        val widthPx = coordinates.size.width
-                        availableWidth = with(density) { widthPx.toDp() }.value.dp
-                    },
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .background(colorScheme.surfaceContainer)
             ) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .size(200.dp)
-                            .clip(RoundedCornerShape(28.dp))
-                            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                    ) {
-                        LoadingWrapper(uiState.firstPageBitmap == null) {
-                            Image(
-                                bitmap = uiState.firstPageBitmap!!.asImageBitmap(),
-                                contentDescription = stringResource(R.string.document_first_image),
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
-                            )
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(bottom = innerPadding.calculateBottomPadding())
+                        .background(colorScheme.surface)
+                        .onGloballyPositioned { coordinates ->
+                            val widthPx = coordinates.size.width
+                            availableWidth = with(density) { widthPx.toDp() }.value.dp
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .size(200.dp)
+                                .clip(RoundedCornerShape(28.dp))
+                                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                        ) {
+                            LoadingWrapper(uiState.firstPageBitmap == null) {
+                                Image(
+                                    bitmap = uiState.firstPageBitmap!!.asImageBitmap(),
+                                    contentDescription = stringResource(R.string.document_first_image),
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
                         }
                     }
-                }
 
-                item { Spacer(Modifier.height(16.dp)) }
+                    item { Spacer(Modifier.height(16.dp)) }
 
-                item {
-                    OutlinedTextField(
-                        value = uiState.documentName,
-                        onValueChange = { viewModel.setDocumentName(it) },
-                        label = { Text(stringResource(R.string.document_name)) },
-                        trailingIcon = {
-                            if (uiState.documentName.isNotEmpty()) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = stringResource(R.string.delete_text),
-                                    modifier = Modifier.clickable { viewModel.setDocumentName("") })
+                    item {
+                        OutlinedTextField(
+                            value = uiState.documentName,
+                            onValueChange = { viewModel.setDocumentName(it) },
+                            label = { Text(stringResource(R.string.document_name)) },
+                            trailingIcon = {
+                                if (uiState.documentName.isNotEmpty()) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = stringResource(R.string.delete_text),
+                                        modifier = Modifier.clickable { viewModel.setDocumentName("") })
+                                }
+                            },
+                            singleLine = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            isError = uiState.noDocumentNameError,
+                            supportingText = {
+                                if (uiState.noDocumentNameError) {
+                                    Text(stringResource(R.string.document_no_name_error))
+                                }
                             }
+                        )
+                    }
+
+                    item { Spacer(Modifier.height(16.dp)) }
+
+                    item {
+                        Text(
+                            text = stringResource(R.string.add_to_piles),
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                                .background(colorScheme.surfaceContainer)
+                                .padding(top = 16.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
+                        )
+                    }
+
+                    itemPileGrid(
+                        availableWidth = availableWidth,
+                        piles = uiState.allPileModels!!,
+                        onPileClick = { pileId ->
+                            viewModel.updatePileSelectState(pileId)
                         },
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        isError = uiState.noDocumentNameError,
-                        supportingText = {
-                            if (uiState.noDocumentNameError) {
-                                Text(stringResource(R.string.document_no_name_error))
-                            }
-                        }
+                        coloredPileIds = uiState.selectedPileModelIds,
+                        backgroundColor = colorScheme.surfaceContainer
                     )
                 }
-
-                item { Spacer(Modifier.height(16.dp)) }
-
-                item {
-                    Text(
-                        text = stringResource(R.string.add_to_piles),
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-                            .background(colorScheme.surfaceContainer)
-                            .padding(top = 16.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
-                    )
-                }
-
-                itemPileGrid(
-                    availableWidth = availableWidth,
-                    piles = uiState.allPileModels!!,
-                    onPileClick = { pileId ->
-                        viewModel.updatePileSelectState(pileId)
-                    },
-                    coloredPileIds = uiState.selectedPileModelIds,
-                    backgroundColor = colorScheme.surfaceContainer
-                )
             }
         }
     }

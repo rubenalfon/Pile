@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -74,6 +76,7 @@ import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -143,13 +146,21 @@ fun HomeScreen(
         var availableWidth by remember { mutableStateOf(0.dp) }
         val density = LocalDensity.current
 
+        val layoutDirection = LocalLayoutDirection.current
+
         Box(
             Modifier
+                .padding(
+                    top = innerPadding.calculateTopPadding(),
+                    start = innerPadding.calculateStartPadding(layoutDirection),
+                    end = innerPadding.calculateEndPadding(layoutDirection)
+                )
                 .fillMaxSize()
                 .background(documentsColorSection)
         ) {
             LazyColumn(
                 Modifier
+                    .padding(bottom = innerPadding.calculateBottomPadding())
                     .background(MaterialTheme.colorScheme.surfaceContainer)
                     .onGloballyPositioned { coordinates ->
                         val widthPx = coordinates.size.width
@@ -166,7 +177,6 @@ fun HomeScreen(
                     },
                 state = listState
             ) {
-                item { Spacer(Modifier.height(innerPadding.calculateTopPadding())) }
                 item { Spacer(Modifier.height(16.dp)) }
 
                 if (uiState.documentList.any { it.id == TEMP_DOCUMENT_ID }) {
