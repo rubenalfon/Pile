@@ -115,11 +115,10 @@ fun DocumentDetailScreen(
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.Start
                 ) {
-                    // Carousel
                     item {
-                        ThumbnailCarousel(
+                        ImagePager(
                             images = uiState.bitmaps,
-                            onClick = { /*TODO open the pdf*/ }
+                            onClick = { viewModel.openDocumentPDF() }
                         )
                     }
                     item { Spacer(Modifier.height(16.dp)) }
@@ -228,7 +227,7 @@ private fun ScreenTopAppBar(
 
 
 @Composable
-private fun ThumbnailCarousel(
+private fun ImagePager(
     modifier: Modifier = Modifier,
     images: List<Bitmap>,
     onClick: () -> Unit
