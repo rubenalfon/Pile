@@ -72,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.screens.editPDF.composables.AddItemCarousel
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.androidx.compose.getViewModel
 
@@ -87,9 +88,13 @@ fun EditPDFScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    if (uiState.documentModel == null) {
-        viewModel.loadDocument(documentId)
+    LaunchedEffect(key1 = documentId) {
+        if (uiState.documentModel == null) {
+            Napier.d { "EditPDFScreen: $documentId" }
+            viewModel.loadDocument(documentId)
+        }
     }
+
 
     Scaffold(
         modifier = modifier,

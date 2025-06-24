@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -52,13 +53,16 @@ fun AddDocumentScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    if (uiState.documentModel == null) {
-        viewModel.loadDocument(documentId)
+    LaunchedEffect(key1 = documentId) {
+        if (uiState.documentModel == null) {
+            viewModel.loadDocument(documentId)
+        }
+        if (uiState.allPileModels == null) {
+            viewModel.loadPiles()
+        }
     }
 
-    if (uiState.allPileModels == null) {
-        viewModel.loadPiles()
-    }
+
 
 
     Scaffold(

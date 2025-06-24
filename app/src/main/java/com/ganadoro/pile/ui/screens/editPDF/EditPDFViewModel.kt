@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -32,15 +33,18 @@ class EditPDFViewModel(
     var uiState: StateFlow<EditPDFUiState> = _uiState.asStateFlow()
 
     fun loadDocument(documentId: String) {
+        Napier.d { "EditPDFViewModel.loadDocument: $documentId" }
         viewModelScope.launch(Dispatchers.IO) {
             launch {
-                _uiState.value = _uiState.value.copy(
-                    documentModel = documentModelRepository.getDocumentModelById(documentId)
-                )
+                _uiState.update {
+                    it.copy(
+                        documentModel = documentModelRepository.getDocumentModelById(documentId)
+                    )
+                }
             }
             launch {
                 val file = File(context.filesDir, documentId)
-                _uiState.value = _uiState.value.copy(bitmaps = renderPdfPages(file))
+                _uiState.update { it.copy(bitmaps = renderPdfPages(file)) }
             }
         }
     }

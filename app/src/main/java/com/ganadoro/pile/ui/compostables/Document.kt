@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,12 +46,16 @@ fun Document(
             }, horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val context = LocalContext.current
-        var bitmap by remember { mutableStateOf<Bitmap?>(null) }
 
-        try {
-            bitmap = renderFirstPDFPage(File(context.filesDir, documentModel.id))
-        } catch (ex: Exception) {
-            Napier.e("DocumentId: ${documentModel.id}, ex: $ex")
+        val bitmap by remember {
+            val bitmap: Bitmap? = try {
+                renderFirstPDFPage(File(context.filesDir, documentModel.id))
+            } catch (ex: Exception) {
+                Napier.e("DocumentId: ${documentModel.id}, ex: $ex")
+                null
+            }
+
+            mutableStateOf(bitmap)
         }
 
         val imageModifier = Modifier

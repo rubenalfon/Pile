@@ -391,7 +391,7 @@ private fun LazyListScope.documentPilesSection(
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(stringResource(R.string.no_piles_in_document), modifier = Modifier.padding(16.dp))
+                Text(stringResource(R.string.no_piles_in_document), modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.bodyMedium )
             }
         }
     }

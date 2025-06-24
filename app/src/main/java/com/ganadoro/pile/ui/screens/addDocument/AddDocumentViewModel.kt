@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 import java.time.LocalDate
@@ -41,11 +42,11 @@ class AddDocumentViewModel(
     fun loadDocument(documentId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             launch {
-                _uiState.value = _uiState.value.copy(documentModel = documentModelRepository.getDocumentModelById(documentId))
+                _uiState.update { it.copy(documentModel = documentModelRepository.getDocumentModelById(documentId)) }
             }
             launch {
                 val file = File(context.filesDir, documentId)
-                _uiState.value = _uiState.value.copy(firstPageBitmap = renderFirstPDFPage(file))
+                _uiState.update { it.copy(firstPageBitmap = renderFirstPDFPage(file)) }
             }
         }
     }
@@ -53,13 +54,13 @@ class AddDocumentViewModel(
     fun loadPiles() {
         viewModelScope.launch(Dispatchers.IO) {
             launch {
-                _uiState.value = _uiState.value.copy(allPileModels = pileModelRepository.getAllPileModels())
+                _uiState.update { it.copy(allPileModels = pileModelRepository.getAllPileModels()) }
             }
         }
     }
 
     fun setDocumentName(name: String) {
-        _uiState.value = _uiState.value.copy(documentName = name)
+        _uiState.update { it.copy(documentName = name) }
     }
 
     fun saveDocument() {
@@ -99,7 +100,6 @@ class AddDocumentViewModel(
     }
 
     fun setSelectedPiles(piles: List<PileModel>) {
-        _uiState.value = _uiState.value.copy(selectedPileModels = piles)
-
+        _uiState.update { it.copy(selectedPileModels = piles) }
     }
 }
