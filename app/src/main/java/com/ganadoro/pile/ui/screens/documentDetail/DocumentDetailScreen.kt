@@ -1,6 +1,12 @@
 package com.ganadoro.pile.ui.screens.documentDetail
 
 import android.graphics.Bitmap
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,10 +26,11 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -60,13 +67,17 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
+import com.ganadoro.pile.models.DocumentDetail
+import com.ganadoro.pile.models.StringDetail
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.compostables.Pile
 import com.ganadoro.pile.ui.screens.documentDetail.composables.SectionTitleBar
+import com.ganadoro.pile.ui.screens.documentDetail.composables.SimpleTextField
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.getViewModel
 import java.time.format.DateTimeFormatter
@@ -110,6 +121,22 @@ fun DocumentDetailScreen(
             LoadingWrapper(
                 documentModel == null || uiState.documentPileModels == null
             ) {
+                var isDocumentDetailsEditing by rememberSaveable { mutableStateOf(false) }
+
+                var unsavedDocumentDetails by rememberSaveable {
+                    mutableStateOf(
+                        uiState.documentModel?.documentDetails ?: emptyList()
+                    )
+                }
+
+                LaunchedEffect(key1 = unsavedDocumentDetails) {
+                    delay(500)
+
+                    if (unsavedDocumentDetails == uiState.documentModel?.documentDetails) return@LaunchedEffect
+
+                    viewModel.updateDocumentDetails(unsavedDocumentDetails)
+                }
+
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -123,8 +150,14 @@ fun DocumentDetailScreen(
                     }
                     item { Spacer(Modifier.height(16.dp)) }
 
-                    // Details
-//                    item { Spacer(Modifier.height(16.dp)) }
+                    documentDetailsSection(
+                        documentDetails = unsavedDocumentDetails,
+                        isEditingMode = isDocumentDetailsEditing,
+                        updateEditingMode = { isDocumentDetailsEditing = it },
+                        updateDocumentDetails = { unsavedDocumentDetails = it }
+                    )
+
+                    item { Spacer(Modifier.height(16.dp)) }
 
                     item {
                         DocumentNoteSection(
@@ -190,7 +223,6 @@ fun DocumentDetailScreen(
     }
 }
 
-
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 private fun ScreenTopAppBar(
@@ -225,7 +257,6 @@ private fun ScreenTopAppBar(
     )
 }
 
-
 @Composable
 private fun ImagePager(
     modifier: Modifier = Modifier,
@@ -255,6 +286,156 @@ private fun ImagePager(
                 .background(MaterialTheme.colorScheme.surfaceContainerHigh),
             contentScale = ContentScale.Fit
         )
+    }
+}
+
+private fun LazyListScope.documentDetailsSection(
+    documentDetails: List<DocumentDetail>,
+    isEditingMode: Boolean,
+    updateEditingMode: (state: Boolean) -> Unit,
+    updateDocumentDetails: (newDocumentDetails: List<DocumentDetail>) -> Unit
+) {
+    item {
+        SectionTitleBar(
+            title = stringResource(R.string.details),
+            modifier = Modifier.padding(start = 16.dp, end = 8.dp, bottom = 8.dp),
+            onButtonCLick = {
+                updateEditingMode.invoke(!isEditingMode)
+            },
+            isSaveMode = isEditingMode
+        )
+    }
+
+    if (documentDetails.isEmpty()) {
+        item {
+            Card(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
+            ) {
+                Text(
+                    stringResource(if (isEditingMode) R.string.add_a_detail else R.string.no_document_details),
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+    }
+
+    items(documentDetails.size) { index ->
+        val documentDetail = documentDetails[index]
+
+        val topCornersDp = if (index == 0) 14.dp else 4.dp
+        val bottomCornersDp =
+            if (index == documentDetails.size - 1) 12.dp else 4.dp
+
+        val containerColor by animateColorAsState(
+            targetValue = if (isEditingMode) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainer,
+            label = "containerColor"
+        )
+        val contentColor by animateColorAsState(
+            targetValue = if (isEditingMode) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
+            label = "contentColor"
+        )
+
+        Card(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = containerColor,
+            ),
+            shape = RoundedCornerShape(
+                topStart = topCornersDp,
+                topEnd = topCornersDp,
+                bottomStart = bottomCornersDp,
+                bottomEnd = bottomCornersDp
+            )
+        ) {
+            if (documentDetail !is StringDetail) return@Card
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                SimpleTextField(
+                    value = documentDetail.name,
+                    onValueChange = { newText ->
+                        val updatedDocumentDetails = documentDetails.toMutableList()
+                        updatedDocumentDetails[index] =
+                            documentDetail.copy(name = newText)
+                        updateDocumentDetails.invoke(updatedDocumentDetails)
+                    },
+                    modifier = Modifier
+                        .weight(1f),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(
+                        color = contentColor
+                    ),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    singleLine = true,
+                    enabled = isEditingMode,
+                    hint = stringResource(R.string.detail_hint_title)
+                )
+
+                SimpleTextField(
+                    value = documentDetail.value,
+                    onValueChange = { newText ->
+                        val updatedDocumentDetails = documentDetails.toMutableList()
+                        updatedDocumentDetails[index] = documentDetail.copy(value = newText)
+                        updateDocumentDetails.invoke(updatedDocumentDetails)
+                    },
+                    modifier = Modifier,
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(
+                        textAlign = TextAlign.End,
+                        color = contentColor
+                    ),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    singleLine = true,
+                    enabled = isEditingMode,
+                    hint = stringResource(R.string.detail_hint_value),
+                )
+            }
+        }
+
+        if (index != documentDetails.size - 1) {
+            Spacer(Modifier.height(4.dp))
+        }
+    }
+
+    // Add a detail button
+    item {
+        AnimatedVisibility(
+            visible = isEditingMode,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .padding(top = 8.dp)
+        ) {
+            Button(
+                onClick = {
+                    val updatedDocumentDetails = documentDetails + StringDetail(
+                        name = "",
+                        value = ""
+                    )
+
+                    updateDocumentDetails.invoke(updatedDocumentDetails)
+                }
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = stringResource(R.string.add_a_detail)
+                    )
+                    Text(
+                        stringResource(R.string.add_a_detail),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -297,27 +478,17 @@ private fun DocumentNoteSection(
                 .padding(16.dp)
                 .fillMaxWidth()
         ) {
-            BasicTextField(
+            SimpleTextField(
                 value = unsavedDocumentNoteDetail,
                 onValueChange = { newText ->
                     unsavedDocumentNoteDetail = newText
                 },
-
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface
                 ),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
+                hint = stringResource(R.string.add_a_note)
             )
-
-            if (unsavedDocumentNoteDetail.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.add_a_note),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    modifier = Modifier.fillMaxWidth() // Asegura que el hint se alinee igual que el texto
-                )
-            }
         }
     }
 }

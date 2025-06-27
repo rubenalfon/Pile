@@ -18,7 +18,7 @@ import com.ganadoro.pile.ui.screens.pileDetail.PileDetailScreen
 fun NavGraph(modifier: Modifier = Modifier, navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = NavRoute.Home.path,
+        startDestination = NavRoute.HomeRoute.path,
         modifier = modifier
     ) {
         addHomeScreen(navController = navController, navGraphBuilder = this)
@@ -36,25 +36,25 @@ fun NavGraph(modifier: Modifier = Modifier, navController: NavHostController) {
 private fun addHomeScreen(
     navController: NavHostController, navGraphBuilder: NavGraphBuilder
 ) {
-    navGraphBuilder.composable(route = NavRoute.Home.path) {
+    navGraphBuilder.composable(route = NavRoute.HomeRoute.path) {
         HomeScreen(
             navigateToPileDetail = { id ->
                 navController.navigate(
-                    NavRoute.PileDetail.withArgs(
+                    NavRoute.PileDetailRoute.withArgs(
                         id
                     )
                 )
             },
             navigateToDocumentDetail = { id ->
                 navController.navigate(
-                    NavRoute.DocumentDetail.withArgs(
+                    NavRoute.DocumentDetailRoute.withArgs(
                         id
                     )
                 )
             },
             navigateToEditPDF = { id ->
                 navController.navigate(
-                    NavRoute.EditPDF.withArgs(
+                    NavRoute.EditPDFRoute.withArgs(
                         id
                     )
                 )
@@ -67,13 +67,13 @@ private fun addPileDetailScreen(
     navController: NavHostController, navGraphBuilder: NavGraphBuilder
 ) {
     navGraphBuilder.composable(
-        route = NavRoute.PileDetail.withArgsFormat(NavRoute.PileDetail.PILE_ID_KEY),
-        arguments = listOf(navArgument(NavRoute.PileDetail.PILE_ID_KEY) {
+        route = NavRoute.PileDetailRoute.withArgsFormat(NavRoute.PileDetailRoute.PILE_ID_KEY),
+        arguments = listOf(navArgument(NavRoute.PileDetailRoute.PILE_ID_KEY) {
             type = NavType.StringType
         })
     ) { navBackStackEntry ->
         val args = navBackStackEntry.arguments
-        val pileID = args?.getString(NavRoute.PileDetail.PILE_ID_KEY)
+        val pileID = args?.getString(NavRoute.PileDetailRoute.PILE_ID_KEY)
 
         if (pileID.isNullOrBlank()) {
             navController.popBackStack()
@@ -93,13 +93,13 @@ private fun addDocumentDetailScreen(
     navController: NavHostController, navGraphBuilder: NavGraphBuilder
 ) {
     navGraphBuilder.composable(
-        route = NavRoute.DocumentDetail.withArgsFormat(NavRoute.DocumentDetail.DOCUMENT_ID_KEY),
-        arguments = listOf(navArgument(NavRoute.DocumentDetail.DOCUMENT_ID_KEY) {
+        route = NavRoute.DocumentDetailRoute.withArgsFormat(NavRoute.DocumentDetailRoute.DOCUMENT_ID_KEY),
+        arguments = listOf(navArgument(NavRoute.DocumentDetailRoute.DOCUMENT_ID_KEY) {
             type = NavType.StringType
         })
     ) { navBackStackEntry ->
         val args = navBackStackEntry.arguments
-        val documentId = args?.getString(NavRoute.DocumentDetail.DOCUMENT_ID_KEY)
+        val documentId = args?.getString(NavRoute.DocumentDetailRoute.DOCUMENT_ID_KEY)
 
         if (documentId.isNullOrBlank()) {
             navController.popBackStack()
@@ -110,7 +110,7 @@ private fun addDocumentDetailScreen(
             documentId = documentId,
             navigateToPileDetail = { id ->
                 navController.navigate(
-                    NavRoute.PileDetail.withArgs(
+                    NavRoute.PileDetailRoute.withArgs(
                         id
                     )
                 )
@@ -126,13 +126,13 @@ private fun addEditPDFScreen(
     navController: NavHostController, navGraphBuilder: NavGraphBuilder
 ) {
     navGraphBuilder.composable(
-        route = NavRoute.EditPDF.withArgsFormat(NavRoute.EditPDF.DOCUMENT_ID_KEY),
-        arguments = listOf(navArgument(NavRoute.EditPDF.DOCUMENT_ID_KEY) {
+        route = NavRoute.EditPDFRoute.withArgsFormat(NavRoute.EditPDFRoute.DOCUMENT_ID_KEY),
+        arguments = listOf(navArgument(NavRoute.EditPDFRoute.DOCUMENT_ID_KEY) {
             type = NavType.StringType
         })
     ) { navBackStackEntry ->
         val args = navBackStackEntry.arguments
-        val documentId = args?.getString(NavRoute.EditPDF.DOCUMENT_ID_KEY)
+        val documentId = args?.getString(NavRoute.EditPDFRoute.DOCUMENT_ID_KEY)
 
         if (documentId.isNullOrBlank()) {
             navController.popBackStack()
@@ -146,7 +146,7 @@ private fun addEditPDFScreen(
             },
             navigateToAddDocument = {
                 navController.navigate(
-                    NavRoute.AddDocument.withArgs(
+                    NavRoute.AddDocumentRoute.withArgs(
                         documentId
                     )
                 )
@@ -159,13 +159,13 @@ private fun addAddDocumentScreen(
     navController: NavHostController, navGraphBuilder: NavGraphBuilder
 ) {
     navGraphBuilder.composable(
-        route = NavRoute.AddDocument.withArgsFormat(NavRoute.AddDocument.DOCUMENT_ID_KEY),
-        arguments = listOf(navArgument(NavRoute.AddDocument.DOCUMENT_ID_KEY) {
+        route = NavRoute.AddDocumentRoute.withArgsFormat(NavRoute.AddDocumentRoute.DOCUMENT_ID_KEY),
+        arguments = listOf(navArgument(NavRoute.AddDocumentRoute.DOCUMENT_ID_KEY) {
             type = NavType.StringType
         })
     ) { navBackStackEntry ->
         val args = navBackStackEntry.arguments
-        val documentId = args?.getString(NavRoute.AddDocument.DOCUMENT_ID_KEY)
+        val documentId = args?.getString(NavRoute.AddDocumentRoute.DOCUMENT_ID_KEY)
 
         if (documentId.isNullOrBlank()) {
             navController.popBackStack()
@@ -179,11 +179,11 @@ private fun addAddDocumentScreen(
             },
             navigateToDocumentDetail = { id ->
                 navController.navigate(
-                    NavRoute.DocumentDetail.withArgs(
+                    NavRoute.DocumentDetailRoute.withArgs(
                         id
                     )
                 ) {
-                    popUpTo(route = NavRoute.Home.path) {
+                    popUpTo(route = NavRoute.HomeRoute.path) {
                         inclusive = false
                     }
                 }

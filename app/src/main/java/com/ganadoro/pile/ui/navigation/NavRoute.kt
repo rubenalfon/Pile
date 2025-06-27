@@ -3,21 +3,21 @@ package com.ganadoro.pile.ui.navigation
 
 sealed class NavRoute(val path: String) {
 
-    data object Home : NavRoute("home")
+    data object HomeRoute : NavRoute("home")
 
-    data object PileDetail : NavRoute("PileDetail") {
+    data object PileDetailRoute : NavRoute("PileDetail") {
         const val PILE_ID_KEY = "pileId"
     }
 
-    data object DocumentDetail : NavRoute("DocumentDetail") {
+    data object DocumentDetailRoute : NavRoute("DocumentDetail") {
         const val DOCUMENT_ID_KEY = "documentId"
     }
 
-    data object EditPDF : NavRoute("EditPDF") {
+    data object EditPDFRoute : NavRoute("EditPDF") {
         const val DOCUMENT_ID_KEY = "documentId"
     }
 
-    data object AddDocument : NavRoute("AddDocument") {
+    data object AddDocumentRoute : NavRoute("AddDocument") {
         const val DOCUMENT_ID_KEY = "documentId"
     }
 

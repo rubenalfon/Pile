@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.models.DocumentDetail
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
 import com.ganadoro.pile.util.renderPdfPages
@@ -62,10 +63,22 @@ class DocumentDetailViewModel(
     }
 
     fun updateDocumentNote(newDocumentNote: String) {
-       Napier.d { "DocumentDetailViewModel.updateDocumentNote: $newDocumentNote" }
+        Napier.d { "DocumentDetailViewModel.updateDocumentNote: $newDocumentNote" }
         viewModelScope.launch {
             val updatedDocumentModel =
                 _uiState.value.documentModel?.copy(documentNote = newDocumentNote)
+                    ?: return@launch
+
+            _uiState.value = _uiState.value.copy(documentModel = updatedDocumentModel)
+
+            documentModelRepository.updateDocumentModel(updatedDocumentModel)
+        }
+    }
+
+    fun updateDocumentDetails(newDocumentDetails: List<DocumentDetail>) {
+        viewModelScope.launch {
+            val updatedDocumentModel =
+                _uiState.value.documentModel?.copy(documentDetails = newDocumentDetails)
                     ?: return@launch
 
             _uiState.value = _uiState.value.copy(documentModel = updatedDocumentModel)
