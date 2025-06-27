@@ -25,6 +25,8 @@ kotlinxSerializationJson = "1.8.1"
 
 exifinterface = "1.4.1"
 
+reorderable = "2.1.1"
+
 [libraries]
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
@@ -66,6 +68,8 @@ sqlDelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-ex
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
+
+reorderable-list = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

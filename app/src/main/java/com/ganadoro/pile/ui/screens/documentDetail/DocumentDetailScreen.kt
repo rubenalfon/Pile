@@ -10,6 +10,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,7 +56,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -67,6 +70,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.DocumentModel
@@ -80,6 +87,7 @@ import com.ganadoro.pile.ui.screens.documentDetail.composables.SectionTitleBar
 import com.ganadoro.pile.ui.screens.documentDetail.composables.SimpleTextField
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.getViewModel
+import sh.calvin.reorderable.ReorderableColumn
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
@@ -326,81 +334,128 @@ private fun LazyListScope.documentDetailsSection(
         }
     }
 
-    items(documentDetails.size) { index ->
-        val documentDetail = documentDetails[index]
+    item {
+        ReorderableColumn(
+            list = documentDetails,
+            onSettle = { fromIndex, toIndex ->
+                updateDocumentDetails.invoke(
+                    documentDetails.toMutableList().apply {
+                        add(toIndex, removeAt(fromIndex))
+                    }
+                )
+            },
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) { index, documentDetail, _ ->
+            key(documentDetail.name) { // TODO Add a id
+                val interactionSource = remember { MutableInteractionSource() }
 
-        val topCornersDp = if (index == 0) 14.dp else 4.dp
-        val bottomCornersDp =
-            if (index == documentDetails.size - 1) 12.dp else 4.dp
+                val topCornersDp = if (index == 0) 14.dp else 4.dp
+                val bottomCornersDp =
+                    if (index == documentDetails.size - 1) 12.dp else 4.dp
 
-        val containerColor by animateColorAsState(
-            targetValue = if (isEditingMode) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainer,
-            label = "containerColor"
-        )
-        val contentColor by animateColorAsState(
-            targetValue = if (isEditingMode) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
-            label = "contentColor"
-        )
+                val containerColor by animateColorAsState(
+                    targetValue = if (isEditingMode) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainer,
+                    label = "containerColor"
+                )
+                val contentColor by animateColorAsState(
+                    targetValue = if (isEditingMode) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
+                    label = "contentColor"
+                )
 
-        Card(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = containerColor,
-            ),
-            shape = RoundedCornerShape(
-                topStart = topCornersDp,
-                topEnd = topCornersDp,
-                bottomStart = bottomCornersDp,
-                bottomEnd = bottomCornersDp
-            )
-        ) {
-            if (documentDetail !is StringDetail) return@Card
-            Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-            ) {
-                SimpleTextField(
-                    value = documentDetail.name,
-                    onValueChange = { newText ->
-                        val updatedDocumentDetails = documentDetails.toMutableList()
-                        updatedDocumentDetails[index] =
-                            documentDetail.copy(name = newText)
-                        updateDocumentDetails.invoke(updatedDocumentDetails)
-                    },
+                val moveUpLabel =   "stringResource(Res.string.move_up_component)"
+                val moveDownLabel = "stringResource(Res.string.move_down_component)"
+
+
+                Card(
                     modifier = Modifier
-                        .weight(1f),
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(
-                        color = contentColor
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                        .semantics {
+                            customActions = listOf(
+                                CustomAccessibilityAction(label = moveUpLabel, action = {
+                                    if (index > 0) {
+                                        updateDocumentDetails.invoke(
+                                            documentDetails.toMutableList().apply {
+                                                add(index - 1, removeAt(index))
+                                            }
+                                        )
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                }),
+                                CustomAccessibilityAction(label = moveDownLabel, action = {
+                                    if (index < documentDetails.size - 1) {
+                                        updateDocumentDetails.invoke(
+                                            documentDetails.toMutableList().apply {
+                                                add(index + 1, removeAt(index))
+                                            }
+                                        )
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                }),
+                            )
+                        },
+                    colors = CardDefaults.cardColors(
+                        containerColor = containerColor,
                     ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                    singleLine = true,
-                    enabled = isEditingMode,
-                    hint = stringResource(R.string.detail_hint_title)
-                )
+                    shape = RoundedCornerShape(
+                        topStart = topCornersDp,
+                        topEnd = topCornersDp,
+                        bottomStart = bottomCornersDp,
+                        bottomEnd = bottomCornersDp
+                    ),
+                    onClick = {},
+                    interactionSource = interactionSource
+                ) {
+                    if (documentDetail !is StringDetail) return@Card
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                            .draggableHandle(
+                            interactionSource = interactionSource,
+                        ).clearAndSetSemantics { }
+                    ) {
+                        SimpleTextField(
+                            value = documentDetail.name,
+                            onValueChange = { newText ->
+                                val updatedDocumentDetails = documentDetails.toMutableList()
+                                updatedDocumentDetails[index] =
+                                    documentDetail.copy(name = newText)
+                                updateDocumentDetails.invoke(updatedDocumentDetails)
+                            },
+                            modifier = Modifier
+                                .weight(1f),
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                                color = contentColor
+                            ),
+                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                            singleLine = true,
+                            enabled = isEditingMode,
+                            hint = stringResource(R.string.detail_hint_title)
+                        )
 
-                SimpleTextField(
-                    value = documentDetail.value,
-                    onValueChange = { newText ->
-                        val updatedDocumentDetails = documentDetails.toMutableList()
-                        updatedDocumentDetails[index] = documentDetail.copy(value = newText)
-                        updateDocumentDetails.invoke(updatedDocumentDetails)
-                    },
-                    modifier = Modifier,
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(
-                        textAlign = TextAlign.End,
-                        color = contentColor
-                    ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                    singleLine = true,
-                    enabled = isEditingMode,
-                    hint = stringResource(R.string.detail_hint_value),
-                )
+                        SimpleTextField(
+                            value = documentDetail.value,
+                            onValueChange = { newText ->
+                                val updatedDocumentDetails = documentDetails.toMutableList()
+                                updatedDocumentDetails[index] = documentDetail.copy(value = newText)
+                                updateDocumentDetails.invoke(updatedDocumentDetails)
+                            },
+                            modifier = Modifier,
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                                textAlign = TextAlign.End,
+                                color = contentColor
+                            ),
+                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                            singleLine = true,
+                            enabled = isEditingMode,
+                            hint = stringResource(R.string.detail_hint_value),
+                        )
+                    }
+                }
             }
-        }
-
-        if (index != documentDetails.size - 1) {
-            Spacer(Modifier.height(4.dp))
         }
     }
 

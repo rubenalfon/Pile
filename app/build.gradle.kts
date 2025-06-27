@@ -46,6 +46,9 @@ android {
 
 dependencies {
 
+    // Reordenable List
+    implementation(libs.reorderable.list)
+
     // ExifInterface
     implementation(libs.androidx.exifinterface)
 
