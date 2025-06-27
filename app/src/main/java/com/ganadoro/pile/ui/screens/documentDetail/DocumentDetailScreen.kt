@@ -3,6 +3,7 @@ package com.ganadoro.pile.ui.screens.documentDetail
 import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -346,12 +347,17 @@ private fun LazyListScope.documentDetailsSection(
             },
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) { index, documentDetail, _ ->
-            key(documentDetail.name) { // TODO Add a id
+            key(documentDetail.name) { // TODO Add an id
                 val interactionSource = remember { MutableInteractionSource() }
 
-                val topCornersDp = if (index == 0) 14.dp else 4.dp
-                val bottomCornersDp =
-                    if (index == documentDetails.size - 1) 12.dp else 4.dp
+                val topCornersDp by animateDpAsState(
+                    targetValue = if (index == 0) 14.dp else 4.dp,
+                    label = "topCorners"
+                )
+                val bottomCornersDp by animateDpAsState(
+                    targetValue = if (index == documentDetails.size - 1) 12.dp else 4.dp,
+                    label = "bottomCorners"
+                )
 
                 val containerColor by animateColorAsState(
                     targetValue = if (isEditingMode) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainer,
@@ -362,9 +368,8 @@ private fun LazyListScope.documentDetailsSection(
                     label = "contentColor"
                 )
 
-                val moveUpLabel =   "stringResource(Res.string.move_up_component)"
-                val moveDownLabel = "stringResource(Res.string.move_down_component)"
-
+                val moveUpLabel = stringResource(R.string.move_up_detail)
+                val moveDownLabel = stringResource(R.string.move_down_detail)
 
                 Card(
                     modifier = Modifier
@@ -406,16 +411,14 @@ private fun LazyListScope.documentDetailsSection(
                         topEnd = topCornersDp,
                         bottomStart = bottomCornersDp,
                         bottomEnd = bottomCornersDp
-                    ),
-                    onClick = {},
-                    interactionSource = interactionSource
+                    )
                 ) {
                     if (documentDetail !is StringDetail) return@Card
                     Row(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-                            .draggableHandle(
-                            interactionSource = interactionSource,
-                        ).clearAndSetSemantics { }
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                            .draggableHandle(interactionSource =  interactionSource, enabled = isEditingMode)
+                            .clearAndSetSemantics { }
                     ) {
                         SimpleTextField(
                             value = documentDetail.name,
