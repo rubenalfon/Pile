@@ -90,7 +90,7 @@ class DocumentDetailViewModel(
     fun openDocumentPDF() {
         if (_uiState.value.documentModel == null) return
 
-        val file = File(context.filesDir, _uiState.value.documentModel?.id!!)
+       val file = File(context.filesDir, _uiState.value.documentModel?.id!!)
 
         val uri = FileProvider.getUriForFile(
             context,
@@ -98,12 +98,37 @@ class DocumentDetailViewModel(
             file
         )
 
-        val intent = Intent(Intent.ACTION_VIEW).apply {
+        val openIntent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "application/pdf")
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
         }
 
-        context.startActivity(intent)
+        context.startActivity(openIntent)
+    }
+
+    fun openShareSheet() {
+        if (_uiState.value.documentModel == null) return
+
+        val originalFile = File(context.filesDir, _uiState.value.documentModel!!.id)
+
+        val tempFile = File(context.cacheDir, "${_uiState.value.documentModel!!.title}.pdf")
+        originalFile.copyTo(tempFile, overwrite = true)
+
+        val uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.provider",
+            tempFile
+        )
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/pdf"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        val chooser = Intent.createChooser(shareIntent, null)
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // TODO: Not the best way to do this
+        context.startActivity(chooser)
     }
 
     fun renameDocument(newDocumentName: String) {

@@ -194,7 +194,7 @@ fun DocumentDetailScreen(
                     isDeleteDocumentAlertExpanded = true
                 },
                 onDownloadDocument = { },
-                onShareDocument = { },
+                onShareDocument = viewModel::openShareSheet,
                 onEditDocument = { },
             )
         }
