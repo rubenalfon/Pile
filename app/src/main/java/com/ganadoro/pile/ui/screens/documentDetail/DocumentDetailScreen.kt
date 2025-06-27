@@ -409,10 +409,7 @@ private fun LazyListScope.documentDetailsSection(
         AnimatedVisibility(
             visible = isEditingMode,
             enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .padding(top = 8.dp)
+            exit = shrinkVertically() + fadeOut()
         ) {
             Button(
                 onClick = {
@@ -422,7 +419,10 @@ private fun LazyListScope.documentDetailsSection(
                     )
 
                     updateDocumentDetails.invoke(updatedDocumentDetails)
-                }
+                },
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
