@@ -8,11 +8,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun SimpleTextField(
@@ -28,25 +30,37 @@ fun SimpleTextField(
     singleLine: Boolean = true,
     enabled: Boolean = true,
 ) {
-    Box(
-        modifier,
-    ) {
-        BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier.width(IntrinsicSize.Max),
-            textStyle = textStyle,
-            cursorBrush = cursorBrush,
-            keyboardOptions = keyboardOptions,
-            singleLine = singleLine,
-            enabled = enabled
-        )
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        textStyle = textStyle,
+        cursorBrush = cursorBrush,
+        keyboardOptions = keyboardOptions,
+        singleLine = singleLine,
+        enabled = enabled,
+        decorationBox = { innerTextField ->
+            val contentAlignment: Alignment =
+            when (textStyle.textAlign) {
+                TextAlign.Center -> Alignment.Center
+                TextAlign.Right -> Alignment.CenterEnd
+                else -> Alignment.CenterStart
+            }
+            Box(
+                modifier = Modifier.width(IntrinsicSize.Min),
+                contentAlignment = contentAlignment
+            ) {
+                innerTextField()
 
-        if (hint != null && value.isEmpty())
-            Text(
-                text = hint,
-                style = textStyle,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-            )
-    }
+                if (value.isEmpty() && hint != null) {
+                    Text(
+                        text = hint,
+                        style = textStyle,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier
+                    )
+                }
+            }
+        }
+    )
 }

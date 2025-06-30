@@ -89,6 +89,7 @@ import com.ganadoro.pile.ui.screens.documentDetail.composables.SimpleTextField
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.getViewModel
 import sh.calvin.reorderable.ReorderableColumn
+import sh.calvin.reorderable.ReorderableScope
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
@@ -132,20 +133,6 @@ fun DocumentDetailScreen(
             ) {
                 var isDocumentDetailsEditing by rememberSaveable { mutableStateOf(false) }
 
-                var unsavedDocumentDetails by rememberSaveable {
-                    mutableStateOf(
-                        uiState.documentModel?.documentDetails ?: emptyList()
-                    )
-                }
-
-                LaunchedEffect(key1 = unsavedDocumentDetails) {
-                    delay(500)
-
-                    if (unsavedDocumentDetails == uiState.documentModel?.documentDetails) return@LaunchedEffect
-
-                    viewModel.updateDocumentDetails(unsavedDocumentDetails)
-                }
-
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -160,10 +147,10 @@ fun DocumentDetailScreen(
                     item { Spacer(Modifier.height(16.dp)) }
 
                     documentDetailsSection(
-                        documentDetails = unsavedDocumentDetails,
+                        documentDetails = uiState.documentModel?.documentDetails ?: emptyList(),
                         isEditingMode = isDocumentDetailsEditing,
                         updateEditingMode = { isDocumentDetailsEditing = it },
-                        updateDocumentDetails = { unsavedDocumentDetails = it }
+                        onEvent = { viewModel.onEvent(event = it) }
                     )
 
                     item { Spacer(Modifier.height(16.dp)) }
@@ -302,7 +289,7 @@ private fun LazyListScope.documentDetailsSection(
     documentDetails: List<DocumentDetail>,
     isEditingMode: Boolean,
     updateEditingMode: (state: Boolean) -> Unit,
-    updateDocumentDetails: (newDocumentDetails: List<DocumentDetail>) -> Unit
+    onEvent: (event: DocumentDetailEvent) -> Unit
 ) {
     item {
         SectionTitleBar(
@@ -339,125 +326,26 @@ private fun LazyListScope.documentDetailsSection(
         ReorderableColumn(
             list = documentDetails,
             onSettle = { fromIndex, toIndex ->
-                updateDocumentDetails.invoke(
-                    documentDetails.toMutableList().apply {
-                        add(toIndex, removeAt(fromIndex))
-                    }
-                )
+                onEvent(DocumentDetailEvent.Move(fromIndex, toIndex))
             },
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) { index, documentDetail, _ ->
-            key(documentDetail.name) { // TODO Add an id
-                val interactionSource = remember { MutableInteractionSource() }
-
-                val topCornersDp by animateDpAsState(
-                    targetValue = if (index == 0) 14.dp else 4.dp,
-                    label = "topCorners"
-                )
-                val bottomCornersDp by animateDpAsState(
-                    targetValue = if (index == documentDetails.size - 1) 12.dp else 4.dp,
-                    label = "bottomCorners"
-                )
-
-                val containerColor by animateColorAsState(
-                    targetValue = if (isEditingMode) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainer,
-                    label = "containerColor"
-                )
-                val contentColor by animateColorAsState(
-                    targetValue = if (isEditingMode) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
-                    label = "contentColor"
-                )
-
-                val moveUpLabel = stringResource(R.string.move_up_detail)
-                val moveDownLabel = stringResource(R.string.move_down_detail)
-
-                Card(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth()
-                        .semantics {
-                            customActions = listOf(
-                                CustomAccessibilityAction(label = moveUpLabel, action = {
-                                    if (index > 0) {
-                                        updateDocumentDetails.invoke(
-                                            documentDetails.toMutableList().apply {
-                                                add(index - 1, removeAt(index))
-                                            }
-                                        )
-                                        true
-                                    } else {
-                                        false
-                                    }
-                                }),
-                                CustomAccessibilityAction(label = moveDownLabel, action = {
-                                    if (index < documentDetails.size - 1) {
-                                        updateDocumentDetails.invoke(
-                                            documentDetails.toMutableList().apply {
-                                                add(index + 1, removeAt(index))
-                                            }
-                                        )
-                                        true
-                                    } else {
-                                        false
-                                    }
-                                }),
-                            )
+            key(documentDetail.id) {
+                if (documentDetail is StringDetail)
+                    DocumentDetailItem(
+                        documentDetail = documentDetail,
+                        index = index,
+                        isFirstItem = index == 0,
+                        isLastItem = index == documentDetails.size - 1,
+                        isEditingMode = isEditingMode,
+                        onMove = { from, to -> onEvent(DocumentDetailEvent.Move(from, to)) },
+                        onTextChange = { newName, newValue ->
+                            onEvent(DocumentDetailEvent.UpdateText(index, newName, newValue))
                         },
-                    colors = CardDefaults.cardColors(
-                        containerColor = containerColor,
-                    ),
-                    shape = RoundedCornerShape(
-                        topStart = topCornersDp,
-                        topEnd = topCornersDp,
-                        bottomStart = bottomCornersDp,
-                        bottomEnd = bottomCornersDp
-                    )
-                ) {
-                    if (documentDetail !is StringDetail) return@Card
-                    Row(
                         modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 12.dp)
-                            .draggableHandle(interactionSource =  interactionSource, enabled = isEditingMode)
-                            .clearAndSetSemantics { }
-                    ) {
-                        SimpleTextField(
-                            value = documentDetail.name,
-                            onValueChange = { newText ->
-                                val updatedDocumentDetails = documentDetails.toMutableList()
-                                updatedDocumentDetails[index] =
-                                    documentDetail.copy(name = newText)
-                                updateDocumentDetails.invoke(updatedDocumentDetails)
-                            },
-                            modifier = Modifier
-                                .weight(1f),
-                            textStyle = MaterialTheme.typography.bodyMedium.copy(
-                                color = contentColor
-                            ),
-                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                            singleLine = true,
-                            enabled = isEditingMode,
-                            hint = stringResource(R.string.detail_hint_title)
-                        )
-
-                        SimpleTextField(
-                            value = documentDetail.value,
-                            onValueChange = { newText ->
-                                val updatedDocumentDetails = documentDetails.toMutableList()
-                                updatedDocumentDetails[index] = documentDetail.copy(value = newText)
-                                updateDocumentDetails.invoke(updatedDocumentDetails)
-                            },
-                            modifier = Modifier,
-                            textStyle = MaterialTheme.typography.bodyMedium.copy(
-                                textAlign = TextAlign.End,
-                                color = contentColor
-                            ),
-                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                            singleLine = true,
-                            enabled = isEditingMode,
-                            hint = stringResource(R.string.detail_hint_value),
-                        )
-                    }
-                }
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth()
+                    )
             }
         }
     }
@@ -471,12 +359,7 @@ private fun LazyListScope.documentDetailsSection(
         ) {
             Button(
                 onClick = {
-                    val updatedDocumentDetails = documentDetails + StringDetail(
-                        name = "",
-                        value = ""
-                    )
-
-                    updateDocumentDetails.invoke(updatedDocumentDetails)
+                    onEvent(DocumentDetailEvent.Add())
                 },
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -493,6 +376,109 @@ private fun LazyListScope.documentDetailsSection(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ReorderableScope.DocumentDetailItem(
+    documentDetail: StringDetail,
+    index: Int,
+    isFirstItem: Boolean,
+    isLastItem: Boolean,
+    isEditingMode: Boolean,
+    onMove: (from: Int, to: Int) -> Unit,
+    onTextChange: (newName: String, newValue: String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val topCornersDp by animateDpAsState(
+        targetValue = if (isFirstItem) 14.dp else 4.dp,
+        label = "topCorners"
+    )
+    val bottomCornersDp by animateDpAsState(
+        targetValue = if (isLastItem) 12.dp else 4.dp,
+        label = "bottomCorners"
+    )
+    val containerColor by animateColorAsState(
+        targetValue = if (isEditingMode) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainer,
+        label = "containerColor"
+    )
+    val contentColor by animateColorAsState(
+        targetValue = if (isEditingMode) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
+        label = "contentColor"
+    )
+
+    val interactionSource = remember { MutableInteractionSource() }
+
+    val moveUpString = stringResource(R.string.move_up_detail)
+    val moveDownString = stringResource(R.string.move_down_detail)
+
+    Card(
+        modifier = modifier.semantics {
+            customActions = listOf(
+                CustomAccessibilityAction(
+                    label = moveUpString,
+                    action = {
+                        if (index > 0) {
+                            onMove(index, index - 1)
+                            true
+                        } else false
+                    }
+                ),
+                CustomAccessibilityAction(
+                    label = moveDownString,
+                    action = {
+                        if (!isLastItem) {
+                            onMove(index, index + 1)
+                            true
+                        } else false
+                    }
+                )
+            )
+        },
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        shape = RoundedCornerShape(
+            topStart = topCornersDp,
+            topEnd = topCornersDp,
+            bottomStart = bottomCornersDp,
+            bottomEnd = bottomCornersDp
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .draggableHandle(interactionSource = interactionSource, enabled = isEditingMode)
+                .clearAndSetSemantics { },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            SimpleTextField(
+                value = documentDetail.name,
+                onValueChange = { newText ->
+                    onTextChange(newText, documentDetail.value)
+                },
+                modifier = Modifier.weight(1f),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = contentColor),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                singleLine = true,
+                enabled = isEditingMode,
+                hint = stringResource(R.string.detail_hint_title)
+            )
+
+            SimpleTextField(
+                value = documentDetail.value,
+                onValueChange = { newText ->
+                    onTextChange(documentDetail.name, newText)
+                },
+                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                    textAlign = TextAlign.End,
+                    color = contentColor
+                ),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                singleLine = true,
+                enabled = isEditingMode,
+                hint = stringResource(R.string.detail_hint_value)
+            )
         }
     }
 }

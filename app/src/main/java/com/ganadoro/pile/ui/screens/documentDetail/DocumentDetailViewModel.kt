@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.models.DocumentDetail
+import com.ganadoro.pile.models.StringDetail
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
 import com.ganadoro.pile.util.renderPdfPages
@@ -17,14 +18,25 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.UUID
 
 data class DocumentDetailUiState(
     var documentModel: DocumentModel? = null,
     var bitmaps: List<Bitmap> = emptyList(),
     var documentPileModels: List<PileModel>? = null
 )
+
+sealed interface DocumentDetailEvent {
+    data class UpdateText(val index: Int, val newName: String, val newValue: String) :
+        DocumentDetailEvent
+
+    data class Move(val fromIndex: Int, val toIndex: Int) : DocumentDetailEvent
+    class Add : DocumentDetailEvent
+    data class Delete(val index: Int) : DocumentDetailEvent
+}
 
 @SuppressLint("StaticFieldLeak")
 class DocumentDetailViewModel(
@@ -75,22 +87,61 @@ class DocumentDetailViewModel(
         }
     }
 
-    fun updateDocumentDetails(newDocumentDetails: List<DocumentDetail>) {
+    fun onEvent(event: DocumentDetailEvent) {
         viewModelScope.launch {
-            val updatedDocumentModel =
-                _uiState.value.documentModel?.copy(documentDetails = newDocumentDetails)
-                    ?: return@launch
+            val newDetails =
+                applyEvent(event, _uiState.value.documentModel?.documentDetails ?: return@launch)
 
-            _uiState.value = _uiState.value.copy(documentModel = updatedDocumentModel)
+            val updatedDocumentModel = _uiState.value.documentModel?.copy(
+                documentDetails = newDetails
+            )
 
-            documentModelRepository.updateDocumentModel(updatedDocumentModel)
+            if (updatedDocumentModel == null) return@launch
+
+            launch {
+                _uiState.update { it.copy(documentModel = updatedDocumentModel) }
+            }
+
+            launch {
+                documentModelRepository.updateDocumentModel(updatedDocumentModel)
+            }
+        }
+    }
+
+    private fun applyEvent(
+        event: DocumentDetailEvent,
+        currentDetails: List<DocumentDetail>
+    ) = when (event) {
+        is DocumentDetailEvent.Move -> {
+            currentDetails.toMutableList().apply {
+                add(event.toIndex, removeAt(event.fromIndex))
+            }
+        }
+
+        is DocumentDetailEvent.UpdateText -> {
+            currentDetails.toMutableList().apply {
+                val oldItem = this[event.index] as StringDetail
+                this[event.index] = oldItem.copy(name = event.newName, value = event.newValue)
+            }
+        }
+
+        is DocumentDetailEvent.Add -> {
+            currentDetails.toMutableList().apply {
+                add(StringDetail(id = UUID.randomUUID().toString(), name = "", value = ""))
+            }
+        }
+
+        is DocumentDetailEvent.Delete -> {
+            currentDetails.toMutableList().apply {
+                removeAt(event.index)
+            }
         }
     }
 
     fun openDocumentPDF() {
         if (_uiState.value.documentModel == null) return
 
-       val file = File(context.filesDir, _uiState.value.documentModel?.id!!)
+        val file = File(context.filesDir, _uiState.value.documentModel?.id!!)
 
         val uri = FileProvider.getUriForFile(
             context,
