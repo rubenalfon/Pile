@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -68,6 +69,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -77,6 +79,7 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
@@ -408,34 +411,51 @@ private fun ReorderableScope.DocumentDetailItem(
         label = "contentColor"
     )
 
+    var isDragging by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (isDragging) 1.05f else 1.0f,
+        label = "scale"
+    )
+    val elevation by animateDpAsState(
+        targetValue = if (isDragging) 8.dp else 0.dp,
+        label = "elevation"
+    )
+
     val interactionSource = remember { MutableInteractionSource() }
 
     val moveUpString = stringResource(R.string.move_up_detail)
     val moveDownString = stringResource(R.string.move_down_detail)
 
     Card(
-        modifier = modifier.semantics {
-            customActions = listOf(
-                CustomAccessibilityAction(
-                    label = moveUpString,
-                    action = {
-                        if (index > 0) {
-                            onMove(index, index - 1)
-                            true
-                        } else false
-                    }
-                ),
-                CustomAccessibilityAction(
-                    label = moveDownString,
-                    action = {
-                        if (!isLastItem) {
-                            onMove(index, index + 1)
-                            true
-                        } else false
-                    }
+        modifier = modifier
+            .semantics {
+                customActions = listOf(
+                    CustomAccessibilityAction(
+                        label = moveUpString,
+                        action = {
+                            if (index > 0) {
+                                onMove(index, index - 1)
+                                true
+                            } else false
+                        }
+                    ),
+                    CustomAccessibilityAction(
+                        label = moveDownString,
+                        action = {
+                            if (!isLastItem) {
+                                onMove(index, index + 1)
+                                true
+                            } else false
+                        }
+                    )
                 )
-            )
-        },
+            }
+            .zIndex(if (isDragging) 1f else 0f)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+                shadowElevation = elevation.toPx()
+            },
         colors = CardDefaults.cardColors(containerColor = containerColor),
         shape = RoundedCornerShape(
             topStart = topCornersDp,
@@ -447,7 +467,12 @@ private fun ReorderableScope.DocumentDetailItem(
         Row(
             modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 12.dp)
-                .draggableHandle(interactionSource = interactionSource, enabled = isEditingMode)
+                .longPressDraggableHandle(
+                    interactionSource = interactionSource,
+                    enabled = isEditingMode,
+                    onDragStarted = { isDragging = true },
+                    onDragStopped = { isDragging = false }
+                )
                 .clearAndSetSemantics { },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -457,13 +482,15 @@ private fun ReorderableScope.DocumentDetailItem(
                 onValueChange = { newText ->
                     onTextChange(newText, documentDetail.value)
                 },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier,
                 textStyle = MaterialTheme.typography.bodyMedium.copy(color = contentColor),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 singleLine = true,
                 enabled = isEditingMode,
                 hint = stringResource(R.string.detail_hint_title)
             )
+
+            Spacer(Modifier.weight(1f))
 
             SimpleTextField(
                 value = documentDetail.value,
