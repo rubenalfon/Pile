@@ -7,10 +7,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -20,12 +21,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,7 +34,6 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Photo
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
@@ -48,16 +46,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
-import androidx.compose.material3.minimumInteractiveComponentSize
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -65,16 +58,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -89,13 +79,13 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
 import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
+import com.ganadoro.pile.ui.compostables.SwipeBox
 import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
 import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
 import com.ganadoro.pile.ui.screens.home.compostables.itemPileGrid
 import io.github.aakira.napier.Napier
 import org.koin.androidx.compose.getViewModel
-import kotlin.math.abs
 
 @Composable
 fun HomeScreen(
@@ -179,19 +169,19 @@ fun HomeScreen(
             ) {
                 item { Spacer(Modifier.height(16.dp)) }
 
-                if (uiState.documentList.any { it.id == TEMP_DOCUMENT_ID }) {
-                    item {
+                item {
+                    AnimatedVisibility(
+                        visible = uiState.documentList.any { it.id == TEMP_DOCUMENT_ID },
+                        enter = fadeIn(tween(150)) + expandVertically(),
+                        exit = fadeOut(tween(100)) + shrinkVertically()
+                    ) {
                         UnsavedDocumentCard(
-                            onNavigateUnsavedDocument = {
-                                navigateToEditPDF(TEMP_DOCUMENT_ID)
-                            },
-                            onDismiss = {
-                                viewModel.deleteUnsavedDocument()
-                            }
+                            onNavigateUnsavedDocument = { navigateToEditPDF(TEMP_DOCUMENT_ID) },
+                            onDismiss = { viewModel.deleteUnsavedDocument() }
                         )
-
                     }
                 }
+
 
                 item { Spacer(Modifier.height(16.dp)) }
 
@@ -367,103 +357,6 @@ fun FabMenu( // TODO: Move
         }
     }
 
-}
-
-@Composable
-private fun SwipeBox(
-    modifier: Modifier = Modifier,
-    onDelete: () -> Unit,
-    contentPaddingValues: PaddingValues,
-    content: @Composable () -> Unit,
-) {
-    val swipeState = rememberSwipeToDismissBoxState()
-
-    var icon: ImageVector? = null
-    var alignment: Alignment? = null
-    var color: Color? = null
-
-    when (swipeState.dismissDirection) {
-        SwipeToDismissBoxValue.EndToStart -> {
-            icon = Icons.Outlined.Delete
-            alignment = Alignment.CenterEnd
-            color = MaterialTheme.colorScheme.errorContainer
-        }
-
-        SwipeToDismissBoxValue.StartToEnd -> {
-            icon = Icons.Outlined.Delete
-            alignment = Alignment.CenterStart
-            color = MaterialTheme.colorScheme.errorContainer
-        }
-
-        SwipeToDismissBoxValue.Settled -> {}
-    }
-
-    val density = LocalDensity.current
-    var itemOffset by remember { mutableStateOf(0.dp) }
-
-    Napier.d { "Swipe: $itemOffset" }
-
-    SwipeToDismissBox(
-        modifier = modifier.animateContentSize(),
-        state = swipeState,
-        backgroundContent = {
-            Box(
-                contentAlignment = alignment ?: Alignment.TopStart,
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                if (icon == null) return@Box
-
-                val dismissIndicatorWidth = abs((itemOffset - 16.dp).value).dp
-                Box(
-                    contentAlignment = alignment ?: Alignment.TopStart,
-                    modifier = Modifier
-                        .padding(contentPaddingValues)
-                        .clip(MaterialTheme.shapes.medium)
-                        .fillMaxHeight()
-                        .width(dismissIndicatorWidth)
-                        .background(color ?: Color.Transparent)
-                ) {
-                    this@SwipeToDismissBox.AnimatedVisibility(
-                        visible = dismissIndicatorWidth >= 50.dp,
-                        enter = fadeIn(tween(150)),
-                        exit = fadeOut(tween(100))
-                    ) {
-                        Icon(
-                            modifier = Modifier.minimumInteractiveComponentSize(),
-                            imageVector = icon, contentDescription = null
-                        )
-                    }
-                }
-            }
-        }
-    ) {
-        Box(
-            Modifier
-                .padding(contentPaddingValues)
-                .onGloballyPositioned { coordinates ->
-                    val positionInRoot = coordinates.positionInRoot()
-                    itemOffset = with(density) { positionInRoot.x.toDp() }.value.dp
-                }
-        ) {
-            content()
-        }
-    }
-
-    when (swipeState.currentValue) {
-        SwipeToDismissBoxValue.EndToStart -> {
-            onDelete()
-        }
-
-        SwipeToDismissBoxValue.StartToEnd -> {
-            LaunchedEffect(swipeState) {
-                swipeState.snapTo(SwipeToDismissBoxValue.Settled)
-            }
-        }
-
-        SwipeToDismissBoxValue.Settled -> {
-        }
-    }
 }
 
 
