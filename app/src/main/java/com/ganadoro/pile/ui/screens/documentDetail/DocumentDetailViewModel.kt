@@ -20,7 +20,6 @@ import com.ganadoro.pile.models.StringDetail
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
 import com.ganadoro.pile.util.renderPdfPages
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -64,24 +63,18 @@ class DocumentDetailViewModel(
                 val file = File(context.filesDir, documentId)
                 _uiState.value = _uiState.value.copy(bitmaps = renderPdfPages(file))
             }
-            launch {
-                try {
-                    _uiState.value = _uiState.value.copy(
-                        documentPileModels = _uiState.value.documentModel!!.documentPileIds.map {
-                            pileModelRepository.getPileModelById(it)!!
-                        }
-                    )
-                } catch (ex: Exception) {
-                    Napier.e("Error loading document piles", ex) // TODO error handling
-                    _uiState.value = _uiState.value.copy(documentPileModels = emptyList())
+            launch getPileModelsLaunch@{
+                if (_uiState.value.documentModel == null) return@getPileModelsLaunch
 
-                }
+                pileModelRepository.getPileModelsByIds(_uiState.value.documentModel!!.documentPileIds)
+                    .collect { piles ->
+                        _uiState.update { it.copy(documentPileModels = piles) }
+                    }
             }
         }
     }
 
     fun updateDocumentNote(newDocumentNote: String) {
-        Napier.d { "DocumentDetailViewModel.updateDocumentNote: $newDocumentNote" }
         viewModelScope.launch {
             val updatedDocumentModel =
                 _uiState.value.documentModel?.copy(documentNote = newDocumentNote)

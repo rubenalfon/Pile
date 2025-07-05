@@ -27,6 +27,11 @@ SELECT PileModel.*
 FROM PileModel
 WHERE PileModel.id = ?;
 
+selectPileModelsById:
+SELECT PileModel.*
+FROM PileModel
+WHERE id IN ?;
+
 updatePileModelName:
 UPDATE PileModel
 SET name = ?

@@ -12,6 +12,7 @@ interface PileModelRepository {
     val pileModels: Flow<List<PileModel>>
     suspend fun getAllPileModels(): List<PileModel>
     suspend fun getPileModelById(id: String): PileModel?
+    suspend fun getPileModelsByIds(ids: List<String>): Flow<List<PileModel>>
     suspend fun insertPileModel(pileModel: PileModel)
     suspend fun updatePileModel(pileModel: PileModel)
     suspend fun deletePileModel(id: String)
@@ -32,6 +33,10 @@ class PileModelRepositoryImpl(
 
     override suspend fun getPileModelById(id: String): PileModel? {
         return databaseQueries.selectPileModelById(id).executeAsOneOrNull()
+    }
+
+    override suspend fun getPileModelsByIds(ids: List<String>): Flow<List<PileModel>> {
+        return databaseQueries.selectPileModelsById(ids).asFlow().mapToList(Dispatchers.IO)
     }
 
     override suspend fun insertPileModel(pileModel: PileModel) {
