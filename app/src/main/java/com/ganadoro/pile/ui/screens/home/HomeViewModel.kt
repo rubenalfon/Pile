@@ -89,34 +89,40 @@ class HomeViewModel(
         )
         val tempFile = File(context.filesDir, tempDocument.id)
 
-            try {
-                if (tempFile.exists()) {
-                    tempFile.delete()
-                }
-                if (documentModelRepository.getDocumentModelById(tempDocument.id) != null) {
-                    documentModelRepository.deleteDocumentModel(tempDocument.id)
-                }
-
-                documentModelRepository.insertDocumentModel(tempDocument)
-
-                withContext(Dispatchers.IO) {
-                    processFileAction(tempFile)
-                }
-
-                navigateToEditPDF.invoke(tempDocument.id)
-
-            } catch (e: Exception) {
-                Napier.e("Error procesando el nuevo documento", e) // TODO: Error handling
-                try {
-                    tempFile.delete()
-                    documentModelRepository.deleteDocumentModel(tempDocument.id)
-                } catch (_: Exception) {}
+        try {
+            if (tempFile.exists()) {
+                tempFile.delete()
             }
+            if (documentModelRepository.getDocumentModelById(tempDocument.id) != null) {
+                documentModelRepository.deleteDocumentModel(tempDocument.id)
+            }
+
+            documentModelRepository.insertDocumentModel(tempDocument)
+
+            withContext(Dispatchers.IO) {
+                processFileAction(tempFile)
+            }
+
+            navigateToEditPDF.invoke(tempDocument.id)
+
+        } catch (e: Exception) {
+            Napier.e("Error procesando el nuevo documento", e) // TODO: Error handling
+            try {
+                tempFile.delete()
+                documentModelRepository.deleteDocumentModel(tempDocument.id)
+            } catch (_: Exception) {
+            }
+        }
     }
 
     fun importPDFIntent(uri: Uri) {
         viewModelScope.launch {
-            processNewDocument(initialTitle = FileUtils.getFileNameFromUri(context, uri)) { destinationFile ->
+            processNewDocument(
+                initialTitle = FileUtils.getFileNameFromUri(
+                    context,
+                    uri
+                )
+            ) { destinationFile ->
                 destinationFile.copyUriFile(context, uri)
             }
         }
