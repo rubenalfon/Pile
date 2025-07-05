@@ -66,9 +66,6 @@ class HomeViewModel(
             )
 
             pileModelRepository.insertPileModel(newPile)
-            Napier.d("Pile added: $pileName")
-
-            _uiState.update { it.copy(pileModels = pileModelRepository.getAllPileModels()) }
         }
     }
 

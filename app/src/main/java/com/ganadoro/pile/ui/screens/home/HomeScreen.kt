@@ -12,7 +12,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,7 +32,6 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Photo
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -43,10 +41,8 @@ import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.runtime.Composable
@@ -78,6 +74,7 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
 import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
+import com.ganadoro.pile.ui.compostables.AlertNewPile
 import com.ganadoro.pile.ui.compostables.SwipeBox
 import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
@@ -237,17 +234,15 @@ fun HomeScreen(
                 }
             }
         }
-
-
-        if (isNewPileAlertExpanded) {
-            AlertNewPile(
-                onDismiss = { isNewPileAlertExpanded = false },
-                onConfirm = { pileName ->
-                    isNewPileAlertExpanded = false
-                    viewModel.addPile(pileName)
-                }
-            )
-        }
+    }
+    if (isNewPileAlertExpanded) {
+        AlertNewPile(
+            onDismiss = { isNewPileAlertExpanded = false },
+            onConfirm = { pileName ->
+                isNewPileAlertExpanded = false
+                viewModel.addPile(pileName)
+            }
+        )
     }
 }
 
@@ -399,51 +394,4 @@ private fun UnsavedDocumentCard(
             }
         }
     }
-}
-
-@Composable
-private fun AlertNewPile(
-    modifier: Modifier = Modifier,
-    onDismiss: () -> Unit,
-    onConfirm: (pileName: String) -> Unit
-) {
-    var pileName by rememberSaveable { mutableStateOf("") }
-    AlertDialog(
-        modifier = modifier,
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.add_pile)) },
-        text = {
-            OutlinedTextField(
-                value = pileName,
-                onValueChange = { pileName = it },
-                label = { Text(stringResource(R.string.pile_name)) },
-                trailingIcon = {
-                    if (pileName.isNotEmpty()) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.delete_text),
-                            modifier = Modifier.clickable { pileName = "" })
-                    }
-                },
-                singleLine = true
-            )
-        },
-        confirmButton = {
-            TextButton(
-                enabled = pileName.isNotEmpty(),
-                onClick = {
-                    onConfirm.invoke(pileName)
-                }
-            ) {
-                Text(stringResource(R.string.new_))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = {
-                onDismiss.invoke()
-            }) {
-                Text(stringResource(R.string.cancel))
-            }
-        }
-    )
 }

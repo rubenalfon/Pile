@@ -162,7 +162,7 @@ fun DocumentDetailScreen(
                             onClick = { viewModel.openDocumentPDF() }
                         )
                     }
-                    item { Spacer(Modifier.height(16.dp)) }
+                    item { Spacer(Modifier.height(8.dp)) }
 
                     documentDetailsSection(
                         documentDetails = uiState.documentModel?.documentDetails ?: emptyList(),
@@ -171,7 +171,7 @@ fun DocumentDetailScreen(
                         onEvent = { viewModel.onEvent(event = it) }
                     )
 
-                    item { Spacer(Modifier.height(16.dp)) }
+                    item { Spacer(Modifier.height(8.dp)) }
 
                     item {
                         DocumentNoteSection(
@@ -180,7 +180,7 @@ fun DocumentDetailScreen(
                         )
                     }
 
-                    item { Spacer(Modifier.height(16.dp)) }
+                    item { Spacer(Modifier.height(8.dp)) }
 
                     documentPilesSection(
                         documentPileModels = uiState.documentPileModels ?: emptyList(),
@@ -193,6 +193,7 @@ fun DocumentDetailScreen(
                     item {
                         AddedSection(documentModel = documentModel!!)
                     }
+
                     item { Spacer(Modifier.height(330.dp)) }
                 }
             }
@@ -312,7 +313,7 @@ private fun LazyListScope.documentDetailsSection(
     item {
         SectionTitleBar(
             title = stringResource(R.string.details),
-            modifier = Modifier.padding(start = 16.dp, end = 8.dp, bottom = 8.dp),
+            modifier = Modifier.padding(start = 16.dp, end = 8.dp),
             onButtonCLick = {
                 updateEditingMode.invoke(!isEditingMode)
             },
@@ -582,7 +583,7 @@ private fun DocumentNoteSection(
 
     SectionTitleBar(
         title = stringResource(R.string.note),
-        modifier = Modifier.padding(start = 16.dp, end = 8.dp, bottom = 8.dp)
+        modifier = Modifier.padding(start = 16.dp, end = 8.dp)
     )
 
     Card(
@@ -627,7 +628,7 @@ private fun LazyListScope.documentPilesSection(
         SectionTitleBar(
             title = stringResource(R.string.piles),
             onButtonCLick = onEditDocumentPiles,
-            modifier = Modifier.padding(start = 16.dp, end = 8.dp, bottom = 8.dp)
+            modifier = Modifier.padding(start = 16.dp, end = 8.dp)
         )
     }
 
