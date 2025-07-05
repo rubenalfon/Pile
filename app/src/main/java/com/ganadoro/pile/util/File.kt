@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import java.io.File
 
-/** TODO MOver
+/**
  * Copia el contenido de una Uri a un nuevo archivo en el almacenamiento interno de la app.
  *
  * @param context El contexto de la aplicación.

@@ -98,8 +98,8 @@ class AddDocumentViewModel(
                 return@launch
             }
 
-            val dbJob = launch {
-                var documentModel = _uiState.value.documentModel ?: return@launch
+            val dbJob = launch dbJob@{
+                var documentModel = _uiState.value.documentModel ?: return@dbJob
 
                 documentModel = documentModel.copy(
                     id = newDocumentId,
