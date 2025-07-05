@@ -104,7 +104,7 @@ fun AddDocumentScreen(
             }
         ) { innerPadding ->
             LoadingWrapper(
-                uiState.documentModel == null || uiState.allPileModels == null // TODO Bitmap ?
+                uiState.documentModel == null || uiState.allPileModels == null
             ) {
                 var availableWidth by remember { mutableStateOf(0.dp) }
                 val density = LocalDensity.current
