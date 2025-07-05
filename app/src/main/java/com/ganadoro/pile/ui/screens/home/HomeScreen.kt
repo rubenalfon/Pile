@@ -60,6 +60,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -80,7 +81,7 @@ import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
 import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
 import com.ganadoro.pile.ui.screens.home.compostables.itemPileGrid
-import io.github.aakira.napier.Napier
+import com.ganadoro.pile.util.UriUtils
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -109,14 +110,14 @@ fun HomeScreen(
             FabMenu(
                 fabMenuExpanded = fabMenuExpanded,
                 updateFabMenuExpanded = { fabMenuExpanded = it },
-                onImportPDF = {
-                    viewModel.importPDFIntent()
+                onImportPDF = { uri ->
+                    viewModel.importPDFIntent(uri)
                 },
                 onImportFromGallery = { uriList ->
                     viewModel.importFromGalleryIntent(uriList)
                 },
-                onTakeAPhoto = {
-
+                onTakeAPhoto = { uri ->
+                    viewModel.takePhoto(uri)
                 }
             )
         },
@@ -248,44 +249,58 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun FabMenu( // TODO: Move
+fun FabMenu( // TODO: Move?
     modifier: Modifier = Modifier,
     fabMenuExpanded: Boolean,
     updateFabMenuExpanded: (Boolean) -> Unit = {},
-    onImportPDF: () -> Unit = {},
+    onImportPDF: (uri: Uri) -> Unit = {},
     onImportFromGallery: (uriList: List<Uri>) -> Unit = {},
-    onTakeAPhoto: () -> Unit = {}
+    onTakeAPhoto: (uri: Uri) -> Unit = {}
 ) {
-
-    val pickMedia =
-        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uriList ->
-            if (uriList == null) {
-                Napier.d { "PhotoPicker: No media selected" }
-                return@rememberLauncherForActivityResult
-            }
-
-            Napier.d { "PhotoPicker: $uriList" }
-            onImportFromGallery.invoke(uriList)
+    val importPDFLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri ->
+            uri?.let { onImportPDF.invoke(it) }
         }
+    val mediaLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.PickMultipleVisualMedia()) { uriList ->
+            if (uriList.isNotEmpty()) {
+                onImportFromGallery.invoke(uriList)
+            }
+        }
+
+    val context = LocalContext.current
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val cameraLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                imageUri?.let { onTakeAPhoto.invoke(it) }
+            }
+        }
+
 
     val items: List<Triple<Painter, String, () -> Unit>> =
         listOf(
             Triple(
                 painterResource(R.drawable.ic_clip),
-                stringResource(R.string.import_pdf_file),
-                onImportPDF
-            ),
+                stringResource(R.string.import_pdf_file)
+            ) {
+                importPDFLauncher.launch(arrayOf("application/pdf"))
+            },
             Triple(
                 rememberVectorPainter(Icons.Filled.Photo),
                 stringResource(R.string.import_from_gallery)
             ) {
-                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                mediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             },
             Triple(
                 rememberVectorPainter(Icons.Filled.CameraAlt),
-                stringResource(R.string.take_a_photo),
-                onTakeAPhoto
-            )
+                stringResource(R.string.take_a_photo)
+            ) {
+                val uri = UriUtils.createImageUri(context)
+                imageUri = uri
+
+                cameraLauncher.launch(uri)
+            }
         )
 
     BackHandler(fabMenuExpanded) { updateFabMenuExpanded(false) }
@@ -352,7 +367,6 @@ fun FabMenu( // TODO: Move
     }
 
 }
-
 
 @Composable
 private fun UnsavedDocumentCard(

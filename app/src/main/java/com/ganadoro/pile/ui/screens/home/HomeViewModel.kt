@@ -12,6 +12,8 @@ import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
+import com.ganadoro.pile.util.FileUtils
+import com.ganadoro.pile.util.copyUriFile
 import com.ganadoro.pile.util.createPdfWithImages
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.LocalDate
 import java.util.UUID
@@ -69,13 +72,14 @@ class HomeViewModel(
         }
     }
 
-    fun importPDFIntent() {
-    }
 
-    fun importFromGalleryIntent(uriList: List<Uri>) {
-        val document = DocumentModel(
+    private suspend fun processNewDocument(
+        initialTitle: String? = null,
+        processFileAction: suspend (destinationFile: File) -> Unit
+    ) {
+        val tempDocument = DocumentModel(
             id = TEMP_DOCUMENT_ID,
-            title = "",
+            title = initialTitle ?: "",
             creationDate = LocalDate.now(),
             modificationDate = LocalDate.now(),
             documentDetails = emptyList(),
@@ -83,40 +87,66 @@ class HomeViewModel(
             documentNote = "",
             documentPileIds = emptyList()
         )
+        val tempFile = File(context.filesDir, tempDocument.id)
 
-        val file = File(context.filesDir, document.id)
-
-        viewModelScope.launch {
-            if (file.exists() || documentModelRepository.getDocumentModelById(document.id) != null) { // TODO: Gestionar error
-//                Napier.d("No se puede guardar el archivo, ya existe con la ruta: ${file.absolutePath}")
-//                return@launch
-
-                file.delete()
-                documentModelRepository.deleteDocumentModel(document.id)
-
-            }
-        }
-
-        viewModelScope.launch { //TODO Add a loading indicator maybe in the repository and navigate to editpdf directly
-            launch {
-                documentModelRepository.insertDocumentModel(document)
-            }
-            launch(Dispatchers.IO) {
-                createPdfWithImages(
-                    context = context,
-                    imageUris = uriList,
-                    outputFile = file
-                )
-
-                Napier.d { "File created: ${file.absolutePath}\nNavigating to edit pdf" }
-                launch(Dispatchers.Main) {
-                    navigateToEditPDF.invoke(document.id) // Has to run on main thread
+            try {
+                if (tempFile.exists()) {
+                    tempFile.delete()
                 }
+                if (documentModelRepository.getDocumentModelById(tempDocument.id) != null) {
+                    documentModelRepository.deleteDocumentModel(tempDocument.id)
+                }
+
+                documentModelRepository.insertDocumentModel(tempDocument)
+
+                withContext(Dispatchers.IO) {
+                    processFileAction(tempFile)
+                }
+
+                navigateToEditPDF.invoke(tempDocument.id)
+
+            } catch (e: Exception) {
+                Napier.e("Error procesando el nuevo documento", e) // TODO: Error handling
+                try {
+                    tempFile.delete()
+                    documentModelRepository.deleteDocumentModel(tempDocument.id)
+                } catch (_: Exception) {}
+            }
+    }
+
+    fun importPDFIntent(uri: Uri) {
+        viewModelScope.launch {
+            processNewDocument(initialTitle = FileUtils.getFileNameFromUri(context, uri)) { destinationFile ->
+                destinationFile.copyUriFile(context, uri)
             }
         }
     }
 
-    fun deleteUnsavedDocument() { // TODO: Delete
+    fun importFromGalleryIntent(uriList: List<Uri>) {
+        viewModelScope.launch {
+            processNewDocument { destinationFile ->
+                createPdfWithImages(
+                    context = context,
+                    imageUris = uriList,
+                    outputFile = destinationFile
+                )
+            }
+        }
+    }
+
+    fun takePhoto(uri: Uri) {
+        viewModelScope.launch {
+            processNewDocument { destinationFile ->
+                createPdfWithImages(
+                    context = context,
+                    imageUris = listOf(uri),
+                    outputFile = destinationFile
+                )
+            }
+        }
+    }
+
+    fun deleteUnsavedDocument() { // TODO: safe Delete
         _uiState.update {
             it.copy(documentList = _uiState.value.documentList.filter { document -> document.id != TEMP_DOCUMENT_ID })
         }
@@ -132,7 +162,3 @@ class HomeViewModel(
 //        }
     }
 }
-
-
-
-

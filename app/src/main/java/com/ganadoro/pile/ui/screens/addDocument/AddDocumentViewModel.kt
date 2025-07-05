@@ -55,6 +55,11 @@ class AddDocumentViewModel(
                         )
                     )
                 }
+                _uiState.update {
+                    it.copy(
+                        documentName = _uiState.value.documentModel!!.title
+                    )
+                }
             }
             launch {
                 val file = File(context.filesDir, documentId)

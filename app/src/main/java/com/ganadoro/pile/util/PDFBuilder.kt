@@ -54,7 +54,7 @@ suspend fun renderPdfPages(pdfFile: File): List<Bitmap> { // TODO: Rename
     return bitmaps
 }
 
-fun renderFirstPDFPage(pdfFile: File): Bitmap {
+fun renderFirstPDFPage(pdfFile: File): Bitmap { // TODO: Rename
     var bitmap: Bitmap
 
     val fileDescriptor = ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY)
