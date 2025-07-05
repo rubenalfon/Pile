@@ -7,9 +7,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
@@ -172,7 +171,7 @@ fun HomeScreen(
                 item {
                     AnimatedVisibility(
                         visible = uiState.documentList.any { it.id == TEMP_DOCUMENT_ID },
-                        enter = fadeIn(tween(150)) + expandVertically(),
+                        enter = EnterTransition.None,
                         exit = fadeOut(tween(100)) + shrinkVertically()
                     ) {
                         UnsavedDocumentCard(

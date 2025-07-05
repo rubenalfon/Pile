@@ -16,6 +16,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -66,18 +67,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.ganadoro.pile.DocumentModel
@@ -87,6 +91,7 @@ import com.ganadoro.pile.models.DocumentDetail
 import com.ganadoro.pile.models.StringDetail
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.compostables.Pile
+import com.ganadoro.pile.ui.compostables.SwipeBox
 import com.ganadoro.pile.ui.screens.documentDetail.composables.SectionTitleBar
 import com.ganadoro.pile.ui.screens.documentDetail.composables.SimpleTextField
 import kotlinx.coroutines.delay
@@ -117,8 +122,16 @@ fun DocumentDetailScreen(
     var isRenameDocumentAlertExpanded by rememberSaveable { mutableStateOf(false) }
     var isDeleteDocumentAlertExpanded by rememberSaveable { mutableStateOf(false) }
 
+    val focusManager = LocalFocusManager.current
+
+
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().clickable(
+            indication = null,
+            interactionSource = remember { MutableInteractionSource() }
+        ) {
+            focusManager.clearFocus()
+        },
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             ScreenTopAppBar(
@@ -127,6 +140,7 @@ fun DocumentDetailScreen(
             ) // TODO is this correct?
         }
     ) { innerPadding ->
+
         Box(
             Modifier
                 .padding(innerPadding)
@@ -331,24 +345,46 @@ private fun LazyListScope.documentDetailsSection(
             onSettle = { fromIndex, toIndex ->
                 onEvent(DocumentDetailEvent.Move(fromIndex, toIndex))
             },
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) { index, documentDetail, _ ->
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) { index, documentDetail, isDragging ->
             key(documentDetail.id) {
-                if (documentDetail is StringDetail)
-                    DocumentDetailItem(
-                        documentDetail = documentDetail,
-                        index = index,
-                        isFirstItem = index == 0,
-                        isLastItem = index == documentDetails.size - 1,
-                        isEditingMode = isEditingMode,
-                        onMove = { from, to -> onEvent(DocumentDetailEvent.Move(from, to)) },
-                        onTextChange = { newName, newValue ->
-                            onEvent(DocumentDetailEvent.UpdateText(index, newName, newValue))
-                        },
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .fillMaxWidth()
-                    )
+                SwipeBox(
+                    onDelete = {
+                        onEvent(DocumentDetailEvent.Delete(index))
+                    },
+                    contentPaddingValues = PaddingValues(horizontal = 16.dp),
+                    modifier = Modifier.animateItem(),
+                    enabled = isEditingMode
+                ) {
+                    if (documentDetail is StringDetail)
+                        DocumentDetailItem(
+                            documentDetail = documentDetail,
+                            index = index,
+                            isDragging = isDragging,
+                            isFirstItem = index == 0,
+                            isLastItem = index == documentDetails.size - 1,
+                            isEditingMode = isEditingMode,
+                            onMove = { from, to ->
+                                onEvent(
+                                    DocumentDetailEvent.Move(
+                                        from,
+                                        to
+                                    )
+                                )
+                            },
+                            onTextChange = { newName, newValue ->
+                                onEvent(
+                                    DocumentDetailEvent.UpdateText(
+                                        index,
+                                        newName,
+                                        newValue
+                                    )
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                }
             }
         }
     }
@@ -387,6 +423,7 @@ private fun LazyListScope.documentDetailsSection(
 private fun ReorderableScope.DocumentDetailItem(
     documentDetail: StringDetail,
     index: Int,
+    isDragging: Boolean,
     isFirstItem: Boolean,
     isLastItem: Boolean,
     isEditingMode: Boolean,
@@ -411,7 +448,6 @@ private fun ReorderableScope.DocumentDetailItem(
         label = "contentColor"
     )
 
-    var isDragging by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (isDragging) 1.05f else 1.0f,
         label = "scale"
@@ -464,14 +500,17 @@ private fun ReorderableScope.DocumentDetailItem(
             bottomEnd = bottomCornersDp
         )
     ) {
+        val hapticFeedback = LocalHapticFeedback.current
+
         Row(
             modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 12.dp)
                 .longPressDraggableHandle(
                     interactionSource = interactionSource,
                     enabled = isEditingMode,
-                    onDragStarted = { isDragging = true },
-                    onDragStopped = { isDragging = false }
+                    onDragStarted = {
+                        hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                    }
                 )
                 .clearAndSetSemantics { },
             verticalAlignment = Alignment.CenterVertically,
@@ -498,10 +537,10 @@ private fun ReorderableScope.DocumentDetailItem(
                     onTextChange(documentDetail.name, newText)
                 },
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    textAlign = TextAlign.End,
                     color = contentColor
                 ),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                modifier = Modifier,
                 singleLine = true,
                 enabled = isEditingMode,
                 hint = stringResource(R.string.detail_hint_value)
@@ -515,6 +554,17 @@ private fun DocumentNoteSection(
     documentModel: DocumentModel?,
     onUpdateDocumentNote: (newText: String) -> Unit
 ) {
+    var isFocused by rememberSaveable { mutableStateOf(false) }
+
+    val containerColor by animateColorAsState(
+        targetValue = if (isFocused) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainer,
+        label = "containerColor"
+    )
+    val contentColor by animateColorAsState(
+        targetValue = if (isFocused) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
+        label = "contentColor"
+    )
+
     var unsavedDocumentNoteDetail by rememberSaveable {
         mutableStateOf(
             documentModel?.documentNote ?: ""
@@ -539,8 +589,8 @@ private fun DocumentNoteSection(
             .padding(horizontal = 16.dp)
             .fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            contentColor = MaterialTheme.colorScheme.onSurface
+            containerColor = containerColor,
+            contentColor = contentColor
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -554,7 +604,10 @@ private fun DocumentNoteSection(
                 onValueChange = { newText ->
                     unsavedDocumentNoteDetail = newText
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    .onFocusChanged { focusState ->
+                    isFocused = focusState.isFocused
+                },
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface
                 ),

@@ -44,6 +44,7 @@ fun SwipeBox(
     onDelete: () -> Unit,
     contentPaddingValues: PaddingValues,
     backgroundContent: (@Composable (state: SwipeToDismissBoxState, offset: Dp) -> Unit)? = null,
+    enabled: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val swipeState = rememberSwipeToDismissBoxState()
@@ -53,6 +54,7 @@ fun SwipeBox(
     SwipeToDismissBox(
         modifier = modifier.animateContentSize(),
         state = swipeState,
+        gesturesEnabled = enabled,
         backgroundContent = {
             if (backgroundContent != null) {
                 backgroundContent(swipeState, itemOffset)
