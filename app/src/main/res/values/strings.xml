@@ -50,6 +50,9 @@
 
     <string name="document_no_name_error">Añade un nombre al documento.</string>
 
+    <string name="error_saving_document">Error saving document</string>
+    <string name="error_opening_files_explorer">Error opening files explorer</string>
+
     <string name="piles">Piles</string>
     <string name="note">Note</string>
     <string name="details">Details</string>

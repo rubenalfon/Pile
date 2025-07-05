@@ -13,6 +13,8 @@ import com.ganadoro.pile.ui.screens.documentDetail.DocumentDetailScreen
 import com.ganadoro.pile.ui.screens.editPDF.EditPDFScreen
 import com.ganadoro.pile.ui.screens.home.HomeScreen
 import com.ganadoro.pile.ui.screens.pileDetail.PileDetailScreen
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @Composable
 fun NavGraph(modifier: Modifier = Modifier, navController: NavHostController) {
@@ -53,9 +55,12 @@ private fun addHomeScreen(
                 )
             },
             navigateToEditPDF = { id ->
+                val encodedDestination = NavRoute.AddDocumentRoute.withArgs(id)
                 navController.navigate(
                     NavRoute.EditPDFRoute.withArgs(
-                        id
+                        id,
+                        URLEncoder.encode(encodedDestination, StandardCharsets.UTF_8.toString()),
+                        /*inclusive = */false.toString()
                     )
                 )
             }
@@ -115,6 +120,17 @@ private fun addDocumentDetailScreen(
                     )
                 )
             },
+            navigateToEditDocument = { id ->
+                val encodedDestination = NavRoute.DocumentDetailRoute.withArgs(id)
+
+                navController.navigate(
+                    NavRoute.EditPDFRoute.withArgs(
+                        id,
+                        URLEncoder.encode(encodedDestination, StandardCharsets.UTF_8.toString()),
+                        /*inclusive = */true.toString()
+                    )
+                )
+            },
             popBackStack = {
                 navController.popBackStack()
             }
@@ -126,15 +142,23 @@ private fun addEditPDFScreen(
     navController: NavHostController, navGraphBuilder: NavGraphBuilder
 ) {
     navGraphBuilder.composable(
-        route = NavRoute.EditPDFRoute.withArgsFormat(NavRoute.EditPDFRoute.DOCUMENT_ID_KEY),
-        arguments = listOf(navArgument(NavRoute.EditPDFRoute.DOCUMENT_ID_KEY) {
-            type = NavType.StringType
-        })
+        route = NavRoute.EditPDFRoute.withArgsFormat(
+            NavRoute.EditPDFRoute.DOCUMENT_ID_KEY,
+            NavRoute.EditPDFRoute.DESTINATION_KEY,
+            NavRoute.EditPDFRoute.INCLUSIVE_KEY
+        ),
+        arguments = listOf(
+            navArgument(NavRoute.EditPDFRoute.DOCUMENT_ID_KEY) { type = NavType.StringType },
+            navArgument(NavRoute.EditPDFRoute.DESTINATION_KEY) { type = NavType.StringType },
+            navArgument(NavRoute.EditPDFRoute.INCLUSIVE_KEY) { type = NavType.BoolType }
+        )
     ) { navBackStackEntry ->
         val args = navBackStackEntry.arguments
         val documentId = args?.getString(NavRoute.EditPDFRoute.DOCUMENT_ID_KEY)
+        val destination = args?.getString(NavRoute.EditPDFRoute.DESTINATION_KEY)
+        val destinationInclusive = args?.getBoolean(NavRoute.EditPDFRoute.INCLUSIVE_KEY)
 
-        if (documentId.isNullOrBlank()) {
+        if (documentId.isNullOrBlank() || destination.isNullOrBlank()) {
             navController.popBackStack()
             return@composable
         }
@@ -144,12 +168,16 @@ private fun addEditPDFScreen(
             popBackStack = {
                 navController.popBackStack()
             },
-            navigateToAddDocument = {
+            onNext = {
                 navController.navigate(
-                    NavRoute.AddDocumentRoute.withArgs(
-                        documentId
-                    )
-                )
+                    destination
+                ) {
+                    if (destinationInclusive == true) {
+                        popUpTo(route = NavRoute.HomeRoute.path) {
+                            inclusive = false
+                        }
+                    }
+                }
             }
         )
     }

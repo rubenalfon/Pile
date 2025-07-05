@@ -83,7 +83,7 @@ fun EditPDFScreen(
     modifier: Modifier = Modifier,
     documentId: String,
     popBackStack: () -> Unit,
-    navigateToAddDocument: () -> Unit,
+    onNext: () -> Unit,
     viewModel: EditPDFViewModel = getViewModel<EditPDFViewModel>()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -139,7 +139,7 @@ fun EditPDFScreen(
                     onDeleteImage = {
                         viewModel.deleteSelectedImage()
                     },
-                    onAddDocument = navigateToAddDocument
+                    onAddDocument = onNext
                 )
             }
         }

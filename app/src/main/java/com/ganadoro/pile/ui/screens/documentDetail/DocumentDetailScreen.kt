@@ -108,6 +108,7 @@ fun DocumentDetailScreen(
     modifier: Modifier = Modifier,
     documentId: String,
     navigateToPileDetail: (pileId: String) -> Unit,
+    navigateToEditDocument: (documentId: String) -> Unit,
     popBackStack: () -> Unit,
     viewModel: DocumentDetailViewModel = getViewModel<DocumentDetailViewModel>()
 ) {
@@ -137,7 +138,7 @@ fun DocumentDetailScreen(
             ScreenTopAppBar(
                 popBackStack = popBackStack,
                 title = documentModel?.title ?: ""
-            ) // TODO is this correct?
+            )
         }
     ) { innerPadding ->
 
@@ -206,9 +207,9 @@ fun DocumentDetailScreen(
                 onDeleteDocument = {
                     isDeleteDocumentAlertExpanded = true
                 },
-                onDownloadDocument = { },
+                onDownloadDocument = viewModel::downloadPDF,
                 onShareDocument = viewModel::openShareSheet,
-                onEditDocument = { },
+                onEditDocument = { navigateToEditDocument(documentId) },
             )
         }
     }

@@ -1,14 +1,20 @@
 package com.ganadoro.pile.ui.screens.documentDetail
 
 import android.annotation.SuppressLint
+import android.app.DownloadManager
+import android.content.ActivityNotFoundException
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.provider.MediaStore
+import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.R
 import com.ganadoro.pile.models.DocumentDetail
 import com.ganadoro.pile.models.StringDetail
 import com.ganadoro.pile.repositories.DocumentModelRepository
@@ -180,6 +186,54 @@ class DocumentDetailViewModel(
         val chooser = Intent.createChooser(shareIntent, null)
         chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // TODO: Not the best way to do this
         context.startActivity(chooser)
+    }
+
+    fun downloadPDF() {
+        if (_uiState.value.documentModel == null) return
+
+        val originalFile = File(context.filesDir, _uiState.value.documentModel!!.id)
+
+        try {
+            val resolver = context.contentResolver
+
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, _uiState.value.documentModel!!.title)
+                put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/")
+            }
+
+            val uri =
+                resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues) ?: return
+
+            resolver.openOutputStream(uri)?.use { outputStream ->
+                originalFile.inputStream().use { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+
+            val intent = Intent(DownloadManager.ACTION_VIEW_DOWNLOADS)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+
+            try {
+                context.startActivity(intent)
+            } catch (ex: ActivityNotFoundException) {
+                ex.printStackTrace()
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.error_saving_document),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            Toast.makeText(
+                context,
+                context.getString(R.string.error_opening_files_explorer),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     fun renameDocument(newDocumentName: String) {

@@ -15,6 +15,8 @@ sealed class NavRoute(val path: String) {
 
     data object EditPDFRoute : NavRoute("EditPDF") {
         const val DOCUMENT_ID_KEY = "documentId"
+        const val DESTINATION_KEY = "destination"
+        const val INCLUSIVE_KEY = "inclusive"
     }
 
     data object AddDocumentRoute : NavRoute("AddDocument") {
