@@ -195,7 +195,7 @@ fun HomeScreen(
                     piles = uiState.pileModels,
                     onPileClick = navigateToPileDetail,
                     onNewPileClick = { isNewPileAlertExpanded = true },
-                    coloredPileIds = emptyList() // TODO: Meter aqui si están coloreadas o no
+                    coloredPileIds = uiState.coloredPileIds
                 )
 
                 item { Spacer(Modifier.height(30.dp)) }

@@ -30,7 +30,8 @@ import kotlin.random.Random
 
 data class HomeUiState(
     var pileModels: List<PileModel> = emptyList(),
-    var documentList: List<DocumentModel> = emptyList()
+    var documentList: List<DocumentModel> = emptyList(),
+    var coloredPileIds: List<String> = emptyList()
 )
 
 @SuppressLint("StaticFieldLeak")
@@ -53,7 +54,14 @@ class HomeViewModel(
             }
             launch {
                 documentModelRepository.documentModels.collect { documents ->
-                    _uiState.update { it.copy(documentList = documents) }
+                    val coloredPileIds = documents.flatMap { it.documentPileIds }.distinct()
+
+                    _uiState.update {
+                        it.copy(
+                            documentList = documents,
+                            coloredPileIds = coloredPileIds
+                        )
+                    }
                 }
             }
         }
