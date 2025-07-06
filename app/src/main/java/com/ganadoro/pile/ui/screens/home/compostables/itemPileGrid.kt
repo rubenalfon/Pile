@@ -1,8 +1,6 @@
 package com.ganadoro.pile.ui.screens.home.compostables
 
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -24,7 +22,7 @@ fun LazyListScope.itemPileGrid(
     val addPile = PileModel(
         id = "0",
         name = "",
-        icon = Icons.Default.Add,
+        iconId = "",
         colorNumber = null
     )
 
@@ -51,7 +49,7 @@ fun LazyListScope.itemPileGrid(
                     pileModel = PileModel(
                         id = "0",
                         name = stringResource(R.string.new_),
-                        icon = Icons.Default.Add,
+                        iconId = "Add",
                         colorNumber = null
                     ),
                     modifier = modifier,

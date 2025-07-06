@@ -83,6 +83,7 @@ import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
 import com.ganadoro.pile.ui.screens.home.compostables.itemPileGrid
 import com.ganadoro.pile.util.UriUtils
 import org.koin.androidx.compose.getViewModel
+import kotlin.random.Random
 
 @Composable
 fun HomeScreen(
@@ -180,7 +181,14 @@ fun HomeScreen(
                 }
 
 
-                item { Spacer(Modifier.height(16.dp)) }
+                item {
+                    Spacer(Modifier.height(16.dp))
+                    Box(Modifier.height(100.dp).background(MaterialTheme.Color.Red)) {
+                        Box(Modifier.height(100.dp)) {
+
+                        }
+                    }
+                }
 
                 item {
                     HomeScreenSectionTitle(
@@ -241,7 +249,11 @@ fun HomeScreen(
             onDismiss = { isNewPileAlertExpanded = false },
             onConfirm = { pileName ->
                 isNewPileAlertExpanded = false
-                viewModel.addPile(pileName)
+                viewModel.addPile(
+                    pileName,
+                    "Dentistry", // TODO: Seleccionado por el usuario + color
+                    Random.nextInt(31)
+                )
             }
         )
     }

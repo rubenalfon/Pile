@@ -3,8 +3,6 @@ package com.ganadoro.pile.ui.screens.home
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Quiz
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
@@ -26,7 +24,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.random.Random
 
 data class HomeUiState(
     var pileModels: List<PileModel> = emptyList(),
@@ -67,13 +64,13 @@ class HomeViewModel(
         }
     }
 
-    fun addPile(pileName: String) {
+    fun addPile(pileName: String, iconId: String, color: Int) {
         viewModelScope.launch {
-            val newPile = PileModel( // TODO icono y color seleccionado por el usuario
+            val newPile = PileModel(
                 id = UUID.randomUUID().toString(),
                 name = pileName,
-                icon = Icons.Default.Quiz,
-                colorNumber = Random.nextInt(31).toLong()
+                iconId = iconId,
+                colorNumber = color.toLong()
             )
 
             pileModelRepository.insertPileModel(newPile)

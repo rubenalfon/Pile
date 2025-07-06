@@ -1,5 +1,6 @@
 import androidx.compose.ui.graphics.vector.ImageVector;
 import com.ganadoro.pile.models.DocumentDetail;
+import com.ganadoro.pile.util.SelectableIcon;
 import java.time.LocalDate;
 import kotlin.String;
 import kotlin.collections.List;
@@ -8,14 +9,14 @@ import kotlin.collections.List;
 -- PileModel
 
 CREATE TABLE IF NOT EXISTS PileModel(
-    id              TEXT                    PRIMARY KEY,
-    name            TEXT                    NOT NULL,
-    icon            TEXT AS ImageVector     NOT NULL ,
+    id              TEXT        PRIMARY KEY,
+    name            TEXT        NOT NULL,
+    iconId          TEXT        NOT NULL,
     colorNumber     INTEGER
 );
 
 insertPileModel:
-INSERT INTO PileModel(id, name, icon, colorNumber)
+INSERT INTO PileModel(id, name, iconId, colorNumber)
 VALUES(?,?,?,?);
 
 selectAllPileModels:
@@ -39,7 +40,7 @@ WHERE id = ?;
 
 updatePileModelIcon:
 UPDATE PileModel
-SET icon = ?
+SET iconId = ?
 WHERE id = ?;
 
 removePileModel:

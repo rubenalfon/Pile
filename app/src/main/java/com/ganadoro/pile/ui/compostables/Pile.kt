@@ -17,10 +17,13 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.theme.ExtendedTheme
+import com.ganadoro.pile.util.IconPack
 
 @Composable
 fun Pile(
@@ -54,7 +57,9 @@ fun Pile(
             .padding(12.dp)
     ) {
         Icon(
-            imageVector = pileModel.icon,
+            painter = painterResource(
+                IconPack.getIcon(pileModel.iconId) ?: R.drawable.warning_24px
+            ), // TODO: If no icon then big letter
             contentDescription = null,
             tint = foregroundColor ?: MaterialTheme.colorScheme.onSurface,
             modifier = Modifier

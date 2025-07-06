@@ -3,8 +3,6 @@ package com.ganadoro.pile.ui.screens.addDocument
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Quiz
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
@@ -148,7 +146,7 @@ class AddDocumentViewModel(
             val newPile = PileModel( // TODO icono y color seleccionado por el usuario
                 id = UUID.randomUUID().toString(),
                 name = pileName,
-                icon = Icons.Default.Quiz,
+                iconId = "Pet",
                 colorNumber = Random.nextInt(31).toLong()
             )
 
