@@ -22,10 +22,6 @@ object IconPack {
         SelectableIcon("Insurance", R.drawable.user_ic_umbrella_24px),
     )
 
-    fun getSelectableIcon(name: String): SelectableIcon? {
-        return icons.find { it.id == name }
-    }
-
     fun getIcon(name: String): Int? {
         return icons.find { it.id == name }?.nameResId
     }
