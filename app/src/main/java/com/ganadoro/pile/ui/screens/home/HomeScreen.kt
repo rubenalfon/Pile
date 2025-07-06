@@ -181,14 +181,7 @@ fun HomeScreen(
                 }
 
 
-                item {
-                    Spacer(Modifier.height(16.dp))
-                    Box(Modifier.height(100.dp).background(MaterialTheme.Color.Red)) {
-                        Box(Modifier.height(100.dp)) {
-
-                        }
-                    }
-                }
+                item { Spacer(Modifier.height(16.dp)) }
 
                 item {
                     HomeScreenSectionTitle(
