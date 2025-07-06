@@ -1,6 +1,4 @@
-import androidx.compose.ui.graphics.vector.ImageVector;
 import com.ganadoro.pile.models.DocumentDetail;
-import com.ganadoro.pile.util.SelectableIcon;
 import java.time.LocalDate;
 import kotlin.String;
 import kotlin.collections.List;
