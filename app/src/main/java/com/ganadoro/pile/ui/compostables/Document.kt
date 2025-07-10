@@ -13,9 +13,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,8 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.R
-import com.ganadoro.pile.util.renderFirstPDFPage
-import io.github.aakira.napier.Napier
+import com.ganadoro.pile.util.renderFirstPdfPage
 import java.io.File
 
 @Composable
@@ -47,15 +48,9 @@ fun Document(
     ) {
         val context = LocalContext.current
 
-        val bitmap by remember {
-            val bitmap: Bitmap? = try {
-                renderFirstPDFPage(File(context.filesDir, documentModel.id))
-            } catch (ex: Exception) {
-                Napier.e("DocumentId: ${documentModel.id}, ex: $ex")
-                null
-            }
-
-            mutableStateOf(bitmap)
+        var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+        LaunchedEffect(key1 = documentModel) {
+            bitmap = renderFirstPdfPage(File(context.filesDir, documentModel.id))
         }
 
         val imageModifier = Modifier

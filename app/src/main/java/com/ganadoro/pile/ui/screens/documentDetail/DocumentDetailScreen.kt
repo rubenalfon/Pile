@@ -120,7 +120,6 @@ fun DocumentDetailScreen(
         viewModel.loadDocument(documentId)
     }
 
-    val documentModel = uiState.documentModel
 
     var isRenameDocumentAlertExpanded by rememberSaveable { mutableStateOf(false) }
     var isDeleteDocumentAlertExpanded by rememberSaveable { mutableStateOf(false) }
@@ -129,17 +128,19 @@ fun DocumentDetailScreen(
 
 
     Scaffold(
-        modifier = modifier.fillMaxSize().clickable(
-            indication = null,
-            interactionSource = remember { MutableInteractionSource() }
-        ) {
-            focusManager.clearFocus()
-        },
+        modifier = modifier
+            .fillMaxSize()
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) {
+                focusManager.clearFocus()
+            },
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             ScreenTopAppBar(
                 popBackStack = popBackStack,
-                title = documentModel?.title ?: ""
+                title = uiState.documentModel?.title ?: ""
             )
         }
     ) { innerPadding ->
@@ -149,7 +150,7 @@ fun DocumentDetailScreen(
                 .padding(innerPadding)
         ) {
             LoadingWrapper(
-                documentModel == null || uiState.documentPileModels == null
+                uiState.documentModel == null || uiState.documentPileModels == null
             ) {
                 var isDocumentDetailsEditing by rememberSaveable { mutableStateOf(false) }
 
@@ -186,14 +187,14 @@ fun DocumentDetailScreen(
 
                     documentPilesSection(
                         documentPileModels = uiState.documentPileModels ?: emptyList(),
-                        onPileClick = navigateToPileDetail, // TODO No se actualiza el nombre de la pila. Que pasa si la pila se borra?
+                        onPileClick = navigateToPileDetail,
                         onEditDocumentPiles = { /*TODO Editar las pilas del documento*/ }
                     )
 
                     item { Spacer(Modifier.height(16.dp)) }
 
                     item {
-                        AddedSection(documentModel = documentModel!!)
+                        AddedSection(documentModel = uiState.documentModel!!)
                     }
 
                     item { Spacer(Modifier.height(330.dp)) }
@@ -219,7 +220,7 @@ fun DocumentDetailScreen(
 
     if (isRenameDocumentAlertExpanded) {
         AlertEditDocument(
-            documentName = documentModel?.title ?: "",
+            documentName = uiState.documentModel?.title ?: "",
             onDismiss = { isRenameDocumentAlertExpanded = false },
             onConfirm = { newDocumentName ->
                 isRenameDocumentAlertExpanded = false
@@ -274,6 +275,7 @@ private fun ScreenTopAppBar(
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ImagePager(
     modifier: Modifier = Modifier,
@@ -284,25 +286,64 @@ private fun ImagePager(
         pageCount = { images.size }
     )
 
-    HorizontalPager(
-        state = pagerState,
-        pageSpacing = 8.dp,
-        modifier = modifier
-            .height(500.dp)
-            .padding(horizontal = 16.dp)
-            .clip(RoundedCornerShape(28.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .clickable { onClick.invoke() }
-    ) { page ->
-        Image(
-            bitmap = images[page].asImageBitmap(),
-            contentDescription = stringResource(R.string.image_number, page + 1),
-            modifier = Modifier
-                .fillMaxSize()
+    var isPageNumberVisible by remember { mutableStateOf(true) }
+
+    LaunchedEffect(key1 = pagerState.currentPage) {
+        isPageNumberVisible = true
+
+        delay(5000)
+
+        isPageNumberVisible = false
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.TopEnd
+
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            pageSpacing = 8.dp,
+            modifier = modifier
+                .height(500.dp)
                 .clip(RoundedCornerShape(28.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-            contentScale = ContentScale.Fit
-        )
+                .background(MaterialTheme.colorScheme.surfaceContainer)
+                .clickable { onClick.invoke() }
+        ) { page ->
+            Image(
+                bitmap = images[page].asImageBitmap(),
+                contentDescription = stringResource(R.string.image_number, page + 1),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                contentScale = ContentScale.Fit
+            )
+        }
+
+        AnimatedVisibility(
+            isPageNumberVisible,
+            enter = fadeIn(MaterialTheme.motionScheme.slowEffectsSpec()),
+            exit = fadeOut(MaterialTheme.motionScheme.slowEffectsSpec())
+        ) {
+            Box(
+                Modifier
+                    .padding(top = 16.dp, end = 16.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
+            ) {
+                Text(
+                    text = "${pagerState.currentPage + 1} / ${pagerState.pageCount}",
+                    maxLines = 1,
+                    modifier = Modifier
+                        .padding(vertical = 8.dp, horizontal = 14.dp),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+        }
     }
 }
 
@@ -402,7 +443,7 @@ private fun LazyListScope.documentDetailsSection(
         ) {
             Button(
                 onClick = {
-                    onEvent(DocumentDetailEvent.Add())
+                    onEvent(DocumentDetailEvent.Add)
                 },
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -608,10 +649,11 @@ private fun DocumentNoteSection(
                 onValueChange = { newText ->
                     unsavedDocumentNoteDetail = newText
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .onFocusChanged { focusState ->
-                    isFocused = focusState.isFocused
-                },
+                        isFocused = focusState.isFocused
+                    },
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface
                 ),

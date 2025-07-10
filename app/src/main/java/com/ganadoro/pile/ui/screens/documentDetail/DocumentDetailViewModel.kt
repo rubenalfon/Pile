@@ -19,10 +19,13 @@ import com.ganadoro.pile.models.DocumentDetail
 import com.ganadoro.pile.models.StringDetail
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
-import com.ganadoro.pile.util.renderPdfPages
+import com.ganadoro.pile.util.renderAllPdfPages
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
@@ -39,7 +42,7 @@ sealed interface DocumentDetailEvent {
         DocumentDetailEvent
 
     data class Move(val fromIndex: Int, val toIndex: Int) : DocumentDetailEvent
-    class Add : DocumentDetailEvent
+    data object Add : DocumentDetailEvent
     data class Delete(val index: Int) : DocumentDetailEvent
 }
 
@@ -54,22 +57,25 @@ class DocumentDetailViewModel(
 
     fun loadDocument(documentId: String) {
         viewModelScope.launch {
-            launch {
-                _uiState.value = _uiState.value.copy(
-                    documentModel = documentModelRepository.getDocumentModelById(documentId)
-                )
-            }
-            launch {
-                val file = File(context.filesDir, documentId)
-                _uiState.value = _uiState.value.copy(bitmaps = renderPdfPages(file))
-            }
-            launch getPileModelsLaunch@{
-                if (_uiState.value.documentModel == null) return@getPileModelsLaunch
+            val documentModel =
+                documentModelRepository.getDocumentModelById(documentId) ?: return@launch
 
-                pileModelRepository.getPileModelsByIds(_uiState.value.documentModel!!.documentPileIds)
-                    .collect { piles ->
-                        _uiState.update { it.copy(documentPileModels = piles) }
-                    }
+
+            val bitmapsDeferred = async(Dispatchers.IO) {
+                val file = File(context.filesDir, documentId)
+                renderAllPdfPages(file)
+            }
+
+            val pilesDeferred = async {
+                pileModelRepository.getPileModelsByIds(documentModel.documentPileIds).first()
+            }
+
+            _uiState.update {
+                it.copy(
+                    documentModel = documentModel,
+                    bitmaps = bitmapsDeferred.await(),
+                    documentPileModels = pilesDeferred.await()
+                )
             }
         }
     }

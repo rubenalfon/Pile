@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.repositories.DocumentModelRepository
-import com.ganadoro.pile.util.renderPdfPages
+import com.ganadoro.pile.util.renderAllPdfPages
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +44,7 @@ class EditPDFViewModel(
             }
             launch {
                 val file = File(context.filesDir, documentId)
-                _uiState.update { it.copy(bitmaps = renderPdfPages(file)) }
+                _uiState.update { it.copy(bitmaps = renderAllPdfPages(file)) }
             }
         }
     }

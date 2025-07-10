@@ -10,7 +10,7 @@ import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
-import com.ganadoro.pile.util.renderFirstPDFPage
+import com.ganadoro.pile.util.renderFirstPdfPage
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,7 +61,7 @@ class AddDocumentViewModel(
             }
             launch {
                 val file = File(context.filesDir, documentId)
-                _uiState.update { it.copy(firstPageBitmap = renderFirstPDFPage(file)) }
+                _uiState.update { it.copy(firstPageBitmap = renderFirstPdfPage(file)) }
             }
         }
     }
