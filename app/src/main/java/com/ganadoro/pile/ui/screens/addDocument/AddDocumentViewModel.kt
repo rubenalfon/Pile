@@ -147,7 +147,7 @@ class AddDocumentViewModel(
                 id = UUID.randomUUID().toString(),
                 name = pileName,
                 iconId = "Pet",
-                colorNumber = Random.nextInt(31).toLong()
+                colorNumber = Random.nextInt(30).toLong()
             )
 
             pileModelRepository.insertPileModel(newPile)

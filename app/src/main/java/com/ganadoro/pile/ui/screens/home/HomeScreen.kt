@@ -245,7 +245,7 @@ fun HomeScreen(
                 viewModel.addPile(
                     pileName,
                     "Dentistry", // TODO: Seleccionado por el usuario + color
-                    Random.nextInt(31)
+                    Random.nextInt(30)
                 )
             }
         )

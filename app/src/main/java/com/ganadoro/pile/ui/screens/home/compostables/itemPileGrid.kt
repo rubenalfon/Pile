@@ -36,13 +36,13 @@ fun LazyListScope.itemPileGrid(
         horizontalSpacing = 8.dp,
         verticalSpacing = 8.dp,
         horizontalPadding = 16.dp,
-        content = { modifier, document ->
-            if (document != addPile) {
+        content = { modifier, pileModel ->
+            if (pileModel != addPile) {
                 Pile(
-                    pileModel = document,
+                    pileModel = pileModel,
                     modifier = modifier,
                     onClick = onPileClick,
-                    isColored = coloredPileIds.contains(document.id)
+                    isColored = coloredPileIds.contains(pileModel.id)
                 )
             } else {
                 Pile(
