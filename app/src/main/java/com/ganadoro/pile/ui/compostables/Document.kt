@@ -26,6 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.R
@@ -71,7 +72,7 @@ fun Document(
             )
         } else {
             Image(
-                painter = painterResource(id = R.drawable.test_image), // TODO: Coger la imagen del documento
+                painter = painterResource(id = R.drawable.test_image),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = imageModifier
@@ -83,6 +84,8 @@ fun Document(
         Text(
             text = documentModel.title,
             style = MaterialTheme.typography.bodyMedium,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center
         )
     }

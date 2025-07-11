@@ -84,6 +84,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.ganadoro.pile.DocumentModel
@@ -253,7 +254,9 @@ private fun ScreenTopAppBar(
         title = {
             Text(
                 text = title,
-                maxLines = 1
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(end = 16.dp)
             )
         },
         navigationIcon = {
@@ -286,9 +289,11 @@ private fun ImagePager(
         pageCount = { images.size }
     )
 
-    var isPageNumberVisible by remember { mutableStateOf(true) }
+    var isPageNumberVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = pagerState.currentPage) {
+        if (images.size < 2) return@LaunchedEffect
+
         isPageNumberVisible = true
 
         delay(5000)
