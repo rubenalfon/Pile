@@ -189,7 +189,7 @@ fun DocumentDetailScreen(
                     documentPilesSection(
                         documentPileModels = uiState.documentPileModels ?: emptyList(),
                         onPileClick = navigateToPileDetail,
-                        onEditDocumentPiles = { /*TODO Editar las pilas del documento*/ }
+                        onEditDocumentPiles = { /*TODO: Editar las pilas del documento*/ }
                     )
 
                     item { Spacer(Modifier.height(16.dp)) }
