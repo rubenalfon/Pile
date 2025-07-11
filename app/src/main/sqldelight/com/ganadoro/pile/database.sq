@@ -41,6 +41,11 @@ UPDATE PileModel
 SET iconId = ?
 WHERE id = ?;
 
+updatePileModelColor:
+UPDATE PileModel
+SET colorNumber = ?
+WHERE id = ?;
+
 removePileModel:
 DELETE FROM PileModel
 WHERE PileModel.id = ?;

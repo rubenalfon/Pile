@@ -51,6 +51,7 @@ class PileModelRepositoryImpl(
     override suspend fun updatePileModel(pileModel: PileModel) {
         databaseQueries.updatePileModelName(pileModel.name, pileModel.id)
         databaseQueries.updatePileModelIcon(pileModel.iconId, pileModel.id)
+        databaseQueries.updatePileModelColor(pileModel.colorNumber, pileModel.id)
     }
 
     override suspend fun deletePileModel(id: String) {
