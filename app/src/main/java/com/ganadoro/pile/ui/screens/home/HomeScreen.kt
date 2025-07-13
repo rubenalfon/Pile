@@ -166,7 +166,7 @@ fun HomeScreen(
                     },
                 state = listState
             ) {
-                item { Spacer(Modifier.height(16.dp)) }
+                item { Spacer(Modifier.height(8.dp)) }
 
                 item {
                     AnimatedVisibility(
