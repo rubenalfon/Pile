@@ -209,6 +209,9 @@ fun AddDocumentScreen(
                             coloredPileIds = uiState.selectedPileModelIds,
                             backgroundColor = colorScheme.surfaceContainer
                         )
+
+                        item { Box(Modifier.height(104.dp).fillMaxWidth().background(colorScheme.surfaceContainer)) }
+
                     }
                 }
             }
