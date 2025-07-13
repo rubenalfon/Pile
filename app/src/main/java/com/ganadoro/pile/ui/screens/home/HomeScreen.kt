@@ -126,6 +126,7 @@ fun HomeScreen(
             SearchBar(
                 Modifier
                     .padding(horizontal = 16.dp)
+                    .padding(bottom = 8.dp)
             )
         }
     ) { innerPadding ->
