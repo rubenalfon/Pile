@@ -4,10 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.UUID
@@ -18,18 +22,32 @@ data class PileDetailUiState(
 )
 
 class PileDetailViewModel(
-    private val pileModelRepository: PileModelRepository
+    private val pileModelRepository: PileModelRepository,
+    private val documentModelRepository: DocumentModelRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PileDetailUiState())
     val uiState: StateFlow<PileDetailUiState> = _uiState.asStateFlow()
 
     fun loadPile(pileId: String) {
         viewModelScope.launch {
-            val pile = pileModelRepository.getPileModelById(pileId)
-            _uiState.value = _uiState.value.copy(pile = pile)
+            val pile = pileModelRepository.getPileModelById(pileId) ?: return@launch
+
+            val documents = async {
+                documentModelRepository.getDocumentModelsByPileId(pileId).first()
+            }
+
+            _uiState.update {
+                it.copy(
+                    pile = pile,
+                    documentList = documents.await()
+                )
+            }
+
+
         }
 
-        _uiState.value.documentList = listOf( // TODO: Remove and search in db
+        _uiState.value.documentList = listOf(
+            // TODO: Remove and search in db
             DocumentModel(
                 id = UUID.randomUUID().toString(),
                 title = "Mi documento",

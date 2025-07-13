@@ -54,6 +54,7 @@ import org.koin.androidx.compose.getViewModel
 fun PileDetailScreen(
     modifier: Modifier = Modifier,
     pileID: String,
+    navigateToDocumentDetail: (documentId: String) -> Unit,
     popBackStack: () -> Unit,
     viewModel: PileDetailViewModel = getViewModel<PileDetailViewModel>()
 ) {
@@ -98,7 +99,10 @@ fun PileDetailScreen(
                 ) {
                     itemDocumentsCompleteList(
                         availableWidth = availableWidth,
-                        documents = uiState.documentList
+                        documents = uiState.documentList,
+                        onDocumentClick = { documentId ->
+                            navigateToDocumentDetail(documentId)
+                        }
                     )
                 }
             }

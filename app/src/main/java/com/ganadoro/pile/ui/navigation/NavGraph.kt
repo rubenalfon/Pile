@@ -87,6 +87,13 @@ private fun addPileDetailScreen(
 
         PileDetailScreen(
             pileID = pileID,
+            navigateToDocumentDetail = {
+                navController.navigate(
+                    NavRoute.DocumentDetailRoute.withArgs(
+                        it
+                    )
+                )
+            },
             popBackStack = {
                 navController.popBackStack()
             }

@@ -11,6 +11,7 @@ interface DocumentModelRepository {
     val documentModels: Flow<List<DocumentModel>>
     suspend fun getAllDocumentModels(): List<DocumentModel>
     suspend fun getDocumentModelById(id: String): DocumentModel?
+    suspend fun getDocumentModelsByPileId(pileId: String): Flow<List<DocumentModel>>
     suspend fun insertDocumentModel(documentModel: DocumentModel)
     suspend fun updateDocumentModel(documentModel: DocumentModel)
     suspend fun deleteDocumentModel(id: String)
@@ -28,6 +29,10 @@ class DocumentModelRepositoryImpl(
 
     override suspend fun getDocumentModelById(id: String): DocumentModel? {
         return databaseQueries.selectDocumentModelById(id).executeAsOneOrNull()
+    }
+
+    override suspend fun getDocumentModelsByPileId(pileId: String): Flow<List<DocumentModel>> {
+        return databaseQueries.selectDocumentModelsByPileId(pileId).asFlow().mapToList(Dispatchers.IO)
     }
 
     override suspend fun insertDocumentModel(documentModel: DocumentModel) {

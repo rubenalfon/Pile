@@ -102,6 +102,11 @@ SELECT *
 FROM DocumentModel
 WHERE id = ?;
 
+selectDocumentModelsByPileId:
+SELECT *
+FROM DocumentModel
+WHERE documentPileIds LIKE ('%"' || ? || '"%');
+
 removeDocumentModel:
 DELETE FROM DocumentModel
 WHERE id = ?;
