@@ -98,7 +98,7 @@ fun HomeScreen(
 
     val uiState by viewModel.uiState.collectAsState()
 
-    val listState = rememberLazyListState() // TODO: Send to viewmodel
+    val listState = rememberLazyListState()
 
     var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
     var isNewPileAlertExpanded by rememberSaveable { mutableStateOf(false) }
