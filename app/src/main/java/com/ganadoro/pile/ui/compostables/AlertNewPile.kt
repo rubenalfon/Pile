@@ -1,6 +1,7 @@
 package com.ganadoro.pile.ui.compostables
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -10,11 +11,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import com.ganadoro.pile.R
@@ -26,6 +31,12 @@ fun AlertNewPile(
     onDismiss: () -> Unit,
     onConfirm: (pileName: String) -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     var pileName by rememberSaveable { mutableStateOf("") }
     AlertDialog(
         modifier = modifier,
@@ -47,7 +58,13 @@ fun AlertNewPile(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences
-                )
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        onConfirm.invoke(pileName)
+                    }
+                ),
+                modifier = Modifier.focusRequester(focusRequester)
             )
         },
         confirmButton = {
