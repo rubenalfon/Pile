@@ -46,6 +46,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
+import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
 import org.koin.androidx.compose.getViewModel
 
@@ -83,11 +84,12 @@ fun PileDetailScreen(
             Modifier
                 .padding(innerPadding)
                 .padding(top = 8.dp)
+                .fillMaxSize()
         ) {
             var availableWidth by remember { mutableStateOf(0.dp) }
             val density = LocalDensity.current
 
-            if (uiState.pile != null) {
+            LoadingWrapper(uiState.pile == null || uiState.documentList == null) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -99,7 +101,7 @@ fun PileDetailScreen(
                 ) {
                     itemDocumentsCompleteList(
                         availableWidth = availableWidth,
-                        documents = uiState.documentList,
+                        documents = uiState.documentList!!,
                         onDocumentClick = { documentId ->
                             navigateToDocumentDetail(documentId)
                         }

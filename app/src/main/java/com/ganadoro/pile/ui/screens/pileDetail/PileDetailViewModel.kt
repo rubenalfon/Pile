@@ -13,12 +13,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.util.UUID
 
 data class PileDetailUiState(
     var pile: PileModel? = null,
-    var documentList: List<DocumentModel> = emptyList()
+    var documentList: List<DocumentModel>? = null
 )
 
 class PileDetailViewModel(
@@ -42,73 +40,7 @@ class PileDetailViewModel(
                     documentList = documents.await()
                 )
             }
-
-
         }
-
-        _uiState.value.documentList = listOf(
-            // TODO: Remove and search in db
-            DocumentModel(
-                id = UUID.randomUUID().toString(),
-                title = "Mi documento",
-                creationDate = LocalDate.of(2025, 4, 1),
-                modificationDate = LocalDate.of(2025, 4, 1),
-                documentDetails = emptyList(),
-                documentOrganizationIds = emptyList(),
-                documentNote = "",
-                documentPileIds = emptyList()
-            ),
-            DocumentModel(
-                id = UUID.randomUUID().toString(),
-                title = "Mi documento",
-                creationDate = LocalDate.of(2025, 4, 1),
-                modificationDate = LocalDate.of(2025, 4, 1),
-                documentDetails = emptyList(),
-                documentOrganizationIds = emptyList(),
-                documentNote = "",
-                documentPileIds = emptyList()
-            ),
-            DocumentModel(
-                id = UUID.randomUUID().toString(),
-                title = "Mi documento",
-                creationDate = LocalDate.of(2025, 4, 1),
-                modificationDate = LocalDate.of(2025, 4, 1),
-                documentDetails = emptyList(),
-                documentOrganizationIds = emptyList(),
-                documentNote = "",
-                documentPileIds = emptyList()
-            ),
-            DocumentModel(
-                id = UUID.randomUUID().toString(),
-                title = "Mi documento",
-                creationDate = LocalDate.of(2025, 3, 1),
-                modificationDate = LocalDate.of(2025, 3, 1),
-                documentDetails = emptyList(),
-                documentOrganizationIds = emptyList(),
-                documentNote = "",
-                documentPileIds = emptyList()
-            ),
-            DocumentModel(
-                id = UUID.randomUUID().toString(),
-                title = "Mi documento",
-                creationDate = LocalDate.of(2025, 3, 1),
-                modificationDate = LocalDate.of(2025, 3, 1),
-                documentDetails = emptyList(),
-                documentOrganizationIds = emptyList(),
-                documentNote = "",
-                documentPileIds = emptyList()
-            ),
-            DocumentModel(
-                id = UUID.randomUUID().toString(),
-                title = "Mi documento",
-                creationDate = LocalDate.of(2025, 1, 1),
-                modificationDate = LocalDate.of(2025, 1, 1),
-                documentDetails = emptyList(),
-                documentOrganizationIds = emptyList(),
-                documentNote = "",
-                documentPileIds = emptyList()
-            ),
-        )
     }
 
     fun updatePileName(newPileName: String) {
