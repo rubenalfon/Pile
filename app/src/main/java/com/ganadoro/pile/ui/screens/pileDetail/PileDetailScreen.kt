@@ -3,7 +3,9 @@ package com.ganadoro.pile.ui.screens.pileDetail
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -114,6 +116,9 @@ fun PileDetailScreen(
                             null
                         }
                     )
+                    item {
+                        Spacer(Modifier.height(100.dp))
+                    }
                 }
             }
 

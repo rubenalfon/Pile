@@ -244,7 +244,7 @@ fun HomeScreen(
                     item {
                         Box(
                             Modifier
-                                .height(52.dp)
+                                .height(100.dp)
                                 .fillMaxWidth()
                                 .background(documentsColorSection)
                         )
