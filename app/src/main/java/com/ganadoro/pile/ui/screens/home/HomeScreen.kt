@@ -143,111 +143,112 @@ fun HomeScreen(
 
         LoadingWrapper(
             isLoading = uiState.pileModels == null || uiState.documentList == null || uiState.coloredPileIds == null
-        ) { }
-        Box(
-            Modifier
-                .padding(
-                    top = innerPadding.calculateTopPadding(),
-                    start = innerPadding.calculateStartPadding(layoutDirection),
-                    end = innerPadding.calculateEndPadding(layoutDirection)
-                )
-                .fillMaxSize()
-                .background(documentsColorSection)
         ) {
-            LazyColumn(
+            Box(
                 Modifier
-                    .padding(bottom = innerPadding.calculateBottomPadding())
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
-                    .onGloballyPositioned { coordinates ->
-                        val widthPx = coordinates.size.width
-                        availableWidth = with(density) { widthPx.toDp() }.value.dp
-                    }
-                    .pointerInteropFilter {
-                        when (it.action) {
-                            MotionEvent.ACTION_DOWN -> {
-                                fabMenuExpanded = false
-
-                            }
-                        }
-                        false
-                    },
-                state = listState
+                    .padding(
+                        top = innerPadding.calculateTopPadding(),
+                        start = innerPadding.calculateStartPadding(layoutDirection),
+                        end = innerPadding.calculateEndPadding(layoutDirection)
+                    )
+                    .fillMaxSize()
+                    .background(documentsColorSection)
             ) {
-                item { Spacer(Modifier.height(8.dp)) }
+                LazyColumn(
+                    Modifier
+                        .padding(bottom = innerPadding.calculateBottomPadding())
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                        .onGloballyPositioned { coordinates ->
+                            val widthPx = coordinates.size.width
+                            availableWidth = with(density) { widthPx.toDp() }.value.dp
+                        }
+                        .pointerInteropFilter {
+                            when (it.action) {
+                                MotionEvent.ACTION_DOWN -> {
+                                    fabMenuExpanded = false
 
-                item {
-                    AnimatedVisibility(
-                        visible = uiState.documentList!!.any { it.id == TEMP_DOCUMENT_ID },
-                        enter = EnterTransition.None,
-                        exit = fadeOut(tween(100)) + shrinkVertically()
-                    ) {
-                        UnsavedDocumentCard(
-                            onNavigateUnsavedDocument = { navigateToEditPDF(TEMP_DOCUMENT_ID) },
-                            onDismiss = { viewModel.deleteUnsavedDocument() }
-                        )
-                    }
-                }
+                                }
+                            }
+                            false
+                        },
+                    state = listState
+                ) {
+                    item { Spacer(Modifier.height(8.dp)) }
 
-
-                item { Spacer(Modifier.height(16.dp)) }
-
-                item {
-                    HomeScreenSectionTitle(
-                        title = stringResource(R.string.your_piles),
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                }
-                item { Spacer(Modifier.height(8.dp)) }
-
-                itemPileGrid(
-                    availableWidth = availableWidth,
-                    piles = uiState.pileModels!!,
-                    onPileClick = navigateToPileDetail,
-                    onNewPileClick = { isNewPileAlertExpanded = true },
-                    coloredPileIds = uiState.coloredPileIds!!
-                )
-
-                item { Spacer(Modifier.height(30.dp)) }
-                item {
-                    Column(
-                        Modifier
-                            .clip(
-                                RoundedCornerShape(
-                                    topStart = 24.dp,
-                                    topEnd = 24.dp
-                                )
+                    item {
+                        AnimatedVisibility(
+                            visible = uiState.documentList!!.any { it.id == TEMP_DOCUMENT_ID },
+                            enter = EnterTransition.None,
+                            exit = fadeOut(tween(100)) + shrinkVertically()
+                        ) {
+                            UnsavedDocumentCard(
+                                onNavigateUnsavedDocument = { navigateToEditPDF(TEMP_DOCUMENT_ID) },
+                                onDismiss = { viewModel.deleteUnsavedDocument() }
                             )
-                            .background(documentsColorSection)
-                            .padding(top = 16.dp)
-                    ) {
+                        }
+                    }
+
+
+                    item { Spacer(Modifier.height(16.dp)) }
+
+                    item {
                         HomeScreenSectionTitle(
-                            title = stringResource(R.string.all_documents),
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
+                            title = stringResource(R.string.your_piles),
+                            modifier = Modifier.padding(horizontal = 16.dp)
                         )
-                        Spacer(Modifier.height(8.dp))
                     }
-                }
+                    item { Spacer(Modifier.height(8.dp)) }
 
-                itemDocumentsCompleteList(
-                    availableWidth = availableWidth,
-                    backgroundColor = documentsColorSection,
-                    documents = uiState.documentList!!,
-                    onDocumentClick = navigateToDocumentDetail,
-                    bitmapCache = bitmapCache,
-                    loadBitmap = { documentId ->
-                        viewModel.requestBitmapLoad(documentId)
-                        null
-                    }
-                )
-
-                item {
-                    Box(
-                        Modifier
-                            .height(52.dp)
-                            .fillMaxWidth()
-                            .background(documentsColorSection)
+                    itemPileGrid(
+                        availableWidth = availableWidth,
+                        piles = uiState.pileModels!!,
+                        onPileClick = navigateToPileDetail,
+                        onNewPileClick = { isNewPileAlertExpanded = true },
+                        coloredPileIds = uiState.coloredPileIds!!
                     )
+
+                    item { Spacer(Modifier.height(30.dp)) }
+                    item {
+                        Column(
+                            Modifier
+                                .clip(
+                                    RoundedCornerShape(
+                                        topStart = 24.dp,
+                                        topEnd = 24.dp
+                                    )
+                                )
+                                .background(documentsColorSection)
+                                .padding(top = 16.dp)
+                        ) {
+                            HomeScreenSectionTitle(
+                                title = stringResource(R.string.all_documents),
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                            )
+                            Spacer(Modifier.height(8.dp))
+                        }
+                    }
+
+                    itemDocumentsCompleteList(
+                        availableWidth = availableWidth,
+                        backgroundColor = documentsColorSection,
+                        documents = uiState.documentList!!,
+                        onDocumentClick = navigateToDocumentDetail,
+                        bitmapCache = bitmapCache,
+                        loadBitmap = { documentId ->
+                            viewModel.requestBitmapLoad(documentId)
+                            null
+                        }
+                    )
+
+                    item {
+                        Box(
+                            Modifier
+                                .height(52.dp)
+                                .fillMaxWidth()
+                                .background(documentsColorSection)
+                        )
+                    }
                 }
             }
         }
