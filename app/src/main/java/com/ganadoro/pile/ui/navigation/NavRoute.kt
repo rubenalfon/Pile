@@ -13,6 +13,10 @@ sealed class NavRoute(val path: String) {
         const val DOCUMENT_ID_KEY = "documentId"
     }
 
+    data object EditDocumentPilesRoute : NavRoute("EditDocumentPiles") {
+        const val DOCUMENT_ID_KEY = "documentId"
+    }
+
     data object EditPDFRoute : NavRoute("EditPDF") {
         const val DOCUMENT_ID_KEY = "documentId"
         const val DESTINATION_KEY = "destination"

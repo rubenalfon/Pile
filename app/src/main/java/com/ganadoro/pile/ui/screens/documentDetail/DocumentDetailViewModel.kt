@@ -25,7 +25,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
@@ -57,25 +57,31 @@ class DocumentDetailViewModel(
 
     fun loadDocument(documentId: String) {
         viewModelScope.launch {
-            val documentModel =
-                documentModelRepository.getDocumentModelById(documentId) ?: return@launch
+            val documentModelFlow =
+                documentModelRepository.getDocumentModelById(documentId)
 
+            documentModelFlow.combine(pileModelRepository.pileModels) { documentModel, allPiles ->
+                if (documentModel == null) {
+                    return@combine DocumentDetailUiState()
+                }
 
-            val bitmapsDeferred = async(Dispatchers.IO) {
-                val file = File(context.filesDir, documentId)
-                renderAllPdfPages(file)
-            }
+                val bitmapsDeferred = async(Dispatchers.IO) {
+                    val file = File(context.filesDir, documentId)
+                    renderAllPdfPages(file)
+                }
 
-            val pilesDeferred = async {
-                pileModelRepository.getPileModelsByIds(documentModel.documentPileIds).first()
-            }
+                val documentPileModels =
+                    allPiles.filter { pile -> pile.id in documentModel.documentPileIds }
 
-            _uiState.update {
-                it.copy(
+                DocumentDetailUiState(
                     documentModel = documentModel,
                     bitmaps = bitmapsDeferred.await(),
-                    documentPileModels = pilesDeferred.await()
+                    documentPileModels = documentPileModels
                 )
+            }.collect { finalState ->
+                _uiState.update {
+                    finalState
+                }
             }
         }
     }

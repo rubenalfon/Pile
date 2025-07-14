@@ -7,11 +7,9 @@ import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.repositories.BitmapCacheRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -34,15 +32,15 @@ class PileDetailViewModel(
         viewModelScope.launch {
             val pile = pileModelRepository.getPileModelById(pileId) ?: return@launch
 
-            val documents = async {
-                documentModelRepository.getDocumentModelsByPileId(pileId).first()
-            }
+            val documentsFlow = documentModelRepository.getDocumentModelsByPileId(pileId)
 
-            _uiState.update {
-                it.copy(
-                    pile = pile,
-                    documentList = documents.await()
-                )
+            documentsFlow.collect { documents ->
+                _uiState.update {
+                    it.copy(
+                        pile = pile,
+                        documentList = documents
+                    )
+                }
             }
         }
     }

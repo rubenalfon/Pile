@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
@@ -50,7 +51,7 @@ class AddDocumentViewModel(
                     it.copy(
                         documentModel = documentModelRepository.getDocumentModelById(
                             documentId
-                        )
+                        ).first()
                     )
                 }
                 _uiState.update {
@@ -143,7 +144,7 @@ class AddDocumentViewModel(
 
     fun addPile(pileName: String) {
         viewModelScope.launch {
-            val newPile = PileModel( // TODO icono y color seleccionado por el usuario
+            val newPile = PileModel( // TODO icono y color seleccionado por el usuario CENTRALIZAR
                 id = UUID.randomUUID().toString(),
                 name = pileName,
                 iconId = "Pet",

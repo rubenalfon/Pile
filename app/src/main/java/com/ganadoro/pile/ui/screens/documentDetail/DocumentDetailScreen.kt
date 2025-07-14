@@ -112,6 +112,7 @@ fun DocumentDetailScreen(
     documentId: String,
     navigateToPileDetail: (pileId: String) -> Unit,
     navigateToEditDocument: (documentId: String) -> Unit,
+    navigateToEditDocumentPiles: (documentId: String) -> Unit,
     popBackStack: () -> Unit,
     viewModel: DocumentDetailViewModel = getViewModel<DocumentDetailViewModel>()
 ) {
@@ -189,7 +190,7 @@ fun DocumentDetailScreen(
                     documentPilesSection(
                         documentPileModels = uiState.documentPileModels ?: emptyList(),
                         onPileClick = navigateToPileDetail,
-                        onEditDocumentPiles = { /*TODO: Editar las pilas del documento*/ }
+                        onEditDocumentPiles = { navigateToEditDocumentPiles.invoke(documentId) }
                     )
 
                     item { Spacer(Modifier.height(16.dp)) }

@@ -18,9 +18,10 @@ package com.ganadoro.pile.di
 
 import com.ganadoro.pile.ui.screens.addDocument.AddDocumentViewModel
 import com.ganadoro.pile.ui.screens.documentDetail.DocumentDetailViewModel
+import com.ganadoro.pile.ui.screens.editDocumentPiles.EditDocumentPilesViewModel
 import com.ganadoro.pile.ui.screens.editPDF.EditPDFViewModel
-import com.ganadoro.pile.ui.screens.pileDetail.PileDetailViewModel
 import com.ganadoro.pile.ui.screens.home.HomeViewModel
+import com.ganadoro.pile.ui.screens.pileDetail.PileDetailViewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -30,4 +31,5 @@ val viewmodelModule = module {
     viewModelOf(::DocumentDetailViewModel)
     viewModelOf(::EditPDFViewModel)
     viewModelOf(::AddDocumentViewModel)
+    viewModelOf(::EditDocumentPilesViewModel)
 }

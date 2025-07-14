@@ -16,11 +16,10 @@ import com.ganadoro.pile.util.copyUriFile
 import com.ganadoro.pile.util.createPdfWithImages
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,20 +49,21 @@ class HomeViewModel(
 
     init {
         viewModelScope.launch {
-            val pilesDeferred = async {
-                pileModelRepository.pileModels.first()
-            }
 
-            val documents = documentModelRepository.documentModels.first()
+            val pileModelsFlow = pileModelRepository.pileModels
 
-            val coloredPileIds = documents.flatMap { it.documentPileIds }.distinct()
+            pileModelsFlow.combine(documentModelRepository.documentModels) { piles, documents ->
+                val coloredPileIds = documents.flatMap { it.documentPileIds }.distinct()
 
-            _uiState.update {
-                it.copy(
-                    pileModels = pilesDeferred.await(),
+                HomeUiState(
+                    pileModels = piles,
                     documentList = documents,
                     coloredPileIds = coloredPileIds
                 )
+            }.collect { finalState ->
+                _uiState.update {
+                    finalState
+                }
             }
         }
     }

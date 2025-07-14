@@ -2,6 +2,7 @@ package com.ganadoro.pile.repositories
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.ganadoro.pile.DatabaseQueries
 import com.ganadoro.pile.DocumentModel
 import kotlinx.coroutines.Dispatchers
@@ -10,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface DocumentModelRepository {    
     val documentModels: Flow<List<DocumentModel>>
     suspend fun getAllDocumentModels(): List<DocumentModel>
-    suspend fun getDocumentModelById(id: String): DocumentModel?
+    suspend fun getDocumentModelById(id: String): Flow<DocumentModel?>
     suspend fun getDocumentModelsByPileId(pileId: String): Flow<List<DocumentModel>>
     suspend fun insertDocumentModel(documentModel: DocumentModel)
     suspend fun updateDocumentModel(documentModel: DocumentModel)
@@ -27,8 +28,8 @@ class DocumentModelRepositoryImpl(
         return databaseQueries.selectAllDocumentModels().executeAsList()
     }
 
-    override suspend fun getDocumentModelById(id: String): DocumentModel? {
-        return databaseQueries.selectDocumentModelById(id).executeAsOneOrNull()
+    override suspend fun getDocumentModelById(id: String): Flow<DocumentModel?> {
+        return databaseQueries.selectDocumentModelById(id).asFlow().mapToOneOrNull(Dispatchers.IO)
     }
 
     override suspend fun getDocumentModelsByPileId(pileId: String): Flow<List<DocumentModel>> {

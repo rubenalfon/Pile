@@ -13,6 +13,7 @@ import com.ganadoro.pile.ui.screens.documentDetail.DocumentDetailScreen
 import com.ganadoro.pile.ui.screens.editPDF.EditPDFScreen
 import com.ganadoro.pile.ui.screens.home.HomeScreen
 import com.ganadoro.pile.ui.screens.pileDetail.PileDetailScreen
+import comganadoro.pile.ui.screens.editDocumentPiles.EditDocumentPilesScreen
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -28,6 +29,8 @@ fun NavGraph(modifier: Modifier = Modifier, navController: NavHostController) {
         addPileDetailScreen(navController = navController, navGraphBuilder = this)
 
         addDocumentDetailScreen(navController = navController, navGraphBuilder = this)
+
+        addEditDocumentPilesScreen(navController = navController, navGraphBuilder = this)
 
         addEditPDFScreen(navController = navController, navGraphBuilder = this)
 
@@ -134,10 +137,43 @@ private fun addDocumentDetailScreen(
                     NavRoute.EditPDFRoute.withArgs(
                         id,
                         URLEncoder.encode(encodedDestination, StandardCharsets.UTF_8.toString()),
-                        /*inclusive = */true.toString()
+                        /* inclusive = */true.toString()
                     )
                 )
             },
+            navigateToEditDocumentPiles = { id ->
+                navController.navigate(
+                    NavRoute.EditDocumentPilesRoute.withArgs(
+                        id
+                    )
+                )
+            },
+            popBackStack = {
+                navController.popBackStack()
+            }
+        )
+    }
+}
+
+private fun addEditDocumentPilesScreen(
+    navController: NavHostController, navGraphBuilder: NavGraphBuilder
+) {
+    navGraphBuilder.composable(
+        route = NavRoute.EditDocumentPilesRoute.withArgsFormat(NavRoute.EditDocumentPilesRoute.DOCUMENT_ID_KEY),
+        arguments = listOf(navArgument(NavRoute.EditDocumentPilesRoute.DOCUMENT_ID_KEY) {
+            type = NavType.StringType
+        })
+    ) {
+        val args = it.arguments
+        val documentId = args?.getString(NavRoute.EditDocumentPilesRoute.DOCUMENT_ID_KEY)
+
+        if (documentId.isNullOrBlank()) {
+            navController.popBackStack()
+            return@composable
+        }
+
+        EditDocumentPilesScreen(
+            documentId = documentId,
             popBackStack = {
                 navController.popBackStack()
             }
