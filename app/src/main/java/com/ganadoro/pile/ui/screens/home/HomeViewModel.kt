@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
+import com.ganadoro.pile.repositories.BitmapCacheRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
 import com.ganadoro.pile.util.FileUtils
@@ -15,9 +16,11 @@ import com.ganadoro.pile.util.copyUriFile
 import com.ganadoro.pile.util.createPdfWithImages
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -26,42 +29,47 @@ import java.time.LocalDate
 import java.util.UUID
 
 data class HomeUiState(
-    var pileModels: List<PileModel> = emptyList(),
-    var documentList: List<DocumentModel> = emptyList(),
-    var coloredPileIds: List<String> = emptyList()
+    var pileModels: List<PileModel>? = null,
+    var documentList: List<DocumentModel>? = null,
+    var coloredPileIds: List<String>? = null,
 )
 
 @SuppressLint("StaticFieldLeak")
 class HomeViewModel(
     private val context: Context, // Is safe,
     private val pileModelRepository: PileModelRepository,
-    private val documentModelRepository: DocumentModelRepository
+    private val documentModelRepository: DocumentModelRepository,
+    private val bitmapCacheRepository: BitmapCacheRepository
 ) : ViewModel() {
     private var _uiState = MutableStateFlow(HomeUiState())
     var uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    val bitmapCache = bitmapCacheRepository.bitmapCache
 
     lateinit var navigateToEditPDF: (pileId: String) -> Unit
 
     init {
         viewModelScope.launch {
-            launch {
-                pileModelRepository.pileModels.collect { piles ->
-                    _uiState.update { it.copy(pileModels = piles) }
-                }
+            val pilesDeferred = async {
+                pileModelRepository.pileModels.first()
             }
-            launch {
-                documentModelRepository.documentModels.collect { documents ->
-                    val coloredPileIds = documents.flatMap { it.documentPileIds }.distinct()
 
-                    _uiState.update {
-                        it.copy(
-                            documentList = documents,
-                            coloredPileIds = coloredPileIds
-                        )
-                    }
-                }
+            val documents = documentModelRepository.documentModels.first()
+
+            val coloredPileIds = documents.flatMap { it.documentPileIds }.distinct()
+
+            _uiState.update {
+                it.copy(
+                    pileModels = pilesDeferred.await(),
+                    documentList = documents,
+                    coloredPileIds = coloredPileIds
+                )
             }
         }
+    }
+
+    fun requestBitmapLoad(documentId: String) {
+        bitmapCacheRepository.ensureBitmapIsLoaded(documentId)
     }
 
     fun addPile(pileName: String, iconId: String, color: Int) {
@@ -159,7 +167,7 @@ class HomeViewModel(
 
     fun deleteUnsavedDocument() { // TODO: safe Delete
         _uiState.update {
-            it.copy(documentList = _uiState.value.documentList.filter { document -> document.id != TEMP_DOCUMENT_ID })
+            it.copy(documentList = _uiState.value.documentList?.filter { document -> document.id != TEMP_DOCUMENT_ID })
         }
 
 //        viewModelScope.launch {

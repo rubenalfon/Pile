@@ -1,5 +1,6 @@
 package com.ganadoro.pile.di
 
+import com.ganadoro.pile.repositories.BitmapCacheRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.DocumentModelRepositoryImpl
 import com.ganadoro.pile.repositories.DocumentOrganizationRepository
@@ -24,6 +25,12 @@ val repositoriesModule = module {
     single<DocumentModelRepository> {
         DocumentModelRepositoryImpl(
             databaseQueries = get()
+        )
+    }
+
+    single<BitmapCacheRepository> {
+        BitmapCacheRepository(
+            appContext = get()
         )
     }
 }

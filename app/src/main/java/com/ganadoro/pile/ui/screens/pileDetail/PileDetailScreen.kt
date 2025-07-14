@@ -45,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
@@ -64,6 +65,8 @@ fun PileDetailScreen(
     if (uiState.pile == null) {
         viewModel.loadPile(pileID)
     }
+
+    val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -104,6 +107,11 @@ fun PileDetailScreen(
                         documents = uiState.documentList!!,
                         onDocumentClick = { documentId ->
                             navigateToDocumentDetail(documentId)
+                        },
+                        bitmapCache = bitmapCache,
+                        loadBitmap = { documentId ->
+                            viewModel.requestBitmapLoad(documentId)
+                            null
                         }
                     )
                 }

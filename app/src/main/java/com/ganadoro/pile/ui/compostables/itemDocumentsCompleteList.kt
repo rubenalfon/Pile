@@ -1,11 +1,13 @@
 package com.ganadoro.pile.ui.compostables
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
@@ -18,6 +20,8 @@ fun LazyListScope.itemDocumentsCompleteList(
     availableWidth: Dp,
     backgroundColor: Color = Color.Transparent,
     documents: List<DocumentModel>,
+    bitmapCache: Map<String, Bitmap>,
+    loadBitmap: suspend (documentId: String) -> Bitmap?,
     onDocumentClick: (documentId: String) -> Unit = {}
 ) {
     val groupedDocuments: List<Pair<LocalDate, List<DocumentModel>>> =
@@ -58,23 +62,21 @@ fun LazyListScope.itemDocumentsCompleteList(
             verticalSpacing = 16.dp,
             horizontalPadding = 16.dp,
             content = { modifier, document ->
+                val cachedBitmap = bitmapCache[document.id]
+
+                if (cachedBitmap == null) {
+                    LaunchedEffect(key1 = document.id) {
+                        loadBitmap(document.id)
+                    }
+                }
+
                 Document(
                     documentModel = document,
+                    documentBitmap = cachedBitmap,
                     modifier = modifier,
                     onClick = onDocumentClick
                 )
             }
         )
-
-        if (index < groupedDocuments.size - 1) {
-            item {
-                Box(
-                    Modifier
-                        .height(16.dp)
-                        .fillMaxWidth()
-                        .background(backgroundColor)
-                )
-            }
-        }
     }
 }

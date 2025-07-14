@@ -73,9 +73,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
 import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
 import com.ganadoro.pile.ui.compostables.AlertNewPile
+import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.compostables.SwipeBox
 import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
@@ -97,6 +99,8 @@ fun HomeScreen(
     viewModel.navigateToEditPDF = navigateToEditPDF
 
     val uiState by viewModel.uiState.collectAsState()
+
+    val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     val listState = rememberLazyListState()
 
@@ -137,6 +141,9 @@ fun HomeScreen(
 
         val layoutDirection = LocalLayoutDirection.current
 
+        LoadingWrapper(
+            isLoading = uiState.pileModels == null || uiState.documentList == null || uiState.coloredPileIds == null
+        ) { }
         Box(
             Modifier
                 .padding(
@@ -170,7 +177,7 @@ fun HomeScreen(
 
                 item {
                     AnimatedVisibility(
-                        visible = uiState.documentList.any { it.id == TEMP_DOCUMENT_ID },
+                        visible = uiState.documentList!!.any { it.id == TEMP_DOCUMENT_ID },
                         enter = EnterTransition.None,
                         exit = fadeOut(tween(100)) + shrinkVertically()
                     ) {
@@ -194,10 +201,10 @@ fun HomeScreen(
 
                 itemPileGrid(
                     availableWidth = availableWidth,
-                    piles = uiState.pileModels,
+                    piles = uiState.pileModels!!,
                     onPileClick = navigateToPileDetail,
                     onNewPileClick = { isNewPileAlertExpanded = true },
-                    coloredPileIds = uiState.coloredPileIds
+                    coloredPileIds = uiState.coloredPileIds!!
                 )
 
                 item { Spacer(Modifier.height(30.dp)) }
@@ -221,12 +228,19 @@ fun HomeScreen(
                         Spacer(Modifier.height(8.dp))
                     }
                 }
+
                 itemDocumentsCompleteList(
                     availableWidth = availableWidth,
                     backgroundColor = documentsColorSection,
-                    documents = uiState.documentList,
-                    onDocumentClick = navigateToDocumentDetail
+                    documents = uiState.documentList!!,
+                    onDocumentClick = navigateToDocumentDetail,
+                    bitmapCache = bitmapCache,
+                    loadBitmap = { documentId ->
+                        viewModel.requestBitmapLoad(documentId)
+                        null
+                    }
                 )
+
                 item {
                     Box(
                         Modifier

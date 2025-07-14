@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.repositories.BitmapCacheRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
 import kotlinx.coroutines.async
@@ -21,10 +22,13 @@ data class PileDetailUiState(
 
 class PileDetailViewModel(
     private val pileModelRepository: PileModelRepository,
-    private val documentModelRepository: DocumentModelRepository
+    private val documentModelRepository: DocumentModelRepository,
+    private val bitmapCacheRepository: BitmapCacheRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PileDetailUiState())
     val uiState: StateFlow<PileDetailUiState> = _uiState.asStateFlow()
+
+    val bitmapCache = bitmapCacheRepository.bitmapCache
 
     fun loadPile(pileId: String) {
         viewModelScope.launch {
@@ -41,6 +45,10 @@ class PileDetailViewModel(
                 )
             }
         }
+    }
+
+    fun requestBitmapLoad(documentId: String) {
+        bitmapCacheRepository.ensureBitmapIsLoaded(documentId)
     }
 
     fun updatePileName(newPileName: String) {
