@@ -31,7 +31,7 @@ fun LazyListScope.itemDocumentsCompleteList(
             .toSortedMap(compareByDescending { it })
             .map { (date, docs) -> date to docs }
 
-    for ((index, entry) in groupedDocuments.withIndex()) {
+    for (entry in groupedDocuments) {
         val (date, docs) = entry
 
         item {
