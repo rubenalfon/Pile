@@ -51,7 +51,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -60,7 +60,7 @@ fun PileDetailScreen(
     pileID: String,
     navigateToDocumentDetail: (documentId: String) -> Unit,
     popBackStack: () -> Unit,
-    viewModel: PileDetailViewModel = getViewModel<PileDetailViewModel>()
+    viewModel: PileDetailViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

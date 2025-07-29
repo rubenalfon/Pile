@@ -84,7 +84,7 @@ import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
 import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
 import com.ganadoro.pile.ui.screens.home.compostables.itemPileGrid
 import com.ganadoro.pile.util.UriUtils
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 import kotlin.random.Random
 
 @Composable
@@ -94,7 +94,7 @@ fun HomeScreen(
     navigateToDocumentDetail: (documentId: String) -> Unit,
     navigateToEditPDF: (documentId: String) -> Unit
 ) {
-    val viewModel = getViewModel<HomeViewModel>()
+    val viewModel: HomeViewModel = koinViewModel()
 
     viewModel.navigateToEditPDF = navigateToEditPDF
 

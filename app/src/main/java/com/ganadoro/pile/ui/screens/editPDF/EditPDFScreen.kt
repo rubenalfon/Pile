@@ -74,7 +74,7 @@ import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.screens.editPDF.composables.AddItemCarousel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.distinctUntilChanged
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -84,7 +84,7 @@ fun EditPDFScreen(
     documentId: String,
     popBackStack: () -> Unit,
     onNext: () -> Unit,
-    viewModel: EditPDFViewModel = getViewModel<EditPDFViewModel>()
+    viewModel: EditPDFViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

@@ -38,7 +38,7 @@ import com.ganadoro.pile.ui.compostables.AlertNewPile
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.screens.editDocumentPiles.EditDocumentPilesViewModel
 import com.ganadoro.pile.ui.screens.home.compostables.itemPileGrid
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -47,7 +47,7 @@ fun EditDocumentPilesScreen(
     modifier: Modifier = Modifier,
     documentId: String,
     popBackStack: () -> Unit,
-    viewModel: EditDocumentPilesViewModel = getViewModel<EditDocumentPilesViewModel>()
+    viewModel: EditDocumentPilesViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

@@ -98,7 +98,7 @@ import com.ganadoro.pile.ui.compostables.SwipeBox
 import com.ganadoro.pile.ui.screens.documentDetail.composables.SectionTitleBar
 import com.ganadoro.pile.ui.screens.documentDetail.composables.SimpleTextField
 import kotlinx.coroutines.delay
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 import sh.calvin.reorderable.ReorderableColumn
 import sh.calvin.reorderable.ReorderableScope
 import java.time.format.DateTimeFormatter
@@ -114,7 +114,7 @@ fun DocumentDetailScreen(
     navigateToEditDocument: (documentId: String) -> Unit,
     navigateToEditDocumentPiles: (documentId: String) -> Unit,
     popBackStack: () -> Unit,
-    viewModel: DocumentDetailViewModel = getViewModel<DocumentDetailViewModel>()
+    viewModel: DocumentDetailViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
