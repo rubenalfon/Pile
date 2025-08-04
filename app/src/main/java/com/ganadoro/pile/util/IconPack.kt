@@ -4,7 +4,7 @@ import androidx.annotation.DrawableRes
 import com.ganadoro.pile.R
 
 
-data class SelectableIcon(val id: String, @DrawableRes val nameResId: Int)
+data class SelectableIcon(val id: String, @param:DrawableRes val nameResId: Int)
 
 object IconPack {
     val icons = listOf(
