@@ -87,7 +87,7 @@ fun EditDocumentPilesScreen(
                 itemPileGrid(
                     availableWidth = availableWidth,
                     piles = uiState.allPileModels!!,
-                    onPileClick =  viewModel::updatePileSelectState ,
+                    onPileClick = viewModel::updatePileSelectState,
                     onNewPileClick = { isNewPileAlertExpanded = true },
                     coloredPileIds = uiState.selectedPileModelIds!!
                 )
@@ -99,11 +99,9 @@ fun EditDocumentPilesScreen(
     if (isNewPileAlertExpanded) {
         AlertNewPile(
             onDismiss = { isNewPileAlertExpanded = false },
-            onConfirm = { pileName ->
+            onConfirm = { pileName, pileIconId, pileColorNumber ->
                 isNewPileAlertExpanded = false
-                viewModel.addPile(
-                    pileName
-                )
+                viewModel.addPile(pileName, pileIconId, pileColorNumber)
             }
         )
     }

@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
-import kotlin.random.Random
 
 data class EditDocumentPilesUiState(
     var documentModel: DocumentModel? = null,
@@ -69,13 +68,13 @@ class EditDocumentPilesViewModel(
         }
     }
 
-    fun addPile(pileName: String) {
+    fun addPile(pileName: String, iconId: String, color: Long) {
         viewModelScope.launch {
-            val newPile = PileModel( // TODO icono y color seleccionado por el usuario CENTRALIZAR
+            val newPile = PileModel(
                 id = UUID.randomUUID().toString(),
                 name = pileName,
-                iconId = "Bills",
-                colorNumber = Random.nextInt(30).toLong()
+                iconId = iconId,
+                colorNumber = color
             )
 
             pileModelRepository.insertPileModel(newPile)

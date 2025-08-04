@@ -1,7 +1,6 @@
 package com.ganadoro.pile.ui.screens.pileDetail
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,9 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -44,11 +40,11 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
+import com.ganadoro.pile.ui.compostables.AlertEditPile
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
 import org.koin.androidx.compose.koinViewModel
@@ -133,11 +129,11 @@ fun PileDetailScreen(
 
         if (isUpdatePileExpanded) {
             AlertEditPile(
-                pileName = uiState.pile!!.name,
+                pileModel = uiState.pile!!,
                 onDismiss = { isUpdatePileExpanded = false },
-                onConfirm = { pileName ->
+                onConfirm = { pileName, pileIconId, colorNumber ->
                     isUpdatePileExpanded = false
-                    viewModel.updatePileName(pileName)
+                    viewModel.updatePileName(pileName, pileIconId, colorNumber)
                 }
             )
         }
@@ -223,58 +219,6 @@ private fun TopAppBar(
         )
     )
 }
-
-@Composable
-private fun AlertEditPile(
-    modifier: Modifier = Modifier,
-    pileName: String,
-    onDismiss: () -> Unit,
-    onConfirm: (pileName: String) -> Unit
-) {
-    var newPileName by rememberSaveable { mutableStateOf(pileName) }
-    AlertDialog(
-        modifier = modifier,
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.edit_pile)) },
-        text = {
-            OutlinedTextField(
-                value = newPileName,
-                onValueChange = { newPileName = it },
-                label = { Text(stringResource(R.string.pile_name)) },
-                trailingIcon = {
-                    if (newPileName.isNotEmpty()) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.delete_text),
-                            modifier = Modifier.clickable { newPileName = "" })
-                    }
-                },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Sentences
-                )
-            )
-        },
-        confirmButton = {
-            TextButton(
-                enabled = newPileName.isNotEmpty(),
-                onClick = {
-                    onConfirm.invoke(newPileName)
-                }
-            ) {
-                Text(stringResource(R.string.edit))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = {
-                onDismiss.invoke()
-            }) {
-                Text(stringResource(R.string.cancel))
-            }
-        }
-    )
-}
-
 
 @Composable
 private fun AlertDeletePile(

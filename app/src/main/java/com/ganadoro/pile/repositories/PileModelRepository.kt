@@ -42,14 +42,14 @@ class PileModelRepositoryImpl(
     override suspend fun insertPileModel(pileModel: PileModel) {
         databaseQueries.insertPileModel(
             id = pileModel.id,
-            name = pileModel.name,
+            name = pileModel.name.trim(),
             iconId = pileModel.iconId,
             colorNumber = pileModel.colorNumber
         )
     }
 
     override suspend fun updatePileModel(pileModel: PileModel) {
-        databaseQueries.updatePileModelName(pileModel.name, pileModel.id)
+        databaseQueries.updatePileModelName(pileModel.name.trim(), pileModel.id)
         databaseQueries.updatePileModelIcon(pileModel.iconId, pileModel.id)
         databaseQueries.updatePileModelColor(pileModel.colorNumber, pileModel.id)
     }

@@ -72,13 +72,13 @@ class HomeViewModel(
         bitmapCacheRepository.ensureBitmapIsLoaded(documentId)
     }
 
-    fun addPile(pileName: String, iconId: String, color: Int) {
+    fun addPile(pileName: String, iconId: String, color: Long) {
         viewModelScope.launch {
             val newPile = PileModel(
                 id = UUID.randomUUID().toString(),
                 name = pileName,
                 iconId = iconId,
-                colorNumber = color.toLong()
+                colorNumber = color
             )
 
             pileModelRepository.insertPileModel(newPile)

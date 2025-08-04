@@ -221,9 +221,9 @@ fun AddDocumentScreen(
     if (isNewPileAlertExpanded) {
         AlertNewPile(
             onDismiss = { isNewPileAlertExpanded = false },
-            onConfirm = { pileName ->
+            onConfirm = { pileName, pileIconId, pileColorNumber ->
                 isNewPileAlertExpanded = false
-                viewModel.addPile(pileName)
+                viewModel.addPile(pileName, pileIconId, pileColorNumber)
             }
         )
     }

@@ -1,80 +1,121 @@
 package com.ganadoro.pile.ui.compostables
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.ToggleButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.unit.dp
+import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
+import com.ganadoro.pile.ui.theme.ExtendedTheme
+import com.ganadoro.pile.util.IconPack
 
 
 @Composable
 fun AlertNewPile(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
-    onConfirm: (pileName: String) -> Unit
+    onConfirm: (pileName: String, pileIconId: String, pileColorNumber: Long) -> Unit
 ) {
-    val focusRequester = remember { FocusRequester() }
+    AlertNewEditPile(
+        modifier = modifier,
+        onDismiss = onDismiss,
+        onConfirm = onConfirm
+    )
+}
 
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
+@Composable
+fun AlertEditPile(
+    modifier: Modifier = Modifier,
+    pileModel: PileModel,
+    onDismiss: () -> Unit,
+    onConfirm: (pileName: String, pileIconId: String, pileColorNumber: Long) -> Unit
+) {
+    AlertNewEditPile(
+        modifier = modifier,
+        pileModel = pileModel,
+        onDismiss = onDismiss,
+        onConfirm = onConfirm
+    )
+}
 
-    var pileName by rememberSaveable { mutableStateOf("") }
+
+@Composable
+private fun AlertNewEditPile(
+    modifier: Modifier = Modifier,
+    pileModel: PileModel? = null,
+    onDismiss: () -> Unit,
+    onConfirm: (pileName: String, pileIconId: String, pileColorNumber: Long) -> Unit
+) {
+    var pileName by rememberSaveable { mutableStateOf(pileModel?.name ?: "") }
+    var pileIconId by rememberSaveable { mutableStateOf(pileModel?.iconId ?: "Add") }
+    var pileColorNumber by rememberSaveable { mutableLongStateOf(pileModel?.colorNumber ?: 0) }
+
     AlertDialog(
         modifier = modifier,
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.add_pile)) },
+        title = { Text(stringResource(if (pileModel == null) R.string.add_pile else R.string.edit_pile)) },
         text = {
-            OutlinedTextField(
-                value = pileName,
-                onValueChange = { pileName = it },
-                label = { Text(stringResource(R.string.pile_name)) },
-                trailingIcon = {
-                    if (pileName.isNotEmpty()) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.delete_text),
-                            modifier = Modifier.clickable { pileName = "" })
-                    }
-                },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Sentences
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        onConfirm.invoke(pileName)
-                    }
-                ),
-                modifier = Modifier.focusRequester(focusRequester)
+            BodyAlertNewPile(
+                pileName = pileName,
+                pileColorNumber = pileColorNumber,
+                pileIconId = pileIconId,
+                onUpdatePileName = { pileName = it },
+                onUpdatePileIcon = { pileIconId = it },
+                onUpdatePileColor = { pileColorNumber = it },
             )
         },
         confirmButton = {
             TextButton(
                 enabled = pileName.isNotEmpty(),
                 onClick = {
-                    onConfirm.invoke(pileName)
+                    onConfirm.invoke(pileName, pileIconId, pileColorNumber)
                 }
             ) {
-                Text(stringResource(R.string.new_))
+                Text(stringResource(if (pileModel == null) R.string.new_ else R.string.edit))
             }
         },
         dismissButton = {
@@ -85,4 +126,164 @@ fun AlertNewPile(
             }
         }
     )
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun BodyAlertNewPile(
+    pileName: String,
+    pileColorNumber: Long,
+    pileIconId: String,
+    onUpdatePileName: (name: String) -> Unit,
+    onUpdatePileIcon: (iconId: String) -> Unit,
+    onUpdatePileColor: (colorNumber: Long) -> Unit,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            val foregroundColor =
+                ExtendedTheme.colors.customColorList.getOrNull(
+                    pileColorNumber.toInt()
+                )?.onColorContainer
+
+            Box(
+                Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .border(
+                        width = 4.dp,
+                        color = foregroundColor ?: MaterialTheme.colorScheme.surfaceVariant,
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(
+                        IconPack.getIcon(pileIconId) ?: R.drawable.warning_24px
+                    ),
+                    contentDescription = null,
+                    tint = foregroundColor ?: MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .size(32.dp)
+                )
+            }
+
+            OutlinedTextField(
+                value = pileName,
+                onValueChange = { onUpdatePileName(it) },
+                label = { Text(stringResource(R.string.pile_name)) },
+                trailingIcon = {
+                    if (pileName.isNotEmpty()) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.delete_text),
+                            modifier = Modifier.clickable { onUpdatePileName("") })
+                    }
+                },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Sentences
+                )
+            )
+        }
+
+        var selectedIndex by remember { mutableIntStateOf(0) }
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+        ) {
+            val options = listOf(stringResource(R.string.color), stringResource(R.string.icon))
+
+            options.forEachIndexed { index, label ->
+                ToggleButton(
+                    checked = selectedIndex == index,
+                    onCheckedChange = { selectedIndex = index },
+                    modifier = Modifier.semantics { role = Role.RadioButton },
+                    shapes =
+                        when (index) {
+                            0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                            options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                            else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                        },
+                ) {
+                    Text(label)
+                }
+            }
+        }
+
+        Box(
+            Modifier
+                .clip(RoundedCornerShape(14.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                .padding(16.dp)
+        ) {
+            val customColorList = ExtendedTheme.colors.customColorList
+            when (selectedIndex) {
+                0 -> {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(5),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        items(customColorList.size) { index ->
+                            FilledIconButton(
+                                onClick = { onUpdatePileColor(index.toLong()) },
+                                colors = IconButtonColors(
+                                    containerColor = customColorList[index].onColorContainer,
+                                    contentColor = Color.Red,
+                                    disabledContainerColor = Color.Red,
+                                    disabledContentColor = Color.Red
+                                ),
+                                modifier = Modifier
+                                    .aspectRatio(1f)
+                                    .alpha(0.8f)
+                            ) {
+                                if (pileColorNumber.toInt() == index)
+                                    Icon(
+                                        painter = painterResource(R.drawable.check_24px),
+                                        contentDescription = null,
+                                        tint = customColorList[index].colorContainer
+                                    )
+                            }
+                        }
+                    }
+                }
+
+                1 -> {
+                    val iconList = IconPack.icons
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(5),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        items(iconList.size) { index ->
+                            val isColorful = pileIconId == iconList[index].id
+
+                            FilledIconButton(
+                                onClick = { onUpdatePileIcon(iconList[index].id) },
+                                colors = IconButtonColors(
+                                    containerColor = if (isColorful) customColorList[pileColorNumber.toInt()].onColorContainer else Color.Transparent,
+                                    contentColor = Color.Red,
+                                    disabledContainerColor = Color.Red,
+                                    disabledContentColor = Color.Red
+                                ),
+                                modifier = Modifier.aspectRatio(1f)
+                            ) {
+                                Icon(
+                                    painter = painterResource(iconList[index].nameResId),
+                                    contentDescription = null,
+                                    tint = if (isColorful) customColorList[pileColorNumber.toInt()].colorContainer else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
 }

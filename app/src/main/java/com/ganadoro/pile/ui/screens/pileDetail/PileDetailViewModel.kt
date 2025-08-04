@@ -49,9 +49,9 @@ class PileDetailViewModel(
         bitmapCacheRepository.ensureBitmapIsLoaded(documentId)
     }
 
-    fun updatePileName(newPileName: String) {
+    fun updatePileName(newPileName: String, newPileIconId: String, newPileColor: Long) {
         viewModelScope.launch {
-            val newPile = uiState.value.pile!!.copy(name = newPileName)
+            val newPile = uiState.value.pile!!.copy(name = newPileName, iconId = newPileIconId, colorNumber = newPileColor)
 
             pileModelRepository.updatePileModel(newPile)
 

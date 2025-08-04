@@ -85,7 +85,6 @@ import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
 import com.ganadoro.pile.ui.screens.home.compostables.itemPileGrid
 import com.ganadoro.pile.util.UriUtils
 import org.koin.androidx.compose.koinViewModel
-import kotlin.random.Random
 
 @Composable
 fun HomeScreen(
@@ -256,13 +255,9 @@ fun HomeScreen(
     if (isNewPileAlertExpanded) {
         AlertNewPile(
             onDismiss = { isNewPileAlertExpanded = false },
-            onConfirm = { pileName ->
+            onConfirm = { pileName, pileIconId, pileColorNumber ->
                 isNewPileAlertExpanded = false
-                viewModel.addPile(
-                    pileName,
-                    "Dentistry", // TODO: Seleccionado por el usuario + color
-                    Random.nextInt(30)
-                )
+                viewModel.addPile(pileName = pileName, iconId = pileIconId, color = pileColorNumber)
             }
         )
     }

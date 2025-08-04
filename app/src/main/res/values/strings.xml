@@ -17,6 +17,8 @@
     <string name="search">Search</string>
     <string name="add">Add</string>
     <string name="delete_text">Delete text</string>
+    <string name="color">Color</string>
+    <string name="icon">Icon</string>
 
 
     <string name="add_pile">Add Pile</string>
