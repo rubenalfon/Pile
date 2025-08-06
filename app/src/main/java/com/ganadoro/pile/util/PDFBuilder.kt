@@ -15,6 +15,15 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 
+/**
+ * Crea un archivo PDF con imágenes adjuntas.
+ *
+ * @param context Contexto de la aplicación.
+ * @param imageUris Lista de URIs de imágenes a adjuntar.
+ * @param outputFile Archivo PDF de salida.
+ *
+ * @throws IOException Si ocurre un error al escribir el archivo PDF.
+ */
 suspend fun createPdfWithImages(context: Context, imageUris: List<Uri>, outputFile: File) = withContext(Dispatchers.IO) {
     val pdfDocument = PdfDocument()
 

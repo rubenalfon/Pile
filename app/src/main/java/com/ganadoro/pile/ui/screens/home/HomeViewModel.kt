@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -106,7 +107,7 @@ class HomeViewModel(
             if (tempFile.exists()) {
                 tempFile.delete()
             }
-            if (documentModelRepository.getDocumentModelById(tempDocument.id) != null) {
+            if (documentModelRepository.getDocumentModelById(tempDocument.id).first() != null) {
                 documentModelRepository.deleteDocumentModel(tempDocument.id)
             }
 

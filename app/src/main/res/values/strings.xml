@@ -19,6 +19,7 @@
     <string name="delete_text">Delete text</string>
     <string name="color">Color</string>
     <string name="icon">Icon</string>
+    <string name="return_">Return</string>
 
 
     <string name="add_pile">Add Pile</string>
@@ -61,6 +62,7 @@
     <string name="details">Details</string>
 
 
+    <string name="import_pdf">Import PDF</string>
     <string name="import_pdf_file">Import PDF file</string>
     <string name="import_from_gallery">Import From Gallery</string>
     <string name="take_a_photo">Take a photo</string>
@@ -90,8 +92,11 @@
     <string name="delete_pile_alert_title">Delete Pile?</string>
     <string name="delete_pile_alert_body">Documents will remain, but this pile will be removed from them.</string>
 
-    <string name="return_">Return</string>
 
+    <string name="no_images_found">No images were found.</string>
+    <string name="no_pdf_found">No pdf was found.</string>
+    <string name="error_creating_pdf">Error creating PDF</string>
+    <string name="error_importing_pdf">Error importing PDF</string>
 
     <!--    <string name=""></string>-->
 </resources>
