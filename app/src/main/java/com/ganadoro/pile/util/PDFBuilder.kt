@@ -15,34 +15,72 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 
+private val DEFAULT_PAGE_SIZE = Size(595, 842) // A4 en puntos (72 dpi)
+
 /**
- * Crea un archivo PDF con imágenes adjuntas.
+ * Crea un archivo PDF con imágenes (URIs).
  *
  * @param context Contexto de la aplicación.
  * @param imageUris Lista de URIs de imágenes a adjuntar.
  * @param outputFile Archivo PDF de salida.
+ * @param pageSize Tamaño de página/canvas en puntos (por defecto A4 595x842).
  *
  * @throws IOException Si ocurre un error al escribir el archivo PDF.
  */
-suspend fun createPdfWithImages(context: Context, imageUris: List<Uri>, outputFile: File) = withContext(Dispatchers.IO) {
+suspend fun createPdfWithImages(
+    context: Context,
+    imageUris: List<Uri>,
+    outputFile: File,
+    pageSize: Size = DEFAULT_PAGE_SIZE
+) = withContext(Dispatchers.IO) {
     val pdfDocument = PdfDocument()
+    try {
+        imageUris.forEachIndexed { index, uri ->
+            val bitmap = prepareBitmapFromUri(context, uri, pageSize) ?: return@forEachIndexed
 
-    imageUris.forEachIndexed { index, uri ->
-        val bitmap = prepareBitmapFromUri(context, uri, Size(595, 842)) ?: return@forEachIndexed
+            val pageInfo =
+                PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, index + 1).create()
+            val page = pdfDocument.startPage(pageInfo)
+            val canvas = page.canvas
 
-        val pageInfo = PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, index + 1).create()
-        val page = pdfDocument.startPage(pageInfo)
-        val canvas = page.canvas
+            canvas.drawBitmap(bitmap, 0f, 0f, null)
+            pdfDocument.finishPage(page)
+        }
 
-        canvas.drawBitmap(bitmap, 0f, 0f, null)
-        pdfDocument.finishPage(page)
+        outputFile.outputStream().use { pdfDocument.writeTo(it) }
+    } finally {
+        pdfDocument.close()
     }
+}
 
-    outputFile.outputStream().use {
-        pdfDocument.writeTo(it)
+/**
+ * Crea un archivo PDF con Bitmaps.
+ *
+ * @param bitmaps Lista de Bitmaps a adjuntar.
+ * @param outputFile Archivo PDF de salida.
+ *
+ * @throws IOException Si ocurre un error al escribir el archivo PDF.
+ */
+suspend fun createPdfWithImages(
+    bitmaps: List<Bitmap>,
+    outputFile: File,
+) = withContext(Dispatchers.IO) {
+    val pdfDocument = PdfDocument()
+    try {
+        bitmaps.forEachIndexed { index, bitmap ->
+            val pageInfo =
+                PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, index + 1).create()
+            val page = pdfDocument.startPage(pageInfo)
+            val canvas = page.canvas
+
+            canvas.drawBitmap(bitmap, 0f, 0f, null)
+            pdfDocument.finishPage(page)
+        }
+
+        outputFile.outputStream().use { pdfDocument.writeTo(it) }
+    } finally {
+        pdfDocument.close()
     }
-
-    pdfDocument.close()
 }
 
 /**
@@ -88,16 +126,17 @@ suspend fun renderAllPdfPages(pdfFile: File): List<Bitmap> = withContext(Dispatc
  * Esta función es la que contiene la lógica central.
  */
 @Throws(IOException::class)
-private suspend fun renderPdfPageAtIndex(file: File, pageIndex: Int): Bitmap? = withContext(Dispatchers.IO) {
-    ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
-        PdfRenderer(fd).use { renderer ->
-            if (pageIndex < 0 || pageIndex >= renderer.pageCount) {
-                return@withContext null // O lanzar una excepción, ej: IndexOutOfBoundsException
+private suspend fun renderPdfPageAtIndex(file: File, pageIndex: Int): Bitmap? =
+    withContext(Dispatchers.IO) {
+        ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
+            PdfRenderer(fd).use { renderer ->
+                if (pageIndex < 0 || pageIndex >= renderer.pageCount) {
+                    return@withContext null // O lanzar una excepción, ej: IndexOutOfBoundsException
+                }
+                return@withContext renderPage(renderer, pageIndex)
             }
-            return@withContext renderPage(renderer, pageIndex)
         }
     }
-}
 
 /**
  * Helper final y privado. Renderiza una página específica usando un PdfRenderer ya abierto.

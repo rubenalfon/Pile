@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,6 +48,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.carousel.CarouselDefaults
+import androidx.compose.material3.carousel.CarouselState
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.material3.toShape
@@ -56,6 +58,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -72,12 +75,11 @@ import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.screens.editPDF.composables.AddItemCarousel
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.androidx.compose.koinViewModel
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun EditPDFScreen(
     modifier: Modifier = Modifier,
@@ -89,12 +91,17 @@ fun EditPDFScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(key1 = documentId) {
-        if (uiState.documentModel == null) {
-            Napier.d { "EditPDFScreen: $documentId" }
+        if (uiState.documentModel == null || viewModel.onNext == null) {
             viewModel.loadDocument(documentId)
+            viewModel.onNext = onNext
         }
     }
 
+    val displayBitmaps = remember(uiState.bitmaps, uiState.editedBitmaps) {
+        List(uiState.bitmaps.size) { i ->
+            uiState.editedBitmaps[i] ?: uiState.bitmaps[i]
+        }
+    }
 
     Scaffold(
         modifier = modifier,
@@ -104,42 +111,78 @@ fun EditPDFScreen(
         }
     ) { innerPadding ->
         LoadingWrapper(
-            uiState.documentModel == null || uiState.bitmaps.isEmpty()
+            uiState.documentModel == null || displayBitmaps.isEmpty()
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 ImagePager(
-                    modifier = Modifier.weight(1f),
-                    images = uiState.bitmaps,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(bottom = 16.dp),
+                    images = displayBitmaps,
+                    isEnabled = uiState.uiMode == EditPDFUIMode.SCROLL,
                     selectedImageIndex = uiState.selectedImageIndex,
                     onSelectImage = { index ->
                         viewModel.setSelectedImageIndex(index)
                     }
                 )
-                ThumbnailCarousel(
-                    images = uiState.bitmaps,
-                    selectedImageIndex = uiState.selectedImageIndex,
-                    onSelectImage = { index ->
-                        viewModel.setSelectedImageIndex(index)
-                    },
-                    onNewImage = { viewModel.addNewImage() }
-                )
+
+                val thumbnailCarouselState = rememberCarouselState { displayBitmaps.count() + 1 }
+                AnimatedVisibility(visible = uiState.uiMode == EditPDFUIMode.SCROLL) {
+                    ThumbnailCarousel(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        state = thumbnailCarouselState,
+                        images = displayBitmaps,
+                        selectedImageIndex = uiState.selectedImageIndex,
+                        onSelectImage = { index ->
+                            viewModel.setSelectedImageIndex(index)
+                        },
+                        onNewImage = { viewModel.addNewImage() }
+                    )
+                }
+
+                AnimatedVisibility(visible = uiState.uiMode == EditPDFUIMode.COLOR) {
+                    LoadingWrapper(
+                        modifier = modifier.height(84.dp),
+                        isLoading = uiState.colorModifiedBitmaps == null
+                    ) {
+                        if (uiState.colorModifiedBitmaps == null) return@LoadingWrapper
+                        EditColorRow(
+                            modifier = Modifier.padding(bottom = 16.dp),
+                            colorModifiedImages = uiState.colorModifiedBitmaps!!,
+                            selectedImageIndex = uiState.selectedColorIndex[uiState.selectedImageIndex] ?: 0,
+                            onSelectImage = { index ->
+                                viewModel.setSelectedColorIndex(index)
+                            }
+                        )
+                    }
+                }
 
                 ToolBar(
                     modifier = Modifier
                         .padding(bottom = ScreenOffset),
-                    bitmapCount = uiState.bitmaps.count(),
-                    onEditImageColors = { },
-                    onResizeImage = { },
+                    uiMode = uiState.uiMode,
+                    bitmapCount = displayBitmaps.count(),
+                    onEditImageColors = {
+                        viewModel.updateUIMode(
+                            if (uiState.uiMode != EditPDFUIMode.COLOR) EditPDFUIMode.COLOR
+                            else EditPDFUIMode.SCROLL
+                        )
+                    },
+                    onResizeImage = {
+                        viewModel.updateUIMode(
+                            if (uiState.uiMode != EditPDFUIMode.CROP_ROTATE) EditPDFUIMode.CROP_ROTATE
+                            else EditPDFUIMode.SCROLL
+                        )
+                    },
                     onDeleteImage = {
                         viewModel.deleteSelectedImage()
                     },
-                    onAddDocument = onNext
+                    onAddDocument = viewModel::onNext
                 )
             }
         }
@@ -180,6 +223,7 @@ private fun ScreenTopAppBar(
 private fun ImagePager(
     modifier: Modifier = Modifier,
     images: List<Bitmap>,
+    isEnabled: Boolean,
     selectedImageIndex: Int,
     onSelectImage: (Int) -> Unit,
 ) {
@@ -203,8 +247,7 @@ private fun ImagePager(
     }
 
     LaunchedEffect(pagerState) {
-
-        snapshotFlow { pagerState.currentPage } // TODO: Fix Performance hit
+        snapshotFlow { pagerState.currentPage }
             .distinctUntilChanged()
             .collect { page ->
                 if (isSelectedImageIndexRecent) return@collect
@@ -219,6 +262,7 @@ private fun ImagePager(
         state = pagerState,
         contentPadding = PaddingValues(horizontal = 16.dp),
         pageSpacing = 16.dp,
+        userScrollEnabled = isEnabled,
         modifier = modifier
     ) { page ->
         Image(
@@ -237,14 +281,12 @@ private fun ImagePager(
 @Composable
 private fun ThumbnailCarousel(
     modifier: Modifier = Modifier,
+    state: CarouselState,
     images: List<Bitmap>,
     selectedImageIndex: Int,
     onSelectImage: (Int) -> Unit,
     onNewImage: () -> Unit
 ) {
-    val state = rememberCarouselState { images.count() + 1 }
-    // TODO: Navigate to selectedImageIndex when changed from pager
-
     HorizontalMultiBrowseCarousel(
         state = state,
         modifier = modifier
@@ -321,10 +363,80 @@ private fun ThumbnailCarousel(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun EditColorRow(
+    modifier: Modifier = Modifier,
+    colorModifiedImages: List<Bitmap>,
+    selectedImageIndex: Int,
+    onSelectImage: (Int) -> Unit,
+) {
+    LazyRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
+    ) {
+        items(colorModifiedImages.size) { i ->
+            Box(
+                contentAlignment = Alignment.Center
+            ) {
+                val isSelected = i == selectedImageIndex
+
+                val animatedCornerRadius by animateDpAsState(
+                    if (isSelected) 42.dp else 20.dp,
+                    animationSpec = MaterialTheme.motionScheme.slowEffectsSpec(),
+                )
+
+                Image(
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .size(84.dp)
+                        .clip(RoundedCornerShape(animatedCornerRadius))
+                        .clickable {
+                            onSelectImage.invoke(i)
+                        }
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                    bitmap = colorModifiedImages[i].asImageBitmap(),
+                    contentDescription = stringResource(R.string.image_number, i + 1),
+                    contentScale = ContentScale.Crop
+                )
+
+                AnimatedVisibility(
+                    isSelected,
+                    enter = fadeIn(animationSpec = MaterialTheme.motionScheme.slowEffectsSpec()),
+                    exit = fadeOut(animationSpec = MaterialTheme.motionScheme.slowEffectsSpec())
+                ) {
+                    val infiniteTransition = rememberInfiniteTransition()
+
+                    val angle by infiniteTransition.animateFloat(
+                        initialValue = 0f,
+                        targetValue = 360f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(durationMillis = 15000, easing = LinearEasing),
+                            repeatMode = RepeatMode.Restart
+                        )
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .size(54.dp)
+                            .graphicsLayer {
+                                rotationZ = angle
+                            }
+                            .clip(MaterialShapes.Cookie9Sided.toShape())
+                            .background(MaterialTheme.colorScheme.surface)
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun ToolBar(
     modifier: Modifier = Modifier,
+    uiMode: EditPDFUIMode,
     bitmapCount: Int,
     onEditImageColors: () -> Unit,
     onResizeImage: () -> Unit,
@@ -335,19 +447,29 @@ private fun ToolBar(
 
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         HorizontalFloatingToolbar(
             expanded = true,
             content = {
-                IconButton(onClick = onEditImageColors) {
+                IconButton(
+                    onClick = onEditImageColors,
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = if (uiMode == EditPDFUIMode.COLOR) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+                        contentColor = if (uiMode == EditPDFUIMode.COLOR) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
                     Icon(
                         painter = painterResource(R.drawable.monochrome_photos_24px),
                         contentDescription = stringResource(R.string.edit_image_colors)
                     )
                 }
-                IconButton(onClick = onResizeImage) {
+                IconButton(
+                    onClick = onResizeImage, colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = if (uiMode == EditPDFUIMode.CROP_ROTATE) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+                        contentColor = if (uiMode == EditPDFUIMode.CROP_ROTATE) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
                     Icon(
                         painter = painterResource(R.drawable.transform_24px),
                         contentDescription = stringResource(R.string.resize_image)
@@ -362,17 +484,22 @@ private fun ToolBar(
                         contentDescription = stringResource(R.string.delete_image)
                     )
                 }
-            }
+            },
+            modifier = Modifier.padding(end = 8.dp)
         )
-        FloatingActionButton(
-            onClick = onAddDocument,
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        AnimatedVisibility(
+            visible = uiMode == EditPDFUIMode.SCROLL,
         ) {
-            Icon(
-                painter = painterResource(R.drawable.check_24px),
-                contentDescription = stringResource(R.string.add_document)
-            )
+            FloatingActionButton(
+                onClick = onAddDocument,
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.check_24px),
+                    contentDescription = stringResource(R.string.add_document)
+                )
+            }
         }
     }
 

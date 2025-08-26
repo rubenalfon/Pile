@@ -3,11 +3,16 @@ package com.ganadoro.pile.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.graphics.Matrix
-import androidx.exifinterface.media.ExifInterface
+import android.graphics.Paint
 import android.net.Uri
 import android.util.Size
+import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
+import androidx.exifinterface.media.ExifInterface
 
 fun Bitmap.resizeKeepingRatio(maxSize: Size): Bitmap {
     val widthRatio = maxSize.width.toFloat() / this.width
@@ -29,6 +34,19 @@ fun Bitmap.resizeKeepingRatio(maxSize: Size): Bitmap {
     }
 
     return this.scale(width = newSize.width, height = newSize.height)
+}
+
+fun Bitmap.applyColorFilter(colorMatrix: ColorMatrix): Bitmap {
+    val resultBitmap = createBitmap(this.width, this.height)
+
+    val canvas = Canvas(resultBitmap)
+
+    val paint = Paint()
+    paint.colorFilter = ColorMatrixColorFilter(colorMatrix)
+
+    canvas.drawBitmap(this, 0f, 0f, paint)
+
+    return resultBitmap
 }
 
 fun prepareBitmapFromUri(
