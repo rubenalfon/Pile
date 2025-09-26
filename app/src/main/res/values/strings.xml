@@ -20,6 +20,8 @@
     <string name="color">Color</string>
     <string name="icon">Icon</string>
     <string name="return_">Return</string>
+    <string name="reset">Reset</string>
+    <string name="rotate">Rotate</string>
 
 
     <string name="add_pile">Add Pile</string>
@@ -78,6 +80,11 @@
 
     <string name="document_first_image">Document first image</string>
     <string name="document_name">Document name</string>
+
+    <string name="rotate_image_counterclockwise">Rotate image counterclockwise</string>
+    <string name="reset_image_crop">Reset image crop</string>
+
+
 
 
 

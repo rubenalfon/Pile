@@ -26,10 +26,16 @@ enum class EditPDFUIMode {
     SCROLL, COLOR, CROP_ROTATE
 }
 
+enum class EditType {
+    COLOR, CROP
+}
+
 data class EditPDFUiState(
     var documentModel: DocumentModel? = null,
     var bitmaps: List<Bitmap> = emptyList(),
-    val editedBitmaps: Map<Int, Bitmap> = emptyMap(),
+    val colorEditedBitmaps: Map<Int, Bitmap> = emptyMap(),
+    val cropEditedBitmaps: Map<Int, Bitmap> = emptyMap(),
+    val lastEditType: Map<Int, EditType> = emptyMap(),
     var selectedImageIndex: Int = 0,
     var uiMode: EditPDFUIMode = EditPDFUIMode.SCROLL,
     var selectedColorIndex: Map<Int, Int> = emptyMap(),
@@ -71,7 +77,7 @@ class EditPDFViewModel(
     }
 
     fun onNext() {
-        if (uiState.value.editedBitmaps.isNotEmpty()) {
+        if (uiState.value.cropEditedBitmaps.isNotEmpty() && uiState.value.cropEditedBitmaps.isNotEmpty()) {
             updateDocumentPDF()
         }
 
@@ -84,19 +90,18 @@ class EditPDFViewModel(
         viewModelScope.launch {
             if (mode != EditPDFUIMode.COLOR) {
                 _uiState.update { it.copy(colorModifiedBitmaps = null) }
+                return@launch
             }
 
-            if (mode == EditPDFUIMode.COLOR) {
-                _uiState.update {
-                    val selectedOriginalBitmap =
-                        _uiState.value.bitmaps[_uiState.value.selectedImageIndex]
+            _uiState.update {
+                val selectedOriginalColorBitmap =
+                    _uiState.value.cropEditedBitmaps[_uiState.value.selectedImageIndex]
+                        ?: _uiState.value.bitmaps[_uiState.value.selectedImageIndex]
 
-                    it.copy(
-                        colorModifiedBitmaps = colorMatrixList.map { colorMatrix ->
-                            selectedOriginalBitmap.applyColorFilter(colorMatrix)
-                        }
-                    )
-                }
+                it.copy(
+                    colorModifiedBitmaps = colorMatrixList.map { colorMatrix ->
+                        selectedOriginalColorBitmap.applyColorFilter(colorMatrix)
+                    })
             }
         }
     }
@@ -105,7 +110,6 @@ class EditPDFViewModel(
         if (uiState.value.uiMode != EditPDFUIMode.SCROLL) return
 
         viewModelScope.launch {
-            Napier.d { "EditPDFViewModel.setSelectedImageIndex: $index" }
             _uiState.update { it.copy(selectedImageIndex = index) }
         }
     }
@@ -114,18 +118,34 @@ class EditPDFViewModel(
         if (uiState.value.uiMode != EditPDFUIMode.COLOR) return
 
         viewModelScope.launch {
-            Napier.d { "EditPDFViewModel.setSelectedColorIndex: $index" }
             val updatedSelectedColorIndex = uiState.value.selectedColorIndex.toMutableMap()
 
             updatedSelectedColorIndex[uiState.value.selectedImageIndex] = index
 
             _uiState.update { it.copy(selectedColorIndex = updatedSelectedColorIndex) }
+            _uiState.update { state ->
+                val index = state.selectedImageIndex
+                val colorIndex = state.selectedColorIndex[index] ?: 0
 
+                val baseBitmap = state.cropEditedBitmaps[_uiState.value.selectedImageIndex]
+                    ?: state.bitmaps[_uiState.value.selectedImageIndex]
+
+                val filteredBitmap = baseBitmap.applyColorFilter(colorMatrixList[colorIndex])
+
+                state.copy(
+                    colorEditedBitmaps = state.colorEditedBitmaps + (index to filteredBitmap),
+                    lastEditType = state.lastEditType + (index to EditType.COLOR)
+                )
+            }
+        }
+    }
+
+    fun cropImage(croppedBitmap: Bitmap) {
+        viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                    editedBitmaps = it.editedBitmaps + (it.selectedImageIndex to it.bitmaps[it.selectedImageIndex].applyColorFilter(
-                        colorMatrixList[it.selectedColorIndex[it.selectedImageIndex] ?: 0]
-                    ))
+                    cropEditedBitmaps = it.cropEditedBitmaps + (it.selectedImageIndex to croppedBitmap),
+                    lastEditType = it.lastEditType + (it.selectedImageIndex to EditType.CROP)
                 )
             }
         }
@@ -147,18 +167,15 @@ class EditPDFViewModel(
         viewModelScope.launch {
             val documentFile = File(context.filesDir, uiState.value.documentModel!!.id)
 
-            val finalBitmapList = uiState.value.bitmaps.mapIndexed { index, it ->
-                if (uiState.value.editedBitmaps.containsKey(index)) {
-                    uiState.value.editedBitmaps[index]!!
-                } else {
-                    it
-                }
+            val finalBitmapList = uiState.value.bitmaps.mapIndexed { index, original ->
+                uiState.value.cropEditedBitmaps[index]
+                    ?: uiState.value.colorEditedBitmaps[index]
+                    ?: original
             }
 
             try {
                 createPdfWithImages(
-                    bitmaps = finalBitmapList,
-                    outputFile = documentFile
+                    bitmaps = finalBitmapList, outputFile = documentFile
                 )
             } catch (ex: Exception) {
                 Napier.e { "EditPDFViewModel.updateDocumentPDF: ${ex.message}" }

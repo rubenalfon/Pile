@@ -42,6 +42,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconButtonDefaults.smallContainerSize
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -57,6 +58,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -75,6 +77,10 @@ import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.screens.editPDF.composables.AddItemCarousel
+import com.tanishranjan.cropkit.CropController
+import com.tanishranjan.cropkit.CropDefaults
+import com.tanishranjan.cropkit.CropShape
+import com.tanishranjan.cropkit.ImageCropper
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.androidx.compose.koinViewModel
 
@@ -97,11 +103,44 @@ fun EditPDFScreen(
         }
     }
 
-    val displayBitmaps = remember(uiState.bitmaps, uiState.editedBitmaps) {
+    val displayBitmaps = remember(
+        uiState.bitmaps,
+        uiState.colorEditedBitmaps,
+        uiState.cropEditedBitmaps,
+        uiState.lastEditType
+    ) {
         List(uiState.bitmaps.size) { i ->
-            uiState.editedBitmaps[i] ?: uiState.bitmaps[i]
+            when (uiState.lastEditType[i]) {
+                EditType.CROP -> uiState.cropEditedBitmaps[i] ?: uiState.bitmaps[i]
+                EditType.COLOR -> uiState.colorEditedBitmaps[i] ?: uiState.bitmaps[i]
+                else -> uiState.bitmaps[i]
+            }
         }
     }
+
+
+    val colorScheme = MaterialTheme.colorScheme
+    val cropControllers = remember(displayBitmaps) {
+        mutableStateListOf<CropController>().apply {
+            displayBitmaps.forEach { bitmap ->
+                add(
+                    CropController(
+                        bitmap = bitmap,
+                        cropColors = CropDefaults.cropColors(
+                            gridlines = colorScheme.tertiary.copy(0.5f),
+                            cropRectangle = colorScheme.tertiary.copy(0.5f),
+                            handle = colorScheme.tertiary
+                        ),
+                        cropOptions = CropDefaults.cropOptions(
+                            cropShape = CropShape.FreeForm,
+                            touchPadding = 30.dp
+                        )
+                    )
+                )
+            }
+        }
+    }
+
 
     Scaffold(
         modifier = modifier,
@@ -124,7 +163,8 @@ fun EditPDFScreen(
                         .weight(1f)
                         .padding(bottom = 16.dp),
                     images = displayBitmaps,
-                    isEnabled = uiState.uiMode == EditPDFUIMode.SCROLL,
+                    cropControllers = cropControllers,
+                    uiMode = uiState.uiMode,
                     selectedImageIndex = uiState.selectedImageIndex,
                     onSelectImage = { index ->
                         viewModel.setSelectedImageIndex(index)
@@ -154,11 +194,63 @@ fun EditPDFScreen(
                         EditColorRow(
                             modifier = Modifier.padding(bottom = 16.dp),
                             colorModifiedImages = uiState.colorModifiedBitmaps!!,
-                            selectedImageIndex = uiState.selectedColorIndex[uiState.selectedImageIndex] ?: 0,
+                            selectedImageIndex = uiState.selectedColorIndex[uiState.selectedImageIndex]
+                                ?: 0,
                             onSelectImage = { index ->
                                 viewModel.setSelectedColorIndex(index)
                             }
                         )
+                    }
+                }
+
+                AnimatedVisibility(visible = uiState.uiMode == EditPDFUIMode.CROP_ROTATE) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                cropControllers[uiState.selectedImageIndex].rotateAntiClockwise()
+                            }
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.rotate_24px),
+                                    contentDescription = stringResource(R.string.rotate_image_counterclockwise)
+                                )
+                                Text(stringResource(R.string.rotate))
+                            }
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                cropControllers[uiState.selectedImageIndex] = CropController(
+                                    bitmap = displayBitmaps[uiState.selectedImageIndex],
+                                    cropColors = CropDefaults.cropColors(
+                                        gridlines = colorScheme.tertiary.copy(0.5f),
+                                        cropRectangle = colorScheme.tertiary.copy(0.5f),
+                                        handle = colorScheme.tertiary
+                                    ),
+                                    cropOptions = CropDefaults.cropOptions(
+                                        cropShape = CropShape.FreeForm,
+                                        touchPadding = 30.dp
+                                    )
+                                )
+                            }
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.undo_24px),
+                                    contentDescription = stringResource(R.string.reset)
+                                )
+                                Text(stringResource(R.string.reset))
+                            }
+                        }
                     }
                 }
 
@@ -168,12 +260,18 @@ fun EditPDFScreen(
                     uiMode = uiState.uiMode,
                     bitmapCount = displayBitmaps.count(),
                     onEditImageColors = {
+                        if (uiState.uiMode == EditPDFUIMode.CROP_ROTATE) {
+                            viewModel.cropImage(cropControllers[uiState.selectedImageIndex].crop())
+                        }
                         viewModel.updateUIMode(
                             if (uiState.uiMode != EditPDFUIMode.COLOR) EditPDFUIMode.COLOR
                             else EditPDFUIMode.SCROLL
                         )
                     },
                     onResizeImage = {
+                        if (uiState.uiMode == EditPDFUIMode.CROP_ROTATE) {
+                            viewModel.cropImage(cropControllers[uiState.selectedImageIndex].crop())
+                        }
                         viewModel.updateUIMode(
                             if (uiState.uiMode != EditPDFUIMode.CROP_ROTATE) EditPDFUIMode.CROP_ROTATE
                             else EditPDFUIMode.SCROLL
@@ -181,6 +279,7 @@ fun EditPDFScreen(
                     },
                     onDeleteImage = {
                         viewModel.deleteSelectedImage()
+                        viewModel.updateUIMode(EditPDFUIMode.SCROLL)
                     },
                     onAddDocument = viewModel::onNext
                 )
@@ -223,9 +322,10 @@ private fun ScreenTopAppBar(
 private fun ImagePager(
     modifier: Modifier = Modifier,
     images: List<Bitmap>,
-    isEnabled: Boolean,
+    cropControllers: List<CropController>,
+    uiMode: EditPDFUIMode,
     selectedImageIndex: Int,
-    onSelectImage: (Int) -> Unit,
+    onSelectImage: (Int) -> Unit
 ) {
     val pagerState = rememberPagerState(
         pageCount = { images.size }
@@ -262,18 +362,27 @@ private fun ImagePager(
         state = pagerState,
         contentPadding = PaddingValues(horizontal = 16.dp),
         pageSpacing = 16.dp,
-        userScrollEnabled = isEnabled,
+        userScrollEnabled = uiMode == EditPDFUIMode.SCROLL,
         modifier = modifier
     ) { page ->
-        Image(
-            bitmap = images[page].asImageBitmap(),
-            contentDescription = stringResource(R.string.image_number, page + 1),
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(RoundedCornerShape(28.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-            contentScale = ContentScale.Fit
-        )
+        if (uiMode != EditPDFUIMode.CROP_ROTATE) {
+            Image(
+                bitmap = images[page].asImageBitmap(),
+                contentDescription = stringResource(R.string.image_number, page + 1),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                contentScale = ContentScale.Fit
+            )
+        } else {
+            ImageCropper(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
+                cropController = cropControllers[page]
+            )
+        }
     }
 }
 

@@ -46,6 +46,9 @@ android {
 
 dependencies {
 
+    // Compose Crop images
+    implementation(libs.crop.kit)
+
     // Reordenable List
     implementation(libs.reorderable.list)
 

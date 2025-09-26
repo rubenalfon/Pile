@@ -27,6 +27,8 @@ exifinterface = "1.4.1"
 
 reorderable = "2.5.1"
 
+cropKit = "1.1.0"
+
 [libraries]
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
@@ -70,6 +72,8 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 
 reorderable-list = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
+
+crop-kit = { module = "com.github.Tanish-Ranjan:crop-kit", version.ref = "cropKit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
