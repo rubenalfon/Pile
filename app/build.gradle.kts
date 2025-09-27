@@ -45,64 +45,67 @@ android {
 }
 
 dependencies {
+    // Compose
+    implementation(libs.androidx.material3alpha)
 
-    // Compose Crop images
-    implementation(libs.crop.kit)
-
-    // Reordenable List
-    implementation(libs.reorderable.list)
-
-    // ExifInterface
-    implementation(libs.androidx.exifinterface)
-
-    // Serialization
-    implementation(libs.kotlinx.serialization.json)
-
-    // SQL Delight Driver and Extension
-    implementation(libs.sqlDelight.android.driver)
-    implementation(libs.sqlDelight.coroutines.extensions)
+    // Compose BOM (alinear versiones)
+    implementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(platform(libs.androidx.compose.bom))
 
     // Compose
     implementation(libs.compose.ui)
-    implementation(libs.compose.ui.tooling)
-    implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.foundation)
-    implementation(libs.compose.material)
+    implementation(libs.compose.material3)
     implementation(libs.compose.material.icons)
     implementation(libs.compose.activity)
     implementation(libs.androidx.navigation.compose)
 
-    // Koin
-    implementation(libs.koin.core)
-    implementation(libs.koin.android)
-    implementation(libs.koin.compose)
+    // Preview & Tooling
+    implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Unit tests
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.ui.test.junit4)
 
     // Lifecycle
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    // Koin
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose)
+
+    // SQL Delight Driver and Extension
+    implementation(libs.sqlDelight.android.driver)
+    implementation(libs.sqlDelight.coroutines.extensions)
+
+    // Serialization
+    implementation(libs.kotlinx.serialization.json)
+
+    // ExifInterface
+    implementation(libs.androidx.exifinterface)
+
+    // Reorderable List
+    implementation(libs.reorderable.list)
+
+    // Crop images
+    implementation(libs.crop.kit)
 
     // Logging
     implementation(libs.napier)
 
+    // Core
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.material)
-
-    // Unit tests
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
 }
+
 
 sqldelight {
     databases {
