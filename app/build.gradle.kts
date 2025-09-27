@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.ganadoro.pile"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.ganadoro.pile"

@@ -100,7 +100,7 @@ import com.ganadoro.pile.ui.screens.documentDetail.composables.SimpleTextField
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import sh.calvin.reorderable.ReorderableColumn
-import sh.calvin.reorderable.ReorderableScope
+import sh.calvin.reorderable.ReorderableListItemScope
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
@@ -399,42 +399,44 @@ private fun LazyListScope.documentDetailsSection(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) { index, documentDetail, isDragging ->
             key(documentDetail.id) {
-                SwipeBox(
-                    onDelete = {
-                        onEvent(DocumentDetailEvent.Delete(index))
-                    },
-                    contentPaddingValues = PaddingValues(horizontal = 16.dp),
-                    modifier = Modifier.animateItem(),
-                    enabled = isEditingMode
-                ) {
-                    if (documentDetail is StringDetail)
-                        DocumentDetailItem(
-                            documentDetail = documentDetail,
-                            index = index,
-                            isDragging = isDragging,
-                            isFirstItem = index == 0,
-                            isLastItem = index == documentDetails.size - 1,
-                            isEditingMode = isEditingMode,
-                            onMove = { from, to ->
-                                onEvent(
-                                    DocumentDetailEvent.Move(
-                                        from,
-                                        to
+                ReorderableItem {
+                    SwipeBox(
+                        onDelete = {
+                            onEvent(DocumentDetailEvent.Delete(index))
+                        },
+                        contentPaddingValues = PaddingValues(horizontal = 16.dp),
+                        modifier = Modifier.animateItem(),
+                        enabled = isEditingMode
+                    ) {
+                        if (documentDetail is StringDetail)
+                            DocumentDetailItem(
+                                documentDetail = documentDetail,
+                                index = index,
+                                isDragging = isDragging,
+                                isFirstItem = index == 0,
+                                isLastItem = index == documentDetails.size - 1,
+                                isEditingMode = isEditingMode,
+                                onMove = { from, to ->
+                                    onEvent(
+                                        DocumentDetailEvent.Move(
+                                            from,
+                                            to
+                                        )
                                     )
-                                )
-                            },
-                            onTextChange = { newName, newValue ->
-                                onEvent(
-                                    DocumentDetailEvent.UpdateText(
-                                        index,
-                                        newName,
-                                        newValue
+                                },
+                                onTextChange = { newName, newValue ->
+                                    onEvent(
+                                        DocumentDetailEvent.UpdateText(
+                                            index,
+                                            newName,
+                                            newValue
+                                        )
                                     )
-                                )
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        )
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            )
+                    }
                 }
             }
         }
@@ -471,7 +473,7 @@ private fun LazyListScope.documentDetailsSection(
 }
 
 @Composable
-private fun ReorderableScope.DocumentDetailItem(
+private fun ReorderableListItemScope.DocumentDetailItem(
     documentDetail: StringDetail,
     index: Int,
     isDragging: Boolean,
