@@ -45,7 +45,7 @@ fun Document(
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.outline)
             .padding(1.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(7.dp))
 
 
         if (documentBitmap != null) {
