@@ -78,5 +78,14 @@ fun LazyListScope.itemDocumentsCompleteList(
                 )
             }
         )
+
+        item {
+            Box(
+                Modifier
+                    .height(16.dp)
+                    .fillMaxWidth()
+                    .background(backgroundColor)
+            )
+        }
     }
 }
