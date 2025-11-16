@@ -3,6 +3,7 @@ package com.ganadoro.pile.ui.compostables
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,7 +38,8 @@ fun <T> LazyListScope.adaptiveSizeItemsGrid(
             Row(
                 modifier = Modifier
                     .background(backgroundColor)
-                    .padding(horizontal = horizontalPadding),
+                    .padding(horizontal = horizontalPadding)
+                    .height(IntrinsicSize.Min),
                 horizontalArrangement = Arrangement.spacedBy(horizontalSpacing)
             ) {
                 rowItems.forEach { document ->

@@ -1,5 +1,6 @@
 package com.ganadoro.pile.ui.screens.home.compostables
 
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -40,7 +41,7 @@ fun LazyListScope.itemPileGrid(
             if (pileModel != addPile) {
                 Pile(
                     pileModel = pileModel,
-                    modifier = modifier,
+                    modifier = modifier.fillMaxHeight(),
                     onClick = onPileClick,
                     isColored = coloredPileIds.contains(pileModel.id)
                 )
