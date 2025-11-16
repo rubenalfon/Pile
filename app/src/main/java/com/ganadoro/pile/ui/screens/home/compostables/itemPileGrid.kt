@@ -48,7 +48,7 @@ fun LazyListScope.itemPileGrid(
                 Pile(
                     pileModel = PileModel(
                         id = "0",
-                        name = stringResource(R.string.new_),
+                        name = stringResource(R.string.new_pile),
                         iconId = "Add",
                         colorNumber = null
                     ),
