@@ -1,6 +1,8 @@
 package comganadoro.pile.ui.screens.editDocumentPiles
 
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -58,8 +60,8 @@ fun EditDocumentPilesScreen(
     var isNewPileAlertExpanded by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
-        modifier = modifier
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets.displayCutout,
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         topBar = {
             ScreenTopAppBar(
@@ -128,7 +130,7 @@ private fun ScreenTopAppBar(
         actions = {
             FilledIconButton(
                 modifier = Modifier
-                    .padding(start = 14.dp, end = 4.dp)
+                    .padding(start = 14.dp, end = 12.dp)
                     .size(smallContainerSize(IconButtonDefaults.IconButtonWidthOption.Wide)),
                 onClick = popBackStack
             ) {
