@@ -53,7 +53,7 @@ fun LazyListScope.itemPileGrid(
                         iconId = "Add",
                         colorNumber = null
                     ),
-                    modifier = modifier,
+                    modifier = modifier.fillMaxHeight(),
                     onClick = { onNewPileClick?.invoke() },
                     isColored = false
                 )
