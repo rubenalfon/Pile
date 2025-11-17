@@ -19,10 +19,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -40,9 +43,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingToolbarDefaults.ScreenOffset
 import androidx.compose.material3.FloatingToolbarDefaults.vibrantFloatingToolbarColors
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
@@ -130,6 +133,7 @@ fun DocumentDetailScreen(
 
 
     Scaffold(
+        contentWindowInsets = WindowInsets.displayCutout,
         modifier = modifier
             .fillMaxSize()
             .clickable(
@@ -143,6 +147,21 @@ fun DocumentDetailScreen(
             ScreenTopAppBar(
                 popBackStack = popBackStack,
                 title = uiState.documentModel?.title ?: ""
+            )
+        },
+        floatingActionButtonPosition = FabPosition.Center,
+        floatingActionButton = {
+            ToolBar(
+                modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
+                onRenameDocument = {
+                    isRenameDocumentAlertExpanded = true
+                },
+                onDeleteDocument = {
+                    isDeleteDocumentAlertExpanded = true
+                },
+                onDownloadDocument = viewModel::downloadPDF,
+                onShareDocument = viewModel::openShareSheet,
+                onEditDocument = { navigateToEditDocument(documentId) },
             )
         }
     ) { innerPadding ->
@@ -202,21 +221,6 @@ fun DocumentDetailScreen(
                     item { Spacer(Modifier.height(330.dp)) }
                 }
             }
-
-            ToolBar(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .offset(y = -ScreenOffset),
-                onRenameDocument = {
-                    isRenameDocumentAlertExpanded = true
-                },
-                onDeleteDocument = {
-                    isDeleteDocumentAlertExpanded = true
-                },
-                onDownloadDocument = viewModel::downloadPDF,
-                onShareDocument = viewModel::openShareSheet,
-                onEditDocument = { navigateToEditDocument(documentId) },
-            )
         }
     }
 

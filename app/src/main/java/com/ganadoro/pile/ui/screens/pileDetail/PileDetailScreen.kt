@@ -3,9 +3,12 @@ package com.ganadoro.pile.ui.screens.pileDetail
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -13,7 +16,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FloatingToolbarDefaults.ScreenOffset
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -72,6 +75,7 @@ fun PileDetailScreen(
     var isDeletePileExpanded by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
+        contentWindowInsets = WindowInsets.displayCutout,
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
@@ -80,11 +84,18 @@ fun PileDetailScreen(
                 onSearchClick = {}, // TODO: Implement search
                 scrollBehavior = scrollBehavior
             )
+        },
+        floatingActionButtonPosition = FabPosition.Center,
+        floatingActionButton = {
+            ToolBar(
+                modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
+                onPileUpdateClicked = { isUpdatePileExpanded = true },
+                onPileDeleteClicked = { isDeletePileExpanded = true }
+            )
         }) { innerPadding ->
         Box(
             Modifier
                 .padding(innerPadding)
-                .padding(top = 8.dp)
                 .fillMaxSize()
         ) {
             var availableWidth by remember { mutableStateOf(0.dp) }
@@ -117,14 +128,6 @@ fun PileDetailScreen(
                     }
                 }
             }
-
-            ToolBar(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .offset(y = -ScreenOffset),
-                onPileUpdateClicked = { isUpdatePileExpanded = true },
-                onPileDeleteClicked = { isDeletePileExpanded = true }
-            )
         }
 
         if (isUpdatePileExpanded) {

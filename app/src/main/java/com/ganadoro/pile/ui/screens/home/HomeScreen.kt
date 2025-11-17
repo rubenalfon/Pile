@@ -17,11 +17,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -84,6 +88,7 @@ import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
 import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
 import com.ganadoro.pile.ui.screens.home.compostables.itemPileGrid
 import com.ganadoro.pile.util.UriUtils
+import com.ganadoro.pile.util.horizontalPaddingValues
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -109,9 +114,11 @@ fun HomeScreen(
     Scaffold(
         modifier = modifier,
         containerColor = Color.Transparent,
-        floatingActionButtonPosition = FabPosition.EndOverlay,
+        contentWindowInsets = WindowInsets.displayCutout,
+        floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             FabMenu(
+                modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
                 fabMenuExpanded = fabMenuExpanded,
                 updateFabMenuExpanded = { fabMenuExpanded = it },
                 onImportPDF = { uri ->
@@ -130,6 +137,7 @@ fun HomeScreen(
                 Modifier
                     .padding(horizontal = 16.dp)
                     .padding(bottom = 8.dp)
+                    .padding(WindowInsets.displayCutout.asPaddingValues().horizontalPaddingValues(LocalLayoutDirection.current))
             )
         }
     ) { innerPadding ->
