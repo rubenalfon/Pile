@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
@@ -33,6 +34,7 @@ import java.util.UUID
 
 data class DocumentDetailUiState(
     var documentModel: DocumentModel? = null,
+    var documentDetails: List<DocumentDetail>? = null,
     var bitmaps: List<Bitmap> = emptyList(),
     var documentPileModels: List<PileModel>? = null
 )
@@ -60,6 +62,10 @@ class DocumentDetailViewModel(
             val documentModelFlow =
                 documentModelRepository.getDocumentModelById(documentId)
 
+            _uiState.update {
+                it.copy(documentDetails = documentModelFlow.first()?.documentDetails)
+            }
+
             documentModelFlow.combine(pileModelRepository.pileModels) { documentModel, allPiles ->
                 if (documentModel == null) {
                     return@combine DocumentDetailUiState()
@@ -80,7 +86,11 @@ class DocumentDetailViewModel(
                 )
             }.collect { finalState ->
                 _uiState.update {
-                    finalState
+                    it.copy(
+                        documentModel = finalState.documentModel,
+                        bitmaps = finalState.bitmaps,
+                        documentPileModels = finalState.documentPileModels
+                    )
                 }
             }
         }
@@ -92,8 +102,6 @@ class DocumentDetailViewModel(
                 _uiState.value.documentModel?.copy(documentNote = newDocumentNote)
                     ?: return@launch
 
-            _uiState.value = _uiState.value.copy(documentModel = updatedDocumentModel)
-
             documentModelRepository.updateDocumentModel(updatedDocumentModel)
         }
     }
@@ -101,19 +109,19 @@ class DocumentDetailViewModel(
     fun onEvent(event: DocumentDetailEvent) {
         viewModelScope.launch {
             val newDetails =
-                applyEvent(event, _uiState.value.documentModel?.documentDetails ?: return@launch)
-
-            val updatedDocumentModel = _uiState.value.documentModel?.copy(
-                documentDetails = newDetails
-            )
-
-            if (updatedDocumentModel == null) return@launch
+                applyEvent(event, _uiState.value.documentDetails ?: return@launch)
 
             launch {
-                _uiState.update { it.copy(documentModel = updatedDocumentModel) }
+                _uiState.update { it.copy(documentDetails = newDetails) }
             }
 
             launch {
+                val updatedDocumentModel = _uiState.value.documentModel?.copy(
+                    documentDetails = newDetails
+                )
+
+                if (updatedDocumentModel == null) return@launch
+
                 documentModelRepository.updateDocumentModel(updatedDocumentModel)
             }
         }
@@ -131,7 +139,8 @@ class DocumentDetailViewModel(
 
         is DocumentDetailEvent.UpdateText -> {
             currentDetails.toMutableList().apply {
-                val oldItem = this[event.index] as StringDetail
+                if (event.index < 0 || event.index >= this.size) return@apply
+                val oldItem = this[event.index] as? StringDetail ?: return@apply
                 this[event.index] = oldItem.copy(name = event.newName, value = event.newValue)
             }
         }
@@ -144,6 +153,7 @@ class DocumentDetailViewModel(
 
         is DocumentDetailEvent.Delete -> {
             currentDetails.toMutableList().apply {
+                if (event.index < 0 || event.index >= this.size) return@apply
                 removeAt(event.index)
             }
         }
@@ -245,8 +255,6 @@ class DocumentDetailViewModel(
         viewModelScope.launch {
             val updatedDocumentModel = _uiState.value.documentModel?.copy(title = newDocumentName)
                 ?: return@launch
-
-            _uiState.value = _uiState.value.copy(documentModel = updatedDocumentModel)
 
             documentModelRepository.updateDocumentModel(updatedDocumentModel)
         }

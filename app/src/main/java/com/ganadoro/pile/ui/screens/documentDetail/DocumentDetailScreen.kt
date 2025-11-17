@@ -189,7 +189,7 @@ fun DocumentDetailScreen(
                     item { Spacer(Modifier.height(8.dp)) }
 
                     documentDetailsSection(
-                        documentDetails = uiState.documentModel?.documentDetails ?: emptyList(),
+                        documentDetails = uiState.documentDetails ?: emptyList(),
                         isEditingMode = isDocumentDetailsEditing,
                         updateEditingMode = { isDocumentDetailsEditing = it },
                         onEvent = { viewModel.onEvent(event = it) }
