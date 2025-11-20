@@ -1,5 +1,11 @@
 package com.ganadoro.pile.ui.navigation
 
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
@@ -22,7 +28,15 @@ fun NavGraph(modifier: Modifier = Modifier, navController: NavHostController) {
     NavHost(
         navController = navController,
         startDestination = NavRoute.HomeRoute.path,
-        modifier = modifier
+        modifier = modifier,
+        enterTransition = {
+            slideInHorizontally(initialOffsetX = { it / 5 }) + fadeIn(animationSpec = tween(easing = LinearOutSlowInEasing))
+        },
+        exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 4 }) },
+        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 4 }) },
+        popExitTransition = {
+            slideOutHorizontally(targetOffsetX = { it / 5 }) + fadeOut(animationSpec = tween(easing = LinearOutSlowInEasing))
+        }
     ) {
         addHomeScreen(navController = navController, navGraphBuilder = this)
 
