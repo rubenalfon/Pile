@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.DocumentModel
@@ -72,7 +73,7 @@ fun LazyListScope.itemDocumentsCompleteList(
 
                 Document(
                     documentModel = document,
-                    documentBitmap = cachedBitmap,
+                    imageBitmap = cachedBitmap?.asImageBitmap(),
                     modifier = modifier,
                     onClick = onDocumentClick
                 )

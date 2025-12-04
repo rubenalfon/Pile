@@ -1,6 +1,5 @@
 package com.ganadoro.pile.ui.compostables
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -27,7 +26,7 @@ import com.ganadoro.pile.DocumentModel
 @Composable
 fun Document(
     documentModel: DocumentModel,
-    documentBitmap: Bitmap?,
+    imageBitmap: ImageBitmap?,
     modifier: Modifier = Modifier,
     onClick: (id: String) -> Unit = {}
 ) {
@@ -48,9 +47,9 @@ fun Document(
             .clip(RoundedCornerShape(7.dp))
 
 
-        if (documentBitmap != null) {
+        if (imageBitmap != null) {
             Image(
-                bitmap = documentBitmap.asImageBitmap(),
+                bitmap = imageBitmap,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = imageModifier
