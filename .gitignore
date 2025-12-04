@@ -18,3 +18,7 @@ local.properties
 /.idea/codeStyles/codeStyleConfig.xml
 /.kotlin/errors/errors-1750762680882.log
 /.idea/deviceManager.xml
+/app/release/app-release.apk
+/app/release/baselineProfiles/0/app-release.dm
+/app/release/baselineProfiles/1/app-release.dm
+/app/release/output-metadata.json
