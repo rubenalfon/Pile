@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package com.ganadoro.pile.di
 
 import com.ganadoro.pile.ui.screens.addDocument.AddDocumentViewModel
@@ -22,7 +22,8 @@ import com.ganadoro.pile.ui.screens.editDocumentPiles.EditDocumentPilesViewModel
 import com.ganadoro.pile.ui.screens.editPDF.EditPDFViewModel
 import com.ganadoro.pile.ui.screens.home.HomeViewModel
 import com.ganadoro.pile.ui.screens.pileDetail.PileDetailViewModel
-import org.koin.androidx.viewmodel.dsl.viewModelOf
+import com.ganadoro.pile.ui.screens.search.SearchBarViewModel
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val viewmodelModule = module {
@@ -32,4 +33,5 @@ val viewmodelModule = module {
     viewModelOf(::EditPDFViewModel)
     viewModelOf(::AddDocumentViewModel)
     viewModelOf(::EditDocumentPilesViewModel)
+    viewModelOf(::SearchBarViewModel)
 }

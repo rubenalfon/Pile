@@ -1,4 +1,4 @@
-package com.ganadoro.pile.ui.screens.home.compostables
+package com.ganadoro.pile.ui.compostables
 
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.LazyListScope
@@ -8,8 +8,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
-import com.ganadoro.pile.ui.compostables.Pile
-import com.ganadoro.pile.ui.compostables.adaptiveSizeItemsGrid
 
 
 fun LazyListScope.itemPileGrid(

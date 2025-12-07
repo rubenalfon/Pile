@@ -55,7 +55,7 @@ import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.AlertNewPile
 import com.ganadoro.pile.ui.compostables.KeyboardAware
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
-import com.ganadoro.pile.ui.screens.home.compostables.itemPileGrid
+import com.ganadoro.pile.ui.compostables.itemPileGrid
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

@@ -22,6 +22,10 @@
     <string name="return_">Return</string>
     <string name="reset">Reset</string>
     <string name="rotate">Rotate</string>
+    <string name="settings">Settings</string>
+    <string name="date">Date</string>
+    <string name="ok">OK</string>
+    <string name="clear">Clear</string>
 
 
     <string name="new_pile">New Pile</string>
@@ -85,7 +89,7 @@
     <string name="rotate_image_counterclockwise">Rotate image counterclockwise</string>
     <string name="reset_image_crop">Reset image crop</string>
 
-
+    <string name="close_pile_selection_bottom_sheet">Close pile selection bottom sheet</string>
 
 
 

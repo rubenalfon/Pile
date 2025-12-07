@@ -8,7 +8,9 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
@@ -84,11 +86,10 @@ import com.ganadoro.pile.ui.compostables.AlertNewPile
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.compostables.SwipeBox
 import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
+import com.ganadoro.pile.ui.compostables.itemPileGrid
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
-import com.ganadoro.pile.ui.screens.home.compostables.SearchBar
-import com.ganadoro.pile.ui.screens.home.compostables.itemPileGrid
+import com.ganadoro.pile.ui.screens.search.SearchBarScreen
 import com.ganadoro.pile.util.UriUtils
-import com.ganadoro.pile.util.horizontalPaddingValues
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -111,33 +112,57 @@ fun HomeScreen(
     var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
     var isNewPileAlertExpanded by rememberSaveable { mutableStateOf(false) }
 
+    var isSearchBarExpanded by rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
         modifier = modifier,
         containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets.displayCutout,
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
-            FabMenu(
-                modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
-                fabMenuExpanded = fabMenuExpanded,
-                updateFabMenuExpanded = { fabMenuExpanded = it },
-                onImportPDF = { uri ->
-                    viewModel.importPDFIntent(uri)
-                },
-                onImportFromGallery = { uriList ->
-                    viewModel.importFromGalleryIntent(uriList)
-                },
-                onTakeAPhoto = { uri ->
-                    viewModel.takePhoto(uri)
-                }
-            )
+            AnimatedVisibility(!isSearchBarExpanded,
+                enter = fadeIn(), exit = fadeOut()
+            ) {
+                FabMenu(
+                    modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
+                    fabMenuExpanded = fabMenuExpanded,
+                    updateFabMenuExpanded = { fabMenuExpanded = it },
+                    onImportPDF = { uri ->
+                        viewModel.importPDFIntent(uri)
+                    },
+                    onImportFromGallery = { uriList ->
+                        viewModel.importFromGalleryIntent(uriList)
+                    },
+                    onTakeAPhoto = { uri ->
+                        viewModel.takePhoto(uri)
+                    }
+                )
+            }
         },
         topBar = {
-            SearchBar(
-                Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 8.dp)
-                    .padding(WindowInsets.displayCutout.asPaddingValues().horizontalPaddingValues(LocalLayoutDirection.current))
+            val horizontalPaddingAnimated by animateDpAsState(
+                targetValue = if (isSearchBarExpanded) 0.dp else 16.dp,
+            )
+            val bottomPaddingAnimated by animateDpAsState(
+                targetValue = if (isSearchBarExpanded) 0.dp else 8.dp,
+            )
+            val displayCutoutStartPaddingAnimated by animateDpAsState(
+                targetValue = if (isSearchBarExpanded) 0.dp else WindowInsets.displayCutout.asPaddingValues().calculateStartPadding(LocalLayoutDirection.current)
+            )
+            val displayCutoutEndPaddingAnimated by animateDpAsState(
+                targetValue = if (isSearchBarExpanded) 0.dp else WindowInsets.displayCutout.asPaddingValues().calculateEndPadding(LocalLayoutDirection.current)
+            )
+
+            SearchBarScreen(
+                modifier = Modifier
+                    .padding(horizontal = horizontalPaddingAnimated)
+                    .padding(bottom = bottomPaddingAnimated)
+                    .padding(start = displayCutoutStartPaddingAnimated)
+                    .padding(end = displayCutoutEndPaddingAnimated),
+                expanded = isSearchBarExpanded,
+                onExpandedChange = { isSearchBarExpanded = it },
+                onSettingsClick = { /*TODO: Add settings */ },
+                navigateToDocumentDetail = navigateToDocumentDetail
             )
         }
     ) { innerPadding ->
