@@ -58,6 +58,7 @@ fun PileDetailScreen(
     modifier: Modifier = Modifier,
     pileID: String,
     navigateToDocumentDetail: (documentId: String) -> Unit,
+    navigateToSearchScreen: () -> Unit,
     popBackStack: () -> Unit,
     viewModel: PileDetailViewModel = koinViewModel()
 ) {
@@ -81,7 +82,7 @@ fun PileDetailScreen(
             TopAppBar(
                 pileName = uiState.pile?.name ?: "",
                 popBackStack = popBackStack,
-                onSearchClick = {}, // TODO: Implement search
+                onSearchClick = navigateToSearchScreen,
                 scrollBehavior = scrollBehavior
             )
         },

@@ -51,6 +51,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -85,7 +87,8 @@ fun SearchBarScreen(
     onExpandedChange: (Boolean) -> Unit,
     onSettingsClick: () -> Unit,
     viewModel: SearchBarViewModel = koinViewModel(),
-    navigateToDocumentDetail: (documentId: String) -> Unit
+    navigateToDocumentDetail: (documentId: String) -> Unit,
+    focusRequester: FocusRequester? = null
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -102,6 +105,8 @@ fun SearchBarScreen(
         modifier = modifier
             .fillMaxWidth(),
         inputField = {
+            val focusRequester = focusRequester ?: remember { FocusRequester() }
+
             SearchInputField(
                 searchQuery = uiState.searchQuery,
                 onQueryChange = viewModel::updateSearchQuery,
@@ -111,7 +116,8 @@ fun SearchBarScreen(
                     if (!it) viewModel.deinit()
                     onExpandedChange(it)
                 },
-                onSettingsClick = onSettingsClick
+                onSettingsClick = onSettingsClick,
+                focusRequester = focusRequester
             )
         },
         expanded = expanded,
@@ -192,12 +198,12 @@ fun SearchBarScreen(
 private fun SearchInputField(
     modifier: Modifier = Modifier,
     searchQuery: String,
-//    viewModel: SearchBarViewModel,
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
+    focusRequester: FocusRequester
 ) {
     InputField(
         query = searchQuery,
@@ -268,7 +274,8 @@ private fun SearchInputField(
         modifier = modifier.padding(
             WindowInsets.displayCutout.asPaddingValues()
                 .horizontalPaddingValues(LocalLayoutDirection.current)
-        )
+
+        ).focusRequester(focusRequester)
     )
 }
 
@@ -378,7 +385,7 @@ private fun FilterPilesBottomSheet(
     ) {
         Column(modifier.verticalScroll(rememberScrollState())) {
             Row(
-                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(start = 16.dp, end = 8.dp)
             ) {
                 Text(stringResource(R.string.piles), Modifier.weight(1f))

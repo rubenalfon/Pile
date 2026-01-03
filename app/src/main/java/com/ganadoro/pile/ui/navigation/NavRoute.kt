@@ -27,6 +27,9 @@ sealed class NavRoute(val path: String) {
         const val DOCUMENT_ID_KEY = "documentId"
     }
 
+    data object SearchRoute : NavRoute("Search")
+
+
     // build navigation path (for screen navigation)
     fun withArgs(vararg args: String): String {
         return buildString {

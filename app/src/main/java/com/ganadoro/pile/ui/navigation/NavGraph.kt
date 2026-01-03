@@ -1,13 +1,22 @@
 package com.ganadoro.pile.ui.navigation
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -19,7 +28,9 @@ import com.ganadoro.pile.ui.screens.documentDetail.DocumentDetailScreen
 import com.ganadoro.pile.ui.screens.editPDF.EditPDFScreen
 import com.ganadoro.pile.ui.screens.home.HomeScreen
 import com.ganadoro.pile.ui.screens.pileDetail.PileDetailScreen
+import com.ganadoro.pile.ui.screens.search.SearchBarScreen
 import comganadoro.pile.ui.screens.editDocumentPiles.EditDocumentPilesScreen
+import kotlinx.coroutines.delay
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -49,6 +60,8 @@ fun NavGraph(modifier: Modifier = Modifier, navController: NavHostController) {
         addEditPDFScreen(navController = navController, navGraphBuilder = this)
 
         addAddDocumentScreen(navController = navController, navGraphBuilder = this)
+
+        addSearchScreen(navController = navController, navGraphBuilder = this)
     }
 }
 
@@ -109,6 +122,11 @@ private fun addPileDetailScreen(
                     NavRoute.DocumentDetailRoute.withArgs(
                         it
                     )
+                )
+            },
+            navigateToSearchScreen = {
+                navController.navigate(
+                    NavRoute.SearchRoute.path
                 )
             },
             popBackStack = {
@@ -276,3 +294,45 @@ private fun addAddDocumentScreen(
         )
     }
 }
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+private fun addSearchScreen(
+    navController: NavHostController, navGraphBuilder: NavGraphBuilder
+) {
+    navGraphBuilder.composable(route = NavRoute.SearchRoute.path) {
+        val showKeyboard = remember { mutableStateOf(true) }
+        val focusRequester = remember { FocusRequester() }
+        val keyboard = LocalSoftwareKeyboardController.current
+
+        LaunchedEffect(focusRequester) {
+            if (showKeyboard.value) {
+                focusRequester.requestFocus()
+                delay(100)
+                keyboard?.show()
+            }
+        }
+
+        Scaffold(
+            contentWindowInsets = WindowInsets.displayCutout,
+            topBar = {
+                SearchBarScreen(
+                    expanded = true,
+                    onExpandedChange = {
+                        if (!it) navController.popBackStack()
+                    },
+                    onSettingsClick = { /*TODO: Add settings */ },
+                    navigateToDocumentDetail = { id ->
+                        navController.navigate(
+                            NavRoute.DocumentDetailRoute.withArgs(
+                                id
+                            )
+                        )
+                    },
+                    focusRequester = focusRequester
+                )
+            },
+            content = {}
+        )
+    }
+}
+
