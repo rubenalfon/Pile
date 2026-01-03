@@ -320,7 +320,7 @@ private fun addSearchScreen(
                     onExpandedChange = {
                         if (!it) navController.popBackStack()
                     },
-                    onSettingsClick = { /*TODO: Add settings */ },
+                    onSettingsClick = {}, // Do not
                     navigateToDocumentDetail = { id ->
                         navController.navigate(
                             NavRoute.DocumentDetailRoute.withArgs(
