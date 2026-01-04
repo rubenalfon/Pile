@@ -55,6 +55,10 @@ import androidx.compose.material3.IconButtonDefaults.smallContainerSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -66,6 +70,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -101,6 +106,7 @@ import com.ganadoro.pile.ui.compostables.SwipeBox
 import com.ganadoro.pile.ui.screens.documentDetail.composables.SectionTitleBar
 import com.ganadoro.pile.ui.screens.documentDetail.composables.SimpleTextField
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import sh.calvin.reorderable.ReorderableColumn
 import sh.calvin.reorderable.ReorderableListItemScope
@@ -131,6 +137,12 @@ fun DocumentDetailScreen(
 
     val focusManager = LocalFocusManager.current
 
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarStrings = Pair(
+        stringResource(R.string.detail_deleted),
+        stringResource(R.string.undo)
+    )
 
     Scaffold(
         contentWindowInsets = WindowInsets.displayCutout,
@@ -163,7 +175,10 @@ fun DocumentDetailScreen(
                 onShareDocument = viewModel::openShareSheet,
                 onEditDocument = { navigateToEditDocument(documentId) },
             )
-        }
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
     ) { innerPadding ->
 
         Box(
@@ -192,7 +207,29 @@ fun DocumentDetailScreen(
                         documentDetails = uiState.documentDetails ?: emptyList(),
                         isEditingMode = isDocumentDetailsEditing,
                         updateEditingMode = { isDocumentDetailsEditing = it },
-                        onEvent = { viewModel.onEvent(event = it) }
+                        onEvent = {
+                            viewModel.onEvent(event = it)
+                            if (it !is DocumentDetailEvent.Delete) return@documentDetailsSection
+
+                            scope.launch {
+                                val result = snackbarHostState
+                                    .showSnackbar(
+                                        message = snackbarStrings.first,
+                                        actionLabel = snackbarStrings.second,
+                                        duration = SnackbarDuration.Long
+                                    )
+                                when (result) {
+                                    SnackbarResult.ActionPerformed -> {
+                                        viewModel.dismissDetailErasure()
+                                    }
+                                    SnackbarResult.Dismissed -> {
+                                        viewModel.confirmDetailErasure()
+                                    }
+                                }
+                            }
+
+
+                        }
                     )
 
                     item { Spacer(Modifier.height(8.dp)) }
@@ -363,6 +400,7 @@ private fun LazyListScope.documentDetailsSection(
     updateEditingMode: (state: Boolean) -> Unit,
     onEvent: (event: DocumentDetailEvent) -> Unit
 ) {
+
     item {
         SectionTitleBar(
             title = stringResource(R.string.details),

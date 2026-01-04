@@ -20,6 +20,7 @@ import com.ganadoro.pile.models.StringDetail
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
 import com.ganadoro.pile.util.renderAllPdfPages
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,6 +57,9 @@ class DocumentDetailViewModel(
 ) : ViewModel() {
     private var _uiState = MutableStateFlow(DocumentDetailUiState())
     var uiState: StateFlow<DocumentDetailUiState> = _uiState.asStateFlow()
+
+    private var latestDeletedDetail: DocumentDetail? = null
+
 
     fun loadDocument(documentId: String) {
         viewModelScope.launch {
@@ -108,6 +112,13 @@ class DocumentDetailViewModel(
 
     fun onEvent(event: DocumentDetailEvent) {
         viewModelScope.launch {
+            if (event is DocumentDetailEvent.Delete) {
+                Napier.d { "Deleting detail, latestDeletedDetail = $latestDeletedDetail" }
+                if (latestDeletedDetail != null) {
+                    deleteDetail(latestDeletedDetail!!)
+                }
+            }
+
             val newDetails =
                 applyEvent(event, _uiState.value.documentDetails ?: return@launch)
 
@@ -115,6 +126,7 @@ class DocumentDetailViewModel(
                 _uiState.update { it.copy(documentDetails = newDetails) }
             }
 
+            if (event is DocumentDetailEvent.Delete) return@launch
             launch {
                 val updatedDocumentModel = _uiState.value.documentModel?.copy(
                     documentDetails = newDetails
@@ -154,10 +166,52 @@ class DocumentDetailViewModel(
         is DocumentDetailEvent.Delete -> {
             currentDetails.toMutableList().apply {
                 if (event.index < 0 || event.index >= this.size) return@apply
-                removeAt(event.index)
+                latestDeletedDetail = this[event.index]
+                remove(latestDeletedDetail)
+                Napier.d { "AplyEvent Deleted detail, latestDeletedDetail = $latestDeletedDetail" }
             }
         }
     }
+
+    private suspend fun deleteDetail(detail: DocumentDetail) {
+        val documentDetails = _uiState.value.documentDetails ?: return
+
+        documentDetails.toMutableList().remove(detail)
+
+        val updatedDocumentModel = _uiState.value.documentModel?.copy(
+            documentDetails = documentDetails
+        )
+
+        if (updatedDocumentModel == null) return
+
+        latestDeletedDetail = null
+        documentModelRepository.updateDocumentModel(updatedDocumentModel)
+        Napier.d { "Deleted detail, latestDeletedDetail = $latestDeletedDetail" }
+    }
+
+    fun confirmDetailErasure() {
+        Napier.d { "Confirming detail erasure, latestDeletedDetail = $latestDeletedDetail" }
+
+        if (latestDeletedDetail == null) return
+
+        viewModelScope.launch {
+            deleteDetail(latestDeletedDetail!!)
+        }
+    }
+
+    fun dismissDetailErasure() {
+        viewModelScope.launch {
+            Napier.d { "Dismissing detail erasure, latestDeletedDetail = $latestDeletedDetail" }
+
+            latestDeletedDetail = null
+
+            val documentDetails = _uiState.value.documentDetails ?: return@launch
+            _uiState.update { it.copy(documentDetails = documentDetails) }
+
+            Napier.d { "Dismissed detail erasure, latestDeletedDetail = $latestDeletedDetail" }
+        }
+    }
+
 
     fun openDocumentPDF() {
         if (_uiState.value.documentModel == null) return
