@@ -208,7 +208,7 @@ fun DocumentDetailScreen(
                         isEditingMode = isDocumentDetailsEditing,
                         updateEditingMode = { isDocumentDetailsEditing = it },
                         onEvent = {
-                            viewModel.onEvent(event = it)
+                            viewModel.onDocumentDetailEvent(event = it)
                             if (it !is DocumentDetailEvent.Delete) return@documentDetailsSection
 
                             scope.launch {
@@ -219,16 +219,15 @@ fun DocumentDetailScreen(
                                         duration = SnackbarDuration.Long
                                     )
                                 when (result) {
-                                    SnackbarResult.ActionPerformed -> {
-                                        viewModel.dismissDetailErasure()
+                                    SnackbarResult.ActionPerformed -> { // Undo
+                                        viewModel.restoreDocumentDetail()
                                     }
+
                                     SnackbarResult.Dismissed -> {
-                                        viewModel.confirmDetailErasure()
+                                        viewModel.deleteDocumentDetail()
                                     }
                                 }
                             }
-
-
                         }
                     )
 
@@ -414,21 +413,21 @@ private fun LazyListScope.documentDetailsSection(
 
     if (documentDetails.isEmpty()) {
         item {
-                Card(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                    )
-                ) {
-                    Text(
-                        stringResource(R.string.no_document_details),
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
+            Card(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
+            ) {
+                Text(
+                    stringResource(R.string.no_document_details),
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
 
         }
     }
