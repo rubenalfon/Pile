@@ -1,52 +1,53 @@
 package com.ganadoro.pile.ui.navigation
 
-
-sealed class NavRoute(val path: String) {
-
-    data object HomeRoute : NavRoute("home")
-
-    data object PileDetailRoute : NavRoute("PileDetail") {
-        const val PILE_ID_KEY = "pileId"
-    }
-
-    data object DocumentDetailRoute : NavRoute("DocumentDetail") {
-        const val DOCUMENT_ID_KEY = "documentId"
-    }
-
-    data object EditDocumentPilesRoute : NavRoute("EditDocumentPiles") {
-        const val DOCUMENT_ID_KEY = "documentId"
-    }
-
-    data object EditPDFRoute : NavRoute("EditPDF") {
-        const val DOCUMENT_ID_KEY = "documentId"
-        const val DESTINATION_KEY = "destination"
-        const val INCLUSIVE_KEY = "inclusive"
-    }
-
-    data object AddDocumentRoute : NavRoute("AddDocument") {
-        const val DOCUMENT_ID_KEY = "documentId"
-    }
-
-    data object SearchRoute : NavRoute("Search")
+import android.os.Parcelable
+import androidx.navigation3.runtime.NavKey
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
 
-    // build navigation path (for screen navigation)
-    fun withArgs(vararg args: String): String {
-        return buildString {
-            append(path)
-            args.forEach { arg ->
-                append("/$arg")
-            }
-        }
-    }
+sealed interface Pane : Parcelable, NavKey {
+    @Parcelize
+    @Serializable
+    data object Home : Pane
 
-    // build and setup route format (in navigation graph)
-    fun withArgsFormat(vararg args: String): String {
-        return buildString {
-            append(path)
-            args.forEach { arg ->
-                append("/{$arg}")
-            }
-        }
-    }
+    @Parcelize
+    @Serializable
+    data class PileDetail(
+        val pileId: String
+    ) : Pane
+
+    @Parcelize
+    @Serializable
+    data class DocumentDetail(
+        val documentId: String
+    ) : Pane
+
+    @Parcelize
+    @Serializable
+    data class EditDocumentPiles(
+        val documentId: String
+    ) : Pane
+
+    @Parcelize
+    @Serializable
+    data class EditNewPDF(
+        val documentId: String,
+    ) : Pane
+
+    @Parcelize
+    @Serializable
+    data class EditExistingPDF(
+        val documentId: String,
+    ) : Pane
+
+    @Parcelize
+    @Serializable
+    data class AddDocument(
+        val documentId: String
+    ) : Pane
+
+    @Parcelize
+    @Serializable
+    data object Search : Pane
 }

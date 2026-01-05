@@ -10,17 +10,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.ganadoro.pile.ui.navigation.NavGraph
-import com.ganadoro.pile.ui.navigation.NavRoute
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.rememberNavBackStack
+import com.ganadoro.pile.ui.navigation.Pane
+import com.ganadoro.pile.ui.navigation.PileNavigation
 import com.ganadoro.pile.ui.theme.PileTheme
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 class MainActivity : ComponentActivity() {
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -32,17 +29,20 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize(),
                     color = MaterialTheme.colorScheme.surfaceContainer
                 ) {
-                    val navController = rememberNavController()
+                    val backStack = rememberNavBackStack(Pane.Home)
 
                     LaunchedEffect(Unit) {
-                        handleIntent(intent, navController)
+                        handleIntent(intent, backStack)
                     }
 
-                    NavGraph(navController = navController)
+                    PileNavigation(
+                        backStack = backStack
+                    )
                 }
             }
         }
     }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         recreate()
@@ -51,17 +51,14 @@ class MainActivity : ComponentActivity() {
     /**
      * Una función de ayuda para procesar el intent y evitar duplicar código.
      */
-    private fun handleIntent(intent: Intent?, navController: NavHostController) {
+    private fun handleIntent(intent: Intent?, backStack: NavBackStack<NavKey>) {
         if (intent?.hasExtra("NEW_PDF_ID") == true) {
             val tempFile = intent.getStringExtra("NEW_PDF_ID")
 
             if (!tempFile.isNullOrBlank()) {
-                val encodedDestination = NavRoute.AddDocumentRoute.withArgs(tempFile)
-                navController.navigate(
-                    NavRoute.EditPDFRoute.withArgs(
-                        tempFile,
-                        URLEncoder.encode(encodedDestination, StandardCharsets.UTF_8.toString()),
-                        /*inclusive = */false.toString()
+                backStack.add(
+                    Pane.EditNewPDF(
+                        documentId = tempFile
                     )
                 )
 
