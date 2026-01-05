@@ -1,5 +1,10 @@
 package com.ganadoro.pile.ui.screens.addDocument
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -175,7 +180,11 @@ fun AddDocumentScreen(
                                     .padding(horizontal = 16.dp),
                                 isError = uiState.noDocumentNameError,
                                 supportingText = {
-                                    if (uiState.noDocumentNameError) {
+                                    AnimatedVisibility(
+                                        visible = uiState.noDocumentNameError,
+                                        enter = fadeIn() + expandVertically(),
+                                        exit = fadeOut() + shrinkVertically()
+                                    ) {
                                         Text(stringResource(R.string.document_no_name_error))
                                     }
                                 },
@@ -210,7 +219,14 @@ fun AddDocumentScreen(
                             backgroundColor = colorScheme.surfaceContainer
                         )
 
-                        item { Box(Modifier.height(104.dp).fillMaxWidth().background(colorScheme.surfaceContainer)) }
+                        item {
+                            Box(
+                                Modifier
+                                    .height(104.dp)
+                                    .fillMaxWidth()
+                                    .background(colorScheme.surfaceContainer)
+                            )
+                        }
 
                     }
                 }

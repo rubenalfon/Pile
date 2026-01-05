@@ -77,7 +77,10 @@ class AddDocumentViewModel(
     }
 
     fun setDocumentName(name: String) {
-        _uiState.update { it.copy(documentName = name) }
+        _uiState.update { it.copy(
+            documentName = name,
+            noDocumentNameError = false
+        ) }
     }
 
     fun saveDocument() {
