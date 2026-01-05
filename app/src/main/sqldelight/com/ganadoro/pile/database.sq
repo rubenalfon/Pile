@@ -19,7 +19,8 @@ VALUES(?,?,?,?);
 
 selectAllPileModels:
 SELECT PileModel.*
-FROM PileModel;
+FROM PileModel
+ORDER BY PileModel.name ASC;
 
 selectPileModelById:
 SELECT PileModel.*
@@ -29,7 +30,8 @@ WHERE PileModel.id = ?;
 selectPileModelsById:
 SELECT PileModel.*
 FROM PileModel
-WHERE id IN ?;
+WHERE id IN ?
+ORDER BY PileModel.name ASC;
 
 updatePileModelName:
 UPDATE PileModel
