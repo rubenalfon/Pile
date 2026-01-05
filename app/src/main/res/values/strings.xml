@@ -5,6 +5,7 @@
     <string name="all_documents">All Documents</string>
     <string name="search_your_documents">Search your Documents</string>
     <string name="user_document_unsaved_changes">You have a document with unsaved changes.</string>
+    <string name="document_unsaved_changes_deleted">Document deleted</string>
     <string name="navigate_to_edit_unsaved_document">Navigate to edit unsaved document</string>
     <string name="see_more">See more</string>
 

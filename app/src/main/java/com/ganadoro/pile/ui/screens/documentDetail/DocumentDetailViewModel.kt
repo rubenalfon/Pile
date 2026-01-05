@@ -58,7 +58,7 @@ class DocumentDetailViewModel(
     private var _uiState = MutableStateFlow(DocumentDetailUiState())
     var uiState: StateFlow<DocumentDetailUiState> = _uiState.asStateFlow()
 
-    private var latestDeletedDetail: List<DocumentDetail> = emptyList()
+    private var recentlyDeletedDetails: List<DocumentDetail> = emptyList()
 
 
     fun loadDocument(documentId: String) {
@@ -157,31 +157,31 @@ class DocumentDetailViewModel(
         is DocumentDetailEvent.Delete -> {
             currentDetails.toMutableList().apply {
                 if (event.index < 0 || event.index >= this.size) return@apply
-                latestDeletedDetail += this[event.index]
+                recentlyDeletedDetails += this[event.index]
 
-                remove(latestDeletedDetail.last())
+                remove(recentlyDeletedDetails.last())
             }
         }
 
         is DocumentDetailEvent.Restore -> {
             currentDetails.toMutableList().apply {
-                if (latestDeletedDetail.isEmpty()) return@apply
-                val documentDetail = latestDeletedDetail.first()
-                add(latestDeletedDetail.first())
-                latestDeletedDetail -= documentDetail
+                if (recentlyDeletedDetails.isEmpty()) return@apply
+                val documentDetail = recentlyDeletedDetails.first()
+                add(recentlyDeletedDetails.first())
+                recentlyDeletedDetails -= documentDetail
             }
         }
     }
 
     fun restoreDocumentDetail() {
-        if (latestDeletedDetail.isEmpty()) return
+        if (recentlyDeletedDetails.isEmpty()) return
         onDocumentDetailEvent(DocumentDetailEvent.Restore)
     }
 
-    fun deleteDocumentDetail() {
-        if (latestDeletedDetail.isEmpty()) return
-        latestDeletedDetail.toMutableList().apply {
-            remove(latestDeletedDetail.first())
+    fun confirmErasureDocumentDetail() {
+        if (recentlyDeletedDetails.isEmpty()) return
+        recentlyDeletedDetails.toMutableList().apply {
+            remove(recentlyDeletedDetails.first())
         }
     }
 

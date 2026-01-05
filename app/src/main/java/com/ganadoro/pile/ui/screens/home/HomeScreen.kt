@@ -7,9 +7,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
@@ -48,6 +48,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
@@ -57,6 +61,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -90,6 +95,7 @@ import com.ganadoro.pile.ui.compostables.itemPileGrid
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
 import com.ganadoro.pile.ui.screens.search.SearchBarScreen
 import com.ganadoro.pile.util.UriUtils
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -114,13 +120,21 @@ fun HomeScreen(
 
     var isSearchBarExpanded by rememberSaveable { mutableStateOf(false) }
 
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarStrings = Pair(
+        stringResource(R.string.document_unsaved_changes_deleted),
+        stringResource(R.string.undo)
+    )
+
     Scaffold(
         modifier = modifier,
         containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets.displayCutout,
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
-            AnimatedVisibility(!isSearchBarExpanded,
+            AnimatedVisibility(
+                !isSearchBarExpanded,
                 enter = fadeIn(), exit = fadeOut()
             ) {
                 FabMenu(
@@ -147,10 +161,12 @@ fun HomeScreen(
                 targetValue = if (isSearchBarExpanded) 0.dp else 8.dp,
             )
             val displayCutoutStartPaddingAnimated by animateDpAsState(
-                targetValue = if (isSearchBarExpanded) 0.dp else WindowInsets.displayCutout.asPaddingValues().calculateStartPadding(LocalLayoutDirection.current)
+                targetValue = if (isSearchBarExpanded) 0.dp else WindowInsets.displayCutout.asPaddingValues()
+                    .calculateStartPadding(LocalLayoutDirection.current)
             )
             val displayCutoutEndPaddingAnimated by animateDpAsState(
-                targetValue = if (isSearchBarExpanded) 0.dp else WindowInsets.displayCutout.asPaddingValues().calculateEndPadding(LocalLayoutDirection.current)
+                targetValue = if (isSearchBarExpanded) 0.dp else WindowInsets.displayCutout.asPaddingValues()
+                    .calculateEndPadding(LocalLayoutDirection.current)
             )
 
             SearchBarScreen(
@@ -164,7 +180,10 @@ fun HomeScreen(
                 onSettingsClick = { /*TODO: Add settings */ },
                 navigateToDocumentDetail = navigateToDocumentDetail
             )
-        }
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
     ) { innerPadding ->
         val documentsColorSection = MaterialTheme.colorScheme.surface
 
@@ -210,12 +229,32 @@ fun HomeScreen(
                     item {
                         AnimatedVisibility(
                             visible = uiState.documentList!!.any { it.id == TEMP_DOCUMENT_ID },
-                            enter = EnterTransition.None,
+                            enter = fadeIn(tween(100)) + expandVertically(),
                             exit = fadeOut(tween(100)) + shrinkVertically()
                         ) {
                             UnsavedDocumentCard(
                                 onNavigateUnsavedDocument = { navigateToEditPDF(TEMP_DOCUMENT_ID) },
-                                onDismiss = { viewModel.deleteUnsavedDocument() }
+                                onDismiss = {
+                                    viewModel.deleteUnsavedDocument()
+
+                                    scope.launch {
+                                        val result = snackbarHostState
+                                            .showSnackbar(
+                                                message = snackbarStrings.first,
+                                                actionLabel = snackbarStrings.second,
+                                                duration = SnackbarDuration.Long
+                                            )
+                                        when (result) {
+                                            SnackbarResult.ActionPerformed -> { // restore
+                                                viewModel.restoreUnsavedDeletedDocument()
+                                            }
+
+                                            SnackbarResult.Dismissed -> {
+                                                viewModel.confirmErasureUnsavedDeletedDocument()
+                                            }
+                                        }
+                                    }
+                                }
                             )
                         }
                     }

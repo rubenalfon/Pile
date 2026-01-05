@@ -224,7 +224,7 @@ fun DocumentDetailScreen(
                                     }
 
                                     SnackbarResult.Dismissed -> {
-                                        viewModel.deleteDocumentDetail()
+                                        viewModel.confirmErasureDocumentDetail()
                                     }
                                 }
                             }

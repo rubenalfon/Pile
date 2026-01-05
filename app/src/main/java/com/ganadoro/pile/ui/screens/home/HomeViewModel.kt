@@ -48,6 +48,8 @@ class HomeViewModel(
 
     lateinit var navigateToEditPDF: (pileId: String) -> Unit
 
+    private var unsavedDeletedDocument: DocumentModel? = null
+
     init {
         viewModelScope.launch {
 
@@ -166,19 +168,36 @@ class HomeViewModel(
         }
     }
 
-    fun deleteUnsavedDocument() { // TODO: safe Delete
+    fun deleteUnsavedDocument() {
+        unsavedDeletedDocument = _uiState.value.documentList?.first { it.id == TEMP_DOCUMENT_ID }
+
         _uiState.update {
-            it.copy(documentList = _uiState.value.documentList?.filter { document -> document.id != TEMP_DOCUMENT_ID })
+            it.copy(documentList = _uiState.value.documentList?.filter { document -> document != unsavedDeletedDocument })
         }
 
-//        viewModelScope.launch {
-//            launch {
-//                documentModelRepository.deleteDocumentModel(TEMP_DOCUMENT_ID)
-//            }
-//            launch(Dispatchers.IO) {
-//                val file = File(context.filesDir, TEMP_DOCUMENT_ID)
-//                file.delete()
-//            }
-//        }
+        viewModelScope.launch {
+            documentModelRepository.deleteDocumentModel(TEMP_DOCUMENT_ID)
+        }
+    }
+
+    fun restoreUnsavedDeletedDocument() {
+        if (unsavedDeletedDocument == null) return
+
+        _uiState.update {
+            it.copy(documentList = _uiState.value.documentList?.plus(unsavedDeletedDocument!!))
+        }
+
+        viewModelScope.launch {
+            documentModelRepository.insertDocumentModel(unsavedDeletedDocument!!)
+        }
+    }
+
+    fun confirmErasureUnsavedDeletedDocument() {
+        unsavedDeletedDocument = null
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val file = File(context.filesDir, TEMP_DOCUMENT_ID)
+            file.delete()
+        }
     }
 }
