@@ -42,7 +42,6 @@ data class DocumentDetailUiState(
 sealed interface DocumentDetailEvent {
     data class UpdateText(val index: Int, val newName: String, val newValue: String) :
         DocumentDetailEvent
-
     data class Move(val fromIndex: Int, val toIndex: Int) : DocumentDetailEvent
     data object Add : DocumentDetailEvent
     data class Delete(val index: Int) : DocumentDetailEvent

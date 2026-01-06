@@ -135,6 +135,8 @@ fun DocumentDetailScreen(
     var isRenameDocumentAlertExpanded by rememberSaveable { mutableStateOf(false) }
     var isDeleteDocumentAlertExpanded by rememberSaveable { mutableStateOf(false) }
 
+    var isDocumentDetailsEditing by rememberSaveable { mutableStateOf(false) }
+
     val focusManager = LocalFocusManager.current
 
     val scope = rememberCoroutineScope()
@@ -180,7 +182,6 @@ fun DocumentDetailScreen(
             SnackbarHost(hostState = snackbarHostState)
         },
     ) { innerPadding ->
-
         Box(
             Modifier
                 .padding(innerPadding)
@@ -188,8 +189,6 @@ fun DocumentDetailScreen(
             LoadingWrapper(
                 uiState.documentModel == null || uiState.documentPileModels == null
             ) {
-                var isDocumentDetailsEditing by rememberSaveable { mutableStateOf(false) }
-
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize(),
