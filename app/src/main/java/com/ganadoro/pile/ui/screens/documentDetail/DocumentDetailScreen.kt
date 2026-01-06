@@ -438,7 +438,7 @@ private fun LazyListScope.documentDetailsSection(
             onSettle = { fromIndex, toIndex ->
                 onEvent(DocumentDetailEvent.Move(fromIndex, toIndex))
             },
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(3.dp)
         ) { index, documentDetail, isDragging ->
             key(documentDetail.id) {
                 ReorderableItem {
@@ -749,7 +749,7 @@ private fun LazyListScope.documentPilesSection(
         )
 
         if (index != documentPileModels.size - 1) {
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(3.dp))
         }
     }
 
