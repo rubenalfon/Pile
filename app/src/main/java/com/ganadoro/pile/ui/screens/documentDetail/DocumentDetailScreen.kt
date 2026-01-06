@@ -403,7 +403,7 @@ private fun LazyListScope.documentDetailsSection(
     item {
         SectionTitleBar(
             title = stringResource(R.string.details),
-            modifier = Modifier.padding(start = 16.dp, end = 8.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
             onButtonCLick = {
                 updateEditingMode.invoke(!isEditingMode)
             },
@@ -676,7 +676,7 @@ private fun DocumentNoteSection(
 
     SectionTitleBar(
         title = stringResource(R.string.note),
-        modifier = Modifier.padding(start = 16.dp, end = 8.dp)
+        modifier = Modifier.padding(horizontal = 16.dp)
     )
 
     Card(
@@ -722,7 +722,7 @@ private fun LazyListScope.documentPilesSection(
         SectionTitleBar(
             title = stringResource(R.string.piles),
             onButtonCLick = onEditDocumentPiles,
-            modifier = Modifier.padding(start = 16.dp, end = 8.dp)
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
     }
 

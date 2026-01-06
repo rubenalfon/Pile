@@ -1,10 +1,9 @@
 package com.ganadoro.pile.ui.screens.documentDetail.composables
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
@@ -28,8 +27,8 @@ fun SectionTitleBar(
     isSaveMode: Boolean = false
 ) {
     Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier.height(48.dp).padding(start = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = title,
@@ -38,9 +37,6 @@ fun SectionTitleBar(
             color = MaterialTheme.colorScheme.onSurface
         )
 
-        Box(Modifier
-            .height(48.dp)
-            .background(Color.Green))
         if (onButtonCLick == null) return@Row
 
         val containerColor by animateColorAsState(
@@ -64,7 +60,10 @@ fun SectionTitleBar(
             if (isSaveMode)
                 Icon(
                     painter = painterResource(R.drawable.check_24px),
-                    contentDescription = stringResource(R.string.save_changes_in_document_section_name, title),
+                    contentDescription = stringResource(
+                        R.string.save_changes_in_document_section_name,
+                        title
+                    ),
                 )
             else
                 Icon(
