@@ -103,10 +103,9 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     navigateToPileDetail: (pileId: String) -> Unit,
     navigateToDocumentDetail: (documentId: String) -> Unit,
-    navigateToEditPDF: (documentId: String) -> Unit
+    navigateToEditPDF: (documentId: String) -> Unit,
+    viewModel: HomeViewModel = koinViewModel()
 ) {
-    val viewModel: HomeViewModel = koinViewModel()
-
     viewModel.navigateToEditPDF = navigateToEditPDF
 
     val uiState by viewModel.uiState.collectAsState()
