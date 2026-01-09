@@ -7,6 +7,10 @@ plugins {
     alias(libs.plugins.parcelize)
 }
 
+kotlin {
+    jvmToolchain(21)
+}
+
 android {
     namespace = "com.ganadoro.pile"
     compileSdk = 36
@@ -17,7 +21,6 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -34,11 +37,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     buildFeatures {
         compose = true
