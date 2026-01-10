@@ -2,15 +2,15 @@ package com.ganadoro.pile.repositories
 
 import android.content.Context
 import android.graphics.Bitmap
-import com.ganadoro.pile.util.renderFirstPdfPage
+import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
+import com.ganadoro.pile.util.prepareBitmapFromFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.io.File
 
 class BitmapCacheRepository (
@@ -21,30 +21,57 @@ class BitmapCacheRepository (
     private val _bitmapCache = MutableStateFlow<Map<String, Bitmap>>(emptyMap())
     val bitmapCache = _bitmapCache.asStateFlow()
 
-    private val loadingMutex = Mutex()
-
     /**
-     * Inicia la carga de un bitmap para un documentId si no está ya en la caché.
-     * Esta función devuelve el control inmediatamente (no es suspend).
+     * Inicia la carga de un bitmap.
+     * @param imageId Se usa como llave única en la caché.
      */
-    fun ensureBitmapIsLoaded(documentId: String) {
-        if (_bitmapCache.value.containsKey(documentId)) {
-            return
-        }
+    fun ensureBitmapIsLoaded(documentId: String, imageId: String) {
+        if (_bitmapCache.value.containsKey(imageId)) return
 
         repositoryScope.launch {
-            loadingMutex.withLock {
-                if (_bitmapCache.value.containsKey(documentId)) {
-                    return@launch
+            if (_bitmapCache.value.containsKey(imageId)) return@launch
+
+            val folderName = documentId.removePrefix(TEMP_DOCUMENT_ID)
+            val documentFolder = File(appContext.filesDir, folderName)
+            val imageFile = File(documentFolder, imageId)
+
+            if (!imageFile.exists()) return@launch
+
+            val bitmap = prepareBitmapFromFile(imageFile)
+
+            if (bitmap != null) {
+                _bitmapCache.update { currentCache ->
+                    currentCache + (imageId to bitmap)
                 }
+            }
+        }
+    }
 
-                val file = File(appContext.filesDir, documentId)
+    /**
+     * Borra un bitmap de la cache.
+     * @param imageId id del bitmap a borrar.
+     */
+    fun removeFromCache(imageId: String) {
+        _bitmapCache.update { current ->
+            val bitmap = current[imageId]
+            if (bitmap != null && !bitmap.isRecycled) {
+                bitmap.recycle()
+            }
+            current - imageId
+        }
+    }
 
-                val bitmap = renderFirstPdfPage(file)
+    /**
+     * Libera todos los bitmaps de la memoria RAM.
+     */
+    fun clearCache() {
+        val bitmapsToRecycle = _bitmapCache.value.values
 
-                if (bitmap != null) {
-                    _bitmapCache.value += (documentId to bitmap)
-                }
+        _bitmapCache.update { emptyMap() }
+
+        bitmapsToRecycle.forEach { bitmap ->
+            if (!bitmap.isRecycled) {
+                bitmap.recycle()
             }
         }
     }

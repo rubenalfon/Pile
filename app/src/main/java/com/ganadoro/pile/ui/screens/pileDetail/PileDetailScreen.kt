@@ -119,9 +119,8 @@ fun PileDetailScreen(
                             navigateToDocumentDetail(documentId)
                         },
                         bitmapCache = bitmapCache,
-                        loadBitmap = { documentId ->
-                            viewModel.requestBitmapLoad(documentId)
-                            null
+                        onLoadBitmap = { documentId, imageId ->
+                            viewModel.requestBitmapLoad(documentId, imageId)
                         }
                     )
                     item {

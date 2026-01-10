@@ -71,8 +71,8 @@ class HomeViewModel(
         }
     }
 
-    fun requestBitmapLoad(documentId: String) {
-        bitmapCacheRepository.ensureBitmapIsLoaded(documentId)
+    fun requestBitmapLoad(documentId: String, imageId: String) {
+        bitmapCacheRepository.ensureBitmapIsLoaded(documentId, imageId)
     }
 
     fun addPile(pileName: String, iconId: String, color: Long) {

@@ -305,9 +305,8 @@ fun HomeScreen(
                         documents = uiState.documentList!!,
                         onDocumentClick = navigateToDocumentDetail,
                         bitmapCache = bitmapCache,
-                        loadBitmap = { documentId ->
-                            viewModel.requestBitmapLoad(documentId)
-                            null
+                        onLoadBitmap = { documentId, imageId ->
+                            viewModel.requestBitmapLoad(documentId, imageId)
                         }
                     )
 

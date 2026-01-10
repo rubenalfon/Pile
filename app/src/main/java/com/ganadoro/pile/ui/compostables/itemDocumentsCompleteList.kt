@@ -22,7 +22,7 @@ fun LazyListScope.itemDocumentsCompleteList(
     backgroundColor: Color = Color.Transparent,
     documents: List<DocumentModel>,
     bitmapCache: Map<String, Bitmap>,
-    loadBitmap: suspend (documentId: String) -> Bitmap?,
+    onLoadBitmap: suspend (documentId: String, imageId: String) -> Unit,
     onDocumentClick: (documentId: String) -> Unit = {}
 ) {
     val groupedDocuments: List<Pair<LocalDate, List<DocumentModel>>> =
@@ -63,11 +63,11 @@ fun LazyListScope.itemDocumentsCompleteList(
             verticalSpacing = 16.dp,
             horizontalPadding = 16.dp,
             content = { modifier, document ->
-                val cachedBitmap = bitmapCache[document.id]
+                val cachedBitmap = bitmapCache[document.imageIds.first()]
 
                 if (cachedBitmap == null) {
                     LaunchedEffect(key1 = document.id) {
-                        loadBitmap(document.id)
+                        onLoadBitmap(document.id, document.imageIds.first())
                     }
                 }
 

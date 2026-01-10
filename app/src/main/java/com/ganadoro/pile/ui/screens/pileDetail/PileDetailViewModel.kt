@@ -45,8 +45,8 @@ class PileDetailViewModel(
         }
     }
 
-    fun requestBitmapLoad(documentId: String) {
-        bitmapCacheRepository.ensureBitmapIsLoaded(documentId)
+    fun requestBitmapLoad(documentId: String, imageId: String) {
+        bitmapCacheRepository.ensureBitmapIsLoaded(documentId, imageId)
     }
 
     fun updatePileName(newPileName: String, newPileIconId: String, newPileColor: Long) {

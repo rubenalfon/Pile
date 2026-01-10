@@ -160,8 +160,8 @@ fun SearchBarScreen(
                             navigateToDocumentDetail(documentId)
                         },
                         bitmapCache = bitmapCache,
-                        loadBitmap = { documentId ->
-                            viewModel.requestBitmapLoad(documentId)
+                        onLoadBitmap = { documentId, imageId ->
+                            viewModel.requestBitmapLoad(documentId, imageId)
                             null
                         }
                     )
@@ -340,7 +340,7 @@ private fun LazyListScope.itemDocumentsCustomList(
     availableWidth: Dp,
     documents: List<DocumentModel>,
     bitmapCache: Map<String, Bitmap>,
-    loadBitmap: suspend (documentId: String) -> Bitmap?,
+    onLoadBitmap: suspend (documentId: String, imageId: String) -> Unit,
     onDocumentClick: (documentId: String) -> Unit = {}
 ) {
     adaptiveSizeItemsGrid(
@@ -352,11 +352,11 @@ private fun LazyListScope.itemDocumentsCustomList(
         verticalSpacing = 16.dp,
         horizontalPadding = 16.dp,
         content = { modifier, document ->
-            val cachedBitmap = bitmapCache[document.id]
+            val cachedBitmap = bitmapCache[document.imageIds.first()]
 
             if (cachedBitmap == null) {
                 LaunchedEffect(key1 = document.id) {
-                    loadBitmap(document.id)
+                    onLoadBitmap(document.id, document.imageIds.first())
                 }
             }
 

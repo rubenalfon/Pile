@@ -13,9 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
+import com.ganadoro.pile.repositories.BitmapCacheRepository
 import com.ganadoro.pile.ui.navigation.Pane
 import com.ganadoro.pile.ui.navigation.PileNavigation
 import com.ganadoro.pile.ui.theme.PileTheme
+import org.koin.java.KoinJavaComponent.getKoin
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +44,17 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onTrimMemory(level: Int) {
+        val bitmapCacheRepository = getKoin().get<BitmapCacheRepository>()
+
+        super.onTrimMemory(level)
+
+        if (level == TRIM_MEMORY_UI_HIDDEN || level == TRIM_MEMORY_BACKGROUND) {
+            bitmapCacheRepository.clearCache()
+        }
+    }
+
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
