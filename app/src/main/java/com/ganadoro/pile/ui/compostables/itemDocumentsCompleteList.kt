@@ -63,6 +63,8 @@ fun LazyListScope.itemDocumentsCompleteList(
             verticalSpacing = 16.dp,
             horizontalPadding = 16.dp,
             content = { modifier, document ->
+                if (document.imageIds.isEmpty()) return@adaptiveSizeItemsGrid
+
                 val cachedBitmap = bitmapCache[document.imageIds.first()]
 
                 if (cachedBitmap == null) {
