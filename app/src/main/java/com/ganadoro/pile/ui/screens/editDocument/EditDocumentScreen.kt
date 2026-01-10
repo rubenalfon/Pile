@@ -97,9 +97,10 @@ fun EditDocumentScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(key1 = documentId) {
-        if (uiState.documentModel == null || viewModel.onNext == null) {
-            viewModel.loadDocument(documentId)
+        if (uiState.documentModel == null || viewModel.onNext == null || viewModel.onPopBackStack == null) {
             viewModel.onNext = onNext
+            viewModel.onPopBackStack = popBackStack
+            viewModel.loadDocument(documentId)
         }
     }
 

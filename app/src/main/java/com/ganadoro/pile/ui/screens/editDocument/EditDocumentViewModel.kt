@@ -13,7 +13,7 @@ import com.ganadoro.pile.repositories.DocumentImageRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.util.createContrastBrightnessMatrix
 import com.ganadoro.pile.util.prepareBitmapsFromFiles
-import com.ganadoro.pile.util.renderAllPdfPages
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,6 +46,7 @@ class EditPDFViewModel(
     var uiState: StateFlow<EditDocumentUiState> = _uiState.asStateFlow()
 
     var onNext: (() -> Unit)? = null
+    var onPopBackStack: (() -> Unit)? = null
 
     private var colorMatrixList = listOf(
         ColorMatrix(),
@@ -55,49 +56,37 @@ class EditPDFViewModel(
 
     fun loadDocument(documentId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            launch {
-                _uiState.update {                                             
-                    it.copy(
-                        documentModel = documentModelRepository.getDocumentModelById(documentId)
-                            .first()
-                    )
+            try {
+                val documentModel = documentModelRepository.getDocumentModelById(documentId).first()
+                    ?: return@launch
+
+                val documentImages = documentModel.imageIds.mapNotNull { id ->
+                    documentImageRepository.getDocumentImageById(id).first()
                 }
-
-                if (uiState.value.documentModel == null) return@launch
-
-                val documentImages: List<DocumentImage> =
-                    uiState.value.documentModel!!.imageIds.map {
-                        documentImageRepository.getDocumentImageById(it)
-                            .first()!! // TODO: Handle null
-                    }
 
                 _uiState.update {
                     it.copy(
+                        documentModel = documentModel,
                         documentImages = documentImages
                     )
                 }
 
-                val documentImageFiles = documentImages.map {
-                    File(File(context.filesDir, documentId.removePrefix(TEMP_DOCUMENT_ID)), it.id)
-                }
+                val folderName = documentId.removePrefix(TEMP_DOCUMENT_ID)
+                val documentFolder = File(context.filesDir, folderName)
 
-                val bitmaps = prepareBitmapsFromFiles(documentImageFiles)
+                val imageFiles = documentImages.map { File(documentFolder, it.id) }
+                val bitmaps = prepareBitmapsFromFiles(imageFiles)
 
                 _uiState.update {
-                    it.copy(
-                        originalBitmaps = bitmaps
-                    )
+                    it.copy(originalBitmaps = bitmaps)
                 }
-            }
-            launch {
-                val file = File(context.filesDir, documentId)
-                _uiState.update { it.copy(originalBitmaps = renderAllPdfPages(file)) }
-            }
-            launch {
-
+            } catch (e: Exception) {
+                Napier.e(e) { "Error cargando el documento $documentId" }
+                onPopBackStack?.invoke()
             }
         }
     }
+
 
     fun onNext() {
 //        if (uiState.value.cropEditedBitmaps.isNotEmpty() && uiState.value.cropEditedBitmaps.isNotEmpty()) {
