@@ -13,6 +13,11 @@ import android.util.Size
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
 import androidx.exifinterface.media.ExifInterface
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.withContext
+import java.io.File
 
 fun Bitmap.resizeKeepingRatio(maxSize: Size): Bitmap {
     val widthRatio = maxSize.width.toFloat() / this.width
@@ -83,6 +88,60 @@ fun prepareBitmapFromUri(
             else -> scaledBitmap
         }
 
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+
+/**
+ * Procesa una lista de archivos en paralelo y devuelve sus Bitmaps.
+ */
+suspend fun prepareBitmapsFromFiles(
+    files: List<File>
+): List<Bitmap> = withContext(Dispatchers.IO) {
+    files.map { file ->
+        async {
+            prepareBitmapFromFile(file)
+        }
+    }.awaitAll().filterNotNull()
+}
+
+/**
+ * Procesa un solo archivo: decodifica y corrige la rotación según EXIF.
+ */
+fun prepareBitmapFromFile(
+    file: File
+): Bitmap? {
+    return try {
+        val bitmap = BitmapFactory.decodeFile(file.absolutePath) ?: return null
+
+        val rotation = try {
+            val exif = ExifInterface(file.absolutePath)
+            when (exif.getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL
+            )) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> 90
+                ExifInterface.ORIENTATION_ROTATE_180 -> 180
+                ExifInterface.ORIENTATION_ROTATE_270 -> 270
+                else -> 0
+            }
+        } catch (e: Exception) {
+            0
+        }
+        if (rotation != 0) {
+            val matrix = Matrix().apply { postRotate(rotation.toFloat()) }
+            val rotated = Bitmap.createBitmap(
+                bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true
+            )
+
+            if (rotated != bitmap) bitmap.recycle()
+            rotated
+        } else {
+            bitmap
+        }
     } catch (e: Exception) {
         e.printStackTrace()
         null

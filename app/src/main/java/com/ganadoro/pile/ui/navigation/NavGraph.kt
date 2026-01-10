@@ -24,7 +24,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.ganadoro.pile.ui.screens.addDocument.AddDocumentScreen
 import com.ganadoro.pile.ui.screens.documentDetail.DocumentDetailScreen
-import com.ganadoro.pile.ui.screens.editPDF.EditPDFScreen
+import com.ganadoro.pile.ui.screens.editDocument.EditDocumentScreen
 import com.ganadoro.pile.ui.screens.home.HomeScreen
 import com.ganadoro.pile.ui.screens.pileDetail.PileDetailScreen
 import com.ganadoro.pile.ui.screens.search.SearchBarScreen
@@ -141,7 +141,7 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
             }
 
             entry<Pane.EditExistingPDF> { backStackKey ->
-                EditPDFScreen(
+                EditDocumentScreen(
                     documentId = backStackKey.documentId,
                     popBackStack = {
                         backStack.removeLastOrNull()
@@ -153,7 +153,7 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
             }
 
             entry<Pane.EditNewPDF> { backStackKey ->
-                EditPDFScreen(
+                EditDocumentScreen(
                     documentId = backStackKey.documentId,
                     popBackStack = {
                         backStack.removeLastOrNull()

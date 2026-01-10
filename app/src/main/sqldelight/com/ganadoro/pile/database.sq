@@ -1,4 +1,5 @@
 import com.ganadoro.pile.models.DocumentDetail;
+import com.ganadoro.pile.models.ImageCropData;
 import java.time.LocalDate;
 import kotlin.String;
 import kotlin.collections.List;
@@ -83,6 +84,7 @@ WHERE id = ?;
 CREATE TABLE IF NOT EXISTS DocumentModel(
     id                          TEXT                            PRIMARY KEY,
     title                       TEXT                            NOT NULL,
+    imageIds                    TEXT AS List<String>            NOT NULL,
     creationDate                TEXT AS LocalDate               NOT NULL,
     modificationDate            TEXT AS LocalDate               NOT NULL,
     documentPileIds             TEXT AS List<String>            NOT NULL,
@@ -92,8 +94,8 @@ CREATE TABLE IF NOT EXISTS DocumentModel(
 );
 
 insertDocumentModel:
-INSERT INTO DocumentModel(id, title, creationDate, modificationDate, documentPileIds, documentDetails, documentNote, documentOrganizationIds)
-VALUES(?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO DocumentModel(id, title, imageIds, creationDate, modificationDate, documentPileIds, documentDetails, documentNote, documentOrganizationIds)
+VALUES(?, ?, ?, ?,?, ?, ?, ?, ?);
 
 selectAllDocumentModels:
 SELECT *
@@ -116,6 +118,11 @@ WHERE id = ?;
 updateDocumentTitle:
 UPDATE DocumentModel
 SET title = ?
+WHERE id = ?;
+
+updateDocumentImageIds:
+UPDATE DocumentModel
+SET imageIds = ?
 WHERE id = ?;
 
 updateDocumentModificationDate:
@@ -141,4 +148,46 @@ WHERE id = ?;
 updateDocumentOrganizationIds:
 UPDATE DocumentModel
 SET documentOrganizationIds = ?
+WHERE id = ?;
+
+-- DocumentImage
+
+CREATE TABLE IF NOT EXISTS DocumentImage(
+    id          TEXT                        PRIMARY KEY,
+    crop        TEXT    AS ImageCropData,
+    filter      INTEGER                     NOT NULL,
+    rotation    INTEGER                     NOT NULL
+);
+
+insertDocumentImage:
+INSERT INTO DocumentImage(id, crop, filter, rotation)
+VALUES(?, ?, ?, ?);
+
+
+selectAllDocumentImages:
+SELECT *
+FROM DocumentImage;
+
+selectDocumentImageById:
+SELECT *
+FROM DocumentImage
+WHERE id = ?;
+
+removeDocumentImage:
+DELETE FROM DocumentImage
+WHERE id = ?;
+
+updateCrop:
+UPDATE DocumentImage
+SET crop = ?
+WHERE id = ?;
+
+updateFilter:
+UPDATE DocumentImage
+SET filter = ?
+WHERE id = ?;
+
+updateRotation:
+UPDATE DocumentImage
+SET rotation = ?
 WHERE id = ?;

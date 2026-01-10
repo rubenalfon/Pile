@@ -11,20 +11,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.lifecycleScope
-import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.R
-import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.ui.compostables.LoadingComposable
 import com.ganadoro.pile.ui.theme.PileTheme
-import com.ganadoro.pile.util.createPdfWithImages
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
-import java.io.File
-import java.io.IOException
-import java.time.LocalDate
 
 class ImageReceiverActivity(
 ) : ComponentActivity() {
@@ -64,49 +55,49 @@ class ImageReceiverActivity(
             return
         }
 
-        lifecycleScope.launch {
-            val tempDocument = DocumentModel(
-                id = TEMP_DOCUMENT_ID,
-                title = "",
-                creationDate = LocalDate.now(),
-                modificationDate = LocalDate.now(),
-                documentDetails = emptyList(),
-                documentOrganizationIds = emptyList(),
-                documentNote = "",
-                documentPileIds = emptyList()
-            )
-            val tempFile = File(filesDir, tempDocument.id)
-
-
-            try {
-                if (tempFile.exists()) {
-                    tempFile.delete()
-                }
-
-                if (documentModelRepository.getDocumentModelById(tempDocument.id).first() != null) {
-                    documentModelRepository.deleteDocumentModel(tempDocument.id)
-                }
-
-                documentModelRepository.insertDocumentModel(tempDocument)
-
-                createPdfWithImages(
-                    context = applicationContext,
-                    imageUris = imageUris,
-                    outputFile = tempFile
-                )
-
-                navigateToMainApp(newPdfId = tempFile.name)
-
-            } catch (e: IOException) {
-                e.printStackTrace()
-                Toast.makeText(
-                    applicationContext,
-                    R.string.error_creating_pdf,
-                    Toast.LENGTH_LONG
-                ).show()
-                finish()
-            }
-        }
+//        lifecycleScope.launch {
+//            val tempDocument = DocumentModel(
+//                id = TEMP_DOCUMENT_ID,
+//                title = "",
+//                creationDate = LocalDate.now(),
+//                modificationDate = LocalDate.now(),
+//                documentDetails = emptyList(),
+//                documentOrganizationIds = emptyList(),
+//                documentNote = "",
+//                documentPileIds = emptyList()
+//            )
+//            val tempFile = File(filesDir, tempDocument.id)
+//
+//
+//            try {
+//                if (tempFile.exists()) {
+//                    tempFile.delete()
+//                }
+//
+//                if (documentModelRepository.getDocumentModelById(tempDocument.id).first() != null) {
+//                    documentModelRepository.deleteDocumentModel(tempDocument.id)
+//                }
+//
+//                documentModelRepository.insertDocumentModel(tempDocument)
+//
+//                createPdfWithImages(
+//                    context = applicationContext,
+//                    imageUris = imageUris,
+//                    outputFile = tempFile
+//                )
+//
+//                navigateToMainApp(newPdfId = tempFile.name)
+//
+//            } catch (e: IOException) {
+//                e.printStackTrace()
+//                Toast.makeText(
+//                    applicationContext,
+//                    R.string.error_creating_pdf,
+//                    Toast.LENGTH_LONG
+//                ).show()
+//                finish()
+//            }
+//        }
     }
 
     private fun navigateToMainApp(newPdfId: String) {

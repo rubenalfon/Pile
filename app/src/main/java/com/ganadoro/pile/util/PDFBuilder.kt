@@ -2,6 +2,7 @@ package com.ganadoro.pile.util
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.pdf.PdfDocument
@@ -11,6 +12,8 @@ import android.os.ParcelFileDescriptor
 import android.util.Size
 import androidx.core.graphics.createBitmap
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
@@ -152,5 +155,38 @@ private fun renderPage(renderer: PdfRenderer, pageIndex: Int): Bitmap {
         page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
 
         bitmap
+    }
+}
+
+/**
+ * Crea un archivo PDF a partir de una lista de archivos de imagen locales.
+ *
+ * @param imageFiles Lista de archivos (File) que contienen las imágenes.
+ * @param outputFile Archivo PDF de salida.
+ */
+suspend fun createPdfFromFiles(
+    imageFiles: List<File>,
+    outputFile: File
+) = withContext(Dispatchers.IO) {
+
+    // 1. Convertimos los archivos a Bitmaps en paralelo para que sea rápido
+    val bitmaps = imageFiles.map { file ->
+        async {
+            try {
+                // Usamos decodeFile que es directo para objetos File
+                BitmapFactory.decodeFile(file.absolutePath)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }.awaitAll().filterNotNull()
+
+    // 2. Usamos tu función existente que ya sabe manejar una lista de Bitmaps
+    if (bitmaps.isNotEmpty()) {
+        createPdfWithImages(bitmaps, outputFile)
+
+        // Importante: Liberar la memoria de los bitmaps después de crear el PDF
+        bitmaps.forEach { it.recycle() }
     }
 }

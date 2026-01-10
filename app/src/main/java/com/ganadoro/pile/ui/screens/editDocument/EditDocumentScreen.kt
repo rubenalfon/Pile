@@ -1,4 +1,4 @@
-package com.ganadoro.pile.ui.screens.editPDF
+package com.ganadoro.pile.ui.screens.editDocument
 
 import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
@@ -76,7 +76,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
-import com.ganadoro.pile.ui.screens.editPDF.composables.AddItemCarousel
+import com.ganadoro.pile.ui.screens.editDocument.composables.AddItemCarousel
 import com.tanishranjan.cropkit.CropController
 import com.tanishranjan.cropkit.CropDefaults
 import com.tanishranjan.cropkit.CropShape
@@ -87,7 +87,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun EditPDFScreen(
+fun EditDocumentScreen(
     modifier: Modifier = Modifier,
     documentId: String,
     popBackStack: () -> Unit,
@@ -103,21 +103,14 @@ fun EditPDFScreen(
         }
     }
 
-    val displayBitmaps = remember(
-        uiState.bitmaps,
-        uiState.colorEditedBitmaps,
-        uiState.cropEditedBitmaps,
-        uiState.lastEditType
+    val displayBitmaps: List<Bitmap> = remember(
+        uiState.originalBitmaps,
+        uiState.modifiedBitmaps
     ) {
-        List(uiState.bitmaps.size) { i ->
-            when (uiState.lastEditType[i]) {
-                EditType.CROP -> uiState.cropEditedBitmaps[i] ?: uiState.bitmaps[i]
-                EditType.COLOR -> uiState.colorEditedBitmaps[i] ?: uiState.bitmaps[i]
-                else -> uiState.bitmaps[i]
-            }
+        List(uiState.originalBitmaps.size) { i ->
+            uiState.modifiedBitmaps[i] ?: uiState.originalBitmaps[i]
         }
     }
-
 
     val colorScheme = MaterialTheme.colorScheme
     val cropControllers = remember(displayBitmaps) {
@@ -171,8 +164,9 @@ fun EditPDFScreen(
                     }
                 )
 
-                val thumbnailCarouselState = rememberCarouselState { displayBitmaps.count() + 1 }
-                AnimatedVisibility(visible = uiState.uiMode == EditPDFUIMode.SCROLL) {
+                val thumbnailCarouselState =
+                    rememberCarouselState { displayBitmaps.count() + 1 }
+                AnimatedVisibility(visible = uiState.uiMode == EditDocumentUIMode.SCROLL) {
                     ThumbnailCarousel(
                         modifier = Modifier.padding(bottom = 16.dp),
                         state = thumbnailCarouselState,
@@ -185,25 +179,25 @@ fun EditPDFScreen(
                     )
                 }
 
-                AnimatedVisibility(visible = uiState.uiMode == EditPDFUIMode.COLOR) {
-                    LoadingWrapper(
-                        modifier = modifier.height(84.dp),
-                        isLoading = uiState.colorModifiedBitmaps == null
-                    ) {
-                        if (uiState.colorModifiedBitmaps == null) return@LoadingWrapper
-                        EditColorRow(
-                            modifier = Modifier.padding(bottom = 16.dp),
-                            colorModifiedImages = uiState.colorModifiedBitmaps!!,
-                            selectedImageIndex = uiState.selectedColorIndex[uiState.selectedImageIndex]
-                                ?: 0,
-                            onSelectImage = { index ->
-                                viewModel.setSelectedColorIndex(index)
-                            }
-                        )
-                    }
-                }
+//                AnimatedVisibility(visible = uiState.uiMode == EditDocumentUIMode.COLOR) {
+//                    LoadingWrapper(
+//                        modifier = modifier.height(84.dp),
+//                        isLoading = uiState.colorModifiedBitmaps == null
+//                    ) {
+//                        if (uiState.colorModifiedBitmaps == null) return@LoadingWrapper
+//                        EditColorRow(
+//                            modifier = Modifier.padding(bottom = 16.dp),
+//                            colorModifiedImages = uiState.colorModifiedBitmaps!!,
+//                            selectedImageIndex = uiState.selectedColorIndex[uiState.selectedImageIndex]
+//                                ?: 0,
+//                            onSelectImage = { index ->
+//                                viewModel.setSelectedColorIndex(index)
+//                            }
+//                        )
+//                    }
+//                }
 
-                AnimatedVisibility(visible = uiState.uiMode == EditPDFUIMode.CROP_ROTATE) {
+                AnimatedVisibility(visible = uiState.uiMode == EditDocumentUIMode.CROP_ROTATE) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.padding(bottom = 16.dp)
@@ -260,26 +254,26 @@ fun EditPDFScreen(
                     uiMode = uiState.uiMode,
                     bitmapCount = displayBitmaps.count(),
                     onEditImageColors = {
-                        if (uiState.uiMode == EditPDFUIMode.CROP_ROTATE) {
+                        if (uiState.uiMode == EditDocumentUIMode.CROP_ROTATE) {
                             viewModel.cropImage(cropControllers[uiState.selectedImageIndex].crop())
                         }
                         viewModel.updateUIMode(
-                            if (uiState.uiMode != EditPDFUIMode.COLOR) EditPDFUIMode.COLOR
-                            else EditPDFUIMode.SCROLL
+                            if (uiState.uiMode != EditDocumentUIMode.COLOR) EditDocumentUIMode.COLOR
+                            else EditDocumentUIMode.SCROLL
                         )
                     },
                     onResizeImage = {
-                        if (uiState.uiMode == EditPDFUIMode.CROP_ROTATE) {
+                        if (uiState.uiMode == EditDocumentUIMode.CROP_ROTATE) {
                             viewModel.cropImage(cropControllers[uiState.selectedImageIndex].crop())
                         }
                         viewModel.updateUIMode(
-                            if (uiState.uiMode != EditPDFUIMode.CROP_ROTATE) EditPDFUIMode.CROP_ROTATE
-                            else EditPDFUIMode.SCROLL
+                            if (uiState.uiMode != EditDocumentUIMode.CROP_ROTATE) EditDocumentUIMode.CROP_ROTATE
+                            else EditDocumentUIMode.SCROLL
                         )
                     },
                     onDeleteImage = {
                         viewModel.deleteSelectedImage()
-                        viewModel.updateUIMode(EditPDFUIMode.SCROLL)
+                        viewModel.updateUIMode(EditDocumentUIMode.SCROLL)
                     },
                     onAddDocument = viewModel::onNext
                 )
@@ -323,7 +317,7 @@ private fun ImagePager(
     modifier: Modifier = Modifier,
     images: List<Bitmap>,
     cropControllers: List<CropController>,
-    uiMode: EditPDFUIMode,
+    uiMode: EditDocumentUIMode,
     selectedImageIndex: Int,
     onSelectImage: (Int) -> Unit
 ) {
@@ -362,10 +356,10 @@ private fun ImagePager(
         state = pagerState,
         contentPadding = PaddingValues(horizontal = 16.dp),
         pageSpacing = 16.dp,
-        userScrollEnabled = uiMode == EditPDFUIMode.SCROLL,
+        userScrollEnabled = uiMode == EditDocumentUIMode.SCROLL,
         modifier = modifier
     ) { page ->
-        if (uiMode != EditPDFUIMode.CROP_ROTATE) {
+        if (uiMode != EditDocumentUIMode.CROP_ROTATE) {
             Image(
                 bitmap = images[page].asImageBitmap(),
                 contentDescription = stringResource(R.string.image_number, page + 1),
@@ -545,7 +539,7 @@ private fun EditColorRow(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun ToolBar(
     modifier: Modifier = Modifier,
-    uiMode: EditPDFUIMode,
+    uiMode: EditDocumentUIMode,
     bitmapCount: Int,
     onEditImageColors: () -> Unit,
     onResizeImage: () -> Unit,
@@ -564,8 +558,8 @@ private fun ToolBar(
                 IconButton(
                     onClick = onEditImageColors,
                     colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = if (uiMode == EditPDFUIMode.COLOR) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
-                        contentColor = if (uiMode == EditPDFUIMode.COLOR) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
+                        containerColor = if (uiMode == EditDocumentUIMode.COLOR) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+                        contentColor = if (uiMode == EditDocumentUIMode.COLOR) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
                     )
                 ) {
                     Icon(
@@ -575,8 +569,8 @@ private fun ToolBar(
                 }
                 IconButton(
                     onClick = onResizeImage, colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = if (uiMode == EditPDFUIMode.CROP_ROTATE) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
-                        contentColor = if (uiMode == EditPDFUIMode.CROP_ROTATE) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
+                        containerColor = if (uiMode == EditDocumentUIMode.CROP_ROTATE) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+                        contentColor = if (uiMode == EditDocumentUIMode.CROP_ROTATE) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
                     )
                 ) {
                     Icon(
@@ -597,7 +591,7 @@ private fun ToolBar(
             modifier = Modifier.padding(end = 8.dp)
         )
         AnimatedVisibility(
-            visible = uiMode == EditPDFUIMode.SCROLL,
+            visible = uiMode == EditDocumentUIMode.SCROLL,
         ) {
             FloatingActionButton(
                 onClick = onAddDocument,

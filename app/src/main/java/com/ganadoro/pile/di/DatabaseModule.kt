@@ -5,8 +5,10 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.ganadoro.pile.Database
 import com.ganadoro.pile.DatabaseQueries
+import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.models.DocumentDetail
+import com.ganadoro.pile.models.ImageCropData
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -18,12 +20,15 @@ val databaseModule = module {
         Database(
             driver = get(),
             DocumentModelAdapter = DocumentModel.Adapter(
+                imageIdsAdapter = get(named("StringListAdapter")),
                 creationDateAdapter = get(named("LocalDateStringAdapter")),
                 modificationDateAdapter = get(named("LocalDateStringAdapter")),
                 documentPileIdsAdapter = get(named("StringListAdapter")),
                 documentDetailsAdapter = get(named("DocumentDetailListAdapter")),
                 documentOrganizationIdsAdapter = get(named("StringListAdapter"))
-
+            ),
+            DocumentImageAdapter = DocumentImage.Adapter(
+                cropAdapter = get(named("ImageCropDataAdapter"))
             )
         )
     }
@@ -71,6 +76,18 @@ val databaseModule = module {
                 return Json.decodeFromString(databaseValue)
             }
             override fun encode(value: List<DocumentDetail>): String {
+                return Json.encodeToString(value)
+            }
+        }
+    }
+
+    single<ColumnAdapter<ImageCropData, String>>(named("ImageCropDataAdapter")) {
+        object : ColumnAdapter<ImageCropData, String> {
+            override fun decode(databaseValue: String): ImageCropData {
+                return Json.decodeFromString(databaseValue)
+            }
+
+            override fun encode(value: ImageCropData): String {
                 return Json.encodeToString(value)
             }
         }

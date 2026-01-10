@@ -1,4 +1,4 @@
-package com.ganadoro.pile.ui.screens.editPDF.composables
+package com.ganadoro.pile.ui.screens.editDocument.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

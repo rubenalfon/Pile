@@ -12,20 +12,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
-import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.R
-import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.ui.compostables.LoadingComposable
 import com.ganadoro.pile.ui.theme.PileTheme
 import com.ganadoro.pile.util.FileUtils
-import com.ganadoro.pile.util.copyUriFile
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
-import java.io.File
-import java.io.IOException
-import java.time.LocalDate
 
 class PDFImportActivity : ComponentActivity() {
 
@@ -71,42 +64,43 @@ class PDFImportActivity : ComponentActivity() {
                 pdfUri
             )
 
-            val tempDocument = DocumentModel(
-                id = TEMP_DOCUMENT_ID,
-                title = documentTitle ?: "",
-                creationDate = LocalDate.now(),
-                modificationDate = LocalDate.now(),
-                documentDetails = emptyList(),
-                documentOrganizationIds = emptyList(),
-                documentNote = "",
-                documentPileIds = emptyList()
-            )
-            val tempFile = File(filesDir, tempDocument.id)
-
-            try {
-                if (tempFile.exists()) {
-                    tempFile.delete()
-                }
-
-                if (documentModelRepository.getDocumentModelById(tempDocument.id).first() != null) {
-                    documentModelRepository.deleteDocumentModel(tempDocument.id)
-                }
-
-                documentModelRepository.insertDocumentModel(tempDocument)
-
-                tempFile.copyUriFile(applicationContext, pdfUri)
-
-                navigateToMainApp(newPdfId = tempFile.name)
-
-            } catch (e: IOException) {
-                e.printStackTrace()
-                Toast.makeText(
-                    applicationContext,
-                    R.string.error_importing_pdf,
-                    Toast.LENGTH_LONG
-                ).show()
-                finish()
-            }
+//            val tempDocument = DocumentModel(
+//                id = TEMP_DOCUMENT_ID,
+//                title = documentTitle ?: "",
+//
+//                creationDate = LocalDate.now(),
+//                modificationDate = LocalDate.now(),
+//                documentDetails = emptyList(),
+//                documentOrganizationIds = emptyList(),
+//                documentNote = "",
+//                documentPileIds = emptyList()
+//            )
+//            val tempFile = File(filesDir, tempDocument.id)
+//
+//            try {
+//                if (tempFile.exists()) {
+//                    tempFile.delete()
+//                }
+//
+//                if (documentModelRepository.getDocumentModelById(tempDocument.id).first() != null) {
+//                    documentModelRepository.deleteDocumentModel(tempDocument.id)
+//                }
+//
+//                documentModelRepository.insertDocumentModel(tempDocument)
+//
+//                tempFile.copyUriFile(applicationContext, pdfUri)
+//
+//                navigateToMainApp(newPdfId = tempFile.name)
+//
+//            } catch (e: IOException) {
+//                e.printStackTrace()
+//                Toast.makeText(
+//                    applicationContext,
+//                    R.string.error_importing_pdf,
+//                    Toast.LENGTH_LONG
+//                ).show()
+//                finish()
+//            }
         }
     }
 
