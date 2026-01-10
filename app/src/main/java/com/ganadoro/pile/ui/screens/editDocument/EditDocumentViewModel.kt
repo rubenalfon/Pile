@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
-import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
 import com.ganadoro.pile.repositories.DocumentImageRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.util.createContrastBrightnessMatrix
@@ -71,8 +70,7 @@ class EditPDFViewModel(
                     )
                 }
 
-                val folderName = documentId.removePrefix(TEMP_DOCUMENT_ID)
-                val documentFolder = File(context.filesDir, folderName)
+                val documentFolder = File(context.filesDir, documentId)
 
                 val imageFiles = documentImages.map { File(documentFolder, it.id) }
                 val bitmaps = prepareBitmapsFromFiles(imageFiles)

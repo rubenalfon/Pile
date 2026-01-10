@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
-import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
+import com.ganadoro.pile.models.DocumentStatusConstants.TEMPORARY
 import com.ganadoro.pile.repositories.BitmapCacheRepository
 import com.ganadoro.pile.repositories.DocumentImageRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,6 +33,7 @@ data class HomeUiState(
     var documentList: List<DocumentModel>? = null,
     var coloredPileIds: List<String>? = null,
 )
+
 
 @SuppressLint("StaticFieldLeak")
 class HomeViewModel(
@@ -48,11 +50,15 @@ class HomeViewModel(
 
     lateinit var navigateToEditPDF: (pileId: String) -> Unit
 
-    private var unsavedDeletedDocument: DocumentModel? = null
+    private data class UnsavedBackup(
+        val document: DocumentModel,
+        val images: List<DocumentImage>
+    )
+
+    private var backupUnsavedDocument: UnsavedBackup? = null
 
     init {
         viewModelScope.launch {
-
             val pileModelsFlow = pileModelRepository.pileModels
 
             pileModelsFlow.combine(documentModelRepository.documentModels) { piles, documents ->
@@ -69,6 +75,11 @@ class HomeViewModel(
                 }
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        confirmErasureUnsavedDeletedDocument()
     }
 
     fun requestBitmapLoad(documentId: String, imageId: String) {
@@ -88,18 +99,24 @@ class HomeViewModel(
         }
     }
 
-
     private suspend fun processNewDocument(
         initialTitle: String? = null,
         processFileAction: suspend (document: DocumentModel) -> Unit
     ) {
+        val temporalDocument =
+            documentModelRepository.getDocumentModelsByStatus(TEMPORARY).first().firstOrNull()
+        if (temporalDocument != null) {
+            completeDeleteUnsavedDocument(temporalDocument)
+        }
+
         val documentId = UUID.randomUUID().toString()
         val document = DocumentModel(
-            id = TEMP_DOCUMENT_ID + documentId,
+            id = documentId,
             title = initialTitle ?: "",
             imageIds = emptyList(),
             creationDate = LocalDate.now(),
             modificationDate = LocalDate.now(),
+            documentStatus = TEMPORARY,
             documentDetails = emptyList(),
             documentOrganizationIds = emptyList(),
             documentNote = "",
@@ -112,8 +129,9 @@ class HomeViewModel(
                 processFileAction(document)
             }
 
-            navigateToEditPDF.invoke(document.id)
-
+            withContext(Dispatchers.Main) {
+                navigateToEditPDF.invoke(document.id)
+            }
         } catch (e: Exception) {
             Napier.e("Error procesando el nuevo documento", e) // TODO: Error handling
             try {
@@ -140,12 +158,12 @@ class HomeViewModel(
     }
 
     fun importFromGalleryIntent(uriList: List<Uri>) {
-        viewModelScope.launch (Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
             processNewDocument { document ->
                 val imageFileList = saveResizedImagesToInternalStorage(
                     context = context,
                     uris = uriList,
-                    documentId = document.id.removePrefix(TEMP_DOCUMENT_ID)
+                    documentId = document.id
                 )
 
                 for (image in imageFileList) {
@@ -160,9 +178,7 @@ class HomeViewModel(
                 }
 
                 documentModelRepository.updateDocumentModel(
-                    document.copy(
-                        imageIds = imageFileList.map { it.name }
-                    )
+                    document.copy(imageIds = imageFileList.map { it.name })
                 )
             }
         }
@@ -180,36 +196,72 @@ class HomeViewModel(
 //        }
     }
 
-    fun deleteUnsavedDocument() {
-        unsavedDeletedDocument = _uiState.value.documentList?.first { it.id == TEMP_DOCUMENT_ID }
+    private suspend fun completeDeleteUnsavedDocument(documentToDelete: DocumentModel) {
+        withContext(Dispatchers.IO) {
+            val documentImages = documentToDelete.imageIds.mapNotNull { id ->
+                documentImageRepository.getDocumentImageById(id).first()
+            }
 
-        _uiState.update {
-            it.copy(documentList = _uiState.value.documentList?.filter { document -> document != unsavedDeletedDocument })
+            documentModelRepository.deleteDocumentModel(documentToDelete.id)
+
+            for (image in documentImages) {
+                documentImageRepository.deleteDocumentImage(image.id)
+            }
+
+
+            val folder = File(context.filesDir, documentToDelete.id)
+            folder.deleteRecursively()
         }
+    }
+
+    fun partialDeleteUnsavedDocument() {
+        val documentToDelete = _uiState.value.documentList?.find {
+            it.documentStatus == TEMPORARY
+        } ?: return
 
         viewModelScope.launch {
-            documentModelRepository.deleteDocumentModel(TEMP_DOCUMENT_ID)
+            val documentImages = documentToDelete.imageIds.mapNotNull { id ->
+                documentImageRepository.getDocumentImageById(id).first()
+            }
+
+            backupUnsavedDocument = UnsavedBackup(
+                document = documentToDelete,
+                images = documentImages
+            )
+
+            withContext(Dispatchers.IO) {
+                documentModelRepository.deleteDocumentModel(documentToDelete.id)
+                for (image in documentImages) {
+                    documentImageRepository.deleteDocumentImage(image.id)
+                }
+            }
         }
     }
 
     fun restoreUnsavedDeletedDocument() {
-        if (unsavedDeletedDocument == null) return
-
-        _uiState.update {
-            it.copy(documentList = _uiState.value.documentList?.plus(unsavedDeletedDocument!!))
-        }
+        val backup = backupUnsavedDocument ?: return
 
         viewModelScope.launch {
-            documentModelRepository.insertDocumentModel(unsavedDeletedDocument!!)
+            withContext(Dispatchers.IO) {
+                documentModelRepository.insertDocumentModel(backup.document)
+
+                for (documentImage in backup.images) {
+                    documentImageRepository.insertDocumentImage(documentImage)
+                }
+            }
+            backupUnsavedDocument = null
         }
     }
 
     fun confirmErasureUnsavedDeletedDocument() {
-        unsavedDeletedDocument = null
+        val backup = backupUnsavedDocument ?: return
+        val folderName = backup.document.id
+
+        backupUnsavedDocument = null
 
         viewModelScope.launch(Dispatchers.IO) {
-            val file = File(context.filesDir, TEMP_DOCUMENT_ID)
-            file.delete()
+            val folder = File(context.filesDir, folderName)
+            folder.deleteRecursively()
         }
     }
 }

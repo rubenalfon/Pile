@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.DocumentModel
-import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
+import com.ganadoro.pile.models.DocumentStatusConstants
 import java.time.LocalDate
 
 fun LazyListScope.itemDocumentsCompleteList(
@@ -27,7 +27,7 @@ fun LazyListScope.itemDocumentsCompleteList(
 ) {
     val groupedDocuments: List<Pair<LocalDate, List<DocumentModel>>> =
         documents
-            .filter { it.id != TEMP_DOCUMENT_ID }
+            .filter { it.documentStatus == DocumentStatusConstants.SAVED }
             .groupBy { it.modificationDate }
             .toSortedMap(compareByDescending { it })
             .map { (date, docs) -> date to docs }

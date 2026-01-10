@@ -1,4 +1,5 @@
 import com.ganadoro.pile.models.DocumentDetail;
+import com.ganadoro.pile.models.DocumentStatus;
 import com.ganadoro.pile.models.ImageCropData;
 import java.time.LocalDate;
 import kotlin.String;
@@ -87,6 +88,7 @@ CREATE TABLE IF NOT EXISTS DocumentModel(
     imageIds                    TEXT AS List<String>            NOT NULL,
     creationDate                TEXT AS LocalDate               NOT NULL,
     modificationDate            TEXT AS LocalDate               NOT NULL,
+    documentStatus              INTEGER  AS DocumentStatus      NOT NULL,
     documentPileIds             TEXT AS List<String>            NOT NULL,
     documentDetails             TEXT AS List<DocumentDetail>    NOT NULL,
     documentNote                TEXT                            NOT NULL,
@@ -94,8 +96,8 @@ CREATE TABLE IF NOT EXISTS DocumentModel(
 );
 
 insertDocumentModel:
-INSERT INTO DocumentModel(id, title, imageIds, creationDate, modificationDate, documentPileIds, documentDetails, documentNote, documentOrganizationIds)
-VALUES(?, ?, ?, ?,?, ?, ?, ?, ?);
+INSERT INTO DocumentModel(id, title, imageIds, creationDate, modificationDate, documentStatus, documentPileIds, documentDetails, documentNote, documentOrganizationIds)
+VALUES(?, ?, ?, ?,?, ?, ?, ?, ?, ?);
 
 selectAllDocumentModels:
 SELECT *
@@ -110,6 +112,11 @@ selectDocumentModelsByPileId:
 SELECT *
 FROM DocumentModel
 WHERE documentPileIds LIKE ('%"' || ? || '"%');
+
+selectDocumentModelsByStatus:
+SELECT *
+FROM DocumentModel
+WHERE documentStatus = ?;
 
 removeDocumentModel:
 DELETE FROM DocumentModel
@@ -128,6 +135,11 @@ WHERE id = ?;
 updateDocumentModificationDate:
 UPDATE DocumentModel
 SET modificationDate = ?
+WHERE id = ?;
+
+updateDocumentStatus:
+UPDATE DocumentModel
+SET documentStatus = ?
 WHERE id = ?;
 
 updateDocumentPileIds:
@@ -153,10 +165,10 @@ WHERE id = ?;
 -- DocumentImage
 
 CREATE TABLE IF NOT EXISTS DocumentImage(
-    id          TEXT                        PRIMARY KEY,
-    crop        TEXT    AS ImageCropData,
-    filter      INTEGER                     NOT NULL,
-    rotation    INTEGER                     NOT NULL
+    id          TEXT                    PRIMARY KEY,
+    crop        TEXT AS ImageCropData,
+    filter      INTEGER                 NOT NULL,
+    rotation    INTEGER                 NOT NULL
 );
 
 insertDocumentImage:

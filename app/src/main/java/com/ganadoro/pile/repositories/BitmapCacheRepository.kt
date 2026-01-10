@@ -2,7 +2,6 @@ package com.ganadoro.pile.repositories
 
 import android.content.Context
 import android.graphics.Bitmap
-import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
 import com.ganadoro.pile.util.prepareBitmapFromFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +12,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 
+/**
+ * Repositorio que gestiona la caché de bitmaps.
+ * @param appContext Contexto de la aplicación.
+ */
 class BitmapCacheRepository (
     private val appContext: Context
 ) {
@@ -31,7 +34,7 @@ class BitmapCacheRepository (
         repositoryScope.launch {
             if (_bitmapCache.value.containsKey(imageId)) return@launch
 
-            val folderName = documentId.removePrefix(TEMP_DOCUMENT_ID)
+            val folderName = documentId
             val documentFolder = File(appContext.filesDir, folderName)
             val imageFile = File(documentFolder, imageId)
 

@@ -8,6 +8,7 @@ import com.ganadoro.pile.DatabaseQueries
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.models.DocumentDetail
+import com.ganadoro.pile.models.DocumentStatus
 import com.ganadoro.pile.models.ImageCropData
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
@@ -23,6 +24,7 @@ val databaseModule = module {
                 imageIdsAdapter = get(named("StringListAdapter")),
                 creationDateAdapter = get(named("LocalDateStringAdapter")),
                 modificationDateAdapter = get(named("LocalDateStringAdapter")),
+                documentStatusAdapter = get(named("DocumentStatusAdapter")),
                 documentPileIdsAdapter = get(named("StringListAdapter")),
                 documentDetailsAdapter = get(named("DocumentDetailListAdapter")),
                 documentOrganizationIdsAdapter = get(named("StringListAdapter"))
@@ -64,6 +66,7 @@ val databaseModule = module {
             override fun decode(databaseValue: String): List<String> {
                 return Json.decodeFromString(databaseValue)
             }
+
             override fun encode(value: List<String>): String {
                 return Json.encodeToString(value)
             }
@@ -75,6 +78,7 @@ val databaseModule = module {
             override fun decode(databaseValue: String): List<DocumentDetail> {
                 return Json.decodeFromString(databaseValue)
             }
+
             override fun encode(value: List<DocumentDetail>): String {
                 return Json.encodeToString(value)
             }
@@ -89,6 +93,18 @@ val databaseModule = module {
 
             override fun encode(value: ImageCropData): String {
                 return Json.encodeToString(value)
+            }
+        }
+    }
+
+    single<ColumnAdapter<DocumentStatus, Long>>(named("DocumentStatusAdapter")) {
+        object : ColumnAdapter<DocumentStatus, Long> {
+            override fun decode(databaseValue: Long): DocumentStatus {
+                return databaseValue.toInt()
+            }
+
+            override fun encode(value: DocumentStatus): Long {
+                return value.toLong()
             }
         }
     }

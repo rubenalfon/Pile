@@ -14,6 +14,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -45,7 +46,6 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -64,6 +64,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -86,7 +87,7 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
-import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
+import com.ganadoro.pile.models.DocumentStatusConstants.TEMPORARY
 import com.ganadoro.pile.ui.compostables.AlertNewPile
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.compostables.SwipeBox
@@ -226,15 +227,20 @@ fun HomeScreen(
                     item { Spacer(Modifier.height(8.dp)) }
 
                     item {
+                        val tempDocument by remember(uiState.documentList) {
+                            derivedStateOf {
+                                uiState.documentList!!.find { it.documentStatus == TEMPORARY }
+                            }
+                        }
                         AnimatedVisibility(
-                            visible = uiState.documentList!!.any { it.id == TEMP_DOCUMENT_ID },
+                            visible = tempDocument != null,
                             enter = fadeIn(tween(100)) + expandVertically(),
                             exit = fadeOut(tween(100)) + shrinkVertically()
                         ) {
                             UnsavedDocumentCard(
-                                onNavigateUnsavedDocument = { navigateToEditPDF(TEMP_DOCUMENT_ID) },
+                                onNavigateUnsavedDocument = { navigateToEditPDF(tempDocument!!.id) },
                                 onDismiss = {
-                                    viewModel.deleteUnsavedDocument()
+                                    viewModel.partialDeleteUnsavedDocument()
 
                                     scope.launch {
                                         val result = snackbarHostState
@@ -477,20 +483,19 @@ private fun UnsavedDocumentCard(
             )
         ) {
             Row(
-                Modifier
-                    .padding(16.dp)
+                Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
                     stringResource(R.string.user_document_unsaved_changes),
                     Modifier.weight(1f)
                 )
 
-                IconButton({}) {
-                    Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = stringResource(R.string.navigate_to_edit_unsaved_document),
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                )
             }
         }
     }

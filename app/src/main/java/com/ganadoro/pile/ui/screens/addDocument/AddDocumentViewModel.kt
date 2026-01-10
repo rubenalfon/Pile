@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
-import com.ganadoro.pile.models.TEMP_DOCUMENT_ID
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
 import com.ganadoro.pile.util.renderFirstPdfPage
@@ -114,13 +113,13 @@ class AddDocumentViewModel(
 
                 documentModelRepository.insertDocumentModel(documentModel)
 
-                documentModelRepository.deleteDocumentModel(TEMP_DOCUMENT_ID)
+           //TODO     documentModelRepository.deleteDocumentModel(TEMP_DOCUMENT_ID)
             }
 
             val fileJob = launch {
-                val oldDocumentFile = File(context.filesDir, TEMP_DOCUMENT_ID)
-
-                oldDocumentFile.renameTo(newDocumentFile)
+//           TODO     val oldDocumentFile = File(context.filesDir, TEMP_DOCUMENT_ID)
+//
+//                oldDocumentFile.renameTo(newDocumentFile)
             }
 
             listOf(dbJob, fileJob).forEach { it.join() }
