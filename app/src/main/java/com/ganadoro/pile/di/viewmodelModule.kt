@@ -23,6 +23,7 @@ import com.ganadoro.pile.ui.screens.editDocumentPiles.EditDocumentPilesViewModel
 import com.ganadoro.pile.ui.screens.home.HomeViewModel
 import com.ganadoro.pile.ui.screens.pileDetail.PileDetailViewModel
 import com.ganadoro.pile.ui.screens.search.SearchBarViewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -31,7 +32,19 @@ val viewmodelModule = module {
     viewModelOf(::PileDetailViewModel)
     viewModelOf(::DocumentDetailViewModel)
     viewModelOf(::EditPDFViewModel)
-    viewModelOf(::AddDocumentViewModel)
+
+    viewModel { (documentId: String) ->
+        AddDocumentViewModel(documentId, get(), get(), get(), get(), get())
+    }
+
     viewModelOf(::EditDocumentPilesViewModel)
     viewModelOf(::SearchBarViewModel)
+
+
+//    viewModel { (documentId: String) ->
+//        EditPDFViewModel(documentId, get(), get(), get())
+//    }
+//    viewModel { (documentId: String) ->
+//        DocumentDetailViewModel(documentId, get(), get())
+//    }
 }

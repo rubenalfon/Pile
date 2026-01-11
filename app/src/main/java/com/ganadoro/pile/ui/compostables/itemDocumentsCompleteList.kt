@@ -63,13 +63,13 @@ fun LazyListScope.itemDocumentsCompleteList(
             verticalSpacing = 16.dp,
             horizontalPadding = 16.dp,
             content = { modifier, document ->
-                if (document.imageIds.isEmpty()) return@adaptiveSizeItemsGrid
+                val imageId = document.imageIds.firstOrNull() ?: return@adaptiveSizeItemsGrid
 
-                val cachedBitmap = bitmapCache[document.imageIds.first()]
+                val cachedBitmap = bitmapCache[imageId]
 
                 if (cachedBitmap == null) {
-                    LaunchedEffect(key1 = document.id) {
-                        onLoadBitmap(document.id, document.imageIds.first())
+                    LaunchedEffect(key1 = imageId) {
+                        onLoadBitmap(document.id, imageId)
                     }
                 }
 

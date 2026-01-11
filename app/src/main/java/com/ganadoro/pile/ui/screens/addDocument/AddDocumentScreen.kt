@@ -56,12 +56,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.compostables.AlertNewPile
 import com.ganadoro.pile.ui.compostables.KeyboardAware
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.compostables.itemPileGrid
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -70,21 +72,11 @@ fun AddDocumentScreen(
     documentId: String,
     popBackStack: () -> Unit,
     navigateToDocumentDetail: (String) -> Unit,
-    viewModel: AddDocumentViewModel = koinViewModel()
+    viewModel: AddDocumentViewModel = koinViewModel { parametersOf(documentId) }
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(key1 = documentId) {
-        if (uiState.documentModel == null) {
-            viewModel.loadDocument(documentId)
-        }
-        if (uiState.allPileModels == null) {
-            viewModel.loadPiles()
-        }
-        if (viewModel.navigateToDocumentDetail == null) {
-            viewModel.navigateToDocumentDetail = navigateToDocumentDetail
-        }
-    }
+    val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     var isNewPileAlertExpanded by rememberSaveable { mutableStateOf(false) }
 
@@ -97,7 +89,9 @@ fun AddDocumentScreen(
             },
             floatingActionButton = {
                 MediumFloatingActionButton(
-                    onClick = { viewModel.saveDocument() },
+                    onClick = { viewModel.saveDocument(onSuccess = {
+                        navigateToDocumentDetail(documentId)
+                    }) },
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ) {
@@ -144,9 +138,19 @@ fun AddDocumentScreen(
                                     .clip(RoundedCornerShape(28.dp))
                                     .background(MaterialTheme.colorScheme.surfaceContainerHigh),
                             ) {
-                                LoadingWrapper(uiState.firstPageBitmap == null) {
+                                val imageId = uiState.frontPageDocumentImage?.id ?: return@Box
+
+                                val cachedBitmap = bitmapCache[imageId]
+
+                                if (cachedBitmap == null) {
+                                    LaunchedEffect(key1 = imageId) {
+                                        viewModel.requestBitmapLoad(documentId, imageId)
+                                    }
+                                }
+
+                                LoadingWrapper(cachedBitmap == null) {
                                     Image(
-                                        bitmap = uiState.firstPageBitmap!!.asImageBitmap(),
+                                        bitmap = cachedBitmap!!.asImageBitmap(),
                                         contentDescription = stringResource(R.string.document_first_image),
                                         modifier = Modifier.fillMaxSize(),
                                         contentScale = ContentScale.Crop
