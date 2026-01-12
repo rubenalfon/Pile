@@ -29,16 +29,19 @@ import org.koin.dsl.module
 
 val viewmodelModule = module {
     viewModelOf(::HomeViewModel)
-    viewModelOf(::PileDetailViewModel)
-    viewModelOf(::DocumentDetailViewModel)
+
+    viewModel { (pileId: String) ->
+        PileDetailViewModel(pileId, get(), get(), get())
+    }
+
+    viewModel { (documentId: String) ->
+        DocumentDetailViewModel(documentId, get(), get(), get(), get(), get())
+    }
+
     viewModelOf(::EditPDFViewModel)
 
     viewModel { (documentId: String) ->
         AddDocumentViewModel(documentId, get(), get(), get(), get())
-    }
-
-    viewModel { (pileId: String) ->
-        PileDetailViewModel(pileId, get(), get(), get())
     }
 
     viewModelOf(::EditDocumentPilesViewModel)

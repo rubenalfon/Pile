@@ -95,6 +95,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
@@ -108,6 +109,7 @@ import com.ganadoro.pile.ui.screens.documentDetail.composables.SimpleTextField
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 import sh.calvin.reorderable.ReorderableColumn
 import sh.calvin.reorderable.ReorderableListItemScope
 import java.time.format.DateTimeFormatter
@@ -123,14 +125,10 @@ fun DocumentDetailScreen(
     navigateToEditDocument: (documentId: String) -> Unit,
     navigateToEditDocumentPiles: (documentId: String) -> Unit,
     popBackStack: () -> Unit,
-    viewModel: DocumentDetailViewModel = koinViewModel()
+    viewModel: DocumentDetailViewModel = koinViewModel{ parametersOf(documentId) }
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    if (uiState.documentModel == null) {
-        viewModel.loadDocument(documentId)
-    }
-
+    val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     var isRenameDocumentAlertExpanded by rememberSaveable { mutableStateOf(false) }
     var isDeleteDocumentAlertExpanded by rememberSaveable { mutableStateOf(false) }
@@ -203,7 +201,7 @@ fun DocumentDetailScreen(
                     item { Spacer(Modifier.height(8.dp)) }
 
                     documentDetailsSection(
-                        documentDetails = uiState.documentDetails ?: emptyList(),
+                        documentDetails = uiState.localDocumentDetails ?: emptyList(),
                         isEditingMode = isDocumentDetailsEditing,
                         updateEditingMode = { isDocumentDetailsEditing = it },
                         onEvent = {

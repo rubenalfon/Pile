@@ -12,118 +12,136 @@ import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
 import com.ganadoro.pile.models.DocumentDetail
 import com.ganadoro.pile.models.StringDetail
+import com.ganadoro.pile.repositories.BitmapCacheRepository
+import com.ganadoro.pile.repositories.DocumentImageRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
-import com.ganadoro.pile.util.renderAllPdfPages
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.UUID
 
 data class DocumentDetailUiState(
     var documentModel: DocumentModel? = null,
-    var documentDetails: List<DocumentDetail>? = null,
-    var bitmaps: List<Bitmap> = emptyList(),
-    var documentPileModels: List<PileModel>? = null
+    var localDocumentDetails: List<DocumentDetail>? = null,
+    var documentPileModels: List<PileModel>? = null,
+    var documentImages: List<DocumentImage>? = null,
+    var bitmaps: List<Bitmap> = emptyList()
 )
 
 sealed interface DocumentDetailEvent {
     data class UpdateText(val index: Int, val newName: String, val newValue: String) :
         DocumentDetailEvent
+
     data class Move(val fromIndex: Int, val toIndex: Int) : DocumentDetailEvent
     data object Add : DocumentDetailEvent
     data class Delete(val index: Int) : DocumentDetailEvent
     data object Restore : DocumentDetailEvent
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @SuppressLint("StaticFieldLeak")
 class DocumentDetailViewModel(
+    private val documentId: String,
     private val context: Context, // Safe
     private val documentModelRepository: DocumentModelRepository,
-    private val pileModelRepository: PileModelRepository
+    private val pileModelRepository: PileModelRepository,
+    private val documentImageRepository: DocumentImageRepository,
+    private val bitmapCacheRepository: BitmapCacheRepository
 ) : ViewModel() {
     private var _uiState = MutableStateFlow(DocumentDetailUiState())
     var uiState: StateFlow<DocumentDetailUiState> = _uiState.asStateFlow()
 
+    val bitmapCache = bitmapCacheRepository.bitmapCache
+
     private var recentlyDeletedDetails: List<DocumentDetail> = emptyList()
 
-
-    fun loadDocument(documentId: String) {
+    init {
         viewModelScope.launch {
-            val documentModelFlow =
-                documentModelRepository.getDocumentModelById(documentId)
+            val documentFlow =
+                documentModelRepository.getDocumentModelById(documentId).distinctUntilChanged()
 
-            _uiState.update {
-                it.copy(documentDetails = documentModelFlow.first()?.documentDetails)
-            }
-
-            documentModelFlow.combine(pileModelRepository.pileModels) { documentModel, allPiles ->
-                if (documentModel == null) {
-                    return@combine DocumentDetailUiState()
+            val pilesFlow = documentFlow
+                .map { it?.documentPileIds ?: emptyList() }
+                .distinctUntilChanged()
+                .flatMapLatest { ids ->
+                    if (ids.isEmpty()) flowOf(emptyList())
+                    else pileModelRepository.getPileModelsByIds(ids)
                 }
 
-                val bitmapsDeferred = async(Dispatchers.IO) {
-                    val file = File(context.filesDir, documentId)
-                    renderAllPdfPages(file)
+            val imagesFlow = documentFlow
+                .map { it?.imageIds ?: emptyList() }
+                .distinctUntilChanged()
+                .flatMapLatest { ids ->
+                    if (ids.isEmpty()) flowOf(emptyList())
+                    else {
+                        combine(ids.map { documentImageRepository.getDocumentImageById(it) }) { images ->
+                            images.filterNotNull()
+                        }
+                    }
                 }
 
-                val documentPileModels =
-                    allPiles.filter { pile -> pile.id in documentModel.documentPileIds }
+            combine(documentFlow, pilesFlow, imagesFlow) { document, piles, images ->
+                if (document == null) return@combine
 
-                DocumentDetailUiState(
-                    documentModel = documentModel,
-                    bitmaps = bitmapsDeferred.await(),
-                    documentPileModels = documentPileModels
-                )
-            }.collect { finalState ->
-                _uiState.update {
-                    it.copy(
-                        documentModel = finalState.documentModel,
-                        bitmaps = finalState.bitmaps,
-                        documentPileModels = finalState.documentPileModels
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        documentModel = document,
+                        documentPileModels = piles,
+                        documentImages = images,
+                        localDocumentDetails = currentState.localDocumentDetails
+                            ?: document.documentDetails
                     )
                 }
-            }
+            }.collect()
         }
+    }
+
+    fun requestBitmapLoad(documentId: String, imageId: String) {
+        bitmapCacheRepository.ensureBitmapIsLoaded(documentId, imageId)
     }
 
     fun updateDocumentNote(newDocumentNote: String) {
         viewModelScope.launch {
-            val updatedDocumentModel =
-                _uiState.value.documentModel?.copy(documentNote = newDocumentNote)
-                    ?: return@launch
+            val document = uiState.value.documentModel ?: return@launch
 
-            documentModelRepository.updateDocumentModel(updatedDocumentModel)
+            val updatedDocumentModel = document.copy(documentNote = newDocumentNote)
+
+            withContext(Dispatchers.IO) {
+                documentModelRepository.updateDocumentModel(updatedDocumentModel)
+            }
         }
     }
 
     fun onDocumentDetailEvent(event: DocumentDetailEvent) {
         viewModelScope.launch {
-            val newDetails =
-                applyEvent(event, _uiState.value.documentDetails ?: return@launch)
+            val document = uiState.value.documentModel ?: return@launch
 
-            launch {
-                _uiState.update { it.copy(documentDetails = newDetails) }
-            }
+            val newDetails = applyEvent(event, document.documentDetails)
 
-            launch {
-                val updatedDocumentModel = _uiState.value.documentModel?.copy(
-                    documentDetails = newDetails
-                )
-                if (updatedDocumentModel == null) return@launch
+            val updatedDocumentModel = document.copy(documentDetails = newDetails)
 
+            _uiState.update { it.copy(localDocumentDetails = newDetails) }
+
+            withContext(Dispatchers.IO) {
                 documentModelRepository.updateDocumentModel(updatedDocumentModel)
             }
         }
@@ -132,42 +150,37 @@ class DocumentDetailViewModel(
     private fun applyEvent(
         event: DocumentDetailEvent,
         currentDetails: List<DocumentDetail>
-    ) = when (event) {
+    ): List<DocumentDetail> = when (event) {
         is DocumentDetailEvent.Move -> {
             currentDetails.toMutableList().apply {
                 add(event.toIndex, removeAt(event.fromIndex))
-            }
+            }.toList()
         }
 
         is DocumentDetailEvent.UpdateText -> {
-            currentDetails.toMutableList().apply {
-                if (event.index < 0 || event.index >= this.size) return@apply
-                val oldItem = this[event.index] as? StringDetail ?: return@apply
-                this[event.index] = oldItem.copy(name = event.newName, value = event.newValue)
+            currentDetails.mapIndexed { i, item ->
+                if (i == event.index && item is StringDetail) {
+                    item.copy(name = event.newName, value = event.newValue)
+                } else item
             }
         }
 
         is DocumentDetailEvent.Add -> {
-            currentDetails.toMutableList().apply {
-                add(StringDetail(id = UUID.randomUUID().toString(), name = "", value = ""))
-            }
+            currentDetails + StringDetail(id = UUID.randomUUID().toString(), name = "", value = "")
         }
 
         is DocumentDetailEvent.Delete -> {
-            currentDetails.toMutableList().apply {
-                if (event.index < 0 || event.index >= this.size) return@apply
-                recentlyDeletedDetails += this[event.index]
-
-                remove(recentlyDeletedDetails.last())
-            }
+            val item = currentDetails.getOrNull(event.index)
+            if (item != null) recentlyDeletedDetails += item
+            currentDetails.filterIndexed { i, _ -> i != event.index }
         }
 
         is DocumentDetailEvent.Restore -> {
-            currentDetails.toMutableList().apply {
-                if (recentlyDeletedDetails.isEmpty()) return@apply
-                val documentDetail = recentlyDeletedDetails.first()
-                add(recentlyDeletedDetails.first())
-                recentlyDeletedDetails -= documentDetail
+            if (recentlyDeletedDetails.isEmpty()) currentDetails
+            else {
+                val restoredDocumentDetail = recentlyDeletedDetails.first()
+                recentlyDeletedDetails -= restoredDocumentDetail
+                currentDetails + restoredDocumentDetail
             }
         }
     }
@@ -178,13 +191,15 @@ class DocumentDetailViewModel(
     }
 
     fun confirmErasureDocumentDetail() {
-        if (recentlyDeletedDetails.isEmpty()) return
-        recentlyDeletedDetails.toMutableList().apply {
-            remove(recentlyDeletedDetails.first())
+        viewModelScope.launch {
+            if (recentlyDeletedDetails.isEmpty()) return@launch
+            recentlyDeletedDetails.toMutableList().apply {
+                remove(recentlyDeletedDetails.first())
+            }
         }
     }
 
-    fun openDocumentPDF() {
+    fun openDocumentPDF() { // TODO: Redo
         if (_uiState.value.documentModel == null) return
 
         val file = File(context.filesDir, _uiState.value.documentModel?.id!!)
@@ -203,7 +218,7 @@ class DocumentDetailViewModel(
         context.startActivity(openIntent)
     }
 
-    fun openShareSheet() {
+    fun openShareSheet() { // TODO: Redo
         if (_uiState.value.documentModel == null) return
 
         val originalFile = File(context.filesDir, _uiState.value.documentModel!!.id)
@@ -228,7 +243,7 @@ class DocumentDetailViewModel(
         context.startActivity(chooser)
     }
 
-    fun downloadPDF() {
+    fun downloadPDF() { // TODO: Redo
         if (_uiState.value.documentModel == null) return
 
         val originalFile = File(context.filesDir, _uiState.value.documentModel!!.id)
@@ -277,17 +292,16 @@ class DocumentDetailViewModel(
     }
 
     fun renameDocument(newDocumentName: String) {
-        viewModelScope.launch {
-            val updatedDocumentModel = _uiState.value.documentModel?.copy(title = newDocumentName)
-                ?: return@launch
+        viewModelScope.launch(Dispatchers.IO) {
+            val documentModel = uiState.value.documentModel ?: return@launch
+            val updatedDocumentModel = documentModel.copy(title = newDocumentName)
 
             documentModelRepository.updateDocumentModel(updatedDocumentModel)
         }
     }
 
     fun deleteDocument() {
-        viewModelScope.launch {
-            val documentId = _uiState.value.documentModel?.id ?: return@launch
+        viewModelScope.launch(Dispatchers.IO) {
             documentModelRepository.deleteDocumentModel(documentId)
         }
     }
