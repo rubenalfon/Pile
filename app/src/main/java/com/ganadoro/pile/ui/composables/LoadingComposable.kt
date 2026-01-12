@@ -1,4 +1,4 @@
-package com.ganadoro.pile.ui.compostables
+package com.ganadoro.pile.ui.composables
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable

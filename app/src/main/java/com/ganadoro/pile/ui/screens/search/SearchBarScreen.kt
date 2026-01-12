@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
@@ -35,7 +34,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults.InputField
 import androidx.compose.material3.Text
@@ -66,10 +64,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
-import com.ganadoro.pile.ui.compostables.Document
-import com.ganadoro.pile.ui.compostables.LoadingWrapper
-import com.ganadoro.pile.ui.compostables.Pile
-import com.ganadoro.pile.ui.compostables.adaptiveSizeItemsGrid
+import com.ganadoro.pile.ui.composables.Document
+import com.ganadoro.pile.ui.composables.LoadingWrapper
+import com.ganadoro.pile.ui.composables.SelectPilesBottomSheet
+import com.ganadoro.pile.ui.composables.adaptiveSizeItemsGrid
 import com.ganadoro.pile.util.horizontalPaddingValues
 import org.koin.androidx.compose.koinViewModel
 import java.time.Instant
@@ -174,11 +172,12 @@ fun SearchBarScreen(
     }
 
     if (showFilterPilesBottomSheet) {
-        FilterPilesBottomSheet(
-            onDismissBottomSheet = { showFilterPilesBottomSheet = false },
+        SelectPilesBottomSheet(
+            title = stringResource(R.string.piles),
             pileList = uiState.pileList,
-            onPileClick = viewModel::addRemoveFilterPiles,
             selectedFilterPiles = uiState.selectedFilterPiles,
+            onDismissBottomSheet = { showFilterPilesBottomSheet = false },
+            onPileClick = viewModel::addRemoveFilterPiles,
         )
     }
 
@@ -371,49 +370,6 @@ private fun LazyListScope.itemDocumentsCustomList(
         }
     )
     item { Spacer(Modifier.height(16.dp)) }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun FilterPilesBottomSheet(
-    modifier: Modifier = Modifier,
-    onDismissBottomSheet: () -> Unit,
-    pileList: List<PileModel>?,
-    onPileClick: (pileId: String) -> Unit,
-    selectedFilterPiles: List<String> = emptyList()
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismissBottomSheet
-    ) {
-        Column(modifier.verticalScroll(rememberScrollState())) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(start = 16.dp, end = 8.dp)
-            ) {
-                Text(stringResource(R.string.piles), Modifier.weight(1f))
-
-                IconButton(onClick = onDismissBottomSheet) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.close_pile_selection_bottom_sheet)
-                    )
-                }
-            }
-
-            pileList?.forEachIndexed { _, pileModel ->
-                Pile(
-                    pileModel = pileModel,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    onClick = onPileClick,
-                    isColored = selectedFilterPiles.contains(pileModel.id)
-                )
-                Spacer(Modifier.height(4.dp))
-            }
-            Spacer(Modifier.height(50.dp))
-        }
-    }
 }
 
 @Composable

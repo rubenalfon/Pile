@@ -118,13 +118,6 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                             )
                         )
                     },
-                    navigateToEditDocumentPiles = { id ->
-                        backStack.add(
-                            Pane.EditDocumentPiles(
-                                documentId = id
-                            )
-                        )
-                    },
                     popBackStack = {
                         backStack.removeLastOrNull()
                     }

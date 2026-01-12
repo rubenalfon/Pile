@@ -47,9 +47,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
-import com.ganadoro.pile.ui.compostables.AlertEditPile
-import com.ganadoro.pile.ui.compostables.LoadingWrapper
-import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
+import com.ganadoro.pile.ui.composables.AlertEditPile
+import com.ganadoro.pile.ui.composables.LoadingWrapper
+import com.ganadoro.pile.ui.composables.itemDocumentsCompleteList
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 

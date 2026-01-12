@@ -1,5 +1,7 @@
-package com.ganadoro.pile.ui.compostables
+package com.ganadoro.pile.ui.composables
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,11 +13,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -33,35 +36,50 @@ fun Pile(
     customShape: Shape? = null,
     onClick: (String) -> Unit = {}
 ) {
-    var backgroundColor: Color? = null
-    var foregroundColor: Color? = null
-
-    if (isColored && pileModel.colorNumber != null) {
-        backgroundColor =
-            ExtendedTheme.colors.customColorList.getOrNull(pileModel.colorNumber.toInt())?.colorContainer
+    val colorIndex = remember(pileModel.colorNumber) {
+        pileModel.colorNumber?.toInt()
     }
-    if (isColored && pileModel.colorNumber != null) {
-        foregroundColor =
-            ExtendedTheme.colors.customColorList.getOrNull(pileModel.colorNumber.toInt())?.onColorContainer
+    val colored = isColored && colorIndex != null
+
+    val backgroundColor by animateColorAsState(
+        targetValue = if (colored) {
+            ExtendedTheme.colors.customColorList.getOrNull(colorIndex)?.colorContainer
+                ?: MaterialTheme.colorScheme.surface
+        } else MaterialTheme.colorScheme.surface,
+        label = "backgroundColor"
+    )
+    val foregroundColor by animateColorAsState(
+        targetValue = if (colored) {
+            ExtendedTheme.colors.customColorList.getOrNull(colorIndex)?.onColorContainer
+                ?: MaterialTheme.colorScheme.onSurface
+        } else MaterialTheme.colorScheme.onSurface,
+        label = "foregroundColor"
+    )
+
+    val cornerShape = if (customShape != null) customShape
+    else {
+        val cornerSize by animateDpAsState(
+            targetValue = if (isColored) 8.dp else 24.dp,
+            label = "cornerShape"
+        )
+        RoundedCornerShape(cornerSize)
     }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
-            .clip(customShape ?: RoundedCornerShape(if (isColored) 8.dp else 100.dp))
-            .clickable {
-                onClick(pileModel.id)
-            }
-            .background(color = backgroundColor ?: MaterialTheme.colorScheme.surface)
+            .clip(cornerShape)
+            .clickable { onClick(pileModel.id) }
+            .background(backgroundColor)
             .padding(12.dp)
     ) {
         Icon(
             painter = painterResource(
                 IconPack.getIcon(pileModel.iconId) ?: R.drawable.warning_24px
-            ), // TODO: If no icon then big letter
+            ),
             contentDescription = null,
-            tint = foregroundColor ?: MaterialTheme.colorScheme.onSurface,
+            tint = foregroundColor,
             modifier = Modifier
                 .size(32.dp)
                 .alpha(0.8f)
@@ -70,7 +88,7 @@ fun Pile(
             pileModel.name,
             style = MaterialTheme.typography.labelLarge,
             textAlign = TextAlign.Left,
-            color = foregroundColor ?: MaterialTheme.colorScheme.onSurface,
+            color = foregroundColor,
             modifier = Modifier.padding(horizontal = 8.dp)
         )
     }

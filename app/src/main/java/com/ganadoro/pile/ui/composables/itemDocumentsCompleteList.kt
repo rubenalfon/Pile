@@ -1,4 +1,4 @@
-package com.ganadoro.pile.ui.compostables
+package com.ganadoro.pile.ui.composables
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.background

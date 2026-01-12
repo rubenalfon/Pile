@@ -76,7 +76,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
-import com.ganadoro.pile.ui.compostables.LoadingWrapper
+import com.ganadoro.pile.ui.composables.LoadingWrapper
 import com.ganadoro.pile.ui.screens.editDocument.composables.AddItemCarousel
 import com.tanishranjan.cropkit.CropController
 import com.tanishranjan.cropkit.CropDefaults

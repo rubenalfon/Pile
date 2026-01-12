@@ -6,7 +6,6 @@ import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.core.content.FileProvider
@@ -44,7 +43,7 @@ data class DocumentDetailUiState(
     var localDocumentDetails: List<DocumentDetail>? = null,
     var documentPileModels: List<PileModel>? = null,
     var documentImages: List<DocumentImage>? = null,
-    var bitmaps: List<Bitmap> = emptyList()
+    var allPiles: List<PileModel>? = null,
 )
 
 sealed interface DocumentDetailEvent {
@@ -79,7 +78,7 @@ class DocumentDetailViewModel(
             val documentFlow =
                 documentModelRepository.getDocumentModelById(documentId).distinctUntilChanged()
 
-            val pilesFlow = documentFlow
+            val documentPilesFlow = documentFlow
                 .map { it?.documentPileIds ?: emptyList() }
                 .distinctUntilChanged()
                 .flatMapLatest { ids ->
@@ -99,7 +98,7 @@ class DocumentDetailViewModel(
                     }
                 }
 
-            combine(documentFlow, pilesFlow, imagesFlow) { document, piles, images ->
+            combine(documentFlow, documentPilesFlow, imagesFlow) { document, piles, images ->
                 if (document == null) return@combine
 
                 _uiState.update { currentState ->
@@ -108,7 +107,8 @@ class DocumentDetailViewModel(
                         documentPileModels = piles,
                         documentImages = images,
                         localDocumentDetails = currentState.localDocumentDetails
-                            ?: document.documentDetails
+                            ?: document.documentDetails,
+                        allPiles = pileModelRepository.getAllPileModels()
                     )
                 }
             }.collect()
@@ -195,6 +195,30 @@ class DocumentDetailViewModel(
             if (recentlyDeletedDetails.isEmpty()) return@launch
             recentlyDeletedDetails.toMutableList().apply {
                 remove(recentlyDeletedDetails.first())
+            }
+        }
+    }
+
+    fun addRemoveDocumentPiles(pileId: String) {
+        viewModelScope.launch {
+            val documentModel = uiState.value.documentModel ?: return@launch
+            val documentPiles = documentModel.documentPileIds
+
+
+            val updatedDocumentPiles = documentPiles.toMutableList().apply {
+                if (contains(pileId)) {
+                    remove(pileId)
+                } else {
+                    add(pileId)
+                }
+            }
+
+            withContext(Dispatchers.IO) {
+                documentModelRepository.updateDocumentModel(
+                    documentModel.copy(
+                        documentPileIds = updatedDocumentPiles
+                    )
+                )
             }
         }
     }

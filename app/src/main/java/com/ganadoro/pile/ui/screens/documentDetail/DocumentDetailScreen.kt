@@ -102,9 +102,10 @@ import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
 import com.ganadoro.pile.models.DocumentDetail
 import com.ganadoro.pile.models.StringDetail
-import com.ganadoro.pile.ui.compostables.LoadingWrapper
-import com.ganadoro.pile.ui.compostables.Pile
-import com.ganadoro.pile.ui.compostables.SwipeBox
+import com.ganadoro.pile.ui.composables.LoadingWrapper
+import com.ganadoro.pile.ui.composables.Pile
+import com.ganadoro.pile.ui.composables.SelectPilesBottomSheet
+import com.ganadoro.pile.ui.composables.SwipeBox
 import com.ganadoro.pile.ui.screens.documentDetail.composables.SectionTitleBar
 import com.ganadoro.pile.ui.screens.documentDetail.composables.SimpleTextField
 import kotlinx.coroutines.delay
@@ -125,7 +126,6 @@ fun DocumentDetailScreen(
     documentId: String,
     navigateToPileDetail: (pileId: String) -> Unit,
     navigateToEditDocument: (documentId: String) -> Unit,
-    navigateToEditDocumentPiles: (documentId: String) -> Unit,
     popBackStack: () -> Unit,
     viewModel: DocumentDetailViewModel = koinViewModel { parametersOf(documentId) }
 ) {
@@ -134,6 +134,7 @@ fun DocumentDetailScreen(
 
     var isRenameDocumentAlertExpanded by rememberSaveable { mutableStateOf(false) }
     var isDeleteDocumentAlertExpanded by rememberSaveable { mutableStateOf(false) }
+    var showDocumentPilesBottomSheet by rememberSaveable { mutableStateOf(false) }
 
     var isDocumentDetailsEditing by rememberSaveable { mutableStateOf(false) }
 
@@ -250,7 +251,7 @@ fun DocumentDetailScreen(
                     documentPilesSection(
                         documentPileModels = uiState.documentPileModels ?: emptyList(),
                         onPileClick = navigateToPileDetail,
-                        onEditDocumentPiles = { navigateToEditDocumentPiles.invoke(documentId) }
+                        onEditDocumentPiles = { showDocumentPilesBottomSheet = true }
                     )
 
                     item { Spacer(Modifier.height(16.dp)) }
@@ -287,6 +288,16 @@ fun DocumentDetailScreen(
                 viewModel.deleteDocument()
                 popBackStack()
             }
+        )
+    }
+
+    if (showDocumentPilesBottomSheet) {
+        SelectPilesBottomSheet(
+            title = stringResource(R.string.piles),
+            pileList = uiState.allPiles,
+            selectedFilterPiles = uiState.documentModel?.documentPileIds ?: emptyList(),
+            onDismissBottomSheet = { showDocumentPilesBottomSheet = false },
+            onPileClick = viewModel::addRemoveDocumentPiles,
         )
     }
 }
@@ -460,13 +471,13 @@ private fun LazyListScope.documentDetailsSection(
             verticalArrangement = Arrangement.spacedBy(3.dp)
         ) { index, documentDetail, isDragging ->
             key(documentDetail.id) {
-                ReorderableItem {
+                ReorderableItem(Modifier.animateItem()) {
                     SwipeBox(
                         onDelete = {
                             onEvent(DocumentDetailEvent.Delete(index))
                         },
                         contentPaddingValues = PaddingValues(horizontal = 16.dp),
-                        modifier = Modifier.animateItem(),
+//                        modifier = Modifier.animateItem(),
                         enabled = isEditingMode
                     ) {
                         if (documentDetail is StringDetail)
@@ -745,16 +756,25 @@ private fun LazyListScope.documentPilesSection(
         )
     }
 
-    items(documentPileModels.size) { index ->
+    items(
+        count = documentPileModels.size,
+        key = { index -> documentPileModels[index].id }
+    ) { index ->
         val pileModel = documentPileModels[index]
 
-        val topCornersDp = if (index == 0) 14.dp else 4.dp
-        val bottomCornersDp =
-            if (index == documentPileModels.size - 1) 12.dp else 4.dp
+        val topCornersDp by animateDpAsState(
+            targetValue = if (index == 0) 14.dp else 4.dp,
+            label = "topCorners"
+        )
+        val bottomCornersDp by animateDpAsState(
+            targetValue = if (index == documentPileModels.size - 1) 12.dp else 4.dp,
+            label = "bottomCorners"
+        )
 
         Pile(
             pileModel = pileModel,
             modifier = Modifier
+                .animateItem()
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth(),
             isColored = true,
@@ -772,8 +792,8 @@ private fun LazyListScope.documentPilesSection(
         }
     }
 
-    if (documentPileModels.isEmpty()) {
-        item {
+    item {
+        AnimatedVisibility(documentPileModels.isEmpty()) {
             Card(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)

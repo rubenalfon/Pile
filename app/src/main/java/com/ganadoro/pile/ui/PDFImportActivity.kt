@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.ganadoro.pile.R
 import com.ganadoro.pile.repositories.DocumentModelRepository
-import com.ganadoro.pile.ui.compostables.LoadingComposable
+import com.ganadoro.pile.ui.composables.LoadingComposable
 import com.ganadoro.pile.ui.theme.PileTheme
 import com.ganadoro.pile.util.FileUtils
 import kotlinx.coroutines.launch

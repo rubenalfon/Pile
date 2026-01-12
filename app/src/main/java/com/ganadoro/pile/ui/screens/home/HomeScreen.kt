@@ -88,11 +88,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
 import com.ganadoro.pile.models.DocumentStatusConstants.TEMPORARY
-import com.ganadoro.pile.ui.compostables.AlertNewPile
-import com.ganadoro.pile.ui.compostables.LoadingWrapper
-import com.ganadoro.pile.ui.compostables.SwipeBox
-import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
-import com.ganadoro.pile.ui.compostables.itemPileGrid
+import com.ganadoro.pile.ui.composables.AlertNewPile
+import com.ganadoro.pile.ui.composables.LoadingWrapper
+import com.ganadoro.pile.ui.composables.SwipeBox
+import com.ganadoro.pile.ui.composables.itemDocumentsCompleteList
+import com.ganadoro.pile.ui.composables.itemPileGrid
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
 import com.ganadoro.pile.ui.screens.search.SearchBarScreen
 import com.ganadoro.pile.util.UriUtils

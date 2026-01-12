@@ -36,9 +36,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.R
-import com.ganadoro.pile.ui.compostables.AlertNewPile
-import com.ganadoro.pile.ui.compostables.LoadingWrapper
-import com.ganadoro.pile.ui.compostables.itemPileGrid
+import com.ganadoro.pile.ui.composables.AlertNewPile
+import com.ganadoro.pile.ui.composables.LoadingWrapper
+import com.ganadoro.pile.ui.composables.itemPileGrid
 import com.ganadoro.pile.ui.screens.editDocumentPiles.EditDocumentPilesViewModel
 import org.koin.androidx.compose.koinViewModel
 
