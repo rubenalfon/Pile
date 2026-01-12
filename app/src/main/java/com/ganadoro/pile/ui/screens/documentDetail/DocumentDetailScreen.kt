@@ -782,9 +782,10 @@ private fun AddedSection(
     creationDate: LocalDate,
     modificationDate: LocalDate
 ) {
-    val locale = Locale.getDefault()
-    val formatter =
-        DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(locale)
+    val formatter = remember {
+        DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
+            .withLocale(Locale.getDefault())
+    }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -792,7 +793,7 @@ private fun AddedSection(
     ) {
         Text(
             text = stringResource(
-                R.string.added_the,
+                R.string.added_date,
                 creationDate.format(formatter)
             ),
             style = MaterialTheme.typography.labelSmall,
@@ -801,7 +802,7 @@ private fun AddedSection(
         if (modificationDate != creationDate) {
             Text(
                 text = stringResource(
-                    R.string.modified_the,
+                    R.string.modified_date,
                     modificationDate.format(formatter)
                 ),
                 style = MaterialTheme.typography.labelSmall,
