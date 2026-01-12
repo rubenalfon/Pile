@@ -114,15 +114,6 @@ class AddDocumentViewModel(
 
             state.copy(selectedPileModelIds = newPiles)
         }
-        val piles = _uiState.value.selectedPileModelIds.toMutableList()
-
-        if (piles.contains(pileId)) {
-            piles.remove(pileId)
-        } else {
-            piles.add(pileId)
-        }
-
-        _uiState.update { it.copy(selectedPileModelIds = piles) }
     }
 
     fun addPile(pileName: String, iconId: String, color: Long) {
