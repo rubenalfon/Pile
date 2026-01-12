@@ -112,6 +112,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import sh.calvin.reorderable.ReorderableColumn
 import sh.calvin.reorderable.ReorderableListItemScope
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
@@ -125,7 +126,7 @@ fun DocumentDetailScreen(
     navigateToEditDocument: (documentId: String) -> Unit,
     navigateToEditDocumentPiles: (documentId: String) -> Unit,
     popBackStack: () -> Unit,
-    viewModel: DocumentDetailViewModel = koinViewModel{ parametersOf(documentId) }
+    viewModel: DocumentDetailViewModel = koinViewModel { parametersOf(documentId) }
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
@@ -248,7 +249,10 @@ fun DocumentDetailScreen(
                     item { Spacer(Modifier.height(16.dp)) }
 
                     item {
-                        AddedSection(documentModel = uiState.documentModel!!)
+                        AddedSection(
+                            creationDate = uiState.documentModel!!.creationDate,
+                            modificationDate = uiState.documentModel!!.modificationDate
+                        )
                     }
 
                     item { Spacer(Modifier.height(330.dp)) }
@@ -775,7 +779,8 @@ private fun LazyListScope.documentPilesSection(
 @Composable
 private fun AddedSection(
     modifier: Modifier = Modifier,
-    documentModel: DocumentModel
+    creationDate: LocalDate,
+    modificationDate: LocalDate
 ) {
     val locale = Locale.getDefault()
     val formatter =
@@ -785,24 +790,24 @@ private fun AddedSection(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = modifier.padding(horizontal = 16.dp)
     ) {
-        if (documentModel.modificationDate != documentModel.creationDate) {
+        Text(
+            text = stringResource(
+                R.string.added_the,
+                creationDate.format(formatter)
+            ),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.tertiary,
+        )
+        if (modificationDate != creationDate) {
             Text(
                 text = stringResource(
                     R.string.modified_the,
-                    documentModel.modificationDate.format(formatter)
+                    modificationDate.format(formatter)
                 ),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.tertiary,
             )
         }
-        Text(
-            text = stringResource(
-                R.string.added_the,
-                documentModel.creationDate.format(formatter)
-            ),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.tertiary,
-        )
     }
 }
 
