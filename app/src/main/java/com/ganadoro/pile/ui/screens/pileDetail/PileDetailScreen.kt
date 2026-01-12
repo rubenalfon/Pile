@@ -51,23 +51,19 @@ import com.ganadoro.pile.ui.compostables.AlertEditPile
 import com.ganadoro.pile.ui.compostables.LoadingWrapper
 import com.ganadoro.pile.ui.compostables.itemDocumentsCompleteList
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PileDetailScreen(
     modifier: Modifier = Modifier,
-    pileID: String,
+    pileId: String,
     navigateToDocumentDetail: (documentId: String) -> Unit,
     navigateToSearchScreen: () -> Unit,
     popBackStack: () -> Unit,
-    viewModel: PileDetailViewModel = koinViewModel()
+    viewModel: PileDetailViewModel = koinViewModel { parametersOf(pileId) }
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    if (uiState.pile == null) {
-        viewModel.loadPile(pileID)
-    }
-
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -136,7 +132,7 @@ fun PileDetailScreen(
                 onDismiss = { isUpdatePileExpanded = false },
                 onConfirm = { pileName, pileIconId, colorNumber ->
                     isUpdatePileExpanded = false
-                    viewModel.updatePileName(pileName, pileIconId, colorNumber)
+                    viewModel.updatePile(pileName, pileIconId, colorNumber)
                 }
             )
         }

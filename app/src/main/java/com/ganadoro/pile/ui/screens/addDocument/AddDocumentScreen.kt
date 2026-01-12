@@ -75,7 +75,6 @@ fun AddDocumentScreen(
     viewModel: AddDocumentViewModel = koinViewModel { parametersOf(documentId) }
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     var isNewPileAlertExpanded by rememberSaveable { mutableStateOf(false) }

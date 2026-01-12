@@ -45,7 +45,6 @@ class EditPDFViewModel(
     var uiState: StateFlow<EditDocumentUiState> = _uiState.asStateFlow()
 
     var onNext: (() -> Unit)? = null
-    var onPopBackStack: (() -> Unit)? = null
 
     private var colorMatrixList = listOf(
         ColorMatrix(),
@@ -80,7 +79,7 @@ class EditPDFViewModel(
                 }
             } catch (e: Exception) {
                 Napier.e(e) { "Error cargando el documento $documentId" }
-                onPopBackStack?.invoke()
+                // TODO: Gestionar error
             }
         }
     }

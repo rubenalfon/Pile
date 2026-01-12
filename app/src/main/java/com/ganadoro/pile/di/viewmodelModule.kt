@@ -34,7 +34,11 @@ val viewmodelModule = module {
     viewModelOf(::EditPDFViewModel)
 
     viewModel { (documentId: String) ->
-        AddDocumentViewModel(documentId, get(), get(), get(), get(), get())
+        AddDocumentViewModel(documentId, get(), get(), get(), get())
+    }
+
+    viewModel { (pileId: String) ->
+        PileDetailViewModel(pileId, get(), get(), get())
     }
 
     viewModelOf(::EditDocumentPilesViewModel)

@@ -1,7 +1,5 @@
 package com.ganadoro.pile.ui.screens.addDocument
 
-import android.annotation.SuppressLint
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentImage
@@ -33,10 +31,8 @@ data class AddDocumentUiState(
     var noDocumentNameError: Boolean = false
 )
 
-@SuppressLint("StaticFieldLeak")
 class AddDocumentViewModel(
     private val documentId: String,
-    private val context: Context, // Safe
     private val documentModelRepository: DocumentModelRepository,
     private val pileModelRepository: PileModelRepository,
     private val documentImageRepository: DocumentImageRepository,

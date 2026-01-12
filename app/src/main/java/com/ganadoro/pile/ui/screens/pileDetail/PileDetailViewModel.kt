@@ -7,9 +7,11 @@ import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.repositories.BitmapCacheRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -19,6 +21,7 @@ data class PileDetailUiState(
 )
 
 class PileDetailViewModel(
+    private val pileId: String,
     private val pileModelRepository: PileModelRepository,
     private val documentModelRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository
@@ -28,13 +31,14 @@ class PileDetailViewModel(
 
     val bitmapCache = bitmapCacheRepository.bitmapCache
 
-    fun loadPile(pileId: String) {
+    init {
         viewModelScope.launch {
-            val pile = pileModelRepository.getPileModelById(pileId) ?: return@launch
+            val pileFlow = pileModelRepository.getPileModelById(pileId)
+            val documentFlow = documentModelRepository.getDocumentModelsByPileId(pileId)
 
-            val documentsFlow = documentModelRepository.getDocumentModelsByPileId(pileId)
-
-            documentsFlow.collect { documents ->
+            pileFlow.combine(documentFlow) { pile, documents ->
+                pile to documents
+            }.collect { (pile, documents) ->
                 _uiState.update {
                     it.copy(
                         pile = pile,
@@ -49,20 +53,24 @@ class PileDetailViewModel(
         bitmapCacheRepository.ensureBitmapIsLoaded(documentId, imageId)
     }
 
-    fun updatePileName(newPileName: String, newPileIconId: String, newPileColor: Long) {
-        viewModelScope.launch {
-            val newPile = uiState.value.pile!!.copy(name = newPileName, iconId = newPileIconId, colorNumber = newPileColor)
+    fun updatePile(newPileName: String, newPileIconId: String, newPileColor: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val pile = uiState.value.pile ?: return@launch
+
+            val newPile = pile.copy(
+                name = newPileName,
+                iconId = newPileIconId,
+                colorNumber = newPileColor
+            )
 
             pileModelRepository.updatePileModel(newPile)
-
-            _uiState.value = _uiState.value.copy(pile = newPile)
         }
     }
 
     fun deletePile() {
         if (uiState.value.pile == null) return
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             pileModelRepository.deletePileModel(uiState.value.pile!!.id)
         }
     }

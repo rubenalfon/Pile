@@ -85,7 +85,7 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
 
             entry<Pane.PileDetail> { backStackKey ->
                 PileDetailScreen(
-                    pileID = backStackKey.pileId,
+                    pileId = backStackKey.pileId,
                     navigateToDocumentDetail = { id ->
                         backStack.add(
                             Pane.DocumentDetail(
