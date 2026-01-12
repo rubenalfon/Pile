@@ -96,6 +96,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
@@ -194,10 +195,16 @@ fun DocumentDetailScreen(
                     horizontalAlignment = Alignment.Start
                 ) {
                     item {
-                        ImagePager(
-                            images = uiState.bitmaps,
-                            onClick = { viewModel.openDocumentPDF() }
-                        )
+                        if (uiState.documentImages?.isNotEmpty() ?: false) {
+                            ImagePager(
+                                bitmapCache = bitmapCache,
+                                documentImages = uiState.documentImages!!,
+                                onLoadBitmap = { imageId ->
+                                    viewModel.requestBitmapLoad(imageId)
+                                },
+                                onClick = { viewModel.openDocumentPDF() }
+                            )
+                        }
                     }
                     item { Spacer(Modifier.height(8.dp)) }
 
@@ -324,22 +331,22 @@ private fun ScreenTopAppBar(
 @Composable
 private fun ImagePager(
     modifier: Modifier = Modifier,
-    images: List<Bitmap>,
+    bitmapCache: Map<String, Bitmap>,
+    documentImages: List<DocumentImage>,
+    onLoadBitmap: suspend (imageId: String) -> Unit,
     onClick: () -> Unit
 ) {
     val pagerState = rememberPagerState(
-        pageCount = { images.size }
+        pageCount = { documentImages.size }
     )
 
     var isPageNumberVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = pagerState.currentPage) {
-        if (images.size < 2) return@LaunchedEffect
+        if (documentImages.size == 1) return@LaunchedEffect
 
         isPageNumberVisible = true
-
         delay(5000)
-
         isPageNumberVisible = false
     }
 
@@ -348,7 +355,6 @@ private fun ImagePager(
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.TopEnd
-
     ) {
         HorizontalPager(
             state = pagerState,
@@ -359,15 +365,27 @@ private fun ImagePager(
                 .background(MaterialTheme.colorScheme.surfaceContainer)
                 .clickable { onClick.invoke() }
         ) { page ->
-            Image(
-                bitmap = images[page].asImageBitmap(),
-                contentDescription = stringResource(R.string.image_number, page + 1),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(28.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                contentScale = ContentScale.Fit
-            )
+            val documentImage = documentImages.getOrNull(page) ?: return@HorizontalPager
+
+            val cachedBitmap = bitmapCache[documentImage.id]
+
+            if (cachedBitmap == null) {
+                LaunchedEffect(key1 = documentImage.id) {
+                    onLoadBitmap(documentImage.id)
+                }
+            }
+
+            LoadingWrapper(cachedBitmap == null) {
+                Image(
+                    bitmap = cachedBitmap!!.asImageBitmap(),
+                    contentDescription = stringResource(R.string.image_number, page + 1),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(28.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                    contentScale = ContentScale.Fit
+                )
+            }
         }
 
         AnimatedVisibility(

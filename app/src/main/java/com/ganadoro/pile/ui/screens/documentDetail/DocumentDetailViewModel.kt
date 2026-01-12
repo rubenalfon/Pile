@@ -115,7 +115,7 @@ class DocumentDetailViewModel(
         }
     }
 
-    fun requestBitmapLoad(documentId: String, imageId: String) {
+    fun requestBitmapLoad(imageId: String) {
         bitmapCacheRepository.ensureBitmapIsLoaded(documentId, imageId)
     }
 
