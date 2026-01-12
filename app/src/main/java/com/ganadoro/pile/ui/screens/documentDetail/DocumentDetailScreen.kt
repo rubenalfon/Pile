@@ -387,8 +387,9 @@ private fun ImagePager(
             }
 
             LoadingWrapper(cachedBitmap == null) {
+                if (cachedBitmap == null) return@LoadingWrapper
                 Image(
-                    bitmap = cachedBitmap!!.asImageBitmap(),
+                    bitmap = cachedBitmap.asImageBitmap(),
                     contentDescription = stringResource(R.string.image_number, page + 1),
                     modifier = Modifier
                         .fillMaxSize()
