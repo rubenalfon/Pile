@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -67,7 +69,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -112,8 +113,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
-import sh.calvin.reorderable.ReorderableColumn
-import sh.calvin.reorderable.ReorderableListItemScope
+import sh.calvin.reorderable.ReorderableCollectionItemScope
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.ReorderableLazyListState
+import sh.calvin.reorderable.rememberReorderableLazyListState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -139,6 +142,14 @@ fun DocumentDetailScreen(
     var isDocumentDetailsEditing by rememberSaveable { mutableStateOf(false) }
 
     val focusManager = LocalFocusManager.current
+    val hapticFeedback = LocalHapticFeedback.current
+
+    val lazyListState = rememberLazyListState()
+    val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        viewModel.onDocumentDetailEvent(DocumentDetailEvent.MoveId(from.key as String, to.key as String))
+
+        hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+    }
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -191,8 +202,8 @@ fun DocumentDetailScreen(
                 uiState.documentModel == null || uiState.documentPileModels == null
             ) {
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
+                    state = lazyListState,
                     horizontalAlignment = Alignment.Start
                 ) {
                     item {
@@ -210,6 +221,7 @@ fun DocumentDetailScreen(
                     item { Spacer(Modifier.height(8.dp)) }
 
                     documentDetailsSection(
+                        reorderableLazyListState = reorderableLazyListState,
                         documentDetails = uiState.localDocumentDetails ?: emptyList(),
                         isEditingMode = isDocumentDetailsEditing,
                         updateEditingMode = { isDocumentDetailsEditing = it },
@@ -425,12 +437,12 @@ private fun ImagePager(
 }
 
 private fun LazyListScope.documentDetailsSection(
+    reorderableLazyListState: ReorderableLazyListState,
     documentDetails: List<DocumentDetail>,
     isEditingMode: Boolean,
     updateEditingMode: (state: Boolean) -> Unit,
     onEvent: (event: DocumentDetailEvent) -> Unit
 ) {
-
     item {
         SectionTitleBar(
             title = stringResource(R.string.details),
@@ -463,54 +475,46 @@ private fun LazyListScope.documentDetailsSection(
         }
     }
 
-    item {
-        ReorderableColumn(
-            list = documentDetails,
-            onSettle = { fromIndex, toIndex ->
-                onEvent(DocumentDetailEvent.Move(fromIndex, toIndex))
-            },
-            verticalArrangement = Arrangement.spacedBy(3.dp)
-        ) { index, documentDetail, isDragging ->
-            key(documentDetail.id) {
-                ReorderableItem(Modifier.animateItem()) {
-                    SwipeBox(
-                        onDelete = {
-                            onEvent(DocumentDetailEvent.Delete(index))
-                        },
-                        contentPaddingValues = PaddingValues(horizontal = 16.dp),
-//                        modifier = Modifier.animateItem(),
-                        enabled = isEditingMode
-                    ) {
-                        if (documentDetail is StringDetail)
-                            DocumentDetailItem(
-                                documentDetail = documentDetail,
-                                index = index,
-                                isDragging = isDragging,
-                                isFirstItem = index == 0,
-                                isLastItem = index == documentDetails.size - 1,
-                                isEditingMode = isEditingMode,
-                                onMove = { from, to ->
-                                    onEvent(
-                                        DocumentDetailEvent.Move(
-                                            from,
-                                            to
-                                        )
-                                    )
-                                },
-                                onTextChange = { newName, newValue ->
-                                    onEvent(
-                                        DocumentDetailEvent.UpdateText(
-                                            index,
-                                            newName,
-                                            newValue
-                                        )
-                                    )
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
+    items(documentDetails, key = { it.id }) { documentDetail ->
+        val index = documentDetails.indexOf(documentDetail)
+        ReorderableItem(
+            reorderableLazyListState,
+            key = documentDetail.id,
+        ) { isDragging ->
+            SwipeBox(
+                onDelete = { onEvent(DocumentDetailEvent.Delete(index)) },
+                contentPaddingValues = PaddingValues(horizontal = 16.dp),
+                enabled = isEditingMode,
+                modifier = Modifier.padding(bottom = if (index != documentDetails.size - 1) 3.dp else 0.dp)
+            ) {
+                if (documentDetail !is StringDetail) return@SwipeBox
+                DocumentDetailItem(
+                    documentDetail = documentDetail,
+                    index = index,
+                    isDragging = isDragging,
+                    isFirstItem = index == 0,
+                    isLastItem = index == documentDetails.size - 1,
+                    isEditingMode = isEditingMode,
+                    onMove = { from, to ->
+                        onEvent(
+                            DocumentDetailEvent.MoveIndex(
+                                from,
+                                to
                             )
-                    }
-                }
+                        )
+                    },
+                    onTextChange = { newName, newValue ->
+                        onEvent(
+                            DocumentDetailEvent.UpdateText(
+                                documentDetail.id,
+                                newName,
+                                newValue
+                            )
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
             }
         }
     }
@@ -546,7 +550,7 @@ private fun LazyListScope.documentDetailsSection(
 }
 
 @Composable
-private fun ReorderableListItemScope.DocumentDetailItem(
+private fun ReorderableCollectionItemScope.DocumentDetailItem(
     documentDetail: StringDetail,
     index: Int,
     isDragging: Boolean,

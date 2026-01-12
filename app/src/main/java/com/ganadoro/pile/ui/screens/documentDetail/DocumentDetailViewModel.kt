@@ -47,10 +47,11 @@ data class DocumentDetailUiState(
 )
 
 sealed interface DocumentDetailEvent {
-    data class UpdateText(val index: Int, val newName: String, val newValue: String) :
+    data class UpdateText(val id: String, val newName: String, val newValue: String) :
         DocumentDetailEvent
 
-    data class Move(val fromIndex: Int, val toIndex: Int) : DocumentDetailEvent
+    data class MoveIndex(val fromIndex: Int, val toIndex: Int) : DocumentDetailEvent
+    data class MoveId(val fromId: String, val toId: String) : DocumentDetailEvent
     data object Add : DocumentDetailEvent
     data class Delete(val index: Int) : DocumentDetailEvent
     data object Restore : DocumentDetailEvent
@@ -151,15 +152,24 @@ class DocumentDetailViewModel(
         event: DocumentDetailEvent,
         currentDetails: List<DocumentDetail>
     ): List<DocumentDetail> = when (event) {
-        is DocumentDetailEvent.Move -> {
+        is DocumentDetailEvent.MoveIndex -> {
             currentDetails.toMutableList().apply {
                 add(event.toIndex, removeAt(event.fromIndex))
             }.toList()
         }
 
+
+        is DocumentDetailEvent.MoveId -> {
+            currentDetails.toMutableList().apply {
+                val fromIndex = indexOfFirst { it.id == event.fromId }
+                val toIndex = indexOfFirst { it.id == event.toId }
+                add(toIndex, removeAt(fromIndex))
+            }.toList()
+        }
+
         is DocumentDetailEvent.UpdateText -> {
-            currentDetails.mapIndexed { i, item ->
-                if (i == event.index && item is StringDetail) {
+            currentDetails.map { item ->
+                if (item.id == event.id && item is StringDetail) {
                     item.copy(name = event.newName, value = event.newValue)
                 } else item
             }
@@ -178,7 +188,12 @@ class DocumentDetailViewModel(
         is DocumentDetailEvent.Restore -> {
             if (recentlyDeletedDetails.isEmpty()) currentDetails
             else {
-                val restoredDocumentDetail = recentlyDeletedDetails.first()
+                val lastDeleted = recentlyDeletedDetails.first()
+                val restoredDocumentDetail = when (lastDeleted) {
+                    is StringDetail -> lastDeleted.copy(id = UUID.randomUUID().toString())
+                    else -> lastDeleted
+                }
+
                 recentlyDeletedDetails -= restoredDocumentDetail
                 currentDetails + restoredDocumentDetail
             }
