@@ -13,14 +13,18 @@ import com.ganadoro.pile.repositories.BitmapCacheRepository
 import com.ganadoro.pile.repositories.DocumentImageRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
+import com.ganadoro.pile.util.FileUtils
+import com.ganadoro.pile.util.copyUriFile
 import com.ganadoro.pile.util.saveResizedImagesToInternalStorage
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,7 +52,8 @@ class HomeViewModel(
 
     val bitmapCache = bitmapCacheRepository.bitmapCache
 
-    lateinit var navigateToEditPDF: (pileId: String) -> Unit
+    private val _navigationEvent = Channel<DocumentModel>()
+    val navigationEvent = _navigationEvent.receiveAsFlow()
 
     private data class UnsavedBackup(
         val document: DocumentModel,
@@ -82,8 +87,10 @@ class HomeViewModel(
         confirmErasureUnsavedDeletedDocument()
     }
 
-    fun requestBitmapLoad(documentId: String, imageId: String) {
-        bitmapCacheRepository.ensureBitmapIsLoaded(documentId, imageId)
+    fun requestBitmapLoad(document: DocumentModel, pageNumber: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            bitmapCacheRepository.loadBitmap(document = document, pageNumber)
+        }
     }
 
     fun addPile(pileName: String, iconId: String, color: Long) {
@@ -100,8 +107,7 @@ class HomeViewModel(
     }
 
     private suspend fun processNewDocument(
-        initialTitle: String? = null,
-        processFileAction: suspend (document: DocumentModel) -> Unit
+        processFileAction: suspend (document: DocumentModel) -> DocumentModel
     ) {
         val temporalDocument =
             documentModelRepository.getDocumentModelsByStatus(TEMPORARY).first().firstOrNull()
@@ -112,7 +118,7 @@ class HomeViewModel(
         val documentId = UUID.randomUUID().toString()
         val document = DocumentModel(
             id = documentId,
-            title = initialTitle ?: "",
+            title = "",
             imageIds = emptyList(),
             creationDate = LocalDate.now(),
             modificationDate = LocalDate.now(),
@@ -120,17 +126,21 @@ class HomeViewModel(
             documentDetails = emptyList(),
             documentOrganizationIds = emptyList(),
             documentNote = "",
-            documentPileIds = emptyList()
+            documentPileIds = emptyList(),
+            isIncomingPdf = false
         )
         try {
             documentModelRepository.insertDocumentModel(document)
-
-            withContext(Dispatchers.IO) {
+            val updatedDocument = withContext(Dispatchers.IO) {
                 processFileAction(document)
             }
 
+            withContext(Dispatchers.IO) {
+                documentModelRepository.updateDocumentModel(updatedDocument)
+            }
+
             withContext(Dispatchers.Main) {
-                navigateToEditPDF.invoke(document.id)
+                _navigationEvent.send(updatedDocument)
             }
         } catch (e: Exception) {
             Napier.e("Error procesando el nuevo documento", e) // TODO: Error handling
@@ -145,16 +155,28 @@ class HomeViewModel(
     }
 
     fun importPDFIntent(uri: Uri) {
-//        viewModelScope.launch {
-//            processNewDocument(
-//                initialTitle = FileUtils.getFileNameFromUri(
-//                    context,
-//                    uri
-//                )
-//            ) { destinationFile ->
-//                destinationFile.copyUriFile(context, uri)
-//            }
-//        }
+        viewModelScope.launch(Dispatchers.IO) {
+            processNewDocument { document ->
+                val incomingFileName = FileUtils.getFileNameFromUri(context, uri)
+
+                val documentFolder = File(context.filesDir, document.id)
+                documentFolder.mkdir()
+
+                val destinationFileName = "${document.id}.pdf"
+                val destinationFile = File(documentFolder, destinationFileName)
+
+                val updatedDocument =
+                    document.copy(title = incomingFileName ?: "", isIncomingPdf = true)
+
+                try {
+                    destinationFile.copyUriFile(context, uri)
+                } catch (e: Exception) {
+                    Napier.e("Error copiando el archivo", e) // TODO: Error handling
+                }
+
+                return@processNewDocument updatedDocument
+            }
+        }
     }
 
     fun importFromGalleryIntent(uriList: List<Uri>) {
@@ -163,6 +185,27 @@ class HomeViewModel(
                 val imageFileList = saveResizedImagesToInternalStorage(
                     context = context,
                     uris = uriList,
+                    documentId = document.id
+                )
+
+                for (image in imageFileList) {
+                    val documentImage =
+                        DocumentImage(id = image.name, crop = null, filter = 0, rotation = 0)
+                    documentImageRepository.insertDocumentImage(documentImage)
+                }
+
+                val updatedDocument = document.copy(imageIds = imageFileList.map { it.name })
+                return@processNewDocument updatedDocument
+            }
+        }
+    }
+
+    fun takePhoto(uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            processNewDocument { document ->
+                val imageFileList = saveResizedImagesToInternalStorage(
+                    context = context,
+                    uris = listOf(uri),
                     documentId = document.id
                 )
 
@@ -177,23 +220,10 @@ class HomeViewModel(
                     documentImageRepository.insertDocumentImage(documentImage)
                 }
 
-                documentModelRepository.updateDocumentModel(
-                    document.copy(imageIds = imageFileList.map { it.name })
-                )
+                val updatedDocument = document.copy(imageIds = imageFileList.map { it.name })
+                return@processNewDocument updatedDocument
             }
         }
-    }
-
-    fun takePhoto(uri: Uri) {
-//        viewModelScope.launch {
-//            processNewDocument { destinationFile ->
-//                createPdfWithImages(
-//                    context = context,
-//                    imageUris = listOf(uri),
-//                    outputFile = destinationFile
-//                )
-//            }
-//        }
     }
 
     private suspend fun completeDeleteUnsavedDocument(documentToDelete: DocumentModel) {

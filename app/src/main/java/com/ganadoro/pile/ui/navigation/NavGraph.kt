@@ -60,25 +60,16 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
             entry<Pane.Home> {
                 HomeScreen(
                     navigateToPileDetail = { id ->
-                        backStack.add(
-                            Pane.PileDetail(
-                                pileId = id
-                            )
-                        )
+                        backStack.add(Pane.PileDetail(pileId = id))
                     },
                     navigateToDocumentDetail = { id ->
-                        backStack.add(
-                            Pane.DocumentDetail(
-                                documentId = id
-                            )
-                        )
+                        backStack.add(Pane.DocumentDetail(documentId = id))
                     },
                     navigateToEditPDF = { id ->
-                        backStack.add(
-                            Pane.EditNewPDF(
-                                documentId = id,
-                            )
-                        )
+                        backStack.add(Pane.EditNewPDF(documentId = id))
+                    },
+                    navigateToAddDocument = {
+                        backStack.add(Pane.AddDocument(documentId = it))
                     }
                 )
             }
@@ -87,16 +78,10 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                 PileDetailScreen(
                     pileId = backStackKey.pileId,
                     navigateToDocumentDetail = { id ->
-                        backStack.add(
-                            Pane.DocumentDetail(
-                                documentId = id
-                            )
-                        )
+                        backStack.add(Pane.DocumentDetail(documentId = id))
                     },
                     navigateToSearchScreen = {
-                        backStack.add(
-                            Pane.Search
-                        )
+                        backStack.add(Pane.Search)
                     },
 
                     popBackStack = {
@@ -112,11 +97,7 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                         backStack.add(Pane.PileDetail(pileId = id))
                     },
                     navigateToEditDocument = { id ->
-                        backStack.add(
-                            Pane.EditExistingPDF(
-                                documentId = id
-                            )
-                        )
+                        backStack.add(Pane.EditExistingPDF(documentId = id))
                     },
                     popBackStack = {
                         backStack.removeLastOrNull()

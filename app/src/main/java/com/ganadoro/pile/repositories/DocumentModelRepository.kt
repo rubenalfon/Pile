@@ -54,7 +54,8 @@ class DocumentModelRepositoryImpl(
             documentPileIds = documentModel.documentPileIds,
             documentDetails = documentModel.documentDetails,
             documentNote = documentModel.documentNote,
-            documentOrganizationIds = documentModel.documentOrganizationIds
+            documentOrganizationIds = documentModel.documentOrganizationIds,
+            isIncomingPdf = documentModel.isIncomingPdf
         )
     }
 
@@ -67,6 +68,7 @@ class DocumentModelRepositoryImpl(
         databaseQueries.updateDocumentDetails(documentModel.documentDetails, documentModel.id)
         databaseQueries.updateDocumentNote(documentModel.documentNote, documentModel.id)
         databaseQueries.updateDocumentOrganizationIds(documentModel.documentOrganizationIds, documentModel.id)
+        databaseQueries.updateDocumentIsIncomingPdf(documentModel.isIncomingPdf, documentModel.id)
     }
 
     override suspend fun deleteDocumentModel(id: String) {

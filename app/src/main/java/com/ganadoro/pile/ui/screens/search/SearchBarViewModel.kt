@@ -80,8 +80,10 @@ class SearchBarViewModel(
         }
     }
 
-    fun requestBitmapLoad(documentId: String, imageId: String) {
-        bitmapCacheRepository.ensureBitmapIsLoaded(documentId, imageId)
+    fun requestBitmapLoad(document: DocumentModel, pageNumber: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            bitmapCacheRepository.loadBitmap(document = document, pageNumber)
+        }
     }
 
     fun updateSearchQuery(query: String) {

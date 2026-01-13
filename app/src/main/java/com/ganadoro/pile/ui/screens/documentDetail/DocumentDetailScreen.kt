@@ -146,7 +146,12 @@ fun DocumentDetailScreen(
 
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-        viewModel.onDocumentDetailEvent(DocumentDetailEvent.MoveId(from.key as String, to.key as String))
+        viewModel.onDocumentDetailEvent(
+            DocumentDetailEvent.MoveId(
+                from.key as String,
+                to.key as String
+            )
+        )
 
         hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
     }
@@ -211,10 +216,8 @@ fun DocumentDetailScreen(
                             ImagePager(
                                 bitmapCache = bitmapCache,
                                 documentImages = uiState.documentImages!!,
-                                onLoadBitmap = { imageId ->
-                                    viewModel.requestBitmapLoad(imageId)
-                                },
-                                onClick = { viewModel.openDocumentPDF() }
+                                onLoadBitmap = viewModel::requestBitmapLoad,
+                                onClick = viewModel::openDocumentPDF
                             )
                         }
                     }
@@ -356,7 +359,7 @@ private fun ImagePager(
     modifier: Modifier = Modifier,
     bitmapCache: Map<String, Bitmap>,
     documentImages: List<DocumentImage>,
-    onLoadBitmap: suspend (imageId: String) -> Unit,
+    onLoadBitmap: suspend (pageNumber: Int) -> Unit,
     onClick: () -> Unit
 ) {
     val pagerState = rememberPagerState(
@@ -394,7 +397,7 @@ private fun ImagePager(
 
             if (cachedBitmap == null) {
                 LaunchedEffect(key1 = documentImage.id) {
-                    onLoadBitmap(documentImage.id)
+                    onLoadBitmap(page)
                 }
             }
 

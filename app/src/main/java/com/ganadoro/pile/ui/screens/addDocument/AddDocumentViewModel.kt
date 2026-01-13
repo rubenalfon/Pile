@@ -85,8 +85,11 @@ class AddDocumentViewModel(
         }
     }
 
-    fun requestBitmapLoad(documentId: String, imageId: String) {
-        bitmapCacheRepository.ensureBitmapIsLoaded(documentId, imageId)
+    fun requestBitmapLoad(pageNumber: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val documentModel = uiState.value.documentModel ?: return@launch
+            bitmapCacheRepository.loadBitmap(document = documentModel, pageNumber)
+        }
     }
 
     fun setDocumentName(name: String) {

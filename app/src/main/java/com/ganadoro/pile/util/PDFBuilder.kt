@@ -86,65 +86,21 @@ suspend fun createPdfWithImages(
     }
 }
 
-/**
- * Renderiza la primera página de un archivo PDF a un Bitmap.
- *
- * @param pdfFile El archivo PDF a renderizar.
- * @return Un Bitmap de la primera página, o null si el PDF no tiene páginas o hay un error.
- */
-suspend fun renderFirstPdfPage(pdfFile: File): Bitmap? {
-    return try {
-        renderPdfPageAtIndex(pdfFile, 0)
+suspend fun renderPdfPage(pdfFile: File, pageNumber: Int): Bitmap? = withContext(Dispatchers.IO) {
+    try {
+        ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
+            PdfRenderer(fd).use { renderer ->
+                if (pageNumber in 0 until renderer.pageCount) {
+                    renderPage(renderer, pageNumber)
+                } else null
+            }
+        }
     } catch (e: IOException) {
         e.printStackTrace()
         null
     }
 }
 
-/**
- * Renderiza todas las páginas de un archivo PDF a una lista de Bitmaps.
- *
- * @param pdfFile El archivo PDF a renderizar.
- * @return Una lista de Bitmaps, una por cada página del PDF. La lista estará vacía si hay un error.
- */
-suspend fun renderAllPdfPages(pdfFile: File): List<Bitmap> = withContext(Dispatchers.IO) {
-    val bitmaps = mutableListOf<Bitmap>()
-    try {
-        ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
-            PdfRenderer(fd).use { renderer ->
-                for (i in 0 until renderer.pageCount) {
-                    val bitmap = renderPage(renderer, i)
-                    bitmaps.add(bitmap)
-                }
-            }
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-    }
-    return@withContext bitmaps
-}
-
-/**
- * Función de ayuda principal que renderiza una ÚNICA página de un PDF por su índice.
- * Esta función es la que contiene la lógica central.
- */
-@Throws(IOException::class)
-private suspend fun renderPdfPageAtIndex(file: File, pageIndex: Int): Bitmap? =
-    withContext(Dispatchers.IO) {
-        ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
-            PdfRenderer(fd).use { renderer ->
-                if (pageIndex < 0 || pageIndex >= renderer.pageCount) {
-                    return@withContext null // O lanzar una excepción, ej: IndexOutOfBoundsException
-                }
-                return@withContext renderPage(renderer, pageIndex)
-            }
-        }
-    }
-
-/**
- * Helper final y privado. Renderiza una página específica usando un PdfRenderer ya abierto.
- * AQUÍ ESTÁ LA LÓGICA CENTRAL REPETIDA.
- */
 private fun renderPage(renderer: PdfRenderer, pageIndex: Int): Bitmap {
     return renderer.openPage(pageIndex).use { page ->
         val bitmap = createBitmap(page.width, page.height)

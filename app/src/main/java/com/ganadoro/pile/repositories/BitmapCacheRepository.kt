@@ -2,7 +2,9 @@ package com.ganadoro.pile.repositories
 
 import android.content.Context
 import android.graphics.Bitmap
+import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.util.prepareBitmapFromFile
+import com.ganadoro.pile.util.renderPdfPage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,7 +18,7 @@ import java.io.File
  * Repositorio que gestiona la caché de bitmaps.
  * @param appContext Contexto de la aplicación.
  */
-class BitmapCacheRepository (
+class BitmapCacheRepository(
     private val appContext: Context
 ) {
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -24,13 +26,21 @@ class BitmapCacheRepository (
     private val _bitmapCache = MutableStateFlow<Map<String, Bitmap>>(emptyMap())
     val bitmapCache = _bitmapCache.asStateFlow()
 
-    /**
-     * Inicia la carga de un bitmap.
-     * @param imageId Se usa como llave única en la caché.
-     */
-    fun ensureBitmapIsLoaded(documentId: String, imageId: String) {
-        if (_bitmapCache.value.containsKey(imageId)) return
+    suspend fun loadBitmap(document: DocumentModel, pageNumber: Int) {
+        when (document.isIncomingPdf) {
+            true -> {
+                loadPdfPage(documentId = document.id, pageNumber = pageNumber)
+            }
 
+            false -> {
+                val imageId = document.imageIds.getOrNull(pageNumber) ?: return
+
+                loadImage(documentId = document.id, imageId = imageId)
+            }
+        }
+    }
+
+    private suspend fun loadImage(documentId: String, imageId: String) {
         repositoryScope.launch {
             if (_bitmapCache.value.containsKey(imageId)) return@launch
 
@@ -45,6 +55,26 @@ class BitmapCacheRepository (
             if (bitmap != null) {
                 _bitmapCache.update { currentCache ->
                     currentCache + (imageId to bitmap)
+                }
+            }
+        }
+    }
+
+    private suspend fun loadPdfPage(documentId: String, pageNumber: Int) {
+        repositoryScope.launch {
+            val pageId = documentId+pageNumber.toString()
+            if (_bitmapCache.value.containsKey(pageId)) return@launch
+
+            val pdfFolder = File(appContext.filesDir, documentId)
+            val pdfFile = File(pdfFolder, "$documentId.pdf")
+
+            if (!pdfFile.exists()) return@launch
+
+            val bitmap = renderPdfPage(pdfFile, pageNumber)
+
+            if (bitmap != null) {
+                _bitmapCache.update { currentCache ->
+                    currentCache + (pageId to bitmap)
                 }
             }
         }

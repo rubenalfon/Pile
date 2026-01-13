@@ -143,7 +143,8 @@ fun AddDocumentScreen(
 
                                 if (cachedBitmap == null) {
                                     LaunchedEffect(key1 = imageId) {
-                                        viewModel.requestBitmapLoad(documentId, imageId)
+                                        if (uiState.documentModel == null) return@LaunchedEffect
+                                        viewModel.requestBitmapLoad(0)
                                     }
                                 }
 

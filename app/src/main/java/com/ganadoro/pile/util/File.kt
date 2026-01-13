@@ -15,14 +15,14 @@ import java.io.File
 fun File.copyUriFile(context: Context, uri: Uri): File {
     val resolver = context.contentResolver
 
-    resolver.openInputStream(uri)?.use { inputStream ->
+    val inputStream = resolver.openInputStream(uri)
+        ?: throw IllegalStateException("No se pudo abrir el stream para la URI: $uri")
 
-        this.outputStream().use { outputStream ->
-            inputStream.copyTo(outputStream)
+    inputStream.use { input ->
+        this.outputStream().use { output ->
+            input.copyTo(output)
         }
-
-        return this
     }
 
-    throw IllegalStateException("Could not open input stream for a given uri: $uri")
+    return this
 }

@@ -56,6 +56,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -96,6 +97,7 @@ import com.ganadoro.pile.ui.composables.itemPileGrid
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
 import com.ganadoro.pile.ui.screens.search.SearchBarScreen
 import com.ganadoro.pile.util.UriUtils
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -105,13 +107,21 @@ fun HomeScreen(
     navigateToPileDetail: (pileId: String) -> Unit,
     navigateToDocumentDetail: (documentId: String) -> Unit,
     navigateToEditPDF: (documentId: String) -> Unit,
+    navigateToAddDocument: (documentId: String) -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
-    viewModel.navigateToEditPDF = navigateToEditPDF
-
     val uiState by viewModel.uiState.collectAsState()
-
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect { document ->
+            Napier.d { "AAAisIncomingPDF: ${document.isIncomingPdf}" }
+            if (document.isIncomingPdf)
+                navigateToAddDocument(document.id)
+            else
+                navigateToEditPDF(document.id)
+        }
+    }
 
     val listState = rememberLazyListState()
 
@@ -238,7 +248,14 @@ fun HomeScreen(
                             exit = fadeOut(tween(100)) + shrinkVertically()
                         ) {
                             UnsavedDocumentCard(
-                                onNavigateUnsavedDocument = { navigateToEditPDF(tempDocument!!.id) },
+                                onNavigateUnsavedDocument = {
+                                    if (tempDocument == null) return@UnsavedDocumentCard
+
+                                    if (tempDocument!!.isIncomingPdf)
+                                        navigateToAddDocument(tempDocument!!.id)
+                                    else
+                                        navigateToEditPDF(tempDocument!!.id)
+                                },
                                 onDismiss = {
                                     viewModel.partialDeleteUnsavedDocument()
 
@@ -311,9 +328,7 @@ fun HomeScreen(
                         documents = uiState.documentList!!,
                         onDocumentClick = navigateToDocumentDetail,
                         bitmapCache = bitmapCache,
-                        onLoadBitmap = { documentId, imageId ->
-                            viewModel.requestBitmapLoad(documentId, imageId)
-                        }
+                        onLoadBitmap = viewModel::requestBitmapLoad
                     )
 
                     item {

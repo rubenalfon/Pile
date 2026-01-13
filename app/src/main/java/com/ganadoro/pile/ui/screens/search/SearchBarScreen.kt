@@ -158,10 +158,7 @@ fun SearchBarScreen(
                             navigateToDocumentDetail(documentId)
                         },
                         bitmapCache = bitmapCache,
-                        onLoadBitmap = { documentId, imageId ->
-                            viewModel.requestBitmapLoad(documentId, imageId)
-                            null
-                        }
+                        onLoadBitmap = viewModel::requestBitmapLoad
                     )
                     item {
                         Spacer(Modifier.height(50.dp))
@@ -270,11 +267,13 @@ private fun SearchInputField(
                 }
             }
         },
-        modifier = modifier.padding(
-            WindowInsets.displayCutout.asPaddingValues()
-                .horizontalPaddingValues(LocalLayoutDirection.current)
+        modifier = modifier
+            .padding(
+                WindowInsets.displayCutout.asPaddingValues()
+                    .horizontalPaddingValues(LocalLayoutDirection.current)
 
-        ).focusRequester(focusRequester)
+            )
+            .focusRequester(focusRequester)
     )
 }
 
@@ -339,7 +338,7 @@ private fun LazyListScope.itemDocumentsCustomList(
     availableWidth: Dp,
     documents: List<DocumentModel>,
     bitmapCache: Map<String, Bitmap>,
-    onLoadBitmap: suspend (documentId: String, imageId: String) -> Unit,
+    onLoadBitmap: suspend (document: DocumentModel, pageNumber: Int) -> Unit,
     onDocumentClick: (documentId: String) -> Unit = {}
 ) {
     adaptiveSizeItemsGrid(
@@ -351,13 +350,14 @@ private fun LazyListScope.itemDocumentsCustomList(
         verticalSpacing = 16.dp,
         horizontalPadding = 16.dp,
         content = { modifier, document ->
-            if (document.imageIds.isEmpty()) return@adaptiveSizeItemsGrid
+            val imageId = if (document.isIncomingPdf) document.id + 0.toString()
+            else document.imageIds.firstOrNull()
 
-            val cachedBitmap = bitmapCache[document.imageIds.first()]
+            val cachedBitmap: Bitmap? = imageId?.let { bitmapCache[it] }
 
-            if (cachedBitmap == null) {
-                LaunchedEffect(key1 = document.id) {
-                    onLoadBitmap(document.id, document.imageIds.first())
+            if (cachedBitmap == null && imageId != null) {
+                LaunchedEffect(key1 = imageId) {
+                    onLoadBitmap(document, 0)
                 }
             }
 
