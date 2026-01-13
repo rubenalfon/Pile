@@ -28,7 +28,6 @@ import com.ganadoro.pile.ui.screens.editDocument.EditDocumentScreen
 import com.ganadoro.pile.ui.screens.home.HomeScreen
 import com.ganadoro.pile.ui.screens.pileDetail.PileDetailScreen
 import com.ganadoro.pile.ui.screens.search.SearchBarScreen
-import comganadoro.pile.ui.screens.editDocumentPiles.EditDocumentPilesScreen
 import kotlinx.coroutines.delay
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -99,15 +98,6 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                     navigateToEditDocument = { id ->
                         backStack.add(Pane.EditExistingPDF(documentId = id))
                     },
-                    popBackStack = {
-                        backStack.removeLastOrNull()
-                    }
-                )
-            }
-
-            entry<Pane.EditDocumentPiles> { backStackKey ->
-                EditDocumentPilesScreen(
-                    documentId = backStackKey.documentId,
                     popBackStack = {
                         backStack.removeLastOrNull()
                     }
