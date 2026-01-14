@@ -86,12 +86,16 @@ suspend fun createPdfWithImages(
     }
 }
 
-suspend fun renderPdfPage(pdfFile: File, pageNumber: Int): Bitmap? = withContext(Dispatchers.IO) {
+suspend fun renderPdfPage(
+    pdfFile: File,
+    pageNumber: Int,
+    scale: Float = 5.0f
+): Bitmap? = withContext(Dispatchers.IO) {
     try {
         ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
             PdfRenderer(fd).use { renderer ->
                 if (pageNumber in 0 until renderer.pageCount) {
-                    renderPage(renderer, pageNumber)
+                    renderPage(renderer, pageNumber, scale)
                 } else null
             }
         }
@@ -101,9 +105,12 @@ suspend fun renderPdfPage(pdfFile: File, pageNumber: Int): Bitmap? = withContext
     }
 }
 
-private fun renderPage(renderer: PdfRenderer, pageIndex: Int): Bitmap {
+private fun renderPage(renderer: PdfRenderer, pageIndex: Int, scale: Float): Bitmap {
     return renderer.openPage(pageIndex).use { page ->
-        val bitmap = createBitmap(page.width, page.height)
+        val width = (page.width * scale).toInt()
+        val height = (page.height * scale).toInt()
+
+        val bitmap = createBitmap(width, height)
 
         val canvas = Canvas(bitmap)
         canvas.drawColor(Color.WHITE)
@@ -113,6 +120,17 @@ private fun renderPage(renderer: PdfRenderer, pageIndex: Int): Bitmap {
         bitmap
     }
 }
+
+fun getPdfPageCount(pdfFile: File): Int = try {
+        ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
+            PdfRenderer(fd).use { renderer ->
+                renderer.pageCount
+            }
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+        0
+    }
 
 /**
  * Crea un archivo PDF a partir de una lista de archivos de imagen locales.

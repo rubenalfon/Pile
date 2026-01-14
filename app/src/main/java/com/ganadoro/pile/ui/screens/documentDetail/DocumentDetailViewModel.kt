@@ -21,6 +21,7 @@ import com.ganadoro.pile.repositories.BitmapCacheRepository
 import com.ganadoro.pile.repositories.DocumentImageRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
+import com.ganadoro.pile.util.getPdfPageCount
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,6 +44,7 @@ data class DocumentDetailUiState(
     var localDocumentDetails: List<DocumentDetail>? = null,
     var documentPileModels: List<PileModel>? = null,
     var documentImages: List<DocumentImage>? = null,
+    var pdfPageNumber: Int? = null,
     var allPiles: List<PileModel>? = null,
 )
 
@@ -107,6 +109,8 @@ class DocumentDetailViewModel(
                         documentModel = document,
                         documentPileModels = piles,
                         documentImages = images,
+                        pdfPageNumber = currentState.pdfPageNumber
+                            ?: if (document.isIncomingPdf) getPdfPageCount(document) else null,
                         localDocumentDetails = currentState.localDocumentDetails
                             ?: document.documentDetails,
                         allPiles = pileModelRepository.getAllPileModels()
@@ -114,6 +118,12 @@ class DocumentDetailViewModel(
                 }
             }.collect()
         }
+    }
+
+    private fun getPdfPageCount(document: DocumentModel): Int {
+        val documentFolder = File(context.filesDir, document.id)
+        val pdfFile = File(documentFolder, "${document.id}.pdf")
+        return getPdfPageCount(pdfFile)
     }
 
     fun requestBitmapLoad(pageNumber: Int) {

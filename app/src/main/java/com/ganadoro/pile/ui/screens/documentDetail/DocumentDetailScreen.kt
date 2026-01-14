@@ -212,14 +212,15 @@ fun DocumentDetailScreen(
                     horizontalAlignment = Alignment.Start
                 ) {
                     item {
-                        if (uiState.documentImages?.isNotEmpty() ?: false) {
-                            ImagePager(
-                                bitmapCache = bitmapCache,
-                                documentImages = uiState.documentImages!!,
-                                onLoadBitmap = viewModel::requestBitmapLoad,
-                                onClick = viewModel::openDocumentPDF
-                            )
-                        }
+                        ImagePager(
+                            bitmapCache = bitmapCache,
+                            documentModel = uiState.documentModel,
+                            documentImages = uiState.documentImages ?: emptyList(),
+                            pdfPageCount = uiState.pdfPageNumber,
+                            onLoadBitmap = viewModel::requestBitmapLoad,
+                            onClick = viewModel::openDocumentPDF
+                        )
+
                     }
                     item { Spacer(Modifier.height(8.dp)) }
 
@@ -358,18 +359,20 @@ private fun ScreenTopAppBar(
 private fun ImagePager(
     modifier: Modifier = Modifier,
     bitmapCache: Map<String, Bitmap>,
+    documentModel: DocumentModel?,
     documentImages: List<DocumentImage>,
+    pdfPageCount: Int?,
     onLoadBitmap: suspend (pageNumber: Int) -> Unit,
     onClick: () -> Unit
 ) {
-    val pagerState = rememberPagerState(
-        pageCount = { documentImages.size }
-    )
+    val pageCount: Int = pdfPageCount ?: documentImages.size
+
+    val pagerState = rememberPagerState(pageCount = { pageCount })
 
     var isPageNumberVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = pagerState.currentPage) {
-        if (documentImages.size == 1) return@LaunchedEffect
+        if (pageCount == 1) return@LaunchedEffect
 
         isPageNumberVisible = true
         delay(5000)
@@ -391,12 +394,14 @@ private fun ImagePager(
                 .background(MaterialTheme.colorScheme.surfaceContainer)
                 .clickable { onClick.invoke() }
         ) { page ->
-            val documentImage = documentImages.getOrNull(page) ?: return@HorizontalPager
+            val document = documentModel ?: return@HorizontalPager
+            val imageId = if (document.isIncomingPdf) document.id + page.toString()
+            else document.imageIds.getOrNull(page)
 
-            val cachedBitmap = bitmapCache[documentImage.id]
+            val cachedBitmap: Bitmap? = imageId?.let { bitmapCache[it] }
 
-            if (cachedBitmap == null) {
-                LaunchedEffect(key1 = documentImage.id) {
+            if (cachedBitmap == null && imageId != null) {
+                LaunchedEffect(key1 = imageId) {
                     onLoadBitmap(page)
                 }
             }

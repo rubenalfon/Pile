@@ -1,5 +1,6 @@
 package com.ganadoro.pile.ui.screens.addDocument
 
+import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -137,13 +138,14 @@ fun AddDocumentScreen(
                                     .clip(RoundedCornerShape(28.dp))
                                     .background(MaterialTheme.colorScheme.surfaceContainerHigh),
                             ) {
-                                val imageId = uiState.frontPageDocumentImage?.id ?: return@Box
+                                val document = uiState.documentModel ?: return@Box
+                                val imageId = if (document.isIncomingPdf) document.id + 0.toString()
+                                else document.imageIds.firstOrNull()
 
-                                val cachedBitmap = bitmapCache[imageId]
+                                val cachedBitmap: Bitmap? = imageId?.let { bitmapCache[it] }
 
-                                if (cachedBitmap == null) {
+                                if (cachedBitmap == null && imageId != null) {
                                     LaunchedEffect(key1 = imageId) {
-                                        if (uiState.documentModel == null) return@LaunchedEffect
                                         viewModel.requestBitmapLoad(0)
                                     }
                                 }
