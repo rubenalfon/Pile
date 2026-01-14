@@ -274,7 +274,7 @@ fun DocumentDetailScreen(
 
                     item {
                         AddedSection(
-                            creationDate =     uiState.documentModel!!.creationDateTime,
+                            creationDate = uiState.documentModel!!.creationDateTime,
                             modificationDate = uiState.documentModel!!.modificationDateTime
                         )
                     }
@@ -487,7 +487,7 @@ private fun LazyListScope.documentDetailsSection(
         val index = documentDetails.indexOf(documentDetail)
         ReorderableItem(
             reorderableLazyListState,
-            key = documentDetail.id,
+            key = documentDetail.id
         ) { isDragging ->
             SwipeBox(
                 onDelete = { onEvent(DocumentDetailEvent.Delete(index)) },
@@ -527,7 +527,6 @@ private fun LazyListScope.documentDetailsSection(
         }
     }
 
-    // Add a detail button
     item {
         AnimatedVisibility(
             visible = isEditingMode,
@@ -830,7 +829,7 @@ private fun LazyListScope.documentPilesSection(
 @Composable
 private fun AddedSection(
     modifier: Modifier = Modifier,
-    creationDate: LocalDateTime ,
+    creationDate: LocalDateTime,
     modificationDate: LocalDateTime
 ) {
     val formatter = remember {

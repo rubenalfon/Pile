@@ -208,7 +208,7 @@ class DocumentDetailViewModel(
                     else -> lastDeleted
                 }
 
-                recentlyDeletedDetails -= restoredDocumentDetail
+                recentlyDeletedDetails -= lastDeleted
                 currentDetails + restoredDocumentDetail
             }
         }
