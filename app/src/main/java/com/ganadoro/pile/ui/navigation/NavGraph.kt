@@ -134,12 +134,13 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                     popBackStack = {
                         backStack.removeLastOrNull()
                     },
-                    navigateToDocumentDetail = {
-                        backStack.removeLastOrNull()
-                        backStack.removeLastOrNull()
+                    navigateToDocumentDetail = { documentId ->
+                        backStack.removeIf {
+                            it !is Pane.Home
+                        }
                         backStack.add(
                             Pane.DocumentDetail(
-                                documentId = it
+                                documentId = documentId
                             )
                         )
                     }

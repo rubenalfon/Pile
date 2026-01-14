@@ -381,7 +381,7 @@ private fun FilterDateAlert(
     onDismiss: () -> Unit
 ) {
     val millis = selectedFilterDate?.atTime(0, 0, 0)?.toEpochSecond(ZoneOffset.UTC)
-    val years = documentList?.flatMap { listOf(it.creationDate.year, it.modificationDate.year) }
+    val years = documentList?.flatMap { listOf(it.creationDateTime.year, it.modificationDateTime.year) }
         ?.distinct()
 
     val datePickerState: DatePickerState

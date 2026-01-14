@@ -251,6 +251,26 @@ class DocumentDetailViewModel(
             }
         }
     }
+    /**
+     * Checks if an updated pdf document exists for this documentModel.
+     * @return true if the document exists and is up to date, false otherwise.
+     */
+    private suspend fun checkPDFDocument(): Boolean {
+//        val document = uiState.value.documentModel ?: return@withContext false
+//        val documentFolder = File(context.filesDir, document.id)
+//        val pdfFile = File(documentFolder, "${document.id}.pdf")
+//        if (!pdfFile.exists()) return@withContext false
+//        // Si es un PDF de llegada, el archivo es la fuente principal, así que está "actualizado" por definición.
+//        if (document.isIncomingPdf) return@withContext true
+//        // Obtenemos la fecha de modificación del archivo como LocalDate
+//        val fileLastModifiedDate = Instant.ofEpochMilli(pdfFile.lastModified())
+//            .atZone(ZoneId.systemDefault())
+//            .toLocalDate()
+//
+//        // El PDF está actualizado si su fecha de modificación es igual o posterior a la del modelo de datos.
+//        !fileLastModifiedDate.isBefore(document.modificationDate)
+    return false
+    }
 
     fun openDocumentPDF() { // TODO: Redo
         if (_uiState.value.documentModel == null) return

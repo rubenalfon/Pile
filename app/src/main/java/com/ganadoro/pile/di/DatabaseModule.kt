@@ -13,7 +13,8 @@ import com.ganadoro.pile.models.ImageCropData
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 val databaseModule = module {
@@ -22,8 +23,8 @@ val databaseModule = module {
             driver = get(),
             DocumentModelAdapter = DocumentModel.Adapter(
                 imageIdsAdapter = get(named("StringListAdapter")),
-                creationDateAdapter = get(named("LocalDateStringAdapter")),
-                modificationDateAdapter = get(named("LocalDateStringAdapter")),
+                creationDateTimeAdapter = get(named("LocalDateTimeStringAdapter")),
+                modificationDateTimeAdapter = get(named("LocalDateTimeStringAdapter")),
                 documentStatusAdapter = get(named("DocumentStatusAdapter")),
                 documentPileIdsAdapter = get(named("StringListAdapter")),
                 documentDetailsAdapter = get(named("DocumentDetailListAdapter")),
@@ -48,16 +49,18 @@ val databaseModule = module {
         get<Database>().databaseQueries
     }
 
-    single<ColumnAdapter<LocalDate, String>>(named("LocalDateStringAdapter")) {
-        object : ColumnAdapter<LocalDate, String> {
-            override fun decode(databaseValue: String): LocalDate =
-                if (databaseValue.isEmpty()) {
-                    LocalDate.now()
-                } else {
-                    LocalDate.parse(databaseValue)
+    single<ColumnAdapter<LocalDateTime, String>>(named("LocalDateTimeStringAdapter")) {
+        object : ColumnAdapter<LocalDateTime, String> {
+            override fun decode(databaseValue: String): LocalDateTime =
+                try {
+                    LocalDateTime.parse(databaseValue)
+                } catch (_: Exception) {
+                    LocalDateTime.now()
                 }
 
-            override fun encode(value: LocalDate): String = value.toString()
+            override fun encode(value: LocalDateTime): String {
+                return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(value)
+            }
         }
     }
 

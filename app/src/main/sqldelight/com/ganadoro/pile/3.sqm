@@ -1,0 +1,24 @@
+-- 1. Crear una tabla temporal con el nuevo formato
+CREATE TABLE DocumentModel_new (
+    id                          TEXT                            PRIMARY KEY,
+    title                       TEXT                            NOT NULL,imageIds                    TEXT                            NOT NULL,
+    creationDateTime            TEXT                            NOT NULL,
+    modificationDateTime        TEXT                            NOT NULL,
+    documentStatus              INTEGER                         NOT NULL,
+    documentPileIds             TEXT                            NOT NULL,
+    documentDetails             TEXT                            NOT NULL,
+    documentNote                TEXT                            NOT NULL,
+    documentOrganizationIds     TEXT                            NOT NULL,
+    isIncomingPdf               INTEGER                         NOT NULL
+);
+
+INSERT INTO DocumentModel_new
+SELECT
+    id, title, imageIds,
+    (creationDate || 'T00:00:00'),
+    (modificationDate || 'T00:00:00'),
+    documentStatus, documentPileIds, documentDetails, documentNote, documentOrganizationIds, isIncomingPdf
+FROM DocumentModel;
+
+DROP TABLE DocumentModel;
+ALTER TABLE DocumentModel_new RENAME TO DocumentModel;

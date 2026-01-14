@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 data class HomeUiState(
@@ -120,8 +120,8 @@ class HomeViewModel(
             id = documentId,
             title = "",
             imageIds = emptyList(),
-            creationDate = LocalDate.now(),
-            modificationDate = LocalDate.now(),
+            creationDateTime =      LocalDateTime.now(),
+            modificationDateTime =  LocalDateTime.now(),
             documentStatus = TEMPORARY,
             documentDetails = emptyList(),
             documentOrganizationIds = emptyList(),

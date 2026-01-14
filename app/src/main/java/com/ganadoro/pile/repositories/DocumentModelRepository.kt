@@ -48,8 +48,8 @@ class DocumentModelRepositoryImpl(
             id = documentModel.id,
             title = documentModel.title,
             imageIds = documentModel.imageIds,
-            creationDate = documentModel.creationDate,
-            modificationDate = documentModel.modificationDate,
+            creationDateTime = documentModel.creationDateTime,
+            modificationDateTime = documentModel.modificationDateTime,
             documentStatus = documentModel.documentStatus,
             documentPileIds = documentModel.documentPileIds,
             documentDetails = documentModel.documentDetails,
@@ -62,7 +62,7 @@ class DocumentModelRepositoryImpl(
     override suspend fun updateDocumentModel(documentModel: DocumentModel) {
         databaseQueries.updateDocumentTitle(documentModel.title, documentModel.id)
         databaseQueries.updateDocumentImageIds(documentModel.imageIds, documentModel.id)
-        databaseQueries.updateDocumentModificationDate(documentModel.modificationDate, documentModel.id)
+        databaseQueries.updateDocumentModificationDateTime(documentModel.modificationDateTime, documentModel.id)
         databaseQueries.updateDocumentStatus(documentModel.documentStatus, documentModel.id)
         databaseQueries.updateDocumentPileIds(documentModel.documentPileIds, documentModel.id)
         databaseQueries.updateDocumentDetails(documentModel.documentDetails, documentModel.id)

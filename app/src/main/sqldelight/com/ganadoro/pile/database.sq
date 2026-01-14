@@ -1,7 +1,7 @@
 import com.ganadoro.pile.models.DocumentDetail;
 import com.ganadoro.pile.models.DocumentStatus;
 import com.ganadoro.pile.models.ImageCropData;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import kotlin.Boolean;
 import kotlin.String;
 import kotlin.collections.List;
@@ -87,8 +87,8 @@ CREATE TABLE IF NOT EXISTS DocumentModel(
     id                          TEXT                            PRIMARY KEY,
     title                       TEXT                            NOT NULL,
     imageIds                    TEXT AS List<String>            NOT NULL,
-    creationDate                TEXT AS LocalDate               NOT NULL,
-    modificationDate            TEXT AS LocalDate               NOT NULL,
+    creationDateTime            TEXT AS LocalDateTime               NOT NULL,
+    modificationDateTime        TEXT AS LocalDateTime               NOT NULL,
     documentStatus              INTEGER  AS DocumentStatus      NOT NULL,
     documentPileIds             TEXT AS List<String>            NOT NULL,
     documentDetails             TEXT AS List<DocumentDetail>    NOT NULL,
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS DocumentModel(
 );
 
 insertDocumentModel:
-INSERT INTO DocumentModel(id, title, imageIds, creationDate, modificationDate, documentStatus, documentPileIds, documentDetails, documentNote, documentOrganizationIds, isIncomingPdf)
+INSERT INTO DocumentModel(id, title, imageIds, creationDateTime, modificationDateTime, documentStatus, documentPileIds, documentDetails, documentNote, documentOrganizationIds, isIncomingPdf)
 VALUES(?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?);
 
 selectAllDocumentModels:
@@ -134,9 +134,9 @@ UPDATE DocumentModel
 SET imageIds = ?
 WHERE id = ?;
 
-updateDocumentModificationDate:
+updateDocumentModificationDateTime:
 UPDATE DocumentModel
-SET modificationDate = ?
+SET modificationDateTime = ?
 WHERE id = ?;
 
 updateDocumentStatus:

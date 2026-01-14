@@ -145,7 +145,7 @@ class SearchBarViewModel(
         val pileDateFilteredDocumentList =
             if (uiState.value.selectedFilterDate == null) pileFilteredDocumentList
             else pileFilteredDocumentList.filter { document ->
-                document.creationDate == uiState.value.selectedFilterDate || document.modificationDate == uiState.value.selectedFilterDate
+                document.creationDateTime == uiState.value.selectedFilterDate || document.modificationDateTime == uiState.value.selectedFilterDate
             }
 
         val filteredDocumentList = pileDateFilteredDocumentList.filter { document ->

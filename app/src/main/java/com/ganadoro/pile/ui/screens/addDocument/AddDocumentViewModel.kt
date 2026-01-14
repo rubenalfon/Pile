@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 data class AddDocumentUiState(
@@ -146,8 +146,8 @@ class AddDocumentViewModel(
 
                 val updatedDocument = documentModel.copy(
                     title = currentState.documentName,
-                    creationDate = LocalDate.now(),
-                    modificationDate = LocalDate.now(),
+                    creationDateTime = LocalDateTime.now(),
+                    modificationDateTime = LocalDateTime.now(),
                     documentStatus = DocumentStatusConstants.SAVED,
                     documentPileIds = currentState.selectedPileModelIds,
                     documentDetails = emptyList(),

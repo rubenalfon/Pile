@@ -28,9 +28,9 @@ fun LazyListScope.itemDocumentsCompleteList(
     val groupedDocuments: List<Pair<LocalDate, List<DocumentModel>>> =
         documents
             .filter { it.documentStatus == DocumentStatusConstants.SAVED }
-            .groupBy { it.modificationDate }
+            .groupBy { it.modificationDateTime.toLocalDate() }
             .toSortedMap(compareByDescending { it })
-            .map { (date, docs) -> date to docs }
+            .map { (date, docs) -> date to docs.sortedByDescending { it.modificationDateTime } }
 
     for (entry in groupedDocuments) {
         val (date, docs) = entry

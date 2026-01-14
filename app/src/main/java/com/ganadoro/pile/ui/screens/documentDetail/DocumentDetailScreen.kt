@@ -117,7 +117,7 @@ import sh.calvin.reorderable.ReorderableCollectionItemScope
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.ReorderableLazyListState
 import sh.calvin.reorderable.rememberReorderableLazyListState
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
@@ -274,8 +274,8 @@ fun DocumentDetailScreen(
 
                     item {
                         AddedSection(
-                            creationDate = uiState.documentModel!!.creationDate,
-                            modificationDate = uiState.documentModel!!.modificationDate
+                            creationDate =     uiState.documentModel!!.creationDateTime,
+                            modificationDate = uiState.documentModel!!.modificationDateTime
                         )
                     }
 
@@ -830,8 +830,8 @@ private fun LazyListScope.documentPilesSection(
 @Composable
 private fun AddedSection(
     modifier: Modifier = Modifier,
-    creationDate: LocalDate,
-    modificationDate: LocalDate
+    creationDate: LocalDateTime ,
+    modificationDate: LocalDateTime
 ) {
     val formatter = remember {
         DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
