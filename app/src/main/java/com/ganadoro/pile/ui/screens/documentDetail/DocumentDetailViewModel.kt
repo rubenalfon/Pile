@@ -257,7 +257,7 @@ class DocumentDetailViewModel(
      * Checks if an updated pdf document exists for this documentModel.
      * @return true if the document exists and is up to date, false otherwise.
      */
-    private fun checkPDFDocument(): Boolean {
+    private fun isDocumentPDFUpdated(): Boolean {
         if (uiState.value.documentModel?.isIncomingPdf == true) return true
 
         val documentFolder = File(context.filesDir, documentId)
@@ -273,8 +273,38 @@ class DocumentDetailViewModel(
         return !pdfFileLastModification.isBefore(documentLastModification)
     }
 
+//    /**
+//     * Creates or replaces a pdf containing all the document images.
+//     */
+//    private suspend fun createOrReplacePDF(): Boolean {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val documentModel = uiState.value.documentModel ?: return@launch
+//            val folderFile = File(context.filesDir, documentModel.id)
+//            val pdfFile = File(folderFile, "${documentModel.id}.pdf")
+//
+//            val finalBitmapList = uiState.value.originalBitmaps.mapIndexed { index, original ->
+//                uiState.value.cropEditedBitmaps[index]
+//                    ?: uiState.value.modifiedBitmaps[index]
+//                    ?: original
+//            }
+//
+//            try {
+//                createPdfWithImages(
+//                    bitmaps = finalBitmapList, outputFile = documentFile
+//                )
+//            } catch (ex: Exception) {
+//                Napier.e { "EditPDFViewModel.updateDocumentPDF: ${ex.message}" }
+//            }
+//        }
+//
+//
+//        return false
+//    }
+
     fun openDocumentPDF() { // TODO: Redo
-        if (!checkPDFDocument()) return
+        if (!isDocumentPDFUpdated()) {
+//            createOrReplacePDF()
+        }
 
         val documentFolder = File(context.filesDir, documentId)
         val pdfFile = File(documentFolder, "$documentId.pdf")
