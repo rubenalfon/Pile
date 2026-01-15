@@ -37,6 +37,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.time.Instant
+import java.time.ZoneId
 import java.util.UUID
 
 data class DocumentDetailUiState(
@@ -172,7 +174,6 @@ class DocumentDetailViewModel(
             }.toList()
         }
 
-
         is DocumentDetailEvent.MoveId -> {
             currentDetails.toMutableList().apply {
                 val fromIndex = indexOfFirst { it.id == event.fromId }
@@ -251,36 +252,37 @@ class DocumentDetailViewModel(
             }
         }
     }
+
     /**
      * Checks if an updated pdf document exists for this documentModel.
      * @return true if the document exists and is up to date, false otherwise.
      */
-    private suspend fun checkPDFDocument(): Boolean {
-//        val document = uiState.value.documentModel ?: return@withContext false
-//        val documentFolder = File(context.filesDir, document.id)
-//        val pdfFile = File(documentFolder, "${document.id}.pdf")
-//        if (!pdfFile.exists()) return@withContext false
-//        // Si es un PDF de llegada, el archivo es la fuente principal, así que está "actualizado" por definición.
-//        if (document.isIncomingPdf) return@withContext true
-//        // Obtenemos la fecha de modificación del archivo como LocalDate
-//        val fileLastModifiedDate = Instant.ofEpochMilli(pdfFile.lastModified())
-//            .atZone(ZoneId.systemDefault())
-//            .toLocalDate()
-//
-//        // El PDF está actualizado si su fecha de modificación es igual o posterior a la del modelo de datos.
-//        !fileLastModifiedDate.isBefore(document.modificationDate)
-    return false
+    private fun checkPDFDocument(): Boolean {
+        if (uiState.value.documentModel?.isIncomingPdf == true) return true
+
+        val documentFolder = File(context.filesDir, documentId)
+        val pdfFile = File(documentFolder, "$documentId.pdf")
+        if (!pdfFile.exists()) return false
+
+        val pdfFileLastModification = Instant.ofEpochMilli(pdfFile.lastModified())
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime()
+
+        val documentLastModification = uiState.value.documentModel?.modificationDateTime
+
+        return !pdfFileLastModification.isBefore(documentLastModification)
     }
 
     fun openDocumentPDF() { // TODO: Redo
-        if (_uiState.value.documentModel == null) return
+        if (!checkPDFDocument()) return
 
-        val file = File(context.filesDir, _uiState.value.documentModel?.id!!)
+        val documentFolder = File(context.filesDir, documentId)
+        val pdfFile = File(documentFolder, "$documentId.pdf")
 
         val uri = FileProvider.getUriForFile(
             context,
             "${context.packageName}.provider",
-            file
+            pdfFile
         )
 
         val openIntent = Intent(Intent.ACTION_VIEW).apply {
