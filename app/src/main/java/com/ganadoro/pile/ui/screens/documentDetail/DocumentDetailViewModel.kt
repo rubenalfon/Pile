@@ -378,6 +378,9 @@ class DocumentDetailViewModel(
     fun deleteDocument() {
         viewModelScope.launch(Dispatchers.IO) {
             documentModelRepository.deleteDocumentModel(documentId)
+
+            val folder = File(context.filesDir, documentId)
+            folder.deleteRecursively()
         }
     }
 }
