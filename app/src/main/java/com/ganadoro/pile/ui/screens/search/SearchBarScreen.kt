@@ -42,7 +42,6 @@ import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -88,13 +87,12 @@ fun SearchBarScreen(
     navigateToDocumentDetail: (documentId: String) -> Unit,
     focusRequester: FocusRequester? = null
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     if (uiState.pileList == null || uiState.documentList == null) {
         viewModel.init()
     }
-
-    val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     var showFilterPilesBottomSheet by remember { mutableStateOf(false) }
     var showFilterDateAlert by remember { mutableStateOf(false) }
