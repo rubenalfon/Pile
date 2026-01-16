@@ -11,13 +11,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.lifecycleScope
 import com.ganadoro.pile.R
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.ui.composables.LoadingComposable
 import com.ganadoro.pile.ui.theme.PileTheme
-import com.ganadoro.pile.util.FileUtils
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 class PDFImportActivity : ComponentActivity() {
@@ -58,11 +55,11 @@ class PDFImportActivity : ComponentActivity() {
             return
         }
 
-        lifecycleScope.launch {
-            val documentTitle = FileUtils.getFileNameFromUri(
-                applicationContext,
-                pdfUri
-            )
+//        lifecycleScope.launch {
+//            val documentTitle = FileUtils.getFileNameFromUri(
+//                applicationContext,
+//                pdfUri
+//            )
 
 //            val tempDocument = DocumentModel(
 //                id = TEMP_DOCUMENT_ID,
@@ -101,17 +98,17 @@ class PDFImportActivity : ComponentActivity() {
 //                ).show()
 //                finish()
 //            }
-        }
+//        }
     }
 
-    private fun navigateToMainApp(newPdfId: String) {
-        val intent = Intent(this, MainActivity::class.java).apply {
-            putExtra("NEW_PDF_ID", newPdfId)
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-        }
-        startActivity(intent)
-        finish()
-    }
+//    private fun navigateToMainApp(newPdfId: String) {
+//        val intent = Intent(this, MainActivity::class.java).apply {
+//            putExtra("NEW_PDF_ID", newPdfId)
+//            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+//        }
+//        startActivity(intent)
+//        finish()
+//    }
 
     private fun extractUriFromIntent(intent: Intent): Uri? {
         val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

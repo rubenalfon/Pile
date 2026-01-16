@@ -11,7 +11,6 @@ import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.repositories.DocumentImageRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.util.createContrastBrightnessMatrix
-import com.ganadoro.pile.util.prepareBitmapsFromFiles
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,12 +26,12 @@ enum class EditDocumentUIMode {
 }
 
 data class EditDocumentUiState(
-    var documentModel: DocumentModel? = null,
-    var documentImages: List<DocumentImage> = emptyList(),
-    var originalBitmaps: List<Bitmap> = emptyList(),
+    val documentModel: DocumentModel? = null,
+    val documentImages: List<DocumentImage> = emptyList(),
+    val originalBitmaps: List<Bitmap> = emptyList(),
     val modifiedBitmaps: Map<Int, Bitmap> = emptyMap(),
-    var selectedImageIndex: Int = 0,
-    var uiMode: EditDocumentUIMode = EditDocumentUIMode.SCROLL
+    val selectedImageIndex: Int = 0,
+    val uiMode: EditDocumentUIMode = EditDocumentUIMode.SCROLL
 )
 
 @SuppressLint("StaticFieldLeak")
@@ -72,11 +71,12 @@ class EditPDFViewModel(
                 val documentFolder = File(context.filesDir, documentId)
 
                 val imageFiles = documentImages.map { File(documentFolder, it.id) }
-                val bitmaps = prepareBitmapsFromFiles(imageFiles)
-
-                _uiState.update {
-                    it.copy(originalBitmaps = bitmaps)
-                }
+//         ToDO: Cargar bitmaps
+//                val bitmaps = prepareBitmapsFromFiles(imageFiles)
+//
+//                _uiState.update {
+//                    it.copy(originalBitmaps = bitmaps)
+//                }
             } catch (e: Exception) {
                 Napier.e(e) { "Error cargando el documento $documentId" }
                 // TODO: Gestionar error

@@ -3,14 +3,9 @@ package com.ganadoro.pile.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.pdf.PdfDocument
-import android.graphics.pdf.PdfRenderer
 import android.net.Uri
-import android.os.ParcelFileDescriptor
 import android.util.Size
-import androidx.core.graphics.createBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -86,51 +81,6 @@ suspend fun createPdfWithImages(
     }
 }
 
-suspend fun renderPdfPage(
-    pdfFile: File,
-    pageNumber: Int,
-    scale: Float = 5.0f
-): Bitmap? = withContext(Dispatchers.IO) {
-    try {
-        ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
-            PdfRenderer(fd).use { renderer ->
-                if (pageNumber in 0 until renderer.pageCount) {
-                    renderPage(renderer, pageNumber, scale)
-                } else null
-            }
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-        null
-    }
-}
-
-private fun renderPage(renderer: PdfRenderer, pageIndex: Int, scale: Float): Bitmap {
-    return renderer.openPage(pageIndex).use { page ->
-        val width = (page.width * scale).toInt()
-        val height = (page.height * scale).toInt()
-
-        val bitmap = createBitmap(width, height)
-
-        val canvas = Canvas(bitmap)
-        canvas.drawColor(Color.WHITE)
-
-        page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-
-        bitmap
-    }
-}
-
-fun getPdfPageCount(pdfFile: File): Int = try {
-        ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
-            PdfRenderer(fd).use { renderer ->
-                renderer.pageCount
-            }
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-        0
-    }
 
 /**
  * Crea un archivo PDF a partir de una lista de archivos de imagen locales.

@@ -156,7 +156,8 @@ fun SearchBarScreen(
                             navigateToDocumentDetail(documentId)
                         },
                         bitmapCache = bitmapCache,
-                        onLoadBitmap = viewModel::requestBitmapLoad
+                        onLoadBitmap = viewModel::requestBitmapLoad,
+                        onRequestImageKey = viewModel::requestImageKey
                     )
                     item {
                         Spacer(Modifier.height(50.dp))
@@ -337,6 +338,7 @@ private fun LazyListScope.itemDocumentsCustomList(
     documents: List<DocumentModel>,
     bitmapCache: Map<String, Bitmap>,
     onLoadBitmap: suspend (document: DocumentModel, pageNumber: Int) -> Unit,
+    onRequestImageKey: (document: DocumentModel, pageNumber: Int) -> String,
     onDocumentClick: (documentId: String) -> Unit = {}
 ) {
     adaptiveSizeItemsGrid(
@@ -348,13 +350,12 @@ private fun LazyListScope.itemDocumentsCustomList(
         verticalSpacing = 16.dp,
         horizontalPadding = 16.dp,
         content = { modifier, document ->
-            val imageId = if (document.isIncomingPdf) document.id + 0.toString()
-            else document.imageIds.firstOrNull()
+            val key = onRequestImageKey(document, 0)
 
-            val cachedBitmap: Bitmap? = imageId?.let { bitmapCache[it] }
+            val cachedBitmap: Bitmap? = bitmapCache[key]
 
-            if (cachedBitmap == null && imageId != null) {
-                LaunchedEffect(key1 = imageId) {
+            if (cachedBitmap == null) {
+                LaunchedEffect(key1 = key) {
                     onLoadBitmap(document, 0)
                 }
             }

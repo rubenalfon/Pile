@@ -114,7 +114,8 @@ fun PileDetailScreen(
                             navigateToDocumentDetail(documentId)
                         },
                         bitmapCache = bitmapCache,
-                        onLoadBitmap = viewModel::requestBitmapLoad
+                        onLoadBitmap = viewModel::requestBitmapLoad,
+                        onRequestImageKey = viewModel::requestImageKey
                     )
                     item {
                         Spacer(Modifier.height(100.dp))

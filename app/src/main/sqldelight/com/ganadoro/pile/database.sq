@@ -1,6 +1,6 @@
-import com.ganadoro.pile.models.DocumentDetail;
-import com.ganadoro.pile.models.DocumentStatus;
-import com.ganadoro.pile.models.ImageCropData;
+import com.ganadoro.pile.domain.models.DocumentDetail;
+import com.ganadoro.pile.domain.models.DocumentStatus;
+import com.ganadoro.pile.domain.models.ImageCropData;
 import java.time.LocalDateTime;
 import kotlin.Boolean;
 import kotlin.String;
@@ -35,6 +35,13 @@ SELECT PileModel.*
 FROM PileModel
 WHERE id IN ?
 ORDER BY PileModel.name ASC;
+
+updatePileModel:
+UPDATE PileModel
+SET name = ?,
+    iconId = ?,
+    colorNumber = ?
+WHERE id = ?;
 
 updatePileModelName:
 UPDATE PileModel
@@ -124,6 +131,19 @@ removeDocumentModel:
 DELETE FROM DocumentModel
 WHERE id = ?;
 
+updateFullDocumentModel:
+UPDATE DocumentModel
+SET title = ?,
+    imageIds = ?,
+    modificationDateTime = ?,
+    documentStatus = ?,
+    documentPileIds = ?,
+    documentDetails = ?,
+    documentNote = ?,
+    documentOrganizationIds = ?,
+    isIncomingPdf = ?
+WHERE id = ?;
+
 updateDocumentTitle:
 UPDATE DocumentModel
 SET title = ?
@@ -153,7 +173,6 @@ updateDocumentDetails:
 UPDATE DocumentModel
 SET documentDetails = ?
 WHERE id = ?;
-
 updateDocumentNote:
 UPDATE DocumentModel
 SET documentNote = ?
@@ -182,7 +201,6 @@ insertDocumentImage:
 INSERT INTO DocumentImage(id, crop, filter, rotation)
 VALUES(?, ?, ?, ?);
 
-
 selectAllDocumentImages:
 SELECT *
 FROM DocumentImage;
@@ -194,6 +212,13 @@ WHERE id = ?;
 
 removeDocumentImage:
 DELETE FROM DocumentImage
+WHERE id = ?;
+
+updateFullDocumentImage:
+UPDATE DocumentImage
+SET crop = ?,
+    filter = ?,
+    rotation = ?
 WHERE id = ?;
 
 updateCrop:

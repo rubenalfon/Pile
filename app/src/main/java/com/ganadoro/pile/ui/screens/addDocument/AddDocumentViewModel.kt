@@ -5,7 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
-import com.ganadoro.pile.models.DocumentStatusConstants
+import com.ganadoro.pile.domain.models.DocumentStatusConstants
+import com.ganadoro.pile.domain.usecase.RequestBitmapLoadUseCase
 import com.ganadoro.pile.repositories.BitmapCacheRepository
 import com.ganadoro.pile.repositories.DocumentImageRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
@@ -23,16 +24,17 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 data class AddDocumentUiState(
-    var documentModel: DocumentModel? = null,
-    var frontPageDocumentImage: DocumentImage? = null,
-    var documentName: String = "",
-    var allPileModels: List<PileModel>? = null,
-    var selectedPileModelIds: List<String> = emptyList(),
-    var noDocumentNameError: Boolean = false
+    val documentModel: DocumentModel? = null,
+    val frontPageDocumentImage: DocumentImage? = null,
+    val documentName: String = "",
+    val allPileModels: List<PileModel>? = null,
+    val selectedPileModelIds: List<String> = emptyList(),
+    val noDocumentNameError: Boolean = false
 )
 
 class AddDocumentViewModel(
     private val documentId: String,
+    private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
     private val documentModelRepository: DocumentModelRepository,
     private val pileModelRepository: PileModelRepository,
     private val documentImageRepository: DocumentImageRepository,
@@ -86,9 +88,9 @@ class AddDocumentViewModel(
     }
 
     fun requestBitmapLoad(pageNumber: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val documentModel = uiState.value.documentModel ?: return@launch
-            bitmapCacheRepository.loadBitmap(document = documentModel, pageNumber)
+        viewModelScope.launch {
+            val document = uiState.value.documentModel ?: return@launch
+            requestBitmapLoadUseCase(document, pageNumber)
         }
     }
 

@@ -1,4 +1,4 @@
-package com.ganadoro.pile.models
+package com.ganadoro.pile.domain.models
 
 data class ImageCropData(
     val x: Float,

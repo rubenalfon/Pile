@@ -1,1 +1,0 @@
-ALTER TABLE DocumentModel ADD COLUMN isIncomingPdf INTEGER AS Boolean NOT NULL DEFAULT 0;

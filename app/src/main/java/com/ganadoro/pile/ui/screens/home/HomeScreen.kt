@@ -87,7 +87,7 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
-import com.ganadoro.pile.models.DocumentStatusConstants.TEMPORARY
+import com.ganadoro.pile.domain.models.DocumentStatusConstants.TEMPORARY
 import com.ganadoro.pile.ui.composables.AlertNewPile
 import com.ganadoro.pile.ui.composables.LoadingWrapper
 import com.ganadoro.pile.ui.composables.SwipeBox
@@ -96,7 +96,6 @@ import com.ganadoro.pile.ui.composables.itemPileGrid
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
 import com.ganadoro.pile.ui.screens.search.SearchBarScreen
 import com.ganadoro.pile.util.UriUtils
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -114,11 +113,8 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { document ->
-            Napier.d { "AAAisIncomingPDF: ${document.isIncomingPdf}" }
-            if (document.isIncomingPdf)
-                navigateToAddDocument(document.id)
-            else
-                navigateToEditPDF(document.id)
+            if (document.isIncomingPdf) navigateToAddDocument(document.id)
+            else navigateToEditPDF(document.id)
         }
     }
 
@@ -280,7 +276,6 @@ fun HomeScreen(
                         }
                     }
 
-
                     item { Spacer(Modifier.height(16.dp)) }
 
                     item {
@@ -327,7 +322,8 @@ fun HomeScreen(
                         documents = uiState.documentList!!,
                         onDocumentClick = navigateToDocumentDetail,
                         bitmapCache = bitmapCache,
-                        onLoadBitmap = viewModel::requestBitmapLoad
+                        onLoadBitmap = viewModel::requestBitmapLoad,
+                        onRequestImageKey = viewModel::requestImageKey
                     )
 
                     item {

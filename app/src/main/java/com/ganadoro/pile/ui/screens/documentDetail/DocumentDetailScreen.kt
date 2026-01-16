@@ -100,8 +100,8 @@ import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
-import com.ganadoro.pile.models.DocumentDetail
-import com.ganadoro.pile.models.StringDetail
+import com.ganadoro.pile.domain.models.DocumentDetail
+import com.ganadoro.pile.domain.models.StringDetail
 import com.ganadoro.pile.ui.composables.LoadingWrapper
 import com.ganadoro.pile.ui.composables.Pile
 import com.ganadoro.pile.ui.composables.SelectPilesBottomSheet
@@ -217,6 +217,7 @@ fun DocumentDetailScreen(
                             documentImages = uiState.documentImages ?: emptyList(),
                             pdfPageCount = uiState.pdfPageNumber,
                             onLoadBitmap = viewModel::requestBitmapLoad,
+                            onRequestImageKey = viewModel::requestImageKey,
                             onClick = viewModel::openDocumentPDF
                         )
 
@@ -362,6 +363,7 @@ private fun ImagePager(
     documentImages: List<DocumentImage>,
     pdfPageCount: Int?,
     onLoadBitmap: suspend (pageNumber: Int) -> Unit,
+    onRequestImageKey: (pageNumber: Int) -> String,
     onClick: () -> Unit
 ) {
     val pageCount: Int = pdfPageCount ?: documentImages.size
@@ -393,14 +395,11 @@ private fun ImagePager(
                 .background(MaterialTheme.colorScheme.surfaceContainer)
                 .clickable { onClick.invoke() }
         ) { page ->
-            val document = documentModel ?: return@HorizontalPager
-            val imageId = if (document.isIncomingPdf) document.id + page.toString()
-            else document.imageIds.getOrNull(page)
+            val key = onRequestImageKey(page)
+            val cachedBitmap: Bitmap? = bitmapCache[key]
 
-            val cachedBitmap: Bitmap? = imageId?.let { bitmapCache[it] }
-
-            if (cachedBitmap == null && imageId != null) {
-                LaunchedEffect(key1 = imageId) {
+            if (cachedBitmap == null ) {
+                LaunchedEffect(key1 = key) {
                     onLoadBitmap(page)
                 }
             }

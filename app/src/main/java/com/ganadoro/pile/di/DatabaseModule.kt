@@ -7,9 +7,9 @@ import com.ganadoro.pile.Database
 import com.ganadoro.pile.DatabaseQueries
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
-import com.ganadoro.pile.models.DocumentDetail
-import com.ganadoro.pile.models.DocumentStatus
-import com.ganadoro.pile.models.ImageCropData
+import com.ganadoro.pile.domain.models.DocumentDetail
+import com.ganadoro.pile.domain.models.DocumentStatus
+import com.ganadoro.pile.domain.models.ImageCropData
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module

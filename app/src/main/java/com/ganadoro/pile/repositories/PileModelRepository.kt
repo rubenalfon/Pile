@@ -5,57 +5,67 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.ganadoro.pile.DatabaseQueries
 import com.ganadoro.pile.PileModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 
 interface PileModelRepository {
     val pileModels: Flow<List<PileModel>>
     suspend fun getAllPileModels(): List<PileModel>
-    suspend fun getPileModelById(id: String): Flow<PileModel?>
-    suspend fun getPileModelsByIds(ids: List<String>): Flow<List<PileModel>>
+    fun getPileModelById(id: String): Flow<PileModel?>
+    fun getPileModelsByIds(ids: List<String>): Flow<List<PileModel>>
     suspend fun insertPileModel(pileModel: PileModel)
     suspend fun updatePileModel(pileModel: PileModel)
     suspend fun deletePileModel(id: String)
 }
 
 class PileModelRepositoryImpl(
-    private val databaseQueries: DatabaseQueries
+    private val databaseQueries: DatabaseQueries,
+    private val ioDispatcher: CoroutineDispatcher
 ) : PileModelRepository {
 
     override val pileModels: Flow<List<PileModel>> = databaseQueries.selectAllPileModels()
         .asFlow()
-        .mapToList(Dispatchers.IO)
+        .mapToList(ioDispatcher)
 
 
-    override suspend fun getAllPileModels(): List<PileModel> {
-        return databaseQueries.selectAllPileModels().executeAsList()
+    override suspend fun getAllPileModels(): List<PileModel> = withContext(ioDispatcher) {
+        databaseQueries.selectAllPileModels().executeAsList()
     }
 
-    override suspend fun getPileModelById(id: String): Flow<PileModel?> {
-        return databaseQueries.selectPileModelById(id).asFlow().mapToOneOrNull(Dispatchers.IO)
-    }
+    override fun getPileModelById(id: String): Flow<PileModel?> =
+        databaseQueries.selectPileModelById(id).asFlow().mapToOneOrNull(ioDispatcher)
 
-    override suspend fun getPileModelsByIds(ids: List<String>): Flow<List<PileModel>> {
-        return databaseQueries.selectPileModelsById(ids).asFlow().mapToList(Dispatchers.IO)
-    }
+    override fun getPileModelsByIds(ids: List<String>): Flow<List<PileModel>> =
+        databaseQueries.selectPileModelsById(ids).asFlow().mapToList(ioDispatcher)
+
 
     override suspend fun insertPileModel(pileModel: PileModel) {
-        databaseQueries.insertPileModel(
-            id = pileModel.id,
-            name = pileModel.name.trim(),
-            iconId = pileModel.iconId,
-            colorNumber = pileModel.colorNumber
-        )
+        withContext(ioDispatcher) {
+            databaseQueries.insertPileModel(
+                id = pileModel.id,
+                name = pileModel.name,
+                iconId = pileModel.iconId,
+                colorNumber = pileModel.colorNumber
+            )
+        }
     }
 
     override suspend fun updatePileModel(pileModel: PileModel) {
-        databaseQueries.updatePileModelName(pileModel.name.trim(), pileModel.id)
-        databaseQueries.updatePileModelIcon(pileModel.iconId, pileModel.id)
-        databaseQueries.updatePileModelColor(pileModel.colorNumber, pileModel.id)
+        withContext(ioDispatcher) {
+            databaseQueries.updatePileModel(
+                pileModel.name,
+                pileModel.iconId,
+                pileModel.colorNumber,
+                pileModel.id
+            )
+        }
     }
 
     override suspend fun deletePileModel(id: String) {
-        databaseQueries.removePileModel(id)
+        withContext(ioDispatcher) {
+            databaseQueries.removePileModel(id)
+        }
     }
 }

@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.DocumentModel
-import com.ganadoro.pile.models.DocumentStatusConstants
+import com.ganadoro.pile.domain.models.DocumentStatusConstants
 import java.time.LocalDate
 
 fun LazyListScope.itemDocumentsCompleteList(
@@ -23,6 +23,7 @@ fun LazyListScope.itemDocumentsCompleteList(
     documents: List<DocumentModel>,
     bitmapCache: Map<String, Bitmap>,
     onLoadBitmap: suspend (document: DocumentModel, pageNumber: Int) -> Unit,
+    onRequestImageKey: (document: DocumentModel, pageNumber: Int) -> String,
     onDocumentClick: (documentId: String) -> Unit = {}
 ) {
     val groupedDocuments: List<Pair<LocalDate, List<DocumentModel>>> =
@@ -63,13 +64,11 @@ fun LazyListScope.itemDocumentsCompleteList(
             verticalSpacing = 16.dp,
             horizontalPadding = 16.dp,
             content = { modifier, document ->
-                val imageId = if (document.isIncomingPdf) document.id + 0.toString()
-                else document.imageIds.firstOrNull()
+                val key = onRequestImageKey(document, 0)
+                val cachedBitmap: Bitmap? = bitmapCache[key]
 
-                val cachedBitmap: Bitmap? = imageId?.let { bitmapCache[it] }
-
-                if (cachedBitmap == null && imageId != null) {
-                    LaunchedEffect(key1 = imageId) {
+                if (cachedBitmap == null) {
+                    LaunchedEffect(key1 = key) {
                         onLoadBitmap(document, 0)
                     }
                 }

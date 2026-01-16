@@ -1,51 +1,42 @@
 package com.ganadoro.pile.ui.screens.home
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
-import com.ganadoro.pile.models.DocumentStatusConstants.TEMPORARY
+import com.ganadoro.pile.domain.models.TemporaryDocumentBackup
+import com.ganadoro.pile.domain.usecase.CreateDocumentUseCase
+import com.ganadoro.pile.domain.usecase.CreatePileUseCase
+import com.ganadoro.pile.domain.usecase.ManageTemporaryDocumentUseCase
+import com.ganadoro.pile.domain.usecase.RequestBitmapLoadUseCase
 import com.ganadoro.pile.repositories.BitmapCacheRepository
-import com.ganadoro.pile.repositories.DocumentImageRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
-import com.ganadoro.pile.util.FileUtils
-import com.ganadoro.pile.util.copyUriFile
-import com.ganadoro.pile.util.saveResizedImagesToInternalStorage
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.time.LocalDateTime
-import java.util.UUID
 
 data class HomeUiState(
-    var pileModels: List<PileModel>? = null,
-    var documentList: List<DocumentModel>? = null,
-    var coloredPileIds: List<String>? = null,
+    val pileModels: List<PileModel>? = null,
+    val documentList: List<DocumentModel>? = null,
+    val coloredPileIds: List<String>? = null,
 )
 
-
-@SuppressLint("StaticFieldLeak")
 class HomeViewModel(
-    private val context: Context, // Is safe,
+    private val createDocumentUseCase: CreateDocumentUseCase,
+    private val manageTemporaryDocumentUseCase: ManageTemporaryDocumentUseCase,
+    private val createPileUseCase: CreatePileUseCase,
+    private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
     private val pileModelRepository: PileModelRepository,
     private val documentModelRepository: DocumentModelRepository,
-    private val bitmapCacheRepository: BitmapCacheRepository,
-    private val documentImageRepository: DocumentImageRepository
+    private val bitmapCacheRepository: BitmapCacheRepository
 ) : ViewModel() {
     private var _uiState = MutableStateFlow(HomeUiState())
     var uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -55,12 +46,8 @@ class HomeViewModel(
     private val _navigationEvent = Channel<DocumentModel>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
-    private data class UnsavedBackup(
-        val document: DocumentModel,
-        val images: List<DocumentImage>
-    )
 
-    private var backupUnsavedDocument: UnsavedBackup? = null
+    private var backupUnsavedDocument: TemporaryDocumentBackup? = null
 
     init {
         viewModelScope.launch {
@@ -82,189 +69,57 @@ class HomeViewModel(
         }
     }
 
-    override fun onCleared() {
+    override fun onCleared() { // TODO: Work manager ?
         super.onCleared()
         confirmErasureUnsavedDeletedDocument()
     }
 
     fun requestBitmapLoad(document: DocumentModel, pageNumber: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            bitmapCacheRepository.loadBitmap(document = document, pageNumber)
+        viewModelScope.launch {
+            requestBitmapLoadUseCase(document, pageNumber)
         }
     }
+
+    fun requestImageKey(document: DocumentModel, pageNumber: Int): String =
+        bitmapCacheRepository.getImageKey(document, pageNumber)
 
     fun addPile(pileName: String, iconId: String, color: Long) {
         viewModelScope.launch {
-            val newPile = PileModel(
-                id = UUID.randomUUID().toString(),
-                name = pileName,
-                iconId = iconId,
-                colorNumber = color
-            )
-
-            pileModelRepository.insertPileModel(newPile)
-        }
-    }
-
-    private suspend fun processNewDocument(
-        processFileAction: suspend (document: DocumentModel) -> DocumentModel
-    ) {
-        val temporalDocument =
-            documentModelRepository.getDocumentModelsByStatus(TEMPORARY).first().firstOrNull()
-        if (temporalDocument != null) {
-            completeDeleteUnsavedDocument(temporalDocument)
-        }
-
-        val documentId = UUID.randomUUID().toString()
-        val document = DocumentModel(
-            id = documentId,
-            title = "",
-            imageIds = emptyList(),
-            creationDateTime =      LocalDateTime.now(),
-            modificationDateTime =  LocalDateTime.now(),
-            documentStatus = TEMPORARY,
-            documentDetails = emptyList(),
-            documentOrganizationIds = emptyList(),
-            documentNote = "",
-            documentPileIds = emptyList(),
-            isIncomingPdf = false
-        )
-        try {
-            documentModelRepository.insertDocumentModel(document)
-            val updatedDocument = withContext(Dispatchers.IO) {
-                processFileAction(document)
-            }
-
-            withContext(Dispatchers.IO) {
-                documentModelRepository.updateDocumentModel(updatedDocument)
-            }
-
-            withContext(Dispatchers.Main) {
-                _navigationEvent.send(updatedDocument)
-            }
-        } catch (e: Exception) {
-            Napier.e("Error procesando el nuevo documento", e) // TODO: Error handling
-            try {
-                val file = File(context.filesDir, documentId)
-                file.deleteRecursively()
-
-                documentModelRepository.deleteDocumentModel(document.id)
-            } catch (_: Exception) {
-            }
+            createPileUseCase(pileName, iconId, color)
         }
     }
 
     fun importPDFIntent(uri: Uri) {
-        viewModelScope.launch(Dispatchers.IO) {
-            processNewDocument { document ->
-                val incomingFileName = FileUtils.getFileNameFromUri(context, uri)
-
-                val documentFolder = File(context.filesDir, document.id)
-                documentFolder.mkdir()
-
-                val destinationFileName = "${document.id}.pdf"
-                val destinationFile = File(documentFolder, destinationFileName)
-
-                val updatedDocument =
-                    document.copy(title = incomingFileName ?: "", isIncomingPdf = true)
-
-                try {
-                    destinationFile.copyUriFile(context, uri)
-                } catch (e: Exception) {
-                    Napier.e("Error copiando el archivo", e) // TODO: Error handling
-                }
-
-                return@processNewDocument updatedDocument
+        viewModelScope.launch {
+            try {
+                val newDoc = createDocumentUseCase.createFromPdf(uri)
+                _navigationEvent.send(newDoc)
+            } catch (e: Exception) {
+                Napier.e("Error importing PDF", e)
+                // TODO: show in ui, toast
             }
         }
     }
 
     fun importFromGalleryIntent(uriList: List<Uri>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            processNewDocument { document ->
-                val imageFileList = saveResizedImagesToInternalStorage(
-                    context = context,
-                    uris = uriList,
-                    documentId = document.id
-                )
-
-                for (image in imageFileList) {
-                    val documentImage =
-                        DocumentImage(id = image.name, crop = null, filter = 0, rotation = 0)
-                    documentImageRepository.insertDocumentImage(documentImage)
-                }
-
-                val updatedDocument = document.copy(imageIds = imageFileList.map { it.name })
-                return@processNewDocument updatedDocument
+        viewModelScope.launch {
+            try {
+                val newDoc = createDocumentUseCase.createFromImages(uriList)
+                _navigationEvent.send(newDoc)
+            } catch (e: Exception) {
+                Napier.e("Error importing images", e)
+                // TODO: show in ui, toast
             }
         }
     }
 
     fun takePhoto(uri: Uri) {
-        viewModelScope.launch(Dispatchers.IO) {
-            processNewDocument { document ->
-                val imageFileList = saveResizedImagesToInternalStorage(
-                    context = context,
-                    uris = listOf(uri),
-                    documentId = document.id
-                )
-
-                for (image in imageFileList) {
-                    val documentImage = DocumentImage(
-                        id = image.name,
-                        crop = null,
-                        filter = 0,
-                        rotation = 0
-                    )
-
-                    documentImageRepository.insertDocumentImage(documentImage)
-                }
-
-                val updatedDocument = document.copy(imageIds = imageFileList.map { it.name })
-                return@processNewDocument updatedDocument
-            }
-        }
-    }
-
-    private suspend fun completeDeleteUnsavedDocument(documentToDelete: DocumentModel) {
-        withContext(Dispatchers.IO) {
-            val documentImages = documentToDelete.imageIds.mapNotNull { id ->
-                documentImageRepository.getDocumentImageById(id).first()
-            }
-
-            documentModelRepository.deleteDocumentModel(documentToDelete.id)
-
-            for (image in documentImages) {
-                documentImageRepository.deleteDocumentImage(image.id)
-            }
-
-
-            val folder = File(context.filesDir, documentToDelete.id)
-            folder.deleteRecursively()
-        }
+        importFromGalleryIntent(listOf(uri))
     }
 
     fun partialDeleteUnsavedDocument() {
-        val documentToDelete = _uiState.value.documentList?.find {
-            it.documentStatus == TEMPORARY
-        } ?: return
-
         viewModelScope.launch {
-            val documentImages = documentToDelete.imageIds.mapNotNull { id ->
-                documentImageRepository.getDocumentImageById(id).first()
-            }
-
-            backupUnsavedDocument = UnsavedBackup(
-                document = documentToDelete,
-                images = documentImages
-            )
-
-            withContext(Dispatchers.IO) {
-                documentModelRepository.deleteDocumentModel(documentToDelete.id)
-                for (image in documentImages) {
-                    documentImageRepository.deleteDocumentImage(image.id)
-                }
-            }
+            manageTemporaryDocumentUseCase.deleteForUndo()
         }
     }
 
@@ -272,26 +127,27 @@ class HomeViewModel(
         val backup = backupUnsavedDocument ?: return
 
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                documentModelRepository.insertDocumentModel(backup.document)
-
-                for (documentImage in backup.images) {
-                    documentImageRepository.insertDocumentImage(documentImage)
-                }
+            try {
+                backupUnsavedDocument = null
+                manageTemporaryDocumentUseCase.restoreBackup(backup)
+            } catch (e: Exception) {
+                // TODO: show in ui, toast
             }
-            backupUnsavedDocument = null
         }
     }
 
     fun confirmErasureUnsavedDeletedDocument() {
         val backup = backupUnsavedDocument ?: return
-        val folderName = backup.document.id
+        val documentId = backup.document.id
 
         backupUnsavedDocument = null
 
-        viewModelScope.launch(Dispatchers.IO) {
-            val folder = File(context.filesDir, folderName)
-            folder.deleteRecursively()
+        viewModelScope.launch {
+            try {
+                manageTemporaryDocumentUseCase.confirmPermanentDeletion(documentId)
+            } catch (e: Exception) {
+                // TODO: show in ui, toast
+            }
         }
     }
 }

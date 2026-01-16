@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
-import com.ganadoro.pile.models.StringDetail
+import com.ganadoro.pile.domain.models.StringDetail
+import com.ganadoro.pile.domain.usecase.RequestBitmapLoadUseCase
 import com.ganadoro.pile.repositories.BitmapCacheRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
@@ -20,16 +21,17 @@ import java.lang.Thread.sleep
 import java.time.LocalDate
 
 data class SearchBarUiState(
-    var pileList: List<PileModel>? = null,
-    var documentList: List<DocumentModel>? = null,
-    var filteredDocumentList: List<DocumentModel> = emptyList(),
-    var searchQuery: String = "",
+    val pileList: List<PileModel>? = null,
+    val documentList: List<DocumentModel>? = null,
+    val filteredDocumentList: List<DocumentModel> = emptyList(),
+    val searchQuery: String = "",
     val selectedFilterPiles: List<String> = emptyList(),
     val selectedFilterDate: LocalDate? = null
 )
 
 
 class SearchBarViewModel(
+    private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
     private val pileRepository: PileModelRepository,
     private val documentRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository
@@ -81,10 +83,13 @@ class SearchBarViewModel(
     }
 
     fun requestBitmapLoad(document: DocumentModel, pageNumber: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            bitmapCacheRepository.loadBitmap(document = document, pageNumber)
+        viewModelScope.launch {
+            requestBitmapLoadUseCase(document, pageNumber)
         }
     }
+
+    fun requestImageKey(document: DocumentModel, pageNumber: Int): String =
+        bitmapCacheRepository.getImageKey(document, pageNumber)
 
     fun updateSearchQuery(query: String) {
         _uiState.update {

@@ -1,7 +1,9 @@
 package com.ganadoro.pile
 
 import android.app.Application
+import com.ganadoro.pile.di.appModule
 import com.ganadoro.pile.di.databaseModule
+import com.ganadoro.pile.di.domainModule
 import com.ganadoro.pile.di.repositoriesModule
 import com.ganadoro.pile.di.viewmodelModule
 import io.github.aakira.napier.DebugAntilog
@@ -18,13 +20,14 @@ class App : Application() {
         Napier.base(DebugAntilog())
 //        }
 
-        startKoin(
-        ) {
+        startKoin {
             androidLogger()
             androidContext(this@App)
             modules(
+                appModule,
                 databaseModule,
                 repositoriesModule,
+                domainModule,
                 viewmodelModule
             )
         }

@@ -5,73 +5,85 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.ganadoro.pile.DatabaseQueries
 import com.ganadoro.pile.DocumentModel
-import com.ganadoro.pile.models.DocumentStatus
-import kotlinx.coroutines.Dispatchers
+import com.ganadoro.pile.domain.models.DocumentStatus
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
-interface DocumentModelRepository {    
+interface DocumentModelRepository {
     val documentModels: Flow<List<DocumentModel>>
     suspend fun getAllDocumentModels(): List<DocumentModel>
-    suspend fun getDocumentModelById(id: String): Flow<DocumentModel?>
-    suspend fun getDocumentModelsByPileId(pileId: String): Flow<List<DocumentModel>>
-
-    suspend fun getDocumentModelsByStatus(documentStatus: DocumentStatus): Flow<List<DocumentModel>>
+    fun getDocumentModelById(id: String): Flow<DocumentModel?>
+    fun getDocumentModelsByPileId(pileId: String): Flow<List<DocumentModel>>
+    fun getDocumentModelsByStatus(documentStatus: DocumentStatus): Flow<List<DocumentModel>>
     suspend fun insertDocumentModel(documentModel: DocumentModel)
     suspend fun updateDocumentModel(documentModel: DocumentModel)
     suspend fun deleteDocumentModel(id: String)
 }
 
 class DocumentModelRepositoryImpl(
-    private val databaseQueries: DatabaseQueries
+    private val databaseQueries: DatabaseQueries,
+    private val ioDispatcher: CoroutineDispatcher
 ) : DocumentModelRepository {
     override val documentModels: Flow<List<DocumentModel>> =
-        databaseQueries.selectAllDocumentModels().asFlow().mapToList(Dispatchers.IO)
+        databaseQueries.selectAllDocumentModels().asFlow().mapToList(ioDispatcher)
 
-    override suspend fun getAllDocumentModels(): List<DocumentModel> {
-        return databaseQueries.selectAllDocumentModels().executeAsList()
+    override suspend fun getAllDocumentModels(): List<DocumentModel> = withContext(ioDispatcher) {
+        databaseQueries.selectAllDocumentModels().executeAsList()
     }
 
-    override suspend fun getDocumentModelById(id: String): Flow<DocumentModel?> {
-        return databaseQueries.selectDocumentModelById(id).asFlow().mapToOneOrNull(Dispatchers.IO)
-    }
+    override fun getDocumentModelById(id: String): Flow<DocumentModel?> =
+        databaseQueries.selectDocumentModelById(id).asFlow().mapToOneOrNull(ioDispatcher)
 
-    override suspend fun getDocumentModelsByPileId(pileId: String): Flow<List<DocumentModel>> {
-        return databaseQueries.selectDocumentModelsByPileId(pileId).asFlow().mapToList(Dispatchers.IO)
-    }
 
-    override suspend fun getDocumentModelsByStatus(documentStatus: DocumentStatus): Flow<List<DocumentModel>> {
-        return databaseQueries.selectDocumentModelsByStatus(documentStatus).asFlow().mapToList(Dispatchers.IO)
-    }
+    override fun getDocumentModelsByPileId(pileId: String): Flow<List<DocumentModel>> =
+        databaseQueries.selectDocumentModelsByPileId(pileId).asFlow()
+            .mapToList(ioDispatcher)
+
+
+    override fun getDocumentModelsByStatus(documentStatus: DocumentStatus): Flow<List<DocumentModel>> =
+        databaseQueries.selectDocumentModelsByStatus(documentStatus).asFlow()
+            .mapToList(ioDispatcher)
+
 
     override suspend fun insertDocumentModel(documentModel: DocumentModel) {
-        databaseQueries.insertDocumentModel(
-            id = documentModel.id,
-            title = documentModel.title,
-            imageIds = documentModel.imageIds,
-            creationDateTime = documentModel.creationDateTime,
-            modificationDateTime = documentModel.modificationDateTime,
-            documentStatus = documentModel.documentStatus,
-            documentPileIds = documentModel.documentPileIds,
-            documentDetails = documentModel.documentDetails,
-            documentNote = documentModel.documentNote,
-            documentOrganizationIds = documentModel.documentOrganizationIds,
-            isIncomingPdf = documentModel.isIncomingPdf
-        )
+        withContext(ioDispatcher) {
+            databaseQueries.insertDocumentModel(
+                id = documentModel.id,
+                title = documentModel.title,
+                imageIds = documentModel.imageIds,
+                creationDateTime = documentModel.creationDateTime,
+                modificationDateTime = documentModel.modificationDateTime,
+                documentStatus = documentModel.documentStatus,
+                documentPileIds = documentModel.documentPileIds,
+                documentDetails = documentModel.documentDetails,
+                documentNote = documentModel.documentNote,
+                documentOrganizationIds = documentModel.documentOrganizationIds,
+                isIncomingPdf = documentModel.isIncomingPdf
+            )
+        }
     }
 
     override suspend fun updateDocumentModel(documentModel: DocumentModel) {
-        databaseQueries.updateDocumentTitle(documentModel.title, documentModel.id)
-        databaseQueries.updateDocumentImageIds(documentModel.imageIds, documentModel.id)
-        databaseQueries.updateDocumentModificationDateTime(documentModel.modificationDateTime, documentModel.id)
-        databaseQueries.updateDocumentStatus(documentModel.documentStatus, documentModel.id)
-        databaseQueries.updateDocumentPileIds(documentModel.documentPileIds, documentModel.id)
-        databaseQueries.updateDocumentDetails(documentModel.documentDetails, documentModel.id)
-        databaseQueries.updateDocumentNote(documentModel.documentNote, documentModel.id)
-        databaseQueries.updateDocumentOrganizationIds(documentModel.documentOrganizationIds, documentModel.id)
-        databaseQueries.updateDocumentIsIncomingPdf(documentModel.isIncomingPdf, documentModel.id)
+        withContext(ioDispatcher) {
+            databaseQueries.updateFullDocumentModel(
+                title = documentModel.title,
+                imageIds = documentModel.imageIds,
+                modificationDateTime = documentModel.modificationDateTime,
+                documentStatus = documentModel.documentStatus,
+                documentPileIds = documentModel.documentPileIds,
+                documentDetails = documentModel.documentDetails,
+                documentNote = documentModel.documentNote,
+                documentOrganizationIds = documentModel.documentOrganizationIds,
+                isIncomingPdf = documentModel.isIncomingPdf,
+                id = documentModel.id
+            )
+        }
     }
 
     override suspend fun deleteDocumentModel(id: String) {
-        databaseQueries.removeDocumentModel(id)
+        withContext(ioDispatcher) {
+            databaseQueries.removeDocumentModel(id)
+        }
     }
 }

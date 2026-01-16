@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.domain.usecase.RequestBitmapLoadUseCase
 import com.ganadoro.pile.repositories.BitmapCacheRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
 import com.ganadoro.pile.repositories.PileModelRepository
@@ -16,12 +17,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class PileDetailUiState(
-    var pile: PileModel? = null,
-    var documentList: List<DocumentModel>? = null
+    val pile: PileModel? = null,
+    val documentList: List<DocumentModel>? = null
 )
 
 class PileDetailViewModel(
     private val pileId: String,
+    private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
     private val pileModelRepository: PileModelRepository,
     private val documentModelRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository
@@ -50,10 +52,13 @@ class PileDetailViewModel(
     }
 
     fun requestBitmapLoad(document: DocumentModel, pageNumber: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            bitmapCacheRepository.loadBitmap(document = document, pageNumber)
+        viewModelScope.launch {
+            requestBitmapLoadUseCase(document, pageNumber)
         }
     }
+
+    fun requestImageKey(document: DocumentModel, pageNumber: Int): String =
+        bitmapCacheRepository.getImageKey(document, pageNumber)
 
     fun updatePile(newPileName: String, newPileIconId: String, newPileColor: Long) {
         viewModelScope.launch(Dispatchers.IO) {
