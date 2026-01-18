@@ -6,16 +6,15 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.Environment
-import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import androidx.core.content.FileProvider
 import androidx.core.graphics.scale
 import androidx.exifinterface.media.ExifInterface
 import com.ganadoro.pile.DocumentModel
+import com.ganadoro.pile.data.util.PdfRenderHelper
 import com.ganadoro.pile.util.copyUriFile
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
@@ -151,11 +150,25 @@ class FileRepositoryImpl(
     private val appContext: Context,
     private val appDirectory: File = appContext.filesDir,
     private val contentResolver: ContentResolver = appContext.contentResolver,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    private val pdfRenderHelper: PdfRenderHelper
 ) : FileRepository {
+    /**
+     * Asegura que el nombre del PDF termine en .pdf sin duplicarlo.
+     */
+    private fun getPDFFileName(documentId: String): String {
+        val cleanId = documentId.removeSuffix(".pdf")
+        return "$cleanId.pdf"
+    }
 
-    private fun getPDFFileName(documentId: String) = "$documentId.pdf"
-    private fun getImageFileName(imageId: String) = "img_$imageId.jpg"
+    /**
+     * Asegura que el nombre de la imagen tenga el prefijo img_ y la extensión .jpg
+     * de forma única.
+     */
+    private fun getImageFileName(imageId: String): String {
+        val cleanId = imageId.removePrefix("img_").removeSuffix(".jpg")
+        return "img_$cleanId.jpg"
+    }
 
     override fun getDocumentDirectory(documentId: String): File = File(appDirectory, documentId)
 
@@ -231,17 +244,7 @@ class FileRepositoryImpl(
     }
 
     override suspend fun getPageCount(documentId: String): Result<Int> =
-        withContext(ioDispatcher) {
-            val pdfFile = getPDFFile(documentId)
-
-            runCatching {
-                ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
-                    PdfRenderer(fd).use { renderer ->
-                        renderer.pageCount
-                    }
-                }
-            }
-        }
+        pdfRenderHelper.getPageCount(getPDFFile(documentId))
 
     override suspend fun createPdfFromImages(documentId: String, bitmaps: List<Bitmap>): File? {
         TODO("Not yet implemented")
@@ -302,7 +305,7 @@ class FileRepositoryImpl(
         try {
             val rotation = getRotationDegrees(uri)
 
-            val fileName = "img_${UUID.randomUUID()}.jpg"
+            val fileName = getImageFileName(UUID.randomUUID().toString())
             val destFile = File(storageDir, fileName)
 
             val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }

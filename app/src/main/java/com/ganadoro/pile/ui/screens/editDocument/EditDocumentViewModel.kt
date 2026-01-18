@@ -1,25 +1,28 @@
 package com.ganadoro.pile.ui.screens.editDocument
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.ColorMatrix
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
+import com.ganadoro.pile.domain.usecase.RequestBitmapLoadUseCase
+import com.ganadoro.pile.repositories.BitmapCacheRepository
 import com.ganadoro.pile.repositories.DocumentImageRepository
 import com.ganadoro.pile.repositories.DocumentModelRepository
-import com.ganadoro.pile.util.createContrastBrightnessMatrix
-import io.github.aakira.napier.Napier
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.File
 
 enum class EditDocumentUIMode {
     SCROLL, COLOR, CROP_ROTATE
@@ -28,76 +31,75 @@ enum class EditDocumentUIMode {
 data class EditDocumentUiState(
     val documentModel: DocumentModel? = null,
     val documentImages: List<DocumentImage> = emptyList(),
-    val originalBitmaps: List<Bitmap> = emptyList(),
-    val modifiedBitmaps: Map<Int, Bitmap> = emptyMap(),
     val selectedImageIndex: Int = 0,
     val uiMode: EditDocumentUIMode = EditDocumentUIMode.SCROLL
 )
 
-@SuppressLint("StaticFieldLeak")
+@OptIn(ExperimentalCoroutinesApi::class)
 class EditPDFViewModel(
-    private val context: Context, // Safe
+    private val documentId: String,
+    private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
     private val documentModelRepository: DocumentModelRepository,
+    private val bitmapCacheRepository: BitmapCacheRepository,
     private val documentImageRepository: DocumentImageRepository
 ) : ViewModel() {
     private var _uiState = MutableStateFlow(EditDocumentUiState())
     var uiState: StateFlow<EditDocumentUiState> = _uiState.asStateFlow()
 
-    var onNext: (() -> Unit)? = null
+    val bitmapCache = bitmapCacheRepository.bitmapCache
 
-    private var colorMatrixList = listOf(
-        ColorMatrix(),
-        ColorMatrix().apply { setSaturation(0f) },
-        ColorMatrix().apply { setSaturation(0f) }.createContrastBrightnessMatrix(2f, -100f)
-    )
+    private val _navigationEvent = Channel<Unit>()
+    val navigationEvent = _navigationEvent.receiveAsFlow()
 
-    fun loadDocument(documentId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val documentModel = documentModelRepository.getDocumentModelById(documentId).first()
-                    ?: return@launch
+    init {
+        viewModelScope.launch {
+            val documentFlow = documentModelRepository.getDocumentModelById(documentId)
+                .distinctUntilChanged()
 
-                val documentImages = documentModel.imageIds.mapNotNull { id ->
-                    documentImageRepository.getDocumentImageById(id).first()
+            val documentImagesFlow = documentFlow
+                .map { it?.imageIds ?: emptyList() }
+                .distinctUntilChanged()
+                .flatMapLatest { ids ->
+                    if (ids.isEmpty()) flowOf(emptyList())
+                    else {
+                        combine(ids.map { documentImageRepository.getDocumentImageById(it) }) { images ->
+                            images.filterNotNull()
+                        }
+                    }
                 }
 
-                _uiState.update {
-                    it.copy(
-                        documentModel = documentModel,
-                        documentImages = documentImages
+            combine(documentFlow, documentImagesFlow) { document, images ->
+                if (document == null) return@combine
+
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        documentModel = document,
+                        documentImages = images
                     )
                 }
-
-                val documentFolder = File(context.filesDir, documentId)
-
-                val imageFiles = documentImages.map { File(documentFolder, it.id) }
-//         ToDO: Cargar bitmaps
-//                val bitmaps = prepareBitmapsFromFiles(imageFiles)
-//
-//                _uiState.update {
-//                    it.copy(originalBitmaps = bitmaps)
-//                }
-            } catch (e: Exception) {
-                Napier.e(e) { "Error cargando el documento $documentId" }
-                // TODO: Gestionar error
-            }
+            }.collect()
         }
     }
 
-
-    fun onNext() {
-//        if (uiState.value.cropEditedBitmaps.isNotEmpty() && uiState.value.cropEditedBitmaps.isNotEmpty()) {
-//            updateDocumentPDF()
-//        }
-
-        onNext?.invoke()
+    fun requestBitmapLoad(pageNumber: Int) {
+        viewModelScope.launch {
+            val document = uiState.value.documentModel ?: return@launch
+            requestBitmapLoadUseCase(document, pageNumber)
+        }
     }
 
-    fun updateUIMode(mode: EditDocumentUIMode) {
-        _uiState.update { it.copy(uiMode = mode) }
+    fun requestImageKey(pageNumber: Int): String {
+        val document = uiState.value.documentModel ?: return ""
+        return bitmapCacheRepository.getImageKey(document, pageNumber)
     }
 
-    fun setSelectedImageIndex(index: Int) {
+    fun updateUIMode(newUiMode: EditDocumentUIMode) {
+        val currentUiMode = uiState.value.uiMode
+        if (currentUiMode == newUiMode) _uiState.update { it.copy(uiMode = EditDocumentUIMode.SCROLL) }
+        else _uiState.update { it.copy(uiMode = newUiMode) }
+    }
+
+    fun setSelectedImageIndex(index: Int) { // TODO: Update and usecase
         if (uiState.value.uiMode != EditDocumentUIMode.SCROLL) return
 
         viewModelScope.launch {
@@ -147,30 +149,10 @@ class EditPDFViewModel(
     }
 
     fun deleteSelectedImage() {
-        val filteredBitmaps = _uiState.value.originalBitmaps.filterIndexed { index, _ ->
-            index != uiState.value.selectedImageIndex
-        }
-
-        _uiState.value = _uiState.value.copy(originalBitmaps = filteredBitmaps)
-    }
-
-    private fun updateDocumentPDF() {
-//        viewModelScope.launch {
-//            val documentFile = File(context.filesDir, uiState.value.documentModel!!.id)
-//
-//            val finalBitmapList = uiState.value.originalBitmaps.mapIndexed { index, original ->
-//                uiState.value.cropEditedBitmaps[index]
-//                    ?: uiState.value.modifiedBitmaps[index]
-//                    ?: original
-//            }
-//
-//            try {
-//                createPdfWithImages(
-//                    bitmaps = finalBitmapList, outputFile = documentFile
-//                )
-//            } catch (ex: Exception) {
-//                Napier.e { "EditPDFViewModel.updateDocumentPDF: ${ex.message}" }
-//            }
+//        val filteredBitmaps = _uiState.value.originalBitmaps.filterIndexed { index, _ ->
+//            index != uiState.value.selectedImageIndex
 //        }
+//
+//        _uiState.value = _uiState.value.copy(originalBitmaps = filteredBitmaps)
     }
 }

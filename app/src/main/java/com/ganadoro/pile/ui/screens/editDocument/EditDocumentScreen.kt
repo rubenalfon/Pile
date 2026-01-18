@@ -43,14 +43,12 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconButtonDefaults.smallContainerSize
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.carousel.CarouselDefaults
-import androidx.compose.material3.carousel.CarouselState
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.material3.toShape
@@ -58,9 +56,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -77,13 +73,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
 import com.ganadoro.pile.ui.composables.LoadingWrapper
+import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.COLOR
+import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.CROP_ROTATE
+import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.SCROLL
 import com.ganadoro.pile.ui.screens.editDocument.composables.AddItemCarousel
-import com.tanishranjan.cropkit.CropController
-import com.tanishranjan.cropkit.CropDefaults
-import com.tanishranjan.cropkit.CropShape
-import com.tanishranjan.cropkit.ImageCropper
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -93,48 +89,14 @@ fun EditDocumentScreen(
     documentId: String,
     popBackStack: () -> Unit,
     onNext: () -> Unit,
-    viewModel: EditPDFViewModel = koinViewModel()
+    viewModel: EditPDFViewModel = koinViewModel { parametersOf(documentId) }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = documentId) {
-        if (uiState.documentModel == null || viewModel.onNext == null) {
-            viewModel.onNext = onNext
-            viewModel.loadDocument(documentId)
-        }
-    }
-
-    val displayBitmaps: List<Bitmap> = remember(
-        uiState.originalBitmaps,
-        uiState.modifiedBitmaps
-    ) {
-        List(uiState.originalBitmaps.size) { i ->
-            uiState.modifiedBitmaps[i] ?: uiState.originalBitmaps[i]
-        }
-    }
+    LaunchedEffect(Unit) { viewModel.navigationEvent.collect { onNext() } }
 
     val colorScheme = MaterialTheme.colorScheme
-    val cropControllers = remember(displayBitmaps) {
-        mutableStateListOf<CropController>().apply {
-            displayBitmaps.forEach { bitmap ->
-                add(
-                    CropController(
-                        bitmap = bitmap,
-                        cropColors = CropDefaults.cropColors(
-                            gridlines = colorScheme.tertiary.copy(0.5f),
-                            cropRectangle = colorScheme.tertiary.copy(0.5f),
-                            handle = colorScheme.tertiary
-                        ),
-                        cropOptions = CropDefaults.cropOptions(
-                            cropShape = CropShape.FreeForm,
-                            touchPadding = 30.dp
-                        )
-                    )
-                )
-            }
-        }
-    }
-
 
     Scaffold(
         modifier = modifier,
@@ -144,7 +106,7 @@ fun EditDocumentScreen(
         }
     ) { innerPadding ->
         LoadingWrapper(
-            uiState.documentModel == null || displayBitmaps.isEmpty()
+            uiState.documentModel == null || uiState.documentImages.isEmpty()
         ) {
             Column(
                 modifier = Modifier
@@ -156,26 +118,25 @@ fun EditDocumentScreen(
                     modifier = Modifier
                         .weight(1f)
                         .padding(bottom = 16.dp),
-                    images = displayBitmaps,
-                    cropControllers = cropControllers,
+                    imageCount = uiState.documentImages.count(),
+                    bitmapCache = bitmapCache,
+                    onLoadBitmap = viewModel::requestBitmapLoad,
+                    onRequestImageKey = viewModel::requestImageKey,
                     uiMode = uiState.uiMode,
                     selectedImageIndex = uiState.selectedImageIndex,
-                    onSelectImage = { index ->
-                        viewModel.setSelectedImageIndex(index)
-                    }
+                    onSelectImageIndex = { viewModel.setSelectedImageIndex(it) }
                 )
 
-                val thumbnailCarouselState =
-                    rememberCarouselState { displayBitmaps.count() + 1 }
-                AnimatedVisibility(visible = uiState.uiMode == EditDocumentUIMode.SCROLL) {
+
+                AnimatedVisibility(visible = uiState.uiMode == SCROLL) {
                     ThumbnailCarousel(
                         modifier = Modifier.padding(bottom = 16.dp),
-                        state = thumbnailCarouselState,
-                        images = displayBitmaps,
+                        imageCount = uiState.documentImages.count(),
+                        bitmapCache = bitmapCache,
+                        onLoadBitmap = viewModel::requestBitmapLoad,
+                        onRequestImageKey = viewModel::requestImageKey,
                         selectedImageIndex = uiState.selectedImageIndex,
-                        onSelectImage = { index ->
-                            viewModel.setSelectedImageIndex(index)
-                        },
+                        onSelectImage = { viewModel.setSelectedImageIndex(it) },
                         onNewImage = { viewModel.addNewImage() }
                     )
                 }
@@ -198,85 +159,65 @@ fun EditDocumentScreen(
 //                    }
 //                }
 
-                AnimatedVisibility(visible = uiState.uiMode == EditDocumentUIMode.CROP_ROTATE) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = {
-                                cropControllers[uiState.selectedImageIndex].rotateAntiClockwise()
-                            }
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.rotate_24px),
-                                    contentDescription = stringResource(R.string.rotate_image_counterclockwise)
-                                )
-                                Text(stringResource(R.string.rotate))
-                            }
-                        }
-                        OutlinedButton(
-                            onClick = {
-                                cropControllers[uiState.selectedImageIndex] = CropController(
-                                    bitmap = displayBitmaps[uiState.selectedImageIndex],
-                                    cropColors = CropDefaults.cropColors(
-                                        gridlines = colorScheme.tertiary.copy(0.5f),
-                                        cropRectangle = colorScheme.tertiary.copy(0.5f),
-                                        handle = colorScheme.tertiary
-                                    ),
-                                    cropOptions = CropDefaults.cropOptions(
-                                        cropShape = CropShape.FreeForm,
-                                        touchPadding = 30.dp
-                                    )
-                                )
-                            }
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.undo_24px),
-                                    contentDescription = stringResource(R.string.reset)
-                                )
-                                Text(stringResource(R.string.reset))
-                            }
-                        }
-                    }
-                }
+//                AnimatedVisibility(visible = uiState.uiMode == EditDocumentUIMode.CROP_ROTATE) {
+//                    Row(
+//                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+//                        modifier = Modifier.padding(bottom = 16.dp)
+//                    ) {
+//                        OutlinedButton(
+//                            onClick = {
+//                                cropControllers[uiState.selectedImageIndex].rotateAntiClockwise()
+//                            }
+//                        ) {
+//                            Row(
+//                                verticalAlignment = Alignment.CenterVertically,
+//                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+//                            ) {
+//                                Icon(
+//                                    painter = painterResource(R.drawable.rotate_24px),
+//                                    contentDescription = stringResource(R.string.rotate_image_counterclockwise)
+//                                )
+//                                Text(stringResource(R.string.rotate))
+//                            }
+//                        }
+//                        OutlinedButton(
+//                            onClick = {
+//                                cropControllers[uiState.selectedImageIndex] = CropController(
+//                                    bitmap = displayBitmaps[uiState.selectedImageIndex],
+//                                    cropColors = CropDefaults.cropColors(
+//                                        gridlines = colorScheme.tertiary.copy(0.5f),
+//                                        cropRectangle = colorScheme.tertiary.copy(0.5f),
+//                                        handle = colorScheme.tertiary
+//                                    ),
+//                                    cropOptions = CropDefaults.cropOptions(
+//                                        cropShape = CropShape.FreeForm,
+//                                        touchPadding = 30.dp
+//                                    )
+//                                )
+//                            }
+//                        ) {
+//                            Row(
+//                                verticalAlignment = Alignment.CenterVertically,
+//                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+//                            ) {
+//                                Icon(
+//                                    painter = painterResource(R.drawable.undo_24px),
+//                                    contentDescription = stringResource(R.string.reset)
+//                                )
+//                                Text(stringResource(R.string.reset))
+//                            }
+//                        }
+//                    }
+//                }
 
                 ToolBar(
                     modifier = Modifier
                         .padding(bottom = ScreenOffset),
                     uiMode = uiState.uiMode,
-                    bitmapCount = displayBitmaps.count(),
-                    onEditImageColors = {
-                        if (uiState.uiMode == EditDocumentUIMode.CROP_ROTATE) {
-                            viewModel.cropImage(cropControllers[uiState.selectedImageIndex].crop())
-                        }
-                        viewModel.updateUIMode(
-                            if (uiState.uiMode != EditDocumentUIMode.COLOR) EditDocumentUIMode.COLOR
-                            else EditDocumentUIMode.SCROLL
-                        )
-                    },
-                    onResizeImage = {
-                        if (uiState.uiMode == EditDocumentUIMode.CROP_ROTATE) {
-                            viewModel.cropImage(cropControllers[uiState.selectedImageIndex].crop())
-                        }
-                        viewModel.updateUIMode(
-                            if (uiState.uiMode != EditDocumentUIMode.CROP_ROTATE) EditDocumentUIMode.CROP_ROTATE
-                            else EditDocumentUIMode.SCROLL
-                        )
-                    },
-                    onDeleteImage = {
-                        viewModel.deleteSelectedImage()
-                        viewModel.updateUIMode(EditDocumentUIMode.SCROLL)
-                    },
-                    onAddDocument = viewModel::onNext
+                    imageCount = uiState.documentImages.count(),
+                    onUpdateUiMode = viewModel::updateUIMode,
+                    onDeleteImage = viewModel::deleteSelectedImage,
+                    onAddDocument = onNext
                 )
             }
         }
@@ -316,15 +257,15 @@ private fun ScreenTopAppBar(
 @Composable
 private fun ImagePager(
     modifier: Modifier = Modifier,
-    images: List<Bitmap>,
-    cropControllers: List<CropController>,
+    imageCount: Int,
+    bitmapCache: Map<String, Bitmap>,
+    onLoadBitmap: suspend (pageNumber: Int) -> Unit,
+    onRequestImageKey: (pageNumber: Int) -> String,
     uiMode: EditDocumentUIMode,
     selectedImageIndex: Int,
-    onSelectImage: (Int) -> Unit
+    onSelectImageIndex: (Int) -> Unit
 ) {
-    val pagerState = rememberPagerState(
-        pageCount = { images.size }
-    )
+    val pagerState = rememberPagerState(pageCount = { imageCount })
 
     var isSelectedImageIndexRecent by rememberSaveable { mutableStateOf(false) }
     var isChangedFromCarouselRecent by rememberSaveable { mutableStateOf(false) }
@@ -348,7 +289,7 @@ private fun ImagePager(
                 if (isSelectedImageIndexRecent) return@collect
 
                 isChangedFromCarouselRecent = true
-                onSelectImage(page)
+                onSelectImageIndex(page)
                 isChangedFromCarouselRecent = false
             }
     }
@@ -357,25 +298,27 @@ private fun ImagePager(
         state = pagerState,
         contentPadding = PaddingValues(horizontal = 16.dp),
         pageSpacing = 16.dp,
-        userScrollEnabled = uiMode == EditDocumentUIMode.SCROLL,
+        userScrollEnabled = uiMode == SCROLL,
         modifier = modifier
     ) { page ->
-        if (uiMode != EditDocumentUIMode.CROP_ROTATE) {
+        val key = onRequestImageKey(page)
+        val cachedBitmap: Bitmap? = bitmapCache[key]
+
+        if (cachedBitmap == null) {
+            LaunchedEffect(key1 = key) {
+                onLoadBitmap(page)
+            }
+        }
+        LoadingWrapper(cachedBitmap == null) {
+            if (cachedBitmap == null) return@LoadingWrapper
             Image(
-                bitmap = images[page].asImageBitmap(),
+                bitmap = cachedBitmap.asImageBitmap(),
                 contentDescription = stringResource(R.string.image_number, page + 1),
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(28.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainerHigh),
                 contentScale = ContentScale.Fit
-            )
-        } else {
-            ImageCropper(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                cropController = cropControllers[page]
             )
         }
     }
@@ -385,14 +328,18 @@ private fun ImagePager(
 @Composable
 private fun ThumbnailCarousel(
     modifier: Modifier = Modifier,
-    state: CarouselState,
-    images: List<Bitmap>,
+    imageCount: Int,
+    bitmapCache: Map<String, Bitmap>,
+    onLoadBitmap: suspend (pageNumber: Int) -> Unit,
+    onRequestImageKey: (pageNumber: Int) -> String,
     selectedImageIndex: Int,
     onSelectImage: (Int) -> Unit,
     onNewImage: () -> Unit
 ) {
+    val thumbnailCarouselState = rememberCarouselState { imageCount + 1 }
+
     HorizontalMultiBrowseCarousel(
-        state = state,
+        state = thumbnailCarouselState,
         modifier = modifier
             .wrapContentHeight()
             .height(84.dp),
@@ -400,8 +347,8 @@ private fun ThumbnailCarousel(
         flingBehavior = CarouselDefaults.noSnapFlingBehavior(),
         itemSpacing = 8.dp,
         contentPadding = PaddingValues(horizontal = 16.dp)
-    ) { i ->
-        if (i == images.count()) {
+    ) { page ->
+        if (page == imageCount) {
             AddItemCarousel(
                 modifier = Modifier
                     .width(84.dp)
@@ -411,7 +358,7 @@ private fun ThumbnailCarousel(
             return@HorizontalMultiBrowseCarousel
         }
 
-        val isSelected = i == selectedImageIndex
+        val isSelected = page == selectedImageIndex
 
         val animatedCornerRadius by animateDpAsState(
             if (isSelected) 42.dp else 20.dp,
@@ -421,22 +368,33 @@ private fun ThumbnailCarousel(
         Box(
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                modifier = Modifier
-                    .aspectRatio(1f)
-                    .then(
-                        key(animatedCornerRadius) {
-                            Modifier.maskClip(RoundedCornerShape(animatedCornerRadius))
+            val key = onRequestImageKey(page)
+            val cachedBitmap: Bitmap? = bitmapCache[key]
+
+            if (cachedBitmap == null) {
+                LaunchedEffect(key1 = key) {
+                    onLoadBitmap(page)
+                }
+            }
+            LoadingWrapper(cachedBitmap == null) {
+                if (cachedBitmap == null) return@LoadingWrapper
+                Image(
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .then(
+                            key(animatedCornerRadius) {
+                                Modifier.maskClip(RoundedCornerShape(animatedCornerRadius))
+                            }
+                        )
+                        .clickable {
+                            onSelectImage.invoke(page)
                         }
-                    )
-                    .clickable {
-                        onSelectImage.invoke(i)
-                    }
-                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                bitmap = images[i].asImageBitmap(),
-                contentDescription = stringResource(R.string.image_number, i + 1),
-                contentScale = ContentScale.Crop
-            )
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                    bitmap = cachedBitmap.asImageBitmap(),
+                    contentDescription = stringResource(R.string.image_number, page + 1),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
             AnimatedVisibility(
                 isSelected,
@@ -542,9 +500,8 @@ private fun EditColorRow(
 private fun ToolBar(
     modifier: Modifier = Modifier,
     uiMode: EditDocumentUIMode,
-    bitmapCount: Int,
-    onEditImageColors: () -> Unit,
-    onResizeImage: () -> Unit,
+    imageCount: Int,
+    onUpdateUiMode: (uiMode: EditDocumentUIMode) -> Unit,
     onDeleteImage: () -> Unit,
     onAddDocument: () -> Unit
 ) {
@@ -558,10 +515,10 @@ private fun ToolBar(
             expanded = true,
             content = {
                 IconButton(
-                    onClick = onEditImageColors,
+                    onClick = { onUpdateUiMode(COLOR) },
                     colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = if (uiMode == EditDocumentUIMode.COLOR) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
-                        contentColor = if (uiMode == EditDocumentUIMode.COLOR) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
+                        containerColor = if (uiMode == COLOR) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+                        contentColor = if (uiMode == COLOR) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
                     )
                 ) {
                     Icon(
@@ -570,9 +527,10 @@ private fun ToolBar(
                     )
                 }
                 IconButton(
-                    onClick = onResizeImage, colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = if (uiMode == EditDocumentUIMode.CROP_ROTATE) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
-                        contentColor = if (uiMode == EditDocumentUIMode.CROP_ROTATE) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
+                    onClick = { onUpdateUiMode(CROP_ROTATE) },
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = if (uiMode == CROP_ROTATE) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+                        contentColor = if (uiMode == CROP_ROTATE) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
                     )
                 ) {
                     Icon(
@@ -581,7 +539,7 @@ private fun ToolBar(
                     )
                 }
                 IconButton(
-                    enabled = bitmapCount > 1,
+                    enabled = imageCount > 1,
                     onClick = { isDeleteImageAlertExpanded = true }
                 ) {
                     Icon(
@@ -593,7 +551,7 @@ private fun ToolBar(
             modifier = Modifier.padding(end = 8.dp)
         )
         AnimatedVisibility(
-            visible = uiMode == EditDocumentUIMode.SCROLL,
+            visible = uiMode == SCROLL,
         ) {
             FloatingActionButton(
                 onClick = onAddDocument,

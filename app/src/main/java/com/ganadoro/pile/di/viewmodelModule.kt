@@ -37,7 +37,9 @@ val viewmodelModule = module {
         DocumentDetailViewModel(documentId, get(), get(), get(), get(), get(), get(), get(), get())
     }
 
-    viewModelOf(::EditPDFViewModel)
+    viewModel { (documentId: String) ->
+        EditPDFViewModel(documentId, get(), get(), get(), get())
+    }
 
     viewModel { (documentId: String) ->
         AddDocumentViewModel(documentId, get(), get(), get(), get(), get())

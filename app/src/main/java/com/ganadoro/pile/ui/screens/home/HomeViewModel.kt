@@ -46,7 +46,6 @@ class HomeViewModel(
     private val _navigationEvent = Channel<DocumentModel>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
-
     private var backupUnsavedDocument: TemporaryDocumentBackup? = null
 
     init {

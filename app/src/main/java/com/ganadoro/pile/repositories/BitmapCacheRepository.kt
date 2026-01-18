@@ -1,15 +1,9 @@
 package com.ganadoro.pile.repositories
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Matrix
-import android.graphics.pdf.PdfRenderer
-import android.os.ParcelFileDescriptor
-import androidx.core.graphics.createBitmap
-import androidx.exifinterface.media.ExifInterface
 import com.ganadoro.pile.DocumentModel
+import com.ganadoro.pile.data.util.ImageTransformationHelper
+import com.ganadoro.pile.data.util.PdfRenderHelper
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,8 +11,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.IOException
-import kotlin.use
 
 /**
  * Repository responsible for loading and holding Bitmap images in memory (RAM).
@@ -63,7 +55,9 @@ interface BitmapCacheRepository {
 }
 
 class BitmapCacheRepositoryImpl(
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    private val imageTransformationHelper: ImageTransformationHelper,
+    private val pdfRenderHelper: PdfRenderHelper
 ) : BitmapCacheRepository {
     private val _bitmapCache = MutableStateFlow<Map<String, Bitmap>>(emptyMap())
     override val bitmapCache: StateFlow<Map<String, Bitmap>> = _bitmapCache.asStateFlow()
@@ -83,9 +77,11 @@ class BitmapCacheRepositoryImpl(
             if (_bitmapCache.value.containsKey(imageId)) return@withContext
 
             val bitmap = if (document.isIncomingPdf) {
-                renderPdfPage(file, pageNumber)
+                pdfRenderHelper.renderPageToBitmap(file, pageNumber)
             } else {
-                prepareBitmapFromFile(file)
+                imageTransformationHelper.transform( // TODO: Hacer bien
+                    file, 0, null, 0
+                )
             }
 
             if (bitmap != null) {
@@ -116,104 +112,4 @@ class BitmapCacheRepositoryImpl(
         }
     }
 
-    /**
-     * Renders a specific page of a PDF file into a [Bitmap].
-     *
-     * @param pdfFile The PDF file to be rendered.
-     * @param pageNumber The zero-based index of the page to render.
-     * @param scale Scaling factor to increase the resolution (DPI) of the output Bitmap.
-     * @return A [Bitmap] of the rendered page, or null if an error occurs.
-     */
-    suspend fun renderPdfPage(
-        pdfFile: File,
-        pageNumber: Int,
-        scale: Float = 5.0f
-    ): Bitmap? = withContext(ioDispatcher) {
-        try {
-            if (!pdfFile.exists()) return@withContext null
-
-            ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
-                PdfRenderer(fd).use { renderer ->
-                    if (pageNumber in 0 until renderer.pageCount) {
-                        renderPage(renderer, pageNumber, scale)
-                    } else null
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            null
-        }
-    }
-
-    /**
-     * Internal helper that performs the actual rendering of a PDF page using [PdfRenderer].
-     *
-     * @param renderer The active [PdfRenderer] instance.
-     * @param pageIndex The zero-based index of the page to open and render.
-     * @param scale The scaling factor to apply to the page dimensions.
-     * @return A [Bitmap] containing the rendered page content.
-     */
-    private fun renderPage(renderer: PdfRenderer, pageIndex: Int, scale: Float): Bitmap {
-        return renderer.openPage(pageIndex).use { page ->
-            val width = (page.width * scale).toInt()
-            val height = (page.height * scale).toInt()
-
-            val bitmap = createBitmap(width, height)
-
-            val canvas = Canvas(bitmap)
-            canvas.drawColor(Color.WHITE)
-
-            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-
-            bitmap
-        }
-    }
-
-
-    /**
-     * Decodes a [Bitmap] from a given file path and applies necessary rotation based on EXIF metadata.
-     *
-     * This function reads the image orientation from the file's EXIF data and rotates the
-     * resulting Bitmap accordingly to ensure it is displayed correctly.
-     *
-     * @param file The image file to be decoded.
-     * @return A [Bitmap] object with correct orientation, or null if decoding fails.
-     */
-    suspend fun prepareBitmapFromFile(
-        file: File
-    ): Bitmap? = withContext(ioDispatcher) {
-        try {
-            val bitmap = BitmapFactory.decodeFile(file.absolutePath) ?: return@withContext null
-
-            val rotation = try {
-                val exif = ExifInterface(file.absolutePath)
-                when (exif.getAttributeInt(
-                    ExifInterface.TAG_ORIENTATION,
-                    ExifInterface.ORIENTATION_NORMAL
-                )) {
-                    ExifInterface.ORIENTATION_ROTATE_90 -> 90
-                    ExifInterface.ORIENTATION_ROTATE_180 -> 180
-                    ExifInterface.ORIENTATION_ROTATE_270 -> 270
-                    else -> 0
-                }
-            } catch (_: Exception) {
-                0
-            }
-
-            if (rotation != 0) {
-                val matrix = Matrix().apply { postRotate(rotation.toFloat()) }
-                val rotated = Bitmap.createBitmap(
-                    bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true
-                )
-
-                if (rotated != bitmap) bitmap.recycle()
-                rotated
-            } else {
-                bitmap
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
 }
