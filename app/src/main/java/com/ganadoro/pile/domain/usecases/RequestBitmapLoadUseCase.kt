@@ -1,8 +1,8 @@
-package com.ganadoro.pile.domain.usecase
+package com.ganadoro.pile.domain.usecases
 
 import com.ganadoro.pile.DocumentModel
-import com.ganadoro.pile.repositories.BitmapCacheRepository
-import com.ganadoro.pile.repositories.FileRepository
+import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
+import com.ganadoro.pile.domain.repositories.FileRepository
 
 /**
  * Use case responsible for resolving the physical file associated with a specific document page

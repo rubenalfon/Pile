@@ -1,4 +1,4 @@
-package com.ganadoro.pile.repositories
+package com.ganadoro.pile.data.repositories
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
@@ -6,20 +6,11 @@ import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.ganadoro.pile.DatabaseQueries
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.domain.models.DocumentStatus
+import com.ganadoro.pile.domain.repositories.DocumentModelRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
-interface DocumentModelRepository {
-    val documentModels: Flow<List<DocumentModel>>
-    suspend fun getAllDocumentModels(): List<DocumentModel>
-    fun getDocumentModelById(id: String): Flow<DocumentModel?>
-    fun getDocumentModelsByPileId(pileId: String): Flow<List<DocumentModel>>
-    fun getDocumentModelsByStatus(documentStatus: DocumentStatus): Flow<List<DocumentModel>>
-    suspend fun insertDocumentModel(documentModel: DocumentModel)
-    suspend fun updateDocumentModel(documentModel: DocumentModel)
-    suspend fun deleteDocumentModel(id: String)
-}
 
 class DocumentModelRepositoryImpl(
     private val databaseQueries: DatabaseQueries,

@@ -6,11 +6,11 @@ import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.domain.models.DocumentStatusConstants
-import com.ganadoro.pile.domain.usecase.RequestBitmapLoadUseCase
-import com.ganadoro.pile.repositories.BitmapCacheRepository
-import com.ganadoro.pile.repositories.DocumentImageRepository
-import com.ganadoro.pile.repositories.DocumentModelRepository
-import com.ganadoro.pile.repositories.PileModelRepository
+import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
+import com.ganadoro.pile.domain.repositories.DocumentImageRepository
+import com.ganadoro.pile.domain.repositories.DocumentModelRepository
+import com.ganadoro.pile.domain.repositories.PileModelRepository
+import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
-import com.ganadoro.pile.domain.usecase.RequestBitmapLoadUseCase
-import com.ganadoro.pile.repositories.BitmapCacheRepository
-import com.ganadoro.pile.repositories.DocumentImageRepository
-import com.ganadoro.pile.repositories.DocumentModelRepository
+import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
+import com.ganadoro.pile.domain.repositories.DocumentImageRepository
+import com.ganadoro.pile.domain.repositories.DocumentModelRepository
+import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

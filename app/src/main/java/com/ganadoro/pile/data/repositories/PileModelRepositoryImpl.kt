@@ -1,24 +1,15 @@
-package com.ganadoro.pile.repositories
+package com.ganadoro.pile.data.repositories
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.ganadoro.pile.DatabaseQueries
 import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.domain.repositories.PileModelRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
-
-interface PileModelRepository {
-    val pileModels: Flow<List<PileModel>>
-    suspend fun getAllPileModels(): List<PileModel>
-    fun getPileModelById(id: String): Flow<PileModel?>
-    fun getPileModelsByIds(ids: List<String>): Flow<List<PileModel>>
-    suspend fun insertPileModel(pileModel: PileModel)
-    suspend fun updatePileModel(pileModel: PileModel)
-    suspend fun deletePileModel(id: String)
-}
 
 class PileModelRepositoryImpl(
     private val databaseQueries: DatabaseQueries,

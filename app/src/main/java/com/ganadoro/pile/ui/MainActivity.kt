@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
-import com.ganadoro.pile.repositories.BitmapCacheRepository
+import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.ui.navigation.Pane
 import com.ganadoro.pile.ui.navigation.PileNavigation
 import com.ganadoro.pile.ui.theme.PileTheme

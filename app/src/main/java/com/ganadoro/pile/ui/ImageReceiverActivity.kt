@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.ganadoro.pile.R
-import com.ganadoro.pile.repositories.DocumentModelRepository
+import com.ganadoro.pile.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.ui.composables.LoadingComposable
 import com.ganadoro.pile.ui.theme.PileTheme
 import org.koin.android.ext.android.inject

@@ -1,7 +1,7 @@
-package com.ganadoro.pile.domain.usecase
+package com.ganadoro.pile.domain.usecases
 
 import com.ganadoro.pile.PileModel
-import com.ganadoro.pile.repositories.PileModelRepository
+import com.ganadoro.pile.domain.repositories.PileModelRepository
 import java.util.UUID
 
 /**

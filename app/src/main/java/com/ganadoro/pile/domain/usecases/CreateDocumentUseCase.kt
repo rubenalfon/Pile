@@ -1,12 +1,12 @@
-package com.ganadoro.pile.domain.usecase
+package com.ganadoro.pile.domain.usecases
 
 import android.net.Uri
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.domain.models.DocumentStatusConstants.TEMPORARY
-import com.ganadoro.pile.repositories.DocumentImageRepository
-import com.ganadoro.pile.repositories.DocumentModelRepository
-import com.ganadoro.pile.repositories.FileRepository
+import com.ganadoro.pile.domain.repositories.DocumentImageRepository
+import com.ganadoro.pile.domain.repositories.DocumentModelRepository
+import com.ganadoro.pile.domain.repositories.FileRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first

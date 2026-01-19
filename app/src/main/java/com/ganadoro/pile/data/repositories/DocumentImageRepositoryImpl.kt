@@ -1,20 +1,14 @@
-package com.ganadoro.pile.repositories
+package com.ganadoro.pile.data.repositories
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.ganadoro.pile.DatabaseQueries
 import com.ganadoro.pile.DocumentImage
+import com.ganadoro.pile.domain.repositories.DocumentImageRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
-interface DocumentImageRepository {
-    suspend fun getAllDocumentImages(): List<DocumentImage>
-    fun getDocumentImageById(id: String): Flow<DocumentImage?>
-    suspend fun insertDocumentImage(documentImage: DocumentImage)
-    suspend fun updateDocumentImage(documentImage: DocumentImage)
-    suspend fun deleteDocumentImage(id: String)
-}
 
 class DocumentImageRepositoryImpl(
     private val databaseQueries: DatabaseQueries,
