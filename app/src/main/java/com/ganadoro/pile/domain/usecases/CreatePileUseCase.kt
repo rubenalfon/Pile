@@ -21,7 +21,7 @@ class CreatePileUseCase(
     suspend operator fun invoke(name: String, iconId: String, color: Long) {
         val pileModel = PileModel(
             id = UUID.randomUUID().toString(),
-            name = "New Pile",
+            name = name,
             iconId = iconId,
             colorNumber = color
         )
