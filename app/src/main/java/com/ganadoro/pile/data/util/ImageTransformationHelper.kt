@@ -7,8 +7,10 @@ import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Matrix
 import android.graphics.Paint
+import androidx.core.graphics.createBitmap
 import androidx.exifinterface.media.ExifInterface
 import com.ganadoro.pile.domain.models.ImageCropData
+import com.ganadoro.pile.domain.models.ImageFilterType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -26,14 +28,14 @@ class ImageTransformationHelper(
      * @param file The source image file.
      * @param rotation Degrees to rotate.
      * @param cropData The cropping parameters.
-     * @param filterId Integer ID representing the filter type (0 = None, 1 = Grayscale, etc.).
+     * @param filter The [ImageFilterType] to be applied.
      * @return The processed [Bitmap].
      */
     suspend fun transform(
         file: File,
         rotation: Int,
         cropData: ImageCropData?,
-        filterId: Int
+        filter: ImageFilterType
     ): Bitmap = withContext(ioDispatcher) {
         var bitmap = BitmapFactory.decodeFile(file.absolutePath)
             ?: throw IllegalArgumentException("Could not decode file: ${file.absolutePath}")
@@ -44,7 +46,7 @@ class ImageTransformationHelper(
 
         if (cropData != null) bitmap = cropBitmap(bitmap, cropData)
 
-        if (filterId != 0) bitmap = applyFilter(bitmap, filterId)
+        if (filter != ImageFilterType.ORIGINAL) bitmap = applyFilter(bitmap, filter)
 
         return@withContext bitmap
     }
@@ -116,34 +118,38 @@ class ImageTransformationHelper(
     }
 
     /**
-     * Applies a color filter (Grayscale, B&W, etc.) using a Canvas.
+     * Applies a color filter to the bitmap using a Canvas.
      * Recycles the input bitmap to save memory.
      *
      * @param source The source bitmap to be filtered.
-     * @param filterId Integer ID representing the filter type (0 = None, 1 = Grayscale, etc.).
+     * @param filter The [ImageFilterType] to be applied.
      * @return The filtered [Bitmap].
      */
-    private fun applyFilter(source: Bitmap, filterId: Int): Bitmap {
-        val result = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)
+    private fun applyFilter(source: Bitmap, filter: ImageFilterType): Bitmap {
+        val result = createBitmap(source.width, source.height)
         val canvas = Canvas(result)
 
         val paint = Paint()
         val colorMatrix = ColorMatrix()
 
-        when (filterId) {
-            1 -> colorMatrix.setSaturation(0f)
-            2 -> {
+        when (filter) {
+            ImageFilterType.ORIGINAL -> return source
+            ImageFilterType.GRAYSCALE -> colorMatrix.setSaturation(0f)
+            ImageFilterType.HIGH_CONTRAST -> {
                 colorMatrix.setSaturation(0f)
-                val scale = 1f
-                val translate = 0f
-                colorMatrix.set(
+
+                val contrastMatrix = ColorMatrix()
+                val contrastScale = 2.0f
+                val translateColor = (-128f * contrastScale) + 128f
+                contrastMatrix.set(
                     floatArrayOf(
-                        scale, 0f, 0f, 0f, translate,
-                        0f, scale, 0f, 0f, translate,
-                        0f, 0f, scale, 0f, translate,
+                        contrastScale, 0f, 0f, 0f, translateColor,
+                        0f, contrastScale, 0f, 0f, translateColor,
+                        0f, 0f, contrastScale, 0f, translateColor,
                         0f, 0f, 0f, 1f, 0f
                     )
                 )
+                colorMatrix.postConcat(contrastMatrix)
             }
         }
 

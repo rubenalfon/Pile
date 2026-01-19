@@ -72,6 +72,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
+import com.ganadoro.pile.domain.models.ImageFilterType
 import com.ganadoro.pile.ui.composables.LoadingWrapper
 import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.COLOR
 import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.CROP_ROTATE
@@ -93,10 +94,6 @@ fun EditDocumentScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) { viewModel.navigationEvent.collect { onNext() } }
-
-    val colorScheme = MaterialTheme.colorScheme
 
     Scaffold(
         modifier = modifier,
@@ -141,23 +138,24 @@ fun EditDocumentScreen(
                     )
                 }
 
-//                AnimatedVisibility(visible = uiState.uiMode == EditDocumentUIMode.COLOR) {
-//                    LoadingWrapper(
-//                        modifier = modifier.height(84.dp),
-//                        isLoading = uiState.colorModifiedBitmaps == null
-//                    ) {
-//                        if (uiState.colorModifiedBitmaps == null) return@LoadingWrapper
-//                        EditColorRow(
-//                            modifier = Modifier.padding(bottom = 16.dp),
-//                            colorModifiedImages = uiState.colorModifiedBitmaps!!,
-//                            selectedImageIndex = uiState.selectedColorIndex[uiState.selectedImageIndex]
-//                                ?: 0,
-//                            onSelectImage = { index ->
-//                                viewModel.setSelectedColorIndex(index)
-//                            }
-//                        )
-//                    }
-//                }
+                AnimatedVisibility(visible = uiState.uiMode == COLOR) {
+                    LoadingWrapper(
+                        modifier = modifier.height(84.dp),
+                        isLoading = /*TODO uiState.colorModifiedBitmaps == null*/ false
+                    ) {
+                        val imageFilters = uiState.imageFilters ?: return@LoadingWrapper
+
+                        val selectedDocumentImage =
+                            uiState.documentImages.getOrNull(uiState.selectedImageIndex)
+
+                        EditColorRow(
+                            modifier = Modifier.padding(bottom = 16.dp),
+                            imageFilters = imageFilters,
+                            documentImage = selectedDocumentImage?.filter?.toInt() ?: 0,
+                            onSelectColorIndex = viewModel::setSelectedColorIndex
+                        )
+                    }
+                }
 
 //                AnimatedVisibility(visible = uiState.uiMode == EditDocumentUIMode.CROP_ROTATE) {
 //                    Row(
@@ -430,39 +428,47 @@ private fun ThumbnailCarousel(
 @Composable
 private fun EditColorRow(
     modifier: Modifier = Modifier,
-    colorModifiedImages: List<Bitmap>,
-    selectedImageIndex: Int,
-    onSelectImage: (Int) -> Unit,
+    imageFilters: List<ImageFilterType>,
+    documentImage: Int,
+    onSelectColorIndex: (Int) -> Unit,
 ) {
     LazyRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-        items(colorModifiedImages.size) { i ->
+        items(imageFilters.size) { i ->
             Box(
                 contentAlignment = Alignment.Center
             ) {
-                val isSelected = i == selectedImageIndex
+                val isSelected = i == documentImage
 
                 val animatedCornerRadius by animateDpAsState(
                     if (isSelected) 42.dp else 20.dp,
                     animationSpec = MaterialTheme.motionScheme.slowEffectsSpec(),
                 )
 
-                Image(
-                    modifier = Modifier
+                Box(modifier = Modifier
                         .aspectRatio(1f)
                         .size(84.dp)
                         .clip(RoundedCornerShape(animatedCornerRadius))
                         .clickable {
-                            onSelectImage.invoke(i)
+                            onSelectColorIndex.invoke(i)
                         }
-                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                    bitmap = colorModifiedImages[i].asImageBitmap(),
-                    contentDescription = stringResource(R.string.image_number, i + 1),
-                    contentScale = ContentScale.Crop
-                )
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),)
+//       TODO         Image(
+//                    modifier = Modifier
+//                        .aspectRatio(1f)
+//                        .size(84.dp)
+//                        .clip(RoundedCornerShape(animatedCornerRadius))
+//                        .clickable {
+//                            onSelectColorIndex.invoke(i)
+//                        }
+//                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+//                    bitmap = colorModifiedImages[i].asImageBitmap(),
+//                    contentDescription = stringResource(R.string.image_number, i + 1),
+//                    contentScale = ContentScale.Crop
+//                )
 
                 AnimatedVisibility(
                     isSelected,

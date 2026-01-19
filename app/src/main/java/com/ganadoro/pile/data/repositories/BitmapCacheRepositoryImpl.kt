@@ -5,6 +5,7 @@ import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.data.util.ImageTransformationHelper
 import com.ganadoro.pile.data.util.PdfRenderHelper
+import com.ganadoro.pile.domain.models.ImageFilterType
 import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,7 +49,7 @@ class BitmapCacheRepositoryImpl(
                 file = file,
                 rotation = documentImage?.rotation?.toInt() ?: 0,
                 cropData = documentImage?.crop,
-                filterId = documentImage?.filter?.toInt() ?: 0
+                filter = ImageFilterType.fromId(documentImage?.filter?.toInt() ?: 0)
             )
         }
 
