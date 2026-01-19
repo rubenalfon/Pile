@@ -118,7 +118,7 @@ class HomeViewModel(
 
     fun partialDeleteUnsavedDocument() {
         viewModelScope.launch {
-            manageTemporaryDocumentUseCase.deleteForUndo()
+            backupUnsavedDocument = manageTemporaryDocumentUseCase.deleteForUndo()
         }
     }
 
@@ -130,6 +130,7 @@ class HomeViewModel(
                 backupUnsavedDocument = null
                 manageTemporaryDocumentUseCase.restoreBackup(backup)
             } catch (e: Exception) {
+                Napier.e { "Error restoring backup. Message: ${e.message}" }
                 // TODO: show in ui, toast
             }
         }
