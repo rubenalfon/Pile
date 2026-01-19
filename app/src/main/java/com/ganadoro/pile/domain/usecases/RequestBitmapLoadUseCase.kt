@@ -2,13 +2,16 @@ package com.ganadoro.pile.domain.usecases
 
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
+import com.ganadoro.pile.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.domain.repositories.FileRepository
+import kotlinx.coroutines.flow.firstOrNull
 
 /**
  * Use case responsible for resolving the physical file associated with a specific document page
  * and triggering the bitmap loading process into the cache.
  */
 class RequestBitmapLoadUseCase(
+    private val documentImageRepository: DocumentImageRepository,
     private val bitmapCacheRepository: BitmapCacheRepository,
     private val fileRepository: FileRepository
 ) {
@@ -19,17 +22,27 @@ class RequestBitmapLoadUseCase(
      * @param pageNumber The 0-based index of the page to load.
      */
     suspend operator fun invoke(document: DocumentModel, pageNumber: Int) {
-        val file = if (document.isIncomingPdf) {
-            fileRepository.getPDFFile(document.id)
+        if (document.isIncomingPdf) {
+            val file = fileRepository.getPDFFile(document.id)
+
+            bitmapCacheRepository.loadBitmap(
+                file = file,
+                document = document,
+                pageNumber = pageNumber
+            )
         } else {
             val imageId = document.imageIds.getOrNull(pageNumber) ?: return
-            fileRepository.getImageFile(document.id, imageId)
+            val file = fileRepository.getImageFile(document.id, imageId)
+
+            val documentImage = documentImageRepository.getDocumentImageById(imageId).firstOrNull()
+
+            bitmapCacheRepository.loadBitmap(
+                file = file,
+                document = document,
+                pageNumber = pageNumber,
+                documentImage = documentImage
+            )
         }
 
-        bitmapCacheRepository.loadBitmap(
-            file = file,
-            document = document,
-            pageNumber = pageNumber
-        )
     }
 }

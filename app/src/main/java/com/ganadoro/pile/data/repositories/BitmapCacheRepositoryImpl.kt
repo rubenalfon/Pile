@@ -1,6 +1,7 @@
 package com.ganadoro.pile.data.repositories
 
 import android.graphics.Bitmap
+import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.data.util.ImageTransformationHelper
 import com.ganadoro.pile.data.util.PdfRenderHelper
@@ -30,26 +31,33 @@ class BitmapCacheRepositoryImpl(
         }
     }
 
-    override suspend fun loadBitmap(file: File, document: DocumentModel, pageNumber: Int) =
-        withContext(ioDispatcher) {
-            val imageId = getImageKey(document, pageNumber)
+    override suspend fun loadBitmap(
+        file: File,
+        document: DocumentModel,
+        pageNumber: Int,
+        documentImage: DocumentImage?
+    ) = withContext(ioDispatcher) {
+        val imageId = getImageKey(document, pageNumber)
 
-            if (_bitmapCache.value.containsKey(imageId)) return@withContext
+        if (_bitmapCache.value.containsKey(imageId)) return@withContext
 
-            val bitmap = if (document.isIncomingPdf) {
-                pdfRenderHelper.renderPageToBitmap(file, pageNumber)
-            } else {
-                imageTransformationHelper.transform( // TODO: Hacer bien
-                    file, 0, null, 0
-                )
-            }
+        val bitmap = if (document.isIncomingPdf) {
+            pdfRenderHelper.renderPageToBitmap(file, pageNumber)
+        } else {
+            imageTransformationHelper.transform(
+                file = file,
+                rotation = documentImage?.rotation?.toInt() ?: 0,
+                cropData = documentImage?.crop,
+                filterId = documentImage?.filter?.toInt() ?: 0
+            )
+        }
 
-            if (bitmap != null) {
-                _bitmapCache.update { currentCache ->
-                    currentCache + (imageId to bitmap)
-                }
+        if (bitmap != null) {
+            _bitmapCache.update { currentCache ->
+                currentCache + (imageId to bitmap)
             }
         }
+    }
 
     override fun removeFromCache(cacheKey: String) {
         _bitmapCache.update { current ->

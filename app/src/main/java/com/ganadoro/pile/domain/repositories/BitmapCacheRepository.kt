@@ -1,6 +1,7 @@
 package com.ganadoro.pile.domain.repositories
 
 import android.graphics.Bitmap
+import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import kotlinx.coroutines.flow.StateFlow
 import java.io.File
@@ -32,8 +33,14 @@ interface BitmapCacheRepository {
      * @param file The file containing the image data.
      * @param document The document model containing metadata.
      * @param pageNumber The index of the page to load (0-based).
+     * @param documentImage Additional metadata associated with the image (optional).
      */
-    suspend fun loadBitmap(file: File, document: DocumentModel, pageNumber: Int)
+    suspend fun loadBitmap(
+        file: File,
+        document: DocumentModel,
+        pageNumber: Int,
+        documentImage: DocumentImage? = null
+    )
 
     /**
      * Removes a specific bitmap from memory to free up resources.
