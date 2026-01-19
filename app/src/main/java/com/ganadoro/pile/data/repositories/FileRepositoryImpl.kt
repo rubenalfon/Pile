@@ -16,7 +16,6 @@ import androidx.exifinterface.media.ExifInterface
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.data.util.PdfRenderHelper
 import com.ganadoro.pile.domain.repositories.FileRepository
-import com.ganadoro.pile.util.copyUriFile
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -27,10 +26,6 @@ import java.io.IOException
 import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
-import kotlin.io.copyTo
-import kotlin.io.deleteRecursively
-import kotlin.io.inputStream
-import kotlin.use
 
 
 class FileRepositoryImpl(
@@ -144,7 +139,9 @@ class FileRepositoryImpl(
 
             val destinationFile = File(documentFolder, getPDFFileName(documentId))
 
-            destinationFile.copyUriFile(appContext, uri)
+            copyContentUriToFile(uri, destinationFile)
+
+            destinationFile
         }
 
     override suspend fun exportFileToDownloads(file: File, publicName: String): Result<String> =
@@ -314,5 +311,23 @@ class FileRepositoryImpl(
         }
 
         return source.scale(targetWidth, targetHeight)
+    }
+
+    /**
+     * Copies the content of a URI to a destination file.
+     *
+     * @param sourceUri The URI to copy from.
+     * @param destinationFile The file to copy to.
+     * @throws IllegalStateException if the input stream could not be opened.
+     */
+    private fun copyContentUriToFile(sourceUri: Uri, destinationFile: File) {
+        val inputStream = contentResolver.openInputStream(sourceUri)
+            ?: throw IllegalStateException("The stream for URI $sourceUri could not be opened")
+
+        inputStream.use { input ->
+            destinationFile.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
     }
 }

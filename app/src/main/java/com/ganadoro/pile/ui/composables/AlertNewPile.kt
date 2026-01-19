@@ -50,8 +50,8 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
+import com.ganadoro.pile.ui.models.AppIcons
 import com.ganadoro.pile.ui.theme.ExtendedTheme
-import com.ganadoro.pile.util.IconPack
 
 
 @Composable
@@ -163,7 +163,7 @@ private fun BodyAlertNewPile(
             ) {
                 Icon(
                     painter = painterResource(
-                        IconPack.getIcon(pileIconId) ?: R.drawable.warning_24px
+                        AppIcons.getById(pileIconId)
                     ),
                     contentDescription = null,
                     tint = foregroundColor ?: MaterialTheme.colorScheme.onSurface,
@@ -254,7 +254,7 @@ private fun BodyAlertNewPile(
                 }
 
                 1 -> {
-                    val iconList = IconPack.icons
+                    val iconList = AppIcons.entries
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(5),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -274,7 +274,7 @@ private fun BodyAlertNewPile(
                                 modifier = Modifier.aspectRatio(1f)
                             ) {
                                 Icon(
-                                    painter = painterResource(iconList[index].nameResId),
+                                    painter = painterResource(iconList[index].resourceId),
                                     contentDescription = null,
                                     tint = if (isColorful) customColorList[pileColorNumber.toInt()].colorContainer else MaterialTheme.colorScheme.onSurface
                                 )

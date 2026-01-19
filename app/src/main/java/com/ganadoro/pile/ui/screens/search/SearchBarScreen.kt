@@ -67,7 +67,7 @@ import com.ganadoro.pile.ui.composables.Document
 import com.ganadoro.pile.ui.composables.LoadingWrapper
 import com.ganadoro.pile.ui.composables.SelectPilesBottomSheet
 import com.ganadoro.pile.ui.composables.adaptiveSizeItemsGrid
-import com.ganadoro.pile.util.horizontalPaddingValues
+import com.ganadoro.pile.ui.util.horizontalPaddingValues
 import org.koin.androidx.compose.koinViewModel
 import java.time.Instant
 import java.time.LocalDate

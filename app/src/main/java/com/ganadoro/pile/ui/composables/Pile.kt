@@ -24,9 +24,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.PileModel
-import com.ganadoro.pile.R
+import com.ganadoro.pile.ui.models.AppIcons
 import com.ganadoro.pile.ui.theme.ExtendedTheme
-import com.ganadoro.pile.util.IconPack
 
 @Composable
 fun Pile(
@@ -75,9 +74,7 @@ fun Pile(
             .padding(12.dp)
     ) {
         Icon(
-            painter = painterResource(
-                IconPack.getIcon(pileModel.iconId) ?: R.drawable.warning_24px
-            ),
+            painter = painterResource(AppIcons.getById(pileModel.iconId)),
             contentDescription = null,
             tint = foregroundColor,
             modifier = Modifier
