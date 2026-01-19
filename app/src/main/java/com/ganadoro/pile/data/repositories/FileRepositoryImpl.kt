@@ -65,6 +65,13 @@ class FileRepositoryImpl(
             getDocumentDirectory(documentId).deleteRecursively()
         }
 
+    override suspend fun deleteDocumentImage(
+        documentId: String,
+        imageId: String
+    ): Boolean = withContext(ioDispatcher) {
+        getImageFile(documentId, imageId).delete()
+    }
+
     override fun getUriForFile(file: File): Uri {
         val authority = "${appContext.packageName}.provider"
 

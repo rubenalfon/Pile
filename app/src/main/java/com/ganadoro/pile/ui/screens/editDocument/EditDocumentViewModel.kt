@@ -10,6 +10,7 @@ import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.domain.usecases.ApplyImageFilterUseCase
+import com.ganadoro.pile.domain.usecases.DeleteDocumentPageUseCase
 import com.ganadoro.pile.domain.usecases.GetAvailableFiltersUseCase
 import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,6 +44,7 @@ class EditPDFViewModel(
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
     private val applyImageFilterUseCase: ApplyImageFilterUseCase,
     private val getAvailableFiltersUseCase: GetAvailableFiltersUseCase,
+    private val deleteDocumentPageUseCase: DeleteDocumentPageUseCase,
     private val documentModelRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository,
     private val documentImageRepository: DocumentImageRepository
@@ -113,7 +115,8 @@ class EditPDFViewModel(
         if (uiState.value.uiMode != EditDocumentUIMode.COLOR) return
 
         val document = uiState.value.documentModel ?: return
-        val selectedDocumentImage = uiState.value.documentImages[uiState.value.selectedImageIndex]
+        val selectedImageIndex = uiState.value.selectedImageIndex
+        val selectedDocumentImage = uiState.value.documentImages[selectedImageIndex]
 
         viewModelScope.launch {
             applyImageFilterUseCase(
@@ -128,11 +131,16 @@ class EditPDFViewModel(
 
     }
 
-    fun addNewImage() {// TODO USECASE
+    fun addNewImage() { // TODO USECASE
 
     }
 
-    fun deleteSelectedImage() { // TODO USECASE
+    fun deleteSelectedImage() {
+        val selectedImageIndex = uiState.value.selectedImageIndex
+        val selectedDocumentImage = uiState.value.documentImages[selectedImageIndex]
 
+        viewModelScope.launch {
+            deleteDocumentPageUseCase(documentId = documentId, imageId = selectedDocumentImage.id)
+        }
     }
 }

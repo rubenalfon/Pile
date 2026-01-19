@@ -29,16 +29,16 @@ class ImageTransformationHelper(
      * @param rotation Degrees to rotate.
      * @param cropData The cropping parameters.
      * @param filter The [ImageFilterType] to be applied.
-     * @return The processed [Bitmap].
+     * @return The transformed [Bitmap]. Returns null if the transformation fails.
      */
     suspend fun transform(
         file: File,
         rotation: Int,
         cropData: ImageCropData?,
         filter: ImageFilterType
-    ): Bitmap = withContext(ioDispatcher) {
+    ): Bitmap? = withContext(ioDispatcher) {
         var bitmap = BitmapFactory.decodeFile(file.absolutePath)
-            ?: throw IllegalArgumentException("Could not decode file: ${file.absolutePath}")
+            ?: return@withContext null
 
         val finalRotation = rotation + getExifRotation(file)
 

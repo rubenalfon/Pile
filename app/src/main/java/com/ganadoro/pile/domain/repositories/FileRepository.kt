@@ -44,6 +44,15 @@ interface FileRepository {
     suspend fun deleteDocumentStorage(documentId: String): Boolean
 
     /**
+     * Deletes a specific image file from the document folder.
+     *
+     * @param documentId The unique identifier for the document.
+     * @param imageId The unique identifier for the image file.
+     * @return A [Boolean] indicating whether the operation was successful.
+     */
+    suspend fun deleteDocumentImage(documentId: String, imageId: String): Boolean
+
+    /**
      * Provides a secure [Uri] for a given [File] using a FileProvider.
      * Useful for sharing files with external applications.
      *
