@@ -146,6 +146,7 @@ class HomeViewModel(
             try {
                 manageTemporaryDocumentUseCase.confirmPermanentDeletion(documentId)
             } catch (e: Exception) {
+                Napier.e { "Error deleting document. Message: ${e.message}" }
                 // TODO: show in ui, toast
             }
         }
