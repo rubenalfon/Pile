@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.domain.models.DocumentStatusConstants.TEMPORARY
 import com.ganadoro.pile.domain.models.TemporaryDocumentBackup
 import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.domain.repositories.DocumentModelRepository
@@ -26,6 +27,7 @@ import kotlinx.coroutines.launch
 data class HomeUiState(
     val pileModels: List<PileModel>? = null,
     val documentList: List<DocumentModel>? = null,
+    val temporaryDocument: DocumentModel? = null,
     val coloredPileIds: List<String>? = null,
 )
 
@@ -54,10 +56,12 @@ class HomeViewModel(
 
             pileModelsFlow.combine(documentModelRepository.documentModels) { piles, documents ->
                 val coloredPileIds = documents.flatMap { it.documentPileIds }.distinct()
+                val temporaryDocument = documents.find { it.documentStatus == TEMPORARY }
 
                 HomeUiState(
                     pileModels = piles,
-                    documentList = documents,
+                    documentList = documents.filter { it.documentStatus != TEMPORARY },
+                    temporaryDocument = temporaryDocument,
                     coloredPileIds = coloredPileIds
                 )
             }.collect { finalState ->

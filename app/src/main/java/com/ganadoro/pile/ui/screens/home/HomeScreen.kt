@@ -87,7 +87,6 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
-import com.ganadoro.pile.domain.models.DocumentStatusConstants.TEMPORARY
 import com.ganadoro.pile.ui.composables.AlertNewPile
 import com.ganadoro.pile.ui.composables.LoadingWrapper
 import com.ganadoro.pile.ui.composables.SwipeBox
@@ -232,11 +231,7 @@ fun HomeScreen(
                     item { Spacer(Modifier.height(8.dp)) }
 
                     item {
-                        val tempDocument by remember(uiState.documentList) {
-                            derivedStateOf {
-                                uiState.documentList!!.find { it.documentStatus == TEMPORARY }
-                            }
-                        }
+                        val tempDocument  = uiState.temporaryDocument
                         AnimatedVisibility(
                             visible = tempDocument != null,
                             enter = fadeIn(tween(100)) + expandVertically(),
@@ -246,10 +241,10 @@ fun HomeScreen(
                                 onNavigateUnsavedDocument = {
                                     if (tempDocument == null) return@UnsavedDocumentCard
 
-                                    if (tempDocument!!.isIncomingPdf)
-                                        navigateToAddDocument(tempDocument!!.id)
+                                    if (tempDocument.isIncomingPdf)
+                                        navigateToAddDocument(tempDocument.id)
                                     else
-                                        navigateToEditPDF(tempDocument!!.id)
+                                        navigateToEditPDF(tempDocument.id)
                                 },
                                 onDismiss = {
                                     viewModel.partialDeleteUnsavedDocument()
