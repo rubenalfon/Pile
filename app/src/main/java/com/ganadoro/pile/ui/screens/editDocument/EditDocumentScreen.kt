@@ -11,6 +11,8 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,12 +23,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,15 +51,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
-import androidx.compose.material3.carousel.CarouselDefaults
-import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
-import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -79,6 +79,7 @@ import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.COLOR
 import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.CROP_ROTATE
 import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.SCROLL
 import com.ganadoro.pile.ui.screens.editDocument.composables.AddItemCarousel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -133,7 +134,7 @@ fun EditDocumentScreen(
                 )
 
                 AnimatedVisibility(visible = uiState.uiMode == SCROLL) {
-                    ThumbnailCarousel(
+                    ThumbnailRow(
                         modifier = Modifier.padding(bottom = 16.dp),
                         imageCount = uiState.documentImages.count(),
                         bitmapCache = bitmapCache,
@@ -329,9 +330,8 @@ private fun ImagePager(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ThumbnailCarousel(
+private fun ThumbnailRow(
     modifier: Modifier = Modifier,
     imageCount: Int,
     bitmapCache: Map<String, Bitmap>,
@@ -341,92 +341,136 @@ private fun ThumbnailCarousel(
     onSelectImage: (Int) -> Unit,
     onNewImage: () -> Unit
 ) {
-    val thumbnailCarouselState = rememberCarouselState { imageCount + 1 }
+    val state = rememberLazyListState()
+    var recentlyMoved by remember { mutableStateOf(false) }
 
-    HorizontalMultiBrowseCarousel(
-        state = thumbnailCarouselState,
+    LaunchedEffect(selectedImageIndex) {
+        if (recentlyMoved) return@LaunchedEffect
+        state.animateScrollToItem(selectedImageIndex, -150)
+    }
+    LaunchedEffect(recentlyMoved) {
+        delay(100)
+        recentlyMoved = false
+    }
+
+    Row(
         modifier = modifier
-            .wrapContentHeight()
+            .fillMaxWidth()
             .height(84.dp),
-        preferredItemWidth = 84.dp,
-        flingBehavior = CarouselDefaults.noSnapFlingBehavior(),
-        itemSpacing = 8.dp,
-        contentPadding = PaddingValues(horizontal = 16.dp)
-    ) { page ->
-        if (page == imageCount) {
-            AddItemCarousel(
-                modifier = Modifier
-                    .width(84.dp)
-                    .maskClip(RoundedCornerShape(20.dp)),
-                onItemClick = onNewImage
-            )
-            return@HorizontalMultiBrowseCarousel
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        LazyRow(
+            modifier = Modifier
+                .weight(1f)
+                .height(84.dp)
+                .padding(end = 8.dp),
+            state = state,
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+            contentPadding = PaddingValues(start = 16.dp, end = 0.dp)
+        ) {
+            items(
+                count = imageCount,
+                key = { index -> onRequestImageKey(index) }
+            ) { index ->
+                ThumbnailItem(
+                    modifier = Modifier.animateItem(),
+                    index = index,
+                    isSelected = index == selectedImageIndex,
+                    cacheKey = onRequestImageKey(index),
+                    bitmapCache = bitmapCache,
+                    onLoadBitmap = onLoadBitmap,
+                    onSelect = {
+                        recentlyMoved = true
+                        onSelectImage(it)
+                    }
+                )
+            }
         }
 
-        val isSelected = page == selectedImageIndex
-
-        val animatedCornerRadius by animateDpAsState(
-            if (isSelected) 42.dp else 20.dp,
-            animationSpec = MaterialTheme.motionScheme.slowEffectsSpec(),
+        AddItemCarousel(
+            modifier = Modifier
+                .padding(end = 16.dp)
+                .width(56.dp)
+                .height(84.dp)
+                .clip(RoundedCornerShape(20.dp)),
+            onItemClick = onNewImage
         )
+    }
+}
 
-        Box(
-            contentAlignment = Alignment.Center
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun ThumbnailItem(
+    modifier: Modifier,
+    index: Int,
+    isSelected: Boolean,
+    cacheKey: String,
+    bitmapCache: Map<String, Bitmap>,
+    onLoadBitmap: suspend (Int) -> Unit,
+    onSelect: (Int) -> Unit
+) {
+    val cachedBitmap = bitmapCache[cacheKey]
+
+    LaunchedEffect(cacheKey) {
+        if (cachedBitmap == null) onLoadBitmap(index)
+    }
+
+    val animatedCornerRadius by animateDpAsState(
+        targetValue = if (isSelected) 42.dp else 20.dp,
+        animationSpec = MaterialTheme.motionScheme.slowEffectsSpec(),
+        label = "corner"
+    )
+
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        if (cachedBitmap != null) {
+            Image(
+                bitmap = cachedBitmap.asImageBitmap(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .width(84.dp)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(animatedCornerRadius))
+                    .clickable { onSelect(index) }
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .width(84.dp)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            )
+        }
+
+        AnimatedVisibility(
+            visible = isSelected,
+            enter = fadeIn() + scaleIn(),
+            exit = fadeOut() + scaleOut()
         ) {
-            val key = onRequestImageKey(page)
-            val cachedBitmap: Bitmap? = bitmapCache[key]
+            val infiniteTransition = rememberInfiniteTransition(label = "spin")
+            val angle by infiniteTransition.animateFloat(
+                initialValue = 0f,
+                targetValue = 360f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(15000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart
+                ),
+                label = "angle"
+            )
 
-            if (cachedBitmap == null) {
-                LaunchedEffect(key1 = key) {
-                    onLoadBitmap(page)
-                }
-            }
-            LoadingWrapper(cachedBitmap == null) {
-                if (cachedBitmap == null) return@LoadingWrapper
-                Image(
-                    modifier = Modifier
-                        .aspectRatio(1f)
-                        .then(
-                            key(animatedCornerRadius) {
-                                Modifier.maskClip(RoundedCornerShape(animatedCornerRadius))
-                            }
-                        )
-                        .clickable {
-                            onSelectImage.invoke(page)
-                        }
-                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                    bitmap = cachedBitmap.asImageBitmap(),
-                    contentDescription = stringResource(R.string.image_number, page + 1),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
-            AnimatedVisibility(
-                isSelected,
-                enter = fadeIn(animationSpec = MaterialTheme.motionScheme.slowEffectsSpec()),
-                exit = fadeOut(animationSpec = MaterialTheme.motionScheme.slowEffectsSpec())
-            ) {
-                val infiniteTransition = rememberInfiniteTransition()
-
-                val angle by infiniteTransition.animateFloat(
-                    initialValue = 0f,
-                    targetValue = 360f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(durationMillis = 15000, easing = LinearEasing),
-                        repeatMode = RepeatMode.Restart
-                    )
-                )
-
-                Box(
-                    modifier = Modifier
-                        .size(54.dp)
-                        .graphicsLayer {
-                            rotationZ = angle
-                        }
-                        .clip(MaterialShapes.Cookie9Sided.toShape())
-                        .background(MaterialTheme.colorScheme.surface)
-                )
-            }
+            Box(
+                modifier = Modifier
+                    .size(54.dp)
+                    .graphicsLayer { rotationZ = angle }
+                    .clip(MaterialShapes.Cookie9Sided.toShape())
+                    .background(MaterialTheme.colorScheme.surface)
+            )
         }
     }
 }
