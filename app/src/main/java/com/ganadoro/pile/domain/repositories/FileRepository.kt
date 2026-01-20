@@ -53,6 +53,13 @@ interface FileRepository {
     suspend fun deleteDocumentImage(documentId: String, imageId: String): Boolean
 
     /**
+     * Creates a temporary [Uri] for a image file.
+     *
+     * @return A [Uri] object representing the temporary image file.
+     */
+    fun createTempImageUri(): Uri
+
+    /**
      * Provides a secure [Uri] for a given [File] using a FileProvider.
      * Useful for sharing files with external applications.
      *

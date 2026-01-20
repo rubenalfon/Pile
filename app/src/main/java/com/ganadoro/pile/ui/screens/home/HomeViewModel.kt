@@ -9,6 +9,7 @@ import com.ganadoro.pile.domain.models.DocumentStatusConstants.TEMPORARY
 import com.ganadoro.pile.domain.models.TemporaryDocumentBackup
 import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.domain.repositories.DocumentModelRepository
+import com.ganadoro.pile.domain.repositories.FileRepository
 import com.ganadoro.pile.domain.repositories.PileModelRepository
 import com.ganadoro.pile.domain.usecases.CreateDocumentUseCase
 import com.ganadoro.pile.domain.usecases.CreatePileUseCase
@@ -38,7 +39,8 @@ class HomeViewModel(
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
     private val pileModelRepository: PileModelRepository,
     private val documentModelRepository: DocumentModelRepository,
-    private val bitmapCacheRepository: BitmapCacheRepository
+    private val bitmapCacheRepository: BitmapCacheRepository,
+    private val fileRepository: FileRepository
 ) : ViewModel() {
     private var _uiState = MutableStateFlow(HomeUiState())
     var uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -92,6 +94,8 @@ class HomeViewModel(
         }
     }
 
+    fun handleCameraCapture(): Uri = fileRepository.createTempImageUri()
+
     fun importPDFIntent(uri: Uri) {
         viewModelScope.launch {
             try {
@@ -104,7 +108,7 @@ class HomeViewModel(
         }
     }
 
-    fun importFromGalleryIntent(uriList: List<Uri>) {
+    fun importImagesIntent(uriList: List<Uri>) {
         viewModelScope.launch {
             try {
                 val newDoc = createDocumentUseCase.createFromImages(uriList)
@@ -114,10 +118,6 @@ class HomeViewModel(
                 // TODO: show in ui, toast
             }
         }
-    }
-
-    fun takePhoto(uri: Uri) {
-        importFromGalleryIntent(listOf(uri))
     }
 
     fun partialDeleteUnsavedDocument() {

@@ -72,6 +72,19 @@ class FileRepositoryImpl(
         getImageFile(documentId, imageId).delete()
     }
 
+    override fun createTempImageUri(): Uri {
+        val imageDir = File(appContext.cacheDir, "images")
+        if (!imageDir.exists()) imageDir.mkdirs()
+
+        val imageFile = File.createTempFile("IMG_", ".jpg", imageDir)
+
+        return FileProvider.getUriForFile(
+            appContext,
+            "${appContext.packageName}.provider",
+            imageFile
+        )
+    }
+
     override fun getUriForFile(file: File): Uri {
         val authority = "${appContext.packageName}.provider"
 

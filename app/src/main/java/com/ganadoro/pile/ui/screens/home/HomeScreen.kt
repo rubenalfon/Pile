@@ -1,11 +1,7 @@
 package com.ganadoro.pile.ui.screens.home
 
-import android.net.Uri
 import android.view.MotionEvent
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -68,11 +64,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -92,9 +86,10 @@ import com.ganadoro.pile.ui.composables.LoadingWrapper
 import com.ganadoro.pile.ui.composables.SwipeBox
 import com.ganadoro.pile.ui.composables.itemDocumentsCompleteList
 import com.ganadoro.pile.ui.composables.itemPileGrid
+import com.ganadoro.pile.ui.controllers.ImportActions
+import com.ganadoro.pile.ui.controllers.rememberDocumentImportController
 import com.ganadoro.pile.ui.screens.home.compostables.HomeScreenSectionTitle
 import com.ganadoro.pile.ui.screens.search.SearchBarScreen
-import com.ganadoro.pile.util.UriUtils
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -122,6 +117,12 @@ fun HomeScreen(
     var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
     var isNewPileAlertExpanded by rememberSaveable { mutableStateOf(false) }
 
+    val importActions = rememberDocumentImportController(
+        onPdfSelected = viewModel::importPDFIntent,
+        onImagesSelected = viewModel::importImagesIntent,
+        createTempImageUri = viewModel::handleCameraCapture
+    )
+
     var isSearchBarExpanded by rememberSaveable { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
@@ -141,19 +142,11 @@ fun HomeScreen(
                 !isSearchBarExpanded,
                 enter = fadeIn(), exit = fadeOut()
             ) {
-                FabMenu(
+                FabMenuWithController(
                     modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
                     fabMenuExpanded = fabMenuExpanded,
                     updateFabMenuExpanded = { fabMenuExpanded = it },
-                    onImportPDF = { uri ->
-                        viewModel.importPDFIntent(uri)
-                    },
-                    onImportFromGallery = { uriList ->
-                        viewModel.importFromGalleryIntent(uriList)
-                    },
-                    onTakeAPhoto = { uri ->
-                        viewModel.takePhoto(uri)
-                    }
+                    importActions = importActions
                 )
             }
         },
@@ -231,7 +224,7 @@ fun HomeScreen(
                     item { Spacer(Modifier.height(8.dp)) }
 
                     item {
-                        val tempDocument  = uiState.temporaryDocument
+                        val tempDocument = uiState.temporaryDocument
                         AnimatedVisibility(
                             visible = tempDocument != null,
                             enter = fadeIn(tween(100)) + expandVertically(),
@@ -346,59 +339,29 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun FabMenu( // TODO: Move?
+fun FabMenuWithController(
     modifier: Modifier = Modifier,
     fabMenuExpanded: Boolean,
     updateFabMenuExpanded: (Boolean) -> Unit = {},
-    onImportPDF: (uri: Uri) -> Unit = {},
-    onImportFromGallery: (uriList: List<Uri>) -> Unit = {},
-    onTakeAPhoto: (uri: Uri) -> Unit = {}
+    importActions: ImportActions
 ) {
-    val importPDFLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri ->
-            uri?.let { onImportPDF.invoke(it) }
-        }
-    val mediaLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.PickMultipleVisualMedia()) { uriList ->
-            if (uriList.isNotEmpty()) {
-                onImportFromGallery.invoke(uriList)
-            }
-        }
-
-    val context = LocalContext.current
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
-    val cameraLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicture()) { success ->
-            if (success) {
-                imageUri?.let { onTakeAPhoto.invoke(it) }
-            }
-        }
-
-
-    val items: List<Triple<Painter, String, () -> Unit>> =
-        listOf(
-            Triple(
-                painterResource(R.drawable.ic_clip),
-                stringResource(R.string.import_pdf_file)
-            ) {
-                importPDFLauncher.launch(arrayOf("application/pdf"))
-            },
-            Triple(
-                rememberVectorPainter(Icons.Filled.Photo),
-                stringResource(R.string.import_from_gallery)
-            ) {
-                mediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-            },
-            Triple(
-                rememberVectorPainter(Icons.Filled.CameraAlt),
-                stringResource(R.string.take_a_photo)
-            ) {
-                val uri = UriUtils.createImageUri(context)
-                imageUri = uri
-
-                cameraLauncher.launch(uri)
-            }
+    val items = listOf(
+        Triple(
+            painterResource(R.drawable.ic_clip),
+            stringResource(R.string.import_pdf_file),
+            importActions.launchPdfPicker
+        ),
+        Triple(
+            rememberVectorPainter(Icons.Filled.Photo),
+            stringResource(R.string.import_from_gallery),
+            importActions.launchGallery
+        ),
+        Triple(
+            rememberVectorPainter(Icons.Filled.CameraAlt),
+            stringResource(R.string.take_a_photo),
+            importActions.launchCamera
         )
+    )
 
     BackHandler(fabMenuExpanded) { updateFabMenuExpanded(false) }
 
@@ -435,7 +398,7 @@ fun FabMenu( // TODO: Move?
             }
         }
     ) {
-        items.forEachIndexed { i, item ->
+        items.forEachIndexed { i, (icon, label, action) ->
             FloatingActionButtonMenuItem(
                 modifier =
                     Modifier.semantics {
@@ -445,7 +408,7 @@ fun FabMenu( // TODO: Move?
                                 CustomAccessibilityAction(
                                     label = closeMenuString,
                                     action = {
-                                        item.third
+                                        action()
                                         updateFabMenuExpanded(false)
                                         true
                                     }
@@ -454,11 +417,11 @@ fun FabMenu( // TODO: Move?
                         }
                     },
                 onClick = {
-                    item.third.invoke()
+                    action()
                     updateFabMenuExpanded(false)
                 },
-                icon = { Icon(item.first, contentDescription = null) },
-                text = { Text(text = item.second) },
+                icon = { Icon(icon, contentDescription = null) },
+                text = { Text(text = label) }
             )
         }
     }
