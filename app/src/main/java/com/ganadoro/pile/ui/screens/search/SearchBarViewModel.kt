@@ -11,13 +11,13 @@ import com.ganadoro.pile.domain.repositories.PileModelRepository
 import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.lang.Thread.sleep
 import java.time.LocalDate
 
 data class SearchBarUiState(
@@ -68,7 +68,7 @@ class SearchBarViewModel(
                 )
             }
 
-            sleep(150) // Fixes visual errors in the animation
+            delay(150) // Fixes visual errors in the animation
 
             _uiState.update {
                 it.copy(
