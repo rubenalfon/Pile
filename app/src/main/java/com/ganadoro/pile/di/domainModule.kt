@@ -1,5 +1,6 @@
 package com.ganadoro.pile.di
 
+import com.ganadoro.pile.domain.usecases.AddPageToDocumentUseCase
 import com.ganadoro.pile.domain.usecases.ApplyImageFilterUseCase
 import com.ganadoro.pile.domain.usecases.CreateDocumentUseCase
 import com.ganadoro.pile.domain.usecases.CreatePileUseCase
@@ -22,4 +23,5 @@ val domainModule = module {
     factoryOf(::ApplyImageFilterUseCase)
     factoryOf(::GetAvailableFiltersUseCase)
     factoryOf(::DeleteDocumentPageUseCase)
+    factoryOf(::AddPageToDocumentUseCase)
 }

@@ -31,7 +31,7 @@ data class ImportActions(
  */
 @Composable
 fun rememberDocumentImportController(
-    createTempImageUri: () -> Uri,
+    createTempImageUri: () -> Uri?,
     onPdfSelected: (Uri) -> Unit,
     onImagesSelected: (List<Uri>) -> Unit
 ): ImportActions {
@@ -75,7 +75,7 @@ fun rememberDocumentImportController(
             launchCamera = {
                 val uri = createTempImageUri()
                 tempCameraUri = uri
-                cameraLauncher.launch(uri)
+                uri?.let { cameraLauncher.launch(it) }
             }
         )
     }

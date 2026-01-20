@@ -1,6 +1,7 @@
 package com.ganadoro.pile.ui.screens.editDocument
 
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentImage
@@ -9,10 +10,12 @@ import com.ganadoro.pile.domain.models.ImageFilterType
 import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.domain.repositories.DocumentModelRepository
+import com.ganadoro.pile.domain.usecases.AddPageToDocumentUseCase
 import com.ganadoro.pile.domain.usecases.ApplyImageFilterUseCase
 import com.ganadoro.pile.domain.usecases.DeleteDocumentPageUseCase
 import com.ganadoro.pile.domain.usecases.GetAvailableFiltersUseCase
 import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,6 +45,7 @@ data class EditDocumentUiState(
 class EditPDFViewModel(
     private val documentId: String,
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
+    private val addPageToDocumentUseCase: AddPageToDocumentUseCase,
     private val applyImageFilterUseCase: ApplyImageFilterUseCase,
     private val getAvailableFiltersUseCase: GetAvailableFiltersUseCase,
     private val deleteDocumentPageUseCase: DeleteDocumentPageUseCase,
@@ -131,8 +135,20 @@ class EditPDFViewModel(
 
     }
 
-    fun addNewImage() { // TODO USECASE
+    fun addNewImage(uriList: List<Uri>) {
+        val document = uiState.value.documentModel ?: return
 
+        viewModelScope.launch {
+            try {
+                addPageToDocumentUseCase.invoke(
+                    document,
+                    uriList
+                )
+            } catch (e: Exception) {
+                Napier.e("Error importing images", e)
+                // TODO: show in ui, toast
+            }
+        }
     }
 
     fun deleteSelectedImage() {

@@ -74,6 +74,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
 import com.ganadoro.pile.domain.models.ImageFilterType
 import com.ganadoro.pile.ui.composables.LoadingWrapper
+import com.ganadoro.pile.ui.controllers.rememberDocumentImportController
 import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.COLOR
 import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.CROP_ROTATE
 import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.SCROLL
@@ -94,6 +95,13 @@ fun EditDocumentScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
+
+    // Only intended for selecting images on the gallery.
+    val importActions = rememberDocumentImportController(
+        onPdfSelected = {},
+        onImagesSelected = viewModel::addNewImage,
+        createTempImageUri = { null }
+    )
 
     Scaffold(
         modifier = modifier,
@@ -124,7 +132,6 @@ fun EditDocumentScreen(
                     onSelectImageIndex = { viewModel.setSelectedImageIndex(it) }
                 )
 
-
                 AnimatedVisibility(visible = uiState.uiMode == SCROLL) {
                     ThumbnailCarousel(
                         modifier = Modifier.padding(bottom = 16.dp),
@@ -134,7 +141,7 @@ fun EditDocumentScreen(
                         onRequestImageKey = viewModel::requestImageKey,
                         selectedImageIndex = uiState.selectedImageIndex,
                         onSelectImage = { viewModel.setSelectedImageIndex(it) },
-                        onNewImage = { viewModel.addNewImage() }
+                        onNewImage = importActions.launchGallery
                     )
                 }
 
@@ -351,7 +358,7 @@ private fun ThumbnailCarousel(
                 modifier = Modifier
                     .width(84.dp)
                     .maskClip(RoundedCornerShape(20.dp)),
-                onItemClick = { onNewImage() }
+                onItemClick = onNewImage
             )
             return@HorizontalMultiBrowseCarousel
         }
@@ -448,14 +455,16 @@ private fun EditColorRow(
                     animationSpec = MaterialTheme.motionScheme.slowEffectsSpec(),
                 )
 
-                Box(modifier = Modifier
+                Box(
+                    modifier = Modifier
                         .aspectRatio(1f)
                         .size(84.dp)
                         .clip(RoundedCornerShape(animatedCornerRadius))
                         .clickable {
                             onSelectColorIndex.invoke(i)
                         }
-                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                )
 //       TODO         Image(
 //                    modifier = Modifier
 //                        .aspectRatio(1f)
