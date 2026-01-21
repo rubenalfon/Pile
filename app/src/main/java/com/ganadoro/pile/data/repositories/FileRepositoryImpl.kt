@@ -5,7 +5,9 @@ import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.Matrix
+import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
@@ -13,8 +15,11 @@ import android.provider.OpenableColumns
 import androidx.core.content.FileProvider
 import androidx.core.graphics.scale
 import androidx.exifinterface.media.ExifInterface
+import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
+import com.ganadoro.pile.data.util.ImageTransformationHelper
 import com.ganadoro.pile.data.util.PdfRenderHelper
+import com.ganadoro.pile.domain.models.ImageFilterType
 import com.ganadoro.pile.domain.repositories.FileRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
@@ -33,7 +38,8 @@ class FileRepositoryImpl(
     private val appDirectory: File = appContext.filesDir,
     private val contentResolver: ContentResolver = appContext.contentResolver,
     private val ioDispatcher: CoroutineDispatcher,
-    private val pdfRenderHelper: PdfRenderHelper
+    private val pdfRenderHelper: PdfRenderHelper,
+    private val imageTransformationHelper: ImageTransformationHelper
 ) : FileRepository {
     /**
      * Asegura que el nombre del PDF termine en .pdf sin duplicarlo.
@@ -100,7 +106,7 @@ class FileRepositoryImpl(
             if (document.isIncomingPdf) return@withContext true
 
             val pdfFile = getPDFFile(document.id)
-            if (!pdfFile.exists()) return@withContext false
+            if (!pdfFile.exists()) return@withContext true
 
             val pdfFileLastModification = Instant.ofEpochMilli(pdfFile.lastModified())
                 .atZone(ZoneId.systemDefault())
@@ -136,9 +142,7 @@ class FileRepositoryImpl(
         contentResolver.query(uri, null, null, null, null)?.use { cursor ->
             if (cursor.moveToFirst()) {
                 val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                if (nameIndex != -1) {
-                    fileName = cursor.getString(nameIndex)
-                }
+                if (nameIndex != -1) fileName = cursor.getString(nameIndex)
             }
         }
         fileName = fileName?.substringBeforeLast('.')
@@ -148,8 +152,46 @@ class FileRepositoryImpl(
     override suspend fun getPageCount(documentId: String): Result<Int> =
         pdfRenderHelper.getPageCount(getPDFFile(documentId))
 
-    override suspend fun createPdfFromImages(documentId: String, bitmaps: List<Bitmap>): File? {
-        TODO("Not yet implemented")
+    override suspend fun createPdfFromImages(
+        documentId: String,
+        images: List<DocumentImage>
+    ): File = withContext(ioDispatcher) {
+        val pdfDocument = PdfDocument()
+        val generatedPdfFile = getPDFFile(documentId)
+
+        try {
+            images.forEachIndexed { index, documentImage ->
+                val imageFile = getImageFile(documentId, documentImage.id)
+
+                if (!imageFile.exists()) return@forEachIndexed
+
+                val bitmap = imageTransformationHelper.transform(
+                    file = imageFile,
+                    rotation = documentImage.rotation.toInt(),
+                    cropData = documentImage.crop,
+                    filter = ImageFilterType.fromId(documentImage.filter.toInt())
+                ) ?: return@forEachIndexed
+
+                val pageInfo =
+                    PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, index + 1).create()
+
+                val page = pdfDocument.startPage(pageInfo)
+                val canvas = page.canvas
+
+                canvas.drawColor(Color.WHITE)
+                canvas.drawBitmap(bitmap, 0f, 0f, null)
+                pdfDocument.finishPage(page)
+                bitmap.recycle()
+            }
+
+            FileOutputStream(generatedPdfFile).use { pdfDocument.writeTo(it) }
+        } catch (e: Exception) {
+            if (generatedPdfFile.exists()) generatedPdfFile.delete()
+            throw e
+        } finally {
+            pdfDocument.close()
+        }
+        return@withContext generatedPdfFile
     }
 
     override suspend fun copyPdfToInternalStorage(uri: Uri, documentId: String): File =
@@ -164,14 +206,28 @@ class FileRepositoryImpl(
             destinationFile
         }
 
+    override suspend fun createTempPdfCopyWithName(sourceFile: File, displayName: String): File =
+        withContext(ioDispatcher) {
+            val safeName = sanitizeFileName(displayName)
+
+            val exportDir = File(appContext.cacheDir, "export_pdfs").apply { mkdirs() }
+
+            exportDir.listFiles()?.forEach { it.delete() }
+
+            val destinationFile = File(exportDir, safeName)
+
+            sourceFile.copyTo(destinationFile, overwrite = true)
+
+            return@withContext destinationFile
+        }
+
     override suspend fun exportFileToDownloads(file: File, publicName: String): Result<String> =
         withContext(ioDispatcher) {
             runCatching {
-                val nameWithExt =
-                    if (publicName.endsWith(".pdf", true)) publicName else "$publicName.pdf"
+                val safeName = sanitizeFileName(publicName)
 
                 val contentValues = ContentValues().apply {
-                    put(MediaStore.MediaColumns.DISPLAY_NAME, nameWithExt)
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, safeName)
                     put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
                     put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                 }
@@ -189,7 +245,6 @@ class FileRepositoryImpl(
                 uri.toString()
             }
         }
-
 
     /**
      * Helper function to save an image from an URI with resizing and rotation correction.
@@ -241,6 +296,7 @@ class FileRepositoryImpl(
             null
         }
     }
+
 
     /**
      * Retrieves the rotation degrees of an image from its URI.
@@ -349,5 +405,13 @@ class FileRepositoryImpl(
                 input.copyTo(output)
             }
         }
+    }
+
+    /**
+     * Sanitizes a file name by removing invalid characters.
+     */
+    private fun sanitizeFileName(name: String): String {
+        val cleanName = name.replace("[\\\\/:*?\"<>|]".toRegex(), "_")
+        return if (cleanName.endsWith(".pdf", ignoreCase = true)) cleanName else "$cleanName.pdf"
     }
 }

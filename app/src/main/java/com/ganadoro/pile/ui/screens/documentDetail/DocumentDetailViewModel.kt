@@ -12,9 +12,12 @@ import com.ganadoro.pile.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.domain.repositories.FileRepository
 import com.ganadoro.pile.domain.repositories.PileModelRepository
 import com.ganadoro.pile.domain.usecases.DeleteDocumentUseCase
+import com.ganadoro.pile.domain.usecases.ExportDocumentUseCase
+import com.ganadoro.pile.domain.usecases.GetPdfUriUseCase
 import com.ganadoro.pile.domain.usecases.ManageDocumentPileUseCase
 import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
 import com.ganadoro.pile.domain.usecases.UpdateDocumentDetailsUseCase
+import com.ganadoro.pile.ui.navigation.DocumentOpener
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -59,6 +62,9 @@ class DocumentDetailViewModel(
     private val deleteDocumentUseCase: DeleteDocumentUseCase,
     private val updateDocumentDetailsUseCase: UpdateDocumentDetailsUseCase,
     private val manageDocumentPileUseCase: ManageDocumentPileUseCase,
+    private val getPdfUriUseCase: GetPdfUriUseCase,
+    private val documentOpener: DocumentOpener,
+    private val exportDocumentUseCase: ExportDocumentUseCase,
     private val documentModelRepository: DocumentModelRepository,
     private val pileModelRepository: PileModelRepository,
     private val documentImageRepository: DocumentImageRepository,
@@ -190,134 +196,40 @@ class DocumentDetailViewModel(
         onDocumentDetailEvent(DocumentDetailEvent.ConfirmErasure)
     }
 
-    fun addRemoveDocumentPiles(pileId: String) { // TODO: UseCase
+    fun addRemoveDocumentPiles(pileId: String) {
         viewModelScope.launch {
             val document = uiState.value.documentModel ?: return@launch
             manageDocumentPileUseCase(document, pileId)
         }
     }
 
-//    /** // TODO: UseCase
-//     * Creates or replaces a pdf containing all the document images.
-//     */
-//    private suspend fun createOrReplacePDF(): Boolean {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            val documentModel = uiState.value.documentModel ?: return@launch
-//            val folderFile = File(context.filesDir, documentModel.id)
-//            val pdfFile = File(folderFile, "${documentModel.id}.pdf")
-//
-//            val finalBitmapList = uiState.value.originalBitmaps.mapIndexed { index, original ->
-//                uiState.value.cropEditedBitmaps[index]
-//                    ?: uiState.value.modifiedBitmaps[index]
-//                    ?: original
-//            }
-//
-//            try {
-//                createPdfWithImages(
-//                    bitmaps = finalBitmapList, outputFile = documentFile
-//                )
-//            } catch (ex: Exception) {
-//                Napier.e { "EditPDFViewModel.updateDocumentPDF: ${ex.message}" }
-//            }
-//        }
-//
-//
-//        return false
-//    }
-
-    fun openDocumentPDF() { // TODO: Redo // TODO: UseCase
-//        if (!isDocumentPDFUpdated()) {
-////            createOrReplacePDF()
-//        }
-//
-//        val documentFolder = File(context.filesDir, documentId)
-//        val pdfFile = File(documentFolder, "$documentId.pdf")
-//
-//        val uri = FileProvider.getUriForFile(
-//            context,
-//            "${context.packageName}.provider",
-//            pdfFile
-//        )
-//
-//        val openIntent = Intent(Intent.ACTION_VIEW).apply {
-//            setDataAndType(uri, "application/pdf")
-//            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
-//        }
-//
-//        context.startActivity(openIntent)
+    fun openDocumentPDF() { // TODO: Show loading indicator
+        viewModelScope.launch {
+            val document = uiState.value.documentModel ?: return@launch
+            val uri = getPdfUriUseCase(document)
+            documentOpener.openPdf(uri)
+        }
     }
 
-    fun openShareSheet() { // TODO: Redo // TODO: UseCase
-//        if (_uiState.value.documentModel == null) return
-//
-//        val originalFile = File(context.filesDir, _uiState.value.documentModel!!.id)
-//
-//        val tempFile = File(context.cacheDir, "${_uiState.value.documentModel!!.title}.pdf")
-//        originalFile.copyTo(tempFile, overwrite = true)
-//
-//        val uri = FileProvider.getUriForFile(
-//            context,
-//            "${context.packageName}.provider",
-//            tempFile
-//        )
-//
-//        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-//            type = "application/pdf"
-//            putExtra(Intent.EXTRA_STREAM, uri)
-//            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-//        }
-//
-//        val chooser = Intent.createChooser(shareIntent, null)
-//        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // TODO: Not the best way to do this
-//        context.startActivity(chooser)
+    fun openShareSheet() {
+        viewModelScope.launch {
+            val document = uiState.value.documentModel ?: return@launch
+            val uri = getPdfUriUseCase(document)
+            documentOpener.sharePdf(uri)
+        }
     }
 
-    fun downloadPDF() { // TODO: Redo // TODO: UseCase
-//        if (_uiState.value.documentModel == null) return
-//
-//        val originalFile = File(context.filesDir, _uiState.value.documentModel!!.id)
-//
-//        try {
-//            val resolver = context.contentResolver
-//
-//            val contentValues = ContentValues().apply {
-//                put(MediaStore.MediaColumns.DISPLAY_NAME, _uiState.value.documentModel!!.title)
-//                put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
-//                put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/")
-//            }
-//
-//            val uri =
-//                resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues) ?: return
-//
-//            resolver.openOutputStream(uri)?.use { outputStream ->
-//                originalFile.inputStream().use { inputStream ->
-//                    inputStream.copyTo(outputStream)
-//                }
-//            }
-//
-//            val intent = Intent(DownloadManager.ACTION_VIEW_DOWNLOADS)
-//            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-//
-//            try {
-//                context.startActivity(intent)
-//            } catch (ex: ActivityNotFoundException) {
-//                ex.printStackTrace()
-//                Toast.makeText(
-//                    context,
-//                    context.getString(R.string.error_saving_document),
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//
-//
-//        } catch (ex: Exception) {
-//            ex.printStackTrace()
-//            Toast.makeText(
-//                context,
-//                context.getString(R.string.error_opening_files_explorer),
-//                Toast.LENGTH_SHORT
-//            ).show()
-//        }
+    fun downloadPDF() {
+        viewModelScope.launch {
+            val document = uiState.value.documentModel ?: return@launch
+            try {
+                exportDocumentUseCase(document)
+                // TODO: Show confirmation toast
+            } catch (e: Exception) {
+                // TODO: Handle exception
+                e.printStackTrace()
+            }
+        }
     }
 
     fun renameDocument(newDocumentName: String) {

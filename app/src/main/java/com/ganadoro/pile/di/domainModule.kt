@@ -6,7 +6,11 @@ import com.ganadoro.pile.domain.usecases.CreateDocumentUseCase
 import com.ganadoro.pile.domain.usecases.CreatePileUseCase
 import com.ganadoro.pile.domain.usecases.DeleteDocumentPageUseCase
 import com.ganadoro.pile.domain.usecases.DeleteDocumentUseCase
+import com.ganadoro.pile.domain.usecases.ExportDocumentUseCase
+import com.ganadoro.pile.domain.usecases.GeneratePdfUseCase
 import com.ganadoro.pile.domain.usecases.GetAvailableFiltersUseCase
+import com.ganadoro.pile.domain.usecases.GetPdfUriUseCase
+import com.ganadoro.pile.domain.usecases.GetUpToDatePdfUseCase
 import com.ganadoro.pile.domain.usecases.ManageDocumentPileUseCase
 import com.ganadoro.pile.domain.usecases.ManageTemporaryDocumentUseCase
 import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
@@ -26,4 +30,8 @@ val domainModule = module {
     factoryOf(::DeleteDocumentPageUseCase)
     factoryOf(::AddPageToDocumentUseCase)
     factoryOf(::ManageDocumentPileUseCase)
+    factoryOf(::GeneratePdfUseCase)
+    factoryOf(::GetPdfUriUseCase)
+    factoryOf(::GetUpToDatePdfUseCase)
+    factoryOf(::ExportDocumentUseCase)
 }

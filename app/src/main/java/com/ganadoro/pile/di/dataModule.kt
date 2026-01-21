@@ -45,7 +45,8 @@ val repositoriesModule = module {
         FileRepositoryImpl(
             appContext = get(),
             ioDispatcher = get(),
-            pdfRenderHelper = get()
+            pdfRenderHelper = get(),
+            imageTransformationHelper = get()
         )
     }
 

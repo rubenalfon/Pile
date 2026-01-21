@@ -2,6 +2,7 @@ package com.ganadoro.pile.domain.repositories
 
 import android.graphics.Bitmap
 import android.net.Uri
+import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import java.io.File
 
@@ -72,7 +73,7 @@ interface FileRepository {
      * Checks if a PDF file for a document is outdated based on the modification date.
      *
      * @param document The [DocumentModel] representing the document.
-     * @return A [Boolean] indicating whether the PDF file is outdated.
+     * @return A [Boolean] indicating true if the PDF is outdated or doesn't exist, false otherwise.
      */
     suspend fun isPdfOutdated(document: DocumentModel): Boolean
 
@@ -109,13 +110,13 @@ interface FileRepository {
     suspend fun getPageCount(documentId: String): Result<Int>
 
     /**
-     * Generates a PDF file from a provided list of [Bitmap] images.
+     * Generates a PDF file from a provided list of images.
      *
      * @param documentId The unique identifier of the document.
-     * @param bitmaps The list of images to be converted into PDF pages.
-     * @return The generated PDF [File], or null if the operation failed.
+     * @param images A list of [DocumentImage] objects representing the images to be included in the PDF.
+     * @return The generated PDF [File].
      */
-    suspend fun createPdfFromImages(documentId: String, bitmaps: List<Bitmap>): File?
+    suspend fun createPdfFromImages(documentId: String, images: List<DocumentImage>): File
 
     /**
      * Copies a PDF from an external [Uri] into the app's internal storage.
@@ -125,6 +126,15 @@ interface FileRepository {
      * @return The new [File] location in internal storage.
      */
     suspend fun copyPdfToInternalStorage(uri: Uri, documentId: String): File
+
+    /**
+     * Creates a temporary PDF file with a custom name.
+     *
+     * @param sourceFile The source [File] to be copied.
+     * @param displayName The desired name for the new file.
+     * @return A [File] object representing the newly created temporary PDF file.
+     */
+    suspend fun createTempPdfCopyWithName(sourceFile: File, displayName: String): File
 
     /**
      * Exports a file from internal storage to the public "Downloads" folder.
