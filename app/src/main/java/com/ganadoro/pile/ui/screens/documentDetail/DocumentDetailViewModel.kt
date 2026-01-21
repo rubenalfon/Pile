@@ -12,6 +12,7 @@ import com.ganadoro.pile.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.domain.repositories.FileRepository
 import com.ganadoro.pile.domain.repositories.PileModelRepository
 import com.ganadoro.pile.domain.usecases.DeleteDocumentUseCase
+import com.ganadoro.pile.domain.usecases.ManageDocumentPileUseCase
 import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
 import com.ganadoro.pile.domain.usecases.UpdateDocumentDetailsUseCase
 import io.github.aakira.napier.Napier
@@ -29,7 +30,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 data class DocumentDetailUiState(
     val documentModel: DocumentModel? = null,
@@ -58,7 +58,7 @@ class DocumentDetailViewModel(
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
     private val deleteDocumentUseCase: DeleteDocumentUseCase,
     private val updateDocumentDetailsUseCase: UpdateDocumentDetailsUseCase,
-
+    private val manageDocumentPileUseCase: ManageDocumentPileUseCase,
     private val documentModelRepository: DocumentModelRepository,
     private val pileModelRepository: PileModelRepository,
     private val documentImageRepository: DocumentImageRepository,
@@ -154,9 +154,7 @@ class DocumentDetailViewModel(
     fun updateDocumentNote(newDocumentNote: String) {
         viewModelScope.launch {
             val document = uiState.value.documentModel ?: return@launch
-
             val updatedDocumentModel = document.copy(documentNote = newDocumentNote)
-
             documentModelRepository.updateDocumentModel(updatedDocumentModel)
         }
     }
@@ -194,24 +192,8 @@ class DocumentDetailViewModel(
 
     fun addRemoveDocumentPiles(pileId: String) { // TODO: UseCase
         viewModelScope.launch {
-            val documentModel = uiState.value.documentModel ?: return@launch
-            val documentPiles = documentModel.documentPileIds
-
-            val updatedDocumentPiles = documentPiles.toMutableList().apply {
-                if (contains(pileId)) {
-                    remove(pileId)
-                } else {
-                    add(pileId)
-                }
-            }
-
-            withContext(Dispatchers.IO) {
-                documentModelRepository.updateDocumentModel(
-                    documentModel.copy(
-                        documentPileIds = updatedDocumentPiles
-                    )
-                )
-            }
+            val document = uiState.value.documentModel ?: return@launch
+            manageDocumentPileUseCase(document, pileId)
         }
     }
 

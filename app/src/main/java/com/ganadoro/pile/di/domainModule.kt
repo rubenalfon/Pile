@@ -7,6 +7,7 @@ import com.ganadoro.pile.domain.usecases.CreatePileUseCase
 import com.ganadoro.pile.domain.usecases.DeleteDocumentPageUseCase
 import com.ganadoro.pile.domain.usecases.DeleteDocumentUseCase
 import com.ganadoro.pile.domain.usecases.GetAvailableFiltersUseCase
+import com.ganadoro.pile.domain.usecases.ManageDocumentPileUseCase
 import com.ganadoro.pile.domain.usecases.ManageTemporaryDocumentUseCase
 import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
 import com.ganadoro.pile.domain.usecases.UpdateDocumentDetailsUseCase
@@ -24,4 +25,5 @@ val domainModule = module {
     factoryOf(::GetAvailableFiltersUseCase)
     factoryOf(::DeleteDocumentPageUseCase)
     factoryOf(::AddPageToDocumentUseCase)
+    factoryOf(::ManageDocumentPileUseCase)
 }

@@ -34,7 +34,7 @@ val viewmodelModule = module {
     }
 
     viewModel { (documentId: String) ->
-        DocumentDetailViewModel(documentId, get(), get(), get(), get(), get(), get(), get(), get())
+        DocumentDetailViewModel(documentId, get(), get(), get(), get(), get(), get(), get(), get(), get())
     }
 
     viewModel { (documentId: String) ->
