@@ -181,8 +181,10 @@ fun DocumentDetailScreen(
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
+            val isIncomingPdf = uiState.documentModel?.isIncomingPdf ?: true
             ToolBar(
                 modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
+                showEditDocument = !isIncomingPdf,
                 onRenameDocument = {
                     isRenameDocumentAlertExpanded = true
                 },
@@ -213,7 +215,6 @@ fun DocumentDetailScreen(
                     item {
                         ImagePager(
                             bitmapCache = bitmapCache,
-                            documentModel = uiState.documentModel,
                             documentImages = uiState.documentImages ?: emptyList(),
                             pdfPageCount = uiState.pdfPageNumber,
                             onLoadBitmap = viewModel::requestBitmapLoad,
@@ -359,7 +360,6 @@ private fun ScreenTopAppBar(
 private fun ImagePager(
     modifier: Modifier = Modifier,
     bitmapCache: Map<String, Bitmap>,
-    documentModel: DocumentModel?,
     documentImages: List<DocumentImage>,
     pdfPageCount: Int?,
     onLoadBitmap: suspend (pageNumber: Int) -> Unit,
@@ -864,6 +864,7 @@ private fun AddedSection(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun ToolBar(
     modifier: Modifier = Modifier,
+    showEditDocument: Boolean,
     onRenameDocument: () -> Unit,
     onDeleteDocument: () -> Unit,
     onDownloadDocument: () -> Unit,
@@ -905,15 +906,18 @@ private fun ToolBar(
                 }
             }
         )
-        FloatingActionButton(
-            onClick = onEditDocument,
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.instant_mix_24px),
-                contentDescription = stringResource(R.string.edit_document)
-            )
+
+        if (showEditDocument) {
+            FloatingActionButton(
+                onClick = onEditDocument,
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.instant_mix_24px),
+                    contentDescription = stringResource(R.string.edit_document)
+                )
+            }
         }
     }
 }
