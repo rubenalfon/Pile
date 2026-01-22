@@ -15,6 +15,7 @@ import com.ganadoro.pile.domain.usecases.ApplyImageFilterUseCase
 import com.ganadoro.pile.domain.usecases.DeleteDocumentPageUseCase
 import com.ganadoro.pile.domain.usecases.GetAvailableFiltersUseCase
 import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
+import com.ganadoro.pile.domain.usecases.RequestThumbnailLoadUseCase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,6 +46,7 @@ data class EditDocumentUiState(
 class EditPDFViewModel(
     private val documentId: String,
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
+    private val requestThumbnailLoadUseCase: RequestThumbnailLoadUseCase,
     private val addPageToDocumentUseCase: AddPageToDocumentUseCase,
     private val applyImageFilterUseCase: ApplyImageFilterUseCase,
     private val getAvailableFiltersUseCase: GetAvailableFiltersUseCase,
@@ -99,6 +101,25 @@ class EditPDFViewModel(
     fun requestImageKey(pageNumber: Int): String {
         val document = uiState.value.documentModel ?: return ""
         return bitmapCacheRepository.getImageKey(document, pageNumber)
+    }
+
+    fun requestThumbnailLoad(filterNumber: Int) {
+        viewModelScope.launch {
+            val documentImage =
+                uiState.value.documentImages.getOrNull(uiState.value.selectedImageIndex)
+                    ?: return@launch
+            requestThumbnailLoadUseCase(documentId, documentImage, filterNumber)
+        }
+    }
+
+    fun requestThumbnailKey(filterNumber: Int): String {
+        val documentImage =
+            uiState.value.documentImages.getOrNull(uiState.value.selectedImageIndex) ?: return ""
+
+        return bitmapCacheRepository.getImageThumbnailKey(
+            imageId = documentImage.id,
+            filterId = filterNumber
+        )
     }
 
     fun updateUIMode(newUiMode: EditDocumentUIMode) {

@@ -60,6 +60,34 @@ class BitmapCacheRepositoryImpl(
         }
     }
 
+    override fun getImageThumbnailKey(imageId: String, filterId: Int): String =
+        "${imageId}_filter_${filterId}"
+
+    override suspend fun loadImageThumbnail(
+        imageFile: File,
+        documentImage: DocumentImage,
+        filterId: Int
+    ) = withContext(ioDispatcher) {
+        val thumbnailId = getImageThumbnailKey(documentImage.id, filterId)
+
+        if (_bitmapCache.value.containsKey(thumbnailId)) return@withContext
+
+        val bitmap = imageTransformationHelper.transformThumbnail(
+            file = imageFile,
+            maxSize = 500,
+            rotation = documentImage.rotation.toInt(),
+            cropData = documentImage.crop,
+            filter = ImageFilterType.fromId(filterId),
+        )
+
+        if (bitmap != null) {
+            _bitmapCache.update { currentCache ->
+                currentCache + (thumbnailId to bitmap)
+            }
+        }
+    }
+
+
     override fun removeFromCache(cacheKey: String) {
         _bitmapCache.update { current ->
             val bitmap = current[cacheKey]

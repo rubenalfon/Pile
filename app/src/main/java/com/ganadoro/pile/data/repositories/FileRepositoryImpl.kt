@@ -271,7 +271,7 @@ class FileRepositoryImpl(
             contentResolver.openInputStream(uri)?.use {
                 BitmapFactory.decodeStream(it, null, options)
             }
-            options.inSampleSize = calculateInSampleSize(options, maxSize)
+            options.inSampleSize = imageTransformationHelper.calculateInSampleSize(options, maxSize)
             options.inJustDecodeBounds = false
 
             val bitmap = contentResolver.openInputStream(uri)?.use {
@@ -336,29 +336,6 @@ class FileRepositoryImpl(
         val rotated = Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
         source.recycle()
         return rotated
-    }
-
-    /**
-     * Calculates the optimal sample size for decoding a bitmap.
-     *
-     * @param options The [BitmapFactory.Options] object containing bitmap metadata.
-     * @param maxSize The maximum size of the bitmap in pixels.
-     * @return The optimal sample size.
-     */
-    private fun calculateInSampleSize(options: BitmapFactory.Options, maxSize: Int): Int {
-        val height = options.outHeight
-        val width = options.outWidth
-        var inSampleSize = 1
-
-        if (height > maxSize || width > maxSize) {
-            val halfHeight = height / 2
-            val halfWidth = width / 2
-
-            while (halfHeight / inSampleSize >= maxSize || halfWidth / inSampleSize >= maxSize) {
-                inSampleSize *= 2
-            }
-        }
-        return inSampleSize
     }
 
     /**

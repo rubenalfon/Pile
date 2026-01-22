@@ -14,6 +14,7 @@ import com.ganadoro.pile.domain.usecases.GetUpToDatePdfUseCase
 import com.ganadoro.pile.domain.usecases.ManageDocumentPileUseCase
 import com.ganadoro.pile.domain.usecases.ManageTemporaryDocumentUseCase
 import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
+import com.ganadoro.pile.domain.usecases.RequestThumbnailLoadUseCase
 import com.ganadoro.pile.domain.usecases.UpdateDocumentDetailsUseCase
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
@@ -34,4 +35,5 @@ val domainModule = module {
     factoryOf(::GetPdfUriUseCase)
     factoryOf(::GetUpToDatePdfUseCase)
     factoryOf(::ExportDocumentUseCase)
+    factoryOf(::RequestThumbnailLoadUseCase)
 }

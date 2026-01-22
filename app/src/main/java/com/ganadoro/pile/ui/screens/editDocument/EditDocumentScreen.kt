@@ -2,17 +2,7 @@ package com.ganadoro.pile.ui.screens.editDocument
 
 import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,14 +34,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconButtonDefaults.smallContainerSize
-import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
-import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -65,7 +53,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -78,6 +65,7 @@ import com.ganadoro.pile.ui.controllers.rememberDocumentImportController
 import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.COLOR
 import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.CROP_ROTATE
 import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.SCROLL
+import com.ganadoro.pile.ui.screens.editDocument.composables.ActiveIndicator
 import com.ganadoro.pile.ui.screens.editDocument.composables.AddItemCarousel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -147,22 +135,19 @@ fun EditDocumentScreen(
                 }
 
                 AnimatedVisibility(visible = uiState.uiMode == COLOR) {
-                    LoadingWrapper(
-                        modifier = modifier.height(84.dp),
-                        isLoading = /*TODO uiState.colorModifiedBitmaps == null*/ false
-                    ) {
-                        val imageFilters = uiState.imageFilters ?: return@LoadingWrapper
+                    val imageFilters = uiState.imageFilters ?: return@AnimatedVisibility
 
-                        val selectedDocumentImage =
-                            uiState.documentImages.getOrNull(uiState.selectedImageIndex)
+                    val selectedImage = uiState.documentImages.getOrNull(uiState.selectedImageIndex)
 
-                        EditColorRow(
-                            modifier = Modifier.padding(bottom = 16.dp),
-                            imageFilters = imageFilters,
-                            documentImage = selectedDocumentImage?.filter?.toInt() ?: 0,
-                            onSelectColorIndex = viewModel::setSelectedColorIndex
-                        )
-                    }
+                    EditColorRow(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        imageFilters = imageFilters,
+                        activeFilterIndex = selectedImage?.filter?.toInt() ?: 0,
+                        onSelectColorIndex = viewModel::setSelectedColorIndex,
+                        bitmapCache = bitmapCache,
+                        onLoadThumbnail = viewModel::requestThumbnailLoad,
+                        onRequestThumbnailKey = viewModel::requestThumbnailKey
+                    )
                 }
 
 //                AnimatedVisibility(visible = uiState.uiMode == EditDocumentUIMode.CROP_ROTATE) {
@@ -448,30 +433,7 @@ private fun ThumbnailItem(
             )
         }
 
-        AnimatedVisibility(
-            visible = isSelected,
-            enter = fadeIn() + scaleIn(),
-            exit = fadeOut() + scaleOut()
-        ) {
-            val infiniteTransition = rememberInfiniteTransition(label = "spin")
-            val angle by infiniteTransition.animateFloat(
-                initialValue = 0f,
-                targetValue = 360f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(15000, easing = LinearEasing),
-                    repeatMode = RepeatMode.Restart
-                ),
-                label = "angle"
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(54.dp)
-                    .graphicsLayer { rotationZ = angle }
-                    .clip(MaterialShapes.Cookie9Sided.toShape())
-                    .background(MaterialTheme.colorScheme.surface)
-            )
-        }
+        ActiveIndicator(isSelected = isSelected)
     }
 }
 
@@ -480,8 +442,11 @@ private fun ThumbnailItem(
 private fun EditColorRow(
     modifier: Modifier = Modifier,
     imageFilters: List<ImageFilterType>,
-    documentImage: Int,
+    activeFilterIndex: Int,
     onSelectColorIndex: (Int) -> Unit,
+    bitmapCache: Map<String, Bitmap>,
+    onLoadThumbnail: suspend (filterNumber: Int) -> Unit,
+    onRequestThumbnailKey: (filterNumber: Int) -> String
 ) {
     LazyRow(
         modifier = modifier,
@@ -492,63 +457,41 @@ private fun EditColorRow(
             Box(
                 contentAlignment = Alignment.Center
             ) {
-                val isSelected = i == documentImage
+                val key = onRequestThumbnailKey(i)
+                val cachedBitmap: Bitmap? = bitmapCache[key]
+
+                val isSelected = i == activeFilterIndex
 
                 val animatedCornerRadius by animateDpAsState(
                     if (isSelected) 42.dp else 20.dp,
                     animationSpec = MaterialTheme.motionScheme.slowEffectsSpec(),
                 )
 
-                Box(
-                    modifier = Modifier
-                        .aspectRatio(1f)
-                        .size(84.dp)
-                        .clip(RoundedCornerShape(animatedCornerRadius))
-                        .clickable {
-                            onSelectColorIndex.invoke(i)
-                        }
-                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                )
-//       TODO         Image(
-//                    modifier = Modifier
-//                        .aspectRatio(1f)
-//                        .size(84.dp)
-//                        .clip(RoundedCornerShape(animatedCornerRadius))
-//                        .clickable {
-//                            onSelectColorIndex.invoke(i)
-//                        }
-//                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-//                    bitmap = colorModifiedImages[i].asImageBitmap(),
-//                    contentDescription = stringResource(R.string.image_number, i + 1),
-//                    contentScale = ContentScale.Crop
-//                )
+                val modifier = Modifier
+                    .size(84.dp)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(animatedCornerRadius))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .clickable {
+                        onSelectColorIndex.invoke(i)
+                    }
 
-                AnimatedVisibility(
-                    isSelected,
-                    enter = fadeIn(animationSpec = MaterialTheme.motionScheme.slowEffectsSpec()),
-                    exit = fadeOut(animationSpec = MaterialTheme.motionScheme.slowEffectsSpec())
-                ) {
-                    val infiniteTransition = rememberInfiniteTransition()
 
-                    val angle by infiniteTransition.animateFloat(
-                        initialValue = 0f,
-                        targetValue = 360f,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(durationMillis = 15000, easing = LinearEasing),
-                            repeatMode = RepeatMode.Restart
-                        )
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .size(54.dp)
-                            .graphicsLayer {
-                                rotationZ = angle
-                            }
-                            .clip(MaterialShapes.Cookie9Sided.toShape())
-                            .background(MaterialTheme.colorScheme.surface)
+                if (cachedBitmap == null) {
+                    LaunchedEffect(key1 = key) {
+                        onLoadThumbnail(i)
+                    }
+                    Box(modifier)
+                } else {
+                    Image(
+                        modifier = modifier,
+                        bitmap = cachedBitmap.asImageBitmap(),
+                        contentDescription = stringResource(R.string.image_number, i + 1),
+                        contentScale = ContentScale.Crop
                     )
                 }
+
+                ActiveIndicator(isSelected = isSelected)
             }
         }
     }

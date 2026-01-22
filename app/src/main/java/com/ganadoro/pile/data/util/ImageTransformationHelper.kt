@@ -161,4 +161,81 @@ class ImageTransformationHelper(
         }
         return result
     }
+
+    /**
+     * Efficiently loads a downsampled version of the image (thumbnail)
+     * and applies transformations.
+     *
+     * @param maxSize The desired width of the thumbnail (e.g., 200px).
+     */
+    suspend fun transformThumbnail(
+        file: File,
+        maxSize: Int,
+        rotation: Int,
+        cropData: ImageCropData?,
+        filter: ImageFilterType
+    ): Bitmap? = withContext(ioDispatcher) {
+        if (!file.exists()) return@withContext null
+        val options = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+        BitmapFactory.decodeFile(file.absolutePath, options)
+
+        options.inSampleSize = calculateInSampleSize(options, maxSize)
+        options.inJustDecodeBounds = false
+
+        var bitmap = BitmapFactory.decodeFile(file.absolutePath, options)
+            ?: return@withContext null
+
+        val finalRotation = rotation + getExifRotation(file)
+
+        if (finalRotation != 0) bitmap = rotateBitmap(bitmap, finalRotation)
+
+        if (cropData != null) {
+            bitmap = cropThumbnail(bitmap, cropData, options.inSampleSize)
+        }
+
+        if (filter != ImageFilterType.ORIGINAL) bitmap = applyFilter(bitmap, filter)
+
+        return@withContext bitmap
+    }
+
+    /**
+     * Calculates the optimal sample size for decoding a bitmap.
+     *
+     * @param options The [BitmapFactory.Options] object containing bitmap metadata.
+     * @param maxSize The maximum size of the bitmap in pixels.
+     * @return The optimal sample size.
+     */
+    fun calculateInSampleSize(options: BitmapFactory.Options, maxSize: Int): Int {
+        val height = options.outHeight
+        val width = options.outWidth
+        var inSampleSize = 1
+
+        if (height > maxSize || width > maxSize) {
+            val halfHeight = height / 2
+            val halfWidth = width / 2
+
+            while (halfHeight / inSampleSize >= maxSize || halfWidth / inSampleSize >= maxSize) {
+                inSampleSize *= 2
+            }
+        }
+        return inSampleSize
+    }
+
+    private fun cropThumbnail(source: Bitmap, crop: ImageCropData, sampleSize: Int): Bitmap {
+        val scaledX = crop.x / sampleSize
+        val scaledY = crop.y / sampleSize
+        val scaledW = crop.width / sampleSize
+        val scaledH = crop.height / sampleSize
+
+        val safeX = scaledX.coerceAtLeast(0)
+        val safeY = scaledY.coerceAtLeast(0)
+        val safeW = scaledW.coerceAtMost(source.width - safeX)
+        val safeH = scaledH.coerceAtMost(source.height - safeY)
+
+        val cropped = Bitmap.createBitmap(source, safeX, safeY, safeW, safeH)
+        if (cropped != source) source.recycle()
+        return cropped
+    }
 }

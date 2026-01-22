@@ -43,6 +43,30 @@ interface BitmapCacheRepository {
     )
 
     /**
+     * Returns the unique key used in the map for an image thumbnail.
+     *
+     * @param imageId The unique ID of the image.
+     * @param filterId The unique ID of the filter applied to the image.
+     * @return The unique key for the image thumbnail.
+     */
+    fun getImageThumbnailKey(imageId: String, filterId: Int): String
+
+    /**
+     * Loads a thumbnail image for a specific document image into the cache.
+     * If the image is already cached, this operation does nothing.
+     *
+     * @param imageFile The file containing the image data.
+     * @param documentImage Additional metadata associated with the image.
+     * @param filterId The unique ID of the filter applied to the image.
+     * @return The unique key for the image thumbnail.
+     */
+    suspend fun loadImageThumbnail(
+        imageFile: File,
+        documentImage: DocumentImage,
+        filterId: Int
+    )
+
+    /**
      * Removes a specific bitmap from memory to free up resources.
      * @param cacheKey The unique key of the image (imageId or generated PDF page key).
      */
