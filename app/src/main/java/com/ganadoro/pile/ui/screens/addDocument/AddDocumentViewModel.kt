@@ -56,6 +56,18 @@ class AddDocumentViewModel(
         }
     }
 
+    fun requestBitmapLoad() {
+        viewModelScope.launch {
+            val document = uiState.value.documentModel ?: return@launch
+            requestBitmapLoadUseCase(document, 0)
+        }
+    }
+
+    fun requestImageKey(): String {
+        val document = uiState.value.documentModel ?: return ""
+        return bitmapCacheRepository.getImageKey(document, 0)
+    }
+
     private suspend fun loadDocument(documentId: String) {
         try {
             val document = withContext(Dispatchers.IO) {
@@ -84,13 +96,6 @@ class AddDocumentViewModel(
     private suspend fun loadPiles() {
         pileModelRepository.pileModels.collect { piles ->
             _uiState.update { it.copy(allPileModels = piles) }
-        }
-    }
-
-    fun requestBitmapLoad(pageNumber: Int) {
-        viewModelScope.launch {
-            val document = uiState.value.documentModel ?: return@launch
-            requestBitmapLoadUseCase(document, pageNumber)
         }
     }
 

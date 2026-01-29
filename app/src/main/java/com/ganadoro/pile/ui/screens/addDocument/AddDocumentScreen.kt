@@ -88,9 +88,11 @@ fun AddDocumentScreen(
             },
             floatingActionButton = {
                 MediumFloatingActionButton(
-                    onClick = { viewModel.saveDocument(onSuccess = {
-                        navigateToDocumentDetail(documentId)
-                    }) },
+                    onClick = {
+                        viewModel.saveDocument(onSuccess = {
+                            navigateToDocumentDetail(documentId)
+                        })
+                    },
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ) {
@@ -137,21 +139,19 @@ fun AddDocumentScreen(
                                     .clip(RoundedCornerShape(28.dp))
                                     .background(MaterialTheme.colorScheme.surfaceContainerHigh),
                             ) {
-                                val document = uiState.documentModel ?: return@Box
-                                val imageId = if (document.isIncomingPdf) document.id + 0.toString()
-                                else document.imageIds.firstOrNull()
+                                val imageId = viewModel.requestImageKey()
+                                val cachedBitmap: Bitmap? = bitmapCache[imageId]
 
-                                val cachedBitmap: Bitmap? = imageId?.let { bitmapCache[it] }
-
-                                if (cachedBitmap == null && imageId != null) {
+                                if (cachedBitmap == null) {
                                     LaunchedEffect(key1 = imageId) {
-                                        viewModel.requestBitmapLoad(0)
+                                        viewModel.requestBitmapLoad()
                                     }
                                 }
 
                                 LoadingWrapper(cachedBitmap == null) {
+                                    if (cachedBitmap == null) return@LoadingWrapper
                                     Image(
-                                        bitmap = cachedBitmap!!.asImageBitmap(),
+                                        bitmap = cachedBitmap.asImageBitmap(),
                                         contentDescription = stringResource(R.string.document_first_image),
                                         modifier = Modifier.fillMaxSize(),
                                         contentScale = ContentScale.Crop
