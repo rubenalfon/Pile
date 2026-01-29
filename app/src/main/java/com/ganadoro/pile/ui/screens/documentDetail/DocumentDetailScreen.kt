@@ -181,20 +181,22 @@ fun DocumentDetailScreen(
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
-            val isIncomingPdf = uiState.documentModel?.isIncomingPdf ?: true
-            ToolBar(
-                modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
-                showEditDocument = !isIncomingPdf,
-                onRenameDocument = {
-                    isRenameDocumentAlertExpanded = true
-                },
-                onDeleteDocument = {
-                    isDeleteDocumentAlertExpanded = true
-                },
-                onDownloadDocument = viewModel::downloadPDF,
-                onShareDocument = viewModel::openShareSheet,
-                onEditDocument = { navigateToEditDocument(documentId) },
-            )
+            AnimatedVisibility(uiState.documentModel != null,
+                enter = fadeIn(), exit = fadeOut()) {
+                ToolBar(
+                    modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
+                    showEditDocument = !(uiState.documentModel?.isIncomingPdf ?: true),
+                    onRenameDocument = {
+                        isRenameDocumentAlertExpanded = true
+                    },
+                    onDeleteDocument = {
+                        isDeleteDocumentAlertExpanded = true
+                    },
+                    onDownloadDocument = viewModel::downloadPDF,
+                    onShareDocument = viewModel::openShareSheet,
+                    onEditDocument = { navigateToEditDocument(documentId) },
+                )
+            }
         },
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
@@ -398,7 +400,7 @@ private fun ImagePager(
             val key = onRequestImageKey(page)
             val cachedBitmap: Bitmap? = bitmapCache[key]
 
-            if (cachedBitmap == null ) {
+            if (cachedBitmap == null) {
                 LaunchedEffect(key1 = key) {
                     onLoadBitmap(page)
                 }

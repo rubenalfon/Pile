@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
@@ -121,15 +122,33 @@ fun EditDocumentScreen(
                     onSelectImageIndex = { viewModel.setSelectedImageIndex(it) }
                 )
 
+                val lazyListState = rememberLazyListState()
+                val selectedImageIndex = uiState.selectedImageIndex
+
+                var recentlyMoved by remember { mutableStateOf(false) }
+
+                LaunchedEffect(selectedImageIndex) {
+                    if (recentlyMoved) return@LaunchedEffect
+                    lazyListState.animateScrollToItem(selectedImageIndex, -150)
+                }
+                LaunchedEffect(recentlyMoved) {
+                    delay(100)
+                    recentlyMoved = false
+                }
+
                 AnimatedVisibility(visible = uiState.uiMode == SCROLL) {
                     ThumbnailRow(
                         modifier = Modifier.padding(bottom = 16.dp),
+                        lazyListState = lazyListState,
                         imageCount = uiState.documentImages.count(),
                         bitmapCache = bitmapCache,
                         onLoadBitmap = viewModel::requestBitmapLoad,
                         onRequestImageKey = viewModel::requestImageKey,
-                        selectedImageIndex = uiState.selectedImageIndex,
-                        onSelectImage = { viewModel.setSelectedImageIndex(it) },
+                        selectedImageIndex = selectedImageIndex,
+                        onSelectImage = {
+                            recentlyMoved = true
+                            viewModel.setSelectedImageIndex(it)
+                        },
                         onNewImage = importActions.launchGallery
                     )
                 }
@@ -318,6 +337,7 @@ private fun ImagePager(
 @Composable
 private fun ThumbnailRow(
     modifier: Modifier = Modifier,
+    lazyListState: LazyListState,
     imageCount: Int,
     bitmapCache: Map<String, Bitmap>,
     onLoadBitmap: suspend (pageNumber: Int) -> Unit,
@@ -326,18 +346,6 @@ private fun ThumbnailRow(
     onSelectImage: (Int) -> Unit,
     onNewImage: () -> Unit
 ) {
-    val state = rememberLazyListState()
-    var recentlyMoved by remember { mutableStateOf(false) }
-
-    LaunchedEffect(selectedImageIndex) {
-        if (recentlyMoved) return@LaunchedEffect
-        state.animateScrollToItem(selectedImageIndex, -150)
-    }
-    LaunchedEffect(recentlyMoved) {
-        delay(100)
-        recentlyMoved = false
-    }
-
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -349,8 +357,8 @@ private fun ThumbnailRow(
                 .weight(1f)
                 .height(84.dp)
                 .padding(end = 8.dp),
-            state = state,
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            state = lazyListState,
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
             verticalAlignment = Alignment.CenterVertically,
             contentPadding = PaddingValues(start = 16.dp, end = 0.dp)
         ) {
@@ -365,10 +373,7 @@ private fun ThumbnailRow(
                     cacheKey = onRequestImageKey(index),
                     bitmapCache = bitmapCache,
                     onLoadBitmap = onLoadBitmap,
-                    onSelect = {
-                        recentlyMoved = true
-                        onSelectImage(it)
-                    }
+                    onSelect = onSelectImage
                 )
             }
         }
