@@ -17,6 +17,7 @@ import com.ganadoro.pile.domain.usecases.ManageTemporaryDocumentUseCase
 import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,6 +31,7 @@ data class HomeUiState(
     val documentList: List<DocumentModel>? = null,
     val temporaryDocument: DocumentModel? = null,
     val coloredPileIds: List<String>? = null,
+    val isLoadingNewDocument: Boolean = false
 )
 
 class HomeViewModel(
@@ -64,7 +66,8 @@ class HomeViewModel(
                     pileModels = piles,
                     documentList = documents.filter { it.documentStatus != TEMPORARY },
                     temporaryDocument = temporaryDocument,
-                    coloredPileIds = coloredPileIds
+                    coloredPileIds = coloredPileIds,
+                    isLoadingNewDocument = uiState.value.isLoadingNewDocument
                 )
             }.collect { finalState ->
                 _uiState.update {
@@ -99,11 +102,15 @@ class HomeViewModel(
     fun importPDFIntent(uri: Uri) {
         viewModelScope.launch {
             try {
+                _uiState.update { it.copy(isLoadingNewDocument = true) }
                 val newDoc = createDocumentUseCase.createFromPdf(uri)
                 _navigationEvent.send(newDoc)
             } catch (e: Exception) {
                 Napier.e("Error importing PDF", e)
                 // TODO: show in ui, toast
+            } finally {
+                delay(500)
+                _uiState.update { it.copy(isLoadingNewDocument = false) }
             }
         }
     }
@@ -111,11 +118,15 @@ class HomeViewModel(
     fun importImagesIntent(uriList: List<Uri>) {
         viewModelScope.launch {
             try {
+                _uiState.update { it.copy(isLoadingNewDocument = true) }
                 val newDoc = createDocumentUseCase.createFromImages(uriList)
                 _navigationEvent.send(newDoc)
             } catch (e: Exception) {
                 Napier.e("Error importing images", e)
                 // TODO: show in ui, toast
+            } finally {
+                delay(500)
+                _uiState.update { it.copy(isLoadingNewDocument = false) }
             }
         }
     }

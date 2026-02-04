@@ -3,6 +3,7 @@ package com.ganadoro.pile.ui.screens.home
 import android.view.MotionEvent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,6 +44,7 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -93,6 +96,7 @@ import com.ganadoro.pile.ui.screens.search.SearchBarScreen
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -189,138 +193,153 @@ fun HomeScreen(
 
         val layoutDirection = LocalLayoutDirection.current
 
-        LoadingWrapper(
-            isLoading = uiState.pileModels == null || uiState.documentList == null || uiState.coloredPileIds == null
-        ) {
-            Box(
-                Modifier
-                    .padding(
-                        top = innerPadding.calculateTopPadding(),
-                        start = innerPadding.calculateStartPadding(layoutDirection),
-                        end = innerPadding.calculateEndPadding(layoutDirection)
-                    )
-                    .fillMaxSize()
-                    .background(documentsColorSection)
-            ) {
-                LazyColumn(
-                    Modifier
-                        .padding(bottom = innerPadding.calculateBottomPadding())
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .onGloballyPositioned { coordinates ->
-                            val widthPx = coordinates.size.width
-                            availableWidth = with(density) { widthPx.toDp() }.value.dp
-                        }
-                        .pointerInteropFilter {
-                            when (it.action) {
-                                MotionEvent.ACTION_DOWN -> {
-                                    fabMenuExpanded = false
-
-                                }
-                            }
-                            false
-                        },
-                    state = listState
-                ) {
-                    item { Spacer(Modifier.height(8.dp)) }
-
-                    item {
-                        val tempDocument = uiState.temporaryDocument
-                        AnimatedVisibility(
-                            visible = tempDocument != null,
-                            enter = fadeIn(tween(100)) + expandVertically(),
-                            exit = fadeOut(tween(100)) + shrinkVertically()
-                        ) {
-                            UnsavedDocumentCard(
-                                onNavigateUnsavedDocument = {
-                                    if (tempDocument == null) return@UnsavedDocumentCard
-
-                                    if (tempDocument.isIncomingPdf)
-                                        navigateToAddDocument(tempDocument.id)
-                                    else
-                                        navigateToEditPDF(tempDocument.id)
-                                },
-                                onDismiss = {
-                                    viewModel.partialDeleteUnsavedDocument()
-
-                                    scope.launch {
-                                        val result = snackbarHostState
-                                            .showSnackbar(
-                                                message = snackbarStrings.first,
-                                                actionLabel = snackbarStrings.second,
-                                                duration = SnackbarDuration.Long
-                                            )
-                                        when (result) {
-                                            SnackbarResult.ActionPerformed -> { // restore
-                                                viewModel.restoreUnsavedDeletedDocument()
-                                            }
-
-                                            SnackbarResult.Dismissed -> {
-                                                viewModel.confirmErasureUnsavedDeletedDocument()
-                                            }
-                                        }
-                                    }
-                                }
-                            )
-                        }
-                    }
-
-                    item { Spacer(Modifier.height(16.dp)) }
-
-                    item {
-                        HomeScreenSectionTitle(
-                            title = stringResource(R.string.your_piles),
-                            modifier = Modifier.padding(horizontal = 16.dp)
+        Crossfade(targetState = uiState.isLoadingNewDocument) { isLoading ->
+            if (isLoading) {
+                    Box(
+                        Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LoadingIndicator(
+                            Modifier.size(126.dp)
                         )
                     }
-                    item { Spacer(Modifier.height(8.dp)) }
-
-                    itemPileGrid(
-                        availableWidth = availableWidth,
-                        piles = uiState.pileModels!!,
-                        onPileClick = navigateToPileDetail,
-                        onNewPileClick = { isNewPileAlertExpanded = true },
-                        coloredPileIds = uiState.coloredPileIds!!
-                    )
-
-                    item { Spacer(Modifier.height(30.dp)) }
-                    item {
-                        Column(
-                            Modifier
-                                .clip(
-                                    RoundedCornerShape(
-                                        topStart = 24.dp,
-                                        topEnd = 24.dp
-                                    )
-                                )
-                                .background(documentsColorSection)
-                                .padding(top = 16.dp)
-                        ) {
-                            HomeScreenSectionTitle(
-                                title = stringResource(R.string.all_documents),
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                            )
-                            Spacer(Modifier.height(8.dp))
-                        }
-                    }
-
-                    itemDocumentsCompleteList(
-                        availableWidth = availableWidth,
-                        backgroundColor = documentsColorSection,
-                        documents = uiState.documentList!!,
-                        onDocumentClick = navigateToDocumentDetail,
-                        bitmapCache = bitmapCache,
-                        onLoadBitmap = viewModel::requestBitmapLoad,
-                        onRequestImageKey = viewModel::requestImageKey
-                    )
-
-                    item {
+            } else {
+                LoadingWrapper(isLoading = uiState.isLoadingNewDocument) {
+                    LoadingWrapper(
+                        isLoading = uiState.pileModels == null || uiState.documentList == null || uiState.coloredPileIds == null
+                    ) {
                         Box(
                             Modifier
-                                .height(100.dp)
-                                .fillMaxWidth()
+                                .padding(
+                                    top = innerPadding.calculateTopPadding(),
+                                    start = innerPadding.calculateStartPadding(layoutDirection),
+                                    end = innerPadding.calculateEndPadding(layoutDirection)
+                                )
+                                .fillMaxSize()
                                 .background(documentsColorSection)
-                        )
+                        ) {
+                            LazyColumn(
+                                Modifier
+                                    .padding(bottom = innerPadding.calculateBottomPadding())
+                                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                                    .onGloballyPositioned { coordinates ->
+                                        val widthPx = coordinates.size.width
+                                        availableWidth = with(density) { widthPx.toDp() }.value.dp
+                                    }
+                                    .pointerInteropFilter {
+                                        when (it.action) {
+                                            MotionEvent.ACTION_DOWN -> {
+                                                fabMenuExpanded = false
+
+                                            }
+                                        }
+                                        false
+                                    },
+                                state = listState
+                            ) {
+                                item { Spacer(Modifier.height(8.dp)) }
+
+                                item {
+                                    val tempDocument = uiState.temporaryDocument
+                                    AnimatedVisibility(
+                                        visible = tempDocument != null,
+                                        enter = fadeIn(tween(100)) + expandVertically(),
+                                        exit = fadeOut(tween(100)) + shrinkVertically()
+                                    ) {
+                                        UnsavedDocumentCard(
+                                            onNavigateUnsavedDocument = {
+                                                if (tempDocument == null) return@UnsavedDocumentCard
+
+                                                if (tempDocument.isIncomingPdf)
+                                                    navigateToAddDocument(tempDocument.id)
+                                                else
+                                                    navigateToEditPDF(tempDocument.id)
+                                            },
+                                            onDismiss = {
+                                                viewModel.partialDeleteUnsavedDocument()
+
+                                                scope.launch {
+                                                    val result = snackbarHostState
+                                                        .showSnackbar(
+                                                            message = snackbarStrings.first,
+                                                            actionLabel = snackbarStrings.second,
+                                                            duration = SnackbarDuration.Long
+                                                        )
+                                                    when (result) {
+                                                        SnackbarResult.ActionPerformed -> { // restore
+                                                            viewModel.restoreUnsavedDeletedDocument()
+                                                        }
+
+                                                        SnackbarResult.Dismissed -> {
+                                                            viewModel.confirmErasureUnsavedDeletedDocument()
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
+
+                                item { Spacer(Modifier.height(16.dp)) }
+
+                                item {
+                                    HomeScreenSectionTitle(
+                                        title = stringResource(R.string.your_piles),
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
+                                }
+                                item { Spacer(Modifier.height(8.dp)) }
+
+                                itemPileGrid(
+                                    availableWidth = availableWidth,
+                                    piles = uiState.pileModels!!,
+                                    onPileClick = navigateToPileDetail,
+                                    onNewPileClick = { isNewPileAlertExpanded = true },
+                                    coloredPileIds = uiState.coloredPileIds!!
+                                )
+
+                                item { Spacer(Modifier.height(30.dp)) }
+                                item {
+                                    Column(
+                                        Modifier
+                                            .clip(
+                                                RoundedCornerShape(
+                                                    topStart = 24.dp,
+                                                    topEnd = 24.dp
+                                                )
+                                            )
+                                            .background(documentsColorSection)
+                                            .padding(top = 16.dp)
+                                    ) {
+                                        HomeScreenSectionTitle(
+                                            title = stringResource(R.string.all_documents),
+                                            modifier = Modifier
+                                                .padding(horizontal = 16.dp)
+                                        )
+                                        Spacer(Modifier.height(8.dp))
+                                    }
+                                }
+
+                                itemDocumentsCompleteList(
+                                    availableWidth = availableWidth,
+                                    backgroundColor = documentsColorSection,
+                                    documents = uiState.documentList!!,
+                                    onDocumentClick = navigateToDocumentDetail,
+                                    bitmapCache = bitmapCache,
+                                    onLoadBitmap = viewModel::requestBitmapLoad,
+                                    onRequestImageKey = viewModel::requestImageKey
+                                )
+
+                                item {
+                                    Box(
+                                        Modifier
+                                            .height(100.dp)
+                                            .fillMaxWidth()
+                                            .background(documentsColorSection)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
