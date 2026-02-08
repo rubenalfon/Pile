@@ -36,6 +36,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconButtonDefaults.smallContainerSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -109,18 +110,23 @@ fun EditDocumentScreen(
                     .padding(innerPadding),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ImagePager(
+                AnimatedVisibility(
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(bottom = 16.dp),
-                    imageCount = uiState.documentImages.count(),
-                    bitmapCache = bitmapCache,
-                    onLoadBitmap = viewModel::requestBitmapLoad,
-                    onRequestImageKey = viewModel::requestImageKey,
-                    uiMode = uiState.uiMode,
-                    selectedImageIndex = uiState.selectedImageIndex,
-                    onSelectImageIndex = { viewModel.setSelectedImageIndex(it) }
-                )
+                        .weight(1f),
+                    visible = uiState.uiMode != CROP_ROTATE
+                ) {
+                    ImagePager(
+                        modifier = Modifier
+                            .padding(bottom = 16.dp),
+                        imageCount = uiState.documentImages.count(),
+                        bitmapCache = bitmapCache,
+                        onLoadBitmap = viewModel::requestBitmapLoad,
+                        onRequestImageKey = viewModel::requestImageKey,
+                        uiMode = uiState.uiMode,
+                        selectedImageIndex = uiState.selectedImageIndex,
+                        onSelectImageIndex = { viewModel.setSelectedImageIndex(it) }
+                    )
+                }
 
                 val lazyListState = rememberLazyListState()
                 val selectedImageIndex = uiState.selectedImageIndex
@@ -169,56 +175,30 @@ fun EditDocumentScreen(
                     )
                 }
 
-//                AnimatedVisibility(visible = uiState.uiMode == EditDocumentUIMode.CROP_ROTATE) {
-//                    Row(
-//                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-//                        modifier = Modifier.padding(bottom = 16.dp)
-//                    ) {
-//                        OutlinedButton(
-//                            onClick = {
-//                                cropControllers[uiState.selectedImageIndex].rotateAntiClockwise()
-//                            }
-//                        ) {
-//                            Row(
-//                                verticalAlignment = Alignment.CenterVertically,
-//                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-//                            ) {
-//                                Icon(
-//                                    painter = painterResource(R.drawable.rotate_24px),
-//                                    contentDescription = stringResource(R.string.rotate_image_counterclockwise)
-//                                )
-//                                Text(stringResource(R.string.rotate))
-//                            }
-//                        }
-//                        OutlinedButton(
-//                            onClick = {
-//                                cropControllers[uiState.selectedImageIndex] = CropController(
-//                                    bitmap = displayBitmaps[uiState.selectedImageIndex],
-//                                    cropColors = CropDefaults.cropColors(
-//                                        gridlines = colorScheme.tertiary.copy(0.5f),
-//                                        cropRectangle = colorScheme.tertiary.copy(0.5f),
-//                                        handle = colorScheme.tertiary
-//                                    ),
-//                                    cropOptions = CropDefaults.cropOptions(
-//                                        cropShape = CropShape.FreeForm,
-//                                        touchPadding = 30.dp
-//                                    )
-//                                )
-//                            }
-//                        ) {
-//                            Row(
-//                                verticalAlignment = Alignment.CenterVertically,
-//                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-//                            ) {
-//                                Icon(
-//                                    painter = painterResource(R.drawable.undo_24px),
-//                                    contentDescription = stringResource(R.string.reset)
-//                                )
-//                                Text(stringResource(R.string.reset))
-//                            }
-//                        }
-//                    }
-//                }
+                AnimatedVisibility(visible = uiState.uiMode == CROP_ROTATE) {
+                    CropRotateButtons(
+                        onRotate = {
+//                    cropControllers[uiState.selectedImageIndex].rotateAntiClockwise()
+
+                        },
+                        onReset = {
+
+                            /*cropControllers[uiState.selectedImageIndex] = CropController(
+                                bitmap = displayBitmaps[uiState.selectedImageIndex],
+                                cropColors = CropDefaults.cropColors(
+                                    gridlines = colorScheme.tertiary.copy(0.5f),
+                                    cropRectangle = colorScheme.tertiary.copy(0.5f),
+                                    handle = colorScheme.tertiary
+                                ),
+                                cropOptions = CropDefaults.cropOptions(
+                                    cropShape = CropShape.FreeForm,
+                                    touchPadding = 30.dp
+                                )
+                            )*/
+                        }
+                    )
+
+                }
 
                 ToolBar(
                     modifier = Modifier
@@ -497,6 +477,47 @@ private fun EditColorRow(
                 }
 
                 ActiveIndicator(isSelected = isSelected)
+            }
+        }
+    }
+}
+
+@Composable
+fun CropRotateButtons(
+    modifier: Modifier = Modifier,
+    onRotate: () -> Unit,
+    onReset: () -> Unit,
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.padding(bottom = 16.dp)
+    ) {
+        OutlinedButton(
+            onClick = onRotate
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.rotate_24px),
+                    contentDescription = stringResource(R.string.rotate_image_counterclockwise)
+                )
+                Text(stringResource(R.string.rotate))
+            }
+        }
+        OutlinedButton(
+            onClick = onReset
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.undo_24px),
+                    contentDescription = stringResource(R.string.reset)
+                )
+                Text(stringResource(R.string.reset))
             }
         }
     }
