@@ -20,9 +20,9 @@ class ApplyImageFilterUseCase(
         val updatedDocumentImage = documentImage.copy(filter = filterIndex.toLong())
 
         documentImageRepository.updateDocumentImage(updatedDocumentImage)
-        val imageIndex = document.imageIds.indexOf(documentImage.id)
 
-        val imageId = bitmapCacheRepository.getImageKey(document, imageIndex)
-        bitmapCacheRepository.removeFromCache(imageId)
+        val imageIndex = document.imageIds.indexOf(documentImage.id)
+        val imageKey = bitmapCacheRepository.getImageKey(document, imageIndex)
+        bitmapCacheRepository.removeFromCache(imageKey)
     }
 }

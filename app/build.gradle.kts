@@ -102,7 +102,7 @@ dependencies {
     // Reorderable List
     implementation(libs.reorderable.list)
 
-    // Crop images
+    // Crop images - My fork
     implementation(libs.crop.kit)
 
     // Logging

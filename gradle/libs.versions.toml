@@ -19,7 +19,7 @@ sqlDelight = "2.2.1"
 kotlinxSerializationJson = "1.10.0"
 exifinterface = "1.4.2"
 reorderable = "3.0.0"
-cropKit = "1.1.0"
+cropKit = "1.0.3-BETA01"
 
 [libraries]
 # --- Compose ---
@@ -66,7 +66,7 @@ sqlDelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-ex
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 reorderable-list = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
-crop-kit = { module = "com.github.Tanish-Ranjan:crop-kit", version.ref = "cropKit" }
+crop-kit = { module = "com.github.rubenalfon:crop-kit", version.ref = "cropKit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

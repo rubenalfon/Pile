@@ -43,6 +43,5 @@ class RequestBitmapLoadUseCase(
                 documentImage = documentImage
             )
         }
-
     }
 }

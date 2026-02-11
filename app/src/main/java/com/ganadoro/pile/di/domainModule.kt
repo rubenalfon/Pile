@@ -1,9 +1,11 @@
 package com.ganadoro.pile.di
 
+import com.ganadoro.pile.domain.usecases.AddCropControllerUseCase
 import com.ganadoro.pile.domain.usecases.AddPageToDocumentUseCase
 import com.ganadoro.pile.domain.usecases.ApplyImageFilterUseCase
 import com.ganadoro.pile.domain.usecases.CreateDocumentUseCase
 import com.ganadoro.pile.domain.usecases.CreatePileUseCase
+import com.ganadoro.pile.domain.usecases.CropImageUseCase
 import com.ganadoro.pile.domain.usecases.DeleteDocumentPageUseCase
 import com.ganadoro.pile.domain.usecases.DeleteDocumentUseCase
 import com.ganadoro.pile.domain.usecases.ExportDocumentUseCase
@@ -15,6 +17,7 @@ import com.ganadoro.pile.domain.usecases.ManageDocumentPileUseCase
 import com.ganadoro.pile.domain.usecases.ManageTemporaryDocumentUseCase
 import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
 import com.ganadoro.pile.domain.usecases.RequestThumbnailLoadUseCase
+import com.ganadoro.pile.domain.usecases.RotateImageUseCase
 import com.ganadoro.pile.domain.usecases.UpdateDocumentDetailsUseCase
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
@@ -36,4 +39,7 @@ val domainModule = module {
     factoryOf(::GetUpToDatePdfUseCase)
     factoryOf(::ExportDocumentUseCase)
     factoryOf(::RequestThumbnailLoadUseCase)
+    factoryOf(::AddCropControllerUseCase)
+    factoryOf(::CropImageUseCase)
+    factoryOf(::RotateImageUseCase)
 }

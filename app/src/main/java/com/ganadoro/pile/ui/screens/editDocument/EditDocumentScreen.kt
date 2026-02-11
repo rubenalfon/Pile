@@ -2,6 +2,7 @@ package com.ganadoro.pile.ui.screens.editDocument
 
 import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -69,6 +70,8 @@ import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.CROP_ROTATE
 import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.SCROLL
 import com.ganadoro.pile.ui.screens.editDocument.composables.ActiveIndicator
 import com.ganadoro.pile.ui.screens.editDocument.composables.AddItemCarousel
+import com.tanishranjan.cropkit.CropController
+import com.tanishranjan.cropkit.ImageCropper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.androidx.compose.koinViewModel
@@ -110,23 +113,26 @@ fun EditDocumentScreen(
                     .padding(innerPadding),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                AnimatedVisibility(
+//                AnimatedVisibility(
+//                    modifier = Modifier
+//                        .weight(1f),
+//                    visible = uiState.uiMode != CROP_ROTATE
+//                ) {
+                ImagePager(
                     modifier = Modifier
+                        .padding(bottom = 16.dp)
                         .weight(1f),
-                    visible = uiState.uiMode != CROP_ROTATE
-                ) {
-                    ImagePager(
-                        modifier = Modifier
-                            .padding(bottom = 16.dp),
-                        imageCount = uiState.documentImages.count(),
-                        bitmapCache = bitmapCache,
-                        onLoadBitmap = viewModel::requestBitmapLoad,
-                        onRequestImageKey = viewModel::requestImageKey,
-                        uiMode = uiState.uiMode,
-                        selectedImageIndex = uiState.selectedImageIndex,
-                        onSelectImageIndex = { viewModel.setSelectedImageIndex(it) }
-                    )
-                }
+                    uiMode = uiState.uiMode,
+                    selectedImageIndex = uiState.selectedImageIndex,
+                    imageCount = uiState.documentImages.count(),
+                    bitmapCache = bitmapCache,
+                    cropControllers = uiState.cropControllers,
+                    onLoadBitmap = viewModel::requestBitmapLoad,
+                    onRequestImageKey = viewModel::requestImageKey,
+                    onSelectImageIndex = viewModel::setSelectedImageIndex,
+                    onLoadCropController = viewModel::loadCropController
+                )
+//                }
 
                 val lazyListState = rememberLazyListState()
                 val selectedImageIndex = uiState.selectedImageIndex
@@ -176,11 +182,36 @@ fun EditDocumentScreen(
                 }
 
                 AnimatedVisibility(visible = uiState.uiMode == CROP_ROTATE) {
-                    CropRotateButtons(
-                        onRotate = {
-//                    cropControllers[uiState.selectedImageIndex].rotateAntiClockwise()
+//
+//                    Column {
+//
+//                        val key = viewModel.requestImageKey(uiState.selectedImageIndex)
+//                        val cachedBitmap: Bitmap? = bitmapCache[key]
+//
+//
+//                        val cropController = cachedBitmap?.let {
+//                            rememberCropController(
+//                                bitmap = it,
+////                            cropOptions = CropDefaults.cropOptions(
+////                                cropShape = cropShape,
+////                                gridLinesType = gridLinesType
+////                            )
+//                            )
+//                        }
+//
+//                        if (cropController != null) {
+//
+//                            ImageCropper(
+//                                modifier = Modifier
+//                                    .fillMaxWidth()
+//                                    .weight(1f)
+//                                    .padding(24.dp),
+//                                cropController = cropController
+//                            )
+//                        }
 
-                        },
+                    CropRotateButtons(
+                        onRotate = viewModel::rotateImage,
                         onReset = {
 
                             /*cropControllers[uiState.selectedImageIndex] = CropController(
@@ -197,6 +228,7 @@ fun EditDocumentScreen(
                             )*/
                         }
                     )
+//                    }
 
                 }
 
@@ -204,10 +236,10 @@ fun EditDocumentScreen(
                     modifier = Modifier
                         .padding(bottom = ScreenOffset),
                     uiMode = uiState.uiMode,
-                    imageCount = uiState.documentImages.count(),
+                    isSinglePage = uiState.documentImages.count() == 1,
                     onUpdateUiMode = viewModel::updateUIMode,
                     onDeleteImage = viewModel::deleteSelectedImage,
-                    onAddDocument = onNext
+                    onSave = onNext,
                 )
             }
         }
@@ -247,13 +279,15 @@ private fun ScreenTopAppBar(
 @Composable
 private fun ImagePager(
     modifier: Modifier = Modifier,
-    imageCount: Int,
-    bitmapCache: Map<String, Bitmap>,
-    onLoadBitmap: suspend (pageNumber: Int) -> Unit,
-    onRequestImageKey: (pageNumber: Int) -> String,
     uiMode: EditDocumentUIMode,
     selectedImageIndex: Int,
-    onSelectImageIndex: (Int) -> Unit
+    imageCount: Int,
+    bitmapCache: Map<String, Bitmap>,
+    cropControllers: Map<String, CropController>,
+    onLoadBitmap: suspend (pageNumber: Int) -> Unit,
+    onRequestImageKey: (pageNumber: Int) -> String,
+    onSelectImageIndex: (page: Int) -> Unit,
+    onLoadCropController: (key: String) -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { imageCount })
 
@@ -299,17 +333,41 @@ private fun ImagePager(
                 onLoadBitmap(page)
             }
         }
-        LoadingWrapper(cachedBitmap == null) {
-            if (cachedBitmap == null) return@LoadingWrapper
-            Image(
-                bitmap = cachedBitmap.asImageBitmap(),
-                contentDescription = stringResource(R.string.image_number, page + 1),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(28.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                contentScale = ContentScale.Fit
-            )
+        Crossfade(
+            targetState = uiMode,
+            label = "Image pager crossfade"
+        ) { uiMode ->
+            if (uiMode != CROP_ROTATE) {
+                LoadingWrapper(cachedBitmap == null) {
+                    if (cachedBitmap == null) return@LoadingWrapper
+                    Image(
+                        bitmap = cachedBitmap.asImageBitmap(),
+                        contentDescription = stringResource(R.string.image_number, page + 1),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(28.dp))
+                            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            } else {
+                val cropController = cropControllers[key]
+
+                if (cropController == null) {
+                    LaunchedEffect(key1 = cachedBitmap) {
+                        if (cachedBitmap == null) return@LaunchedEffect
+                        onLoadCropController(key)
+                    }
+                }
+                LoadingWrapper(cropController == null) {
+                    if (cropController == null) return@LoadingWrapper
+                    ImageCropper(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        cropController = cropController
+                    )
+                }
+            }
         }
     }
 }
@@ -528,10 +586,10 @@ fun CropRotateButtons(
 private fun ToolBar(
     modifier: Modifier = Modifier,
     uiMode: EditDocumentUIMode,
-    imageCount: Int,
+    isSinglePage: Boolean,
     onUpdateUiMode: (uiMode: EditDocumentUIMode) -> Unit,
     onDeleteImage: () -> Unit,
-    onAddDocument: () -> Unit
+    onSave: () -> Unit,
 ) {
     var isDeleteImageAlertExpanded by rememberSaveable { mutableStateOf(false) }
 
@@ -567,7 +625,7 @@ private fun ToolBar(
                     )
                 }
                 IconButton(
-                    enabled = imageCount > 1,
+                    enabled = !isSinglePage,
                     onClick = { isDeleteImageAlertExpanded = true }
                 ) {
                     Icon(
@@ -578,18 +636,30 @@ private fun ToolBar(
             },
             modifier = Modifier.padding(end = 8.dp)
         )
-        AnimatedVisibility(
-            visible = uiMode == SCROLL,
+        FloatingActionButton(
+            onClick = { if (uiMode == SCROLL) onSave() else onUpdateUiMode(SCROLL) },
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ) {
-            FloatingActionButton(
-                onClick = onAddDocument,
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.check_24px),
-                    contentDescription = stringResource(R.string.add_document)
-                )
+            Crossfade(
+                targetState = uiMode,
+                label = "Change ui mode toolbar icon"
+            ) { targetState ->
+                when (targetState) {
+                    SCROLL -> {
+                        Icon(
+                            painter = painterResource(R.drawable.check_24px),
+                            contentDescription = stringResource(R.string.save_document)
+                        )
+                    }
+
+                    else -> {
+                        Icon(
+                            painter = painterResource(R.drawable.save_24px),
+                            contentDescription = stringResource(R.string.save_changes)
+                        )
+                    }
+                }
             }
         }
     }

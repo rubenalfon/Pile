@@ -1,21 +1,25 @@
 package com.ganadoro.pile.ui.screens.editDocument
 
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
+import com.ganadoro.pile.domain.models.ImageCropData
 import com.ganadoro.pile.domain.models.ImageFilterType
 import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.domain.repositories.DocumentModelRepository
+import com.ganadoro.pile.domain.usecases.AddCropControllerUseCase
 import com.ganadoro.pile.domain.usecases.AddPageToDocumentUseCase
 import com.ganadoro.pile.domain.usecases.ApplyImageFilterUseCase
+import com.ganadoro.pile.domain.usecases.CropImageUseCase
 import com.ganadoro.pile.domain.usecases.DeleteDocumentPageUseCase
 import com.ganadoro.pile.domain.usecases.GetAvailableFiltersUseCase
 import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
 import com.ganadoro.pile.domain.usecases.RequestThumbnailLoadUseCase
+import com.ganadoro.pile.domain.usecases.RotateImageUseCase
+import com.tanishranjan.cropkit.CropController
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +43,8 @@ data class EditDocumentUiState(
     val documentImages: List<DocumentImage> = emptyList(),
     val imageFilters: List<ImageFilterType>? = null,
     val selectedImageIndex: Int = 0,
-    val uiMode: EditDocumentUIMode = EditDocumentUIMode.SCROLL
+    val uiMode: EditDocumentUIMode = EditDocumentUIMode.SCROLL,
+    val cropControllers: Map<String, CropController> = emptyMap()
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -51,6 +56,9 @@ class EditPDFViewModel(
     private val applyImageFilterUseCase: ApplyImageFilterUseCase,
     private val getAvailableFiltersUseCase: GetAvailableFiltersUseCase,
     private val deleteDocumentPageUseCase: DeleteDocumentPageUseCase,
+    private val addCropControllerUseCase: AddCropControllerUseCase,
+    private val rotateImageUseCase: RotateImageUseCase,
+    private val cropImageUseCase: CropImageUseCase,
     private val documentModelRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository,
     private val documentImageRepository: DocumentImageRepository
@@ -122,12 +130,6 @@ class EditPDFViewModel(
         )
     }
 
-    fun updateUIMode(newUiMode: EditDocumentUIMode) {
-        val currentUiMode = uiState.value.uiMode
-        if (currentUiMode == newUiMode) _uiState.update { it.copy(uiMode = EditDocumentUIMode.SCROLL) }
-        else _uiState.update { it.copy(uiMode = newUiMode) }
-    }
-
     fun setSelectedImageIndex(index: Int) {
         if (uiState.value.uiMode != EditDocumentUIMode.SCROLL) return
 
@@ -136,24 +138,100 @@ class EditPDFViewModel(
         }
     }
 
-    fun setSelectedColorIndex(index: Int) {
-        if (uiState.value.uiMode != EditDocumentUIMode.COLOR) return
+    fun updateUIMode(newUiMode: EditDocumentUIMode) {
+        val currentUiMode = uiState.value.uiMode
 
-        val document = uiState.value.documentModel ?: return
-        val selectedImageIndex = uiState.value.selectedImageIndex
-        val selectedDocumentImage = uiState.value.documentImages[selectedImageIndex]
+        when (currentUiMode) {
+            EditDocumentUIMode.COLOR -> cleanSelectedImageCropController()
+            EditDocumentUIMode.CROP_ROTATE -> cropImage()
+            else -> {}
+        }
+
+        if (currentUiMode == newUiMode) _uiState.update { it.copy(uiMode = EditDocumentUIMode.SCROLL) }
+        else _uiState.update { it.copy(uiMode = newUiMode) }
+    }
+
+    fun setSelectedColorIndex(index: Int) {
+        val state = uiState.value
+        if (state.uiMode != EditDocumentUIMode.COLOR) return
+
+        val document = state.documentModel ?: return
+        val selectedImage = state.documentImages.getOrNull(state.selectedImageIndex) ?: return
 
         viewModelScope.launch {
             applyImageFilterUseCase(
                 document = document,
-                documentImage = selectedDocumentImage,
+                documentImage = selectedImage,
                 index
             )
         }
     }
 
-    fun cropImage(croppedBitmap: Bitmap) {// TODO USECASE
+    fun loadCropController(key: String) {
+        viewModelScope.launch {
+            val state = uiState.value
+            val selectedImage = state.documentImages.getOrNull(state.selectedImageIndex)
+                ?: return@launch
 
+            val cropControllers = state.cropControllers
+            if (cropControllers.containsKey(key)) return@launch
+
+            try {
+                val cropController = addCropControllerUseCase(documentId, selectedImage)
+
+                _uiState.update {
+                    it.copy(cropControllers = it.cropControllers + (key to cropController))
+                }
+            } catch (ex: Exception) {
+                Napier.e("Error loading crop controller", ex)
+                return@launch
+                // TODO: Gestionar errores
+            }
+        }
+    }
+
+    private fun cropImage() {
+        val state = uiState.value
+        if (state.uiMode != EditDocumentUIMode.CROP_ROTATE) return
+
+        val document = state.documentModel ?: return
+        val selectedImage = state.documentImages.getOrNull(state.selectedImageIndex) ?: return
+        val imageKey = requestImageKey(state.selectedImageIndex)
+
+        val selectedCropController = state.cropControllers[imageKey] ?: return
+
+        val cropData = selectedCropController.getCropData()
+
+        viewModelScope.launch {
+            cropImageUseCase(document, selectedImage, ImageCropData.fromCropData(cropData))
+        }
+    }
+
+    fun rotateImage() {
+        val state = uiState.value
+        if (state.uiMode != EditDocumentUIMode.CROP_ROTATE) return
+
+        val document = state.documentModel ?: return
+        val selectedImage = state.documentImages.getOrNull(state.selectedImageIndex) ?: return
+        val imageKey = requestImageKey(state.selectedImageIndex)
+
+        viewModelScope.launch {
+            state.cropControllers[imageKey]?.rotateClockwise()
+            rotateImageUseCase(document, selectedImage)
+        }
+    }
+
+    fun resetImage() {
+        val state = uiState.value
+        if (state.uiMode != EditDocumentUIMode.CROP_ROTATE) return
+    }
+
+    private fun cleanSelectedImageCropController() {
+        _uiState.update { state ->
+            val cropControllers = state.cropControllers
+            val selectedImageKey = requestImageKey(state.selectedImageIndex)
+            state.copy(cropControllers = cropControllers.filter { it.key != selectedImageKey })
+        }
     }
 
     fun addNewImage(uriList: List<Uri>) {
