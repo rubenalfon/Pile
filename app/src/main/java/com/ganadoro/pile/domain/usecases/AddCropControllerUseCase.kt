@@ -9,7 +9,6 @@ import com.tanishranjan.cropkit.CropController
 import com.tanishranjan.cropkit.CropData
 import com.tanishranjan.cropkit.CropDefaults
 import com.tanishranjan.cropkit.CropShape
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -36,12 +35,7 @@ class AddCropControllerUseCase(
         val bitmap = getUncroppedBitmap(documentId, documentImage)
             ?: throw IllegalStateException("Bitmap not found for image ${documentImage.id}")
 
-        Napier.d { "A! Loaded crop controller for image ${documentImage.id}" }
-        Napier.d { "A! documentImage.crop ${documentImage.crop}" }
-        Napier.d { "A! documentImage.crop?.toCropData() ${documentImage.crop?.toCropData()}" }
-        Napier.d { "A! documentImage.crop?.toCropData() ?: CropData.Zero ${documentImage.crop?.toCropData() ?: CropData.Zero}" }
-
-        val a = CropController(
+        CropController(
             bitmap = bitmap,
             cropColors = CropDefaults.cropColors(),
             cropOptions = CropDefaults.cropOptions(
@@ -49,12 +43,6 @@ class AddCropControllerUseCase(
                 cropShape = CropShape.FreeForm
             )
         )
-
-        Napier.d { "A! cropController = $a" }
-        Napier.d { "A! cropOptions = ${a.cropOptions}" }
-        Napier.d { "A! cropControllergetCropData = ${a.getCropData()}" }
-
-        return@withContext a
     }
 
     /**
