@@ -229,15 +229,12 @@ class EditPDFViewModel(
         }
     }
 
-    fun addNewImage(uriList: List<Uri>) { // TODO: Select image
+    fun addNewImage(uriList: List<Uri>) {
         val document = uiState.value.documentModel ?: return
 
         viewModelScope.launch {
             try {
-                addPageToDocumentUseCase.invoke(
-                    document,
-                    uriList
-                )
+                addPageToDocumentUseCase.invoke(document, uriList)
             } catch (e: Exception) {
                 Napier.e("Error importing images", e)
                 // TODO: show in ui, toast
