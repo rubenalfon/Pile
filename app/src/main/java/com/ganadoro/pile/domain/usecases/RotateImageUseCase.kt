@@ -7,7 +7,7 @@ import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.domain.repositories.DocumentImageRepository
 
 /**
- * Use case to rotate a [DocumentImage] by 90 degrees clockwise.
+ * Use case to rotate a [DocumentImage] by 90 degrees anticlockwise.
  *
  * This class handles the business logic of rotating an image. It calculates the new rotation value,
  * updates the image information in the data layer, and invalidates the corresponding bitmap
@@ -18,7 +18,7 @@ class RotateImageUseCase(
     private val bitmapCacheRepository: BitmapCacheRepository
 ) {
     /**
-     * Rotates the given [DocumentImage] clockwise by 90 degrees.
+     * Rotates the given [DocumentImage] anticlockwise by 90 degrees.
      *
      * The rotation is updated in the [DocumentImageRepository]. To ensure UI consistency,
      * the main image and all possible filter thumbnails are removed from [BitmapCacheRepository].
@@ -30,7 +30,7 @@ class RotateImageUseCase(
         document: DocumentModel,
         documentImage: DocumentImage
     ) {
-        val newRotation = (documentImage.rotation + 90) % 360
+        val newRotation = (documentImage.rotation - 90) % 360
         val updatedImage = documentImage.copy(rotation = newRotation)
 
         documentImageRepository.updateDocumentImage(updatedImage)

@@ -113,11 +113,6 @@ fun EditDocumentScreen(
                     .padding(innerPadding),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-//                AnimatedVisibility(
-//                    modifier = Modifier
-//                        .weight(1f),
-//                    visible = uiState.uiMode != CROP_ROTATE
-//                ) {
                 ImagePager(
                     modifier = Modifier
                         .padding(bottom = 16.dp)
@@ -132,7 +127,6 @@ fun EditDocumentScreen(
                     onSelectImageIndex = viewModel::setSelectedImageIndex,
                     onLoadCropController = viewModel::loadCropController
                 )
-//                }
 
                 val lazyListState = rememberLazyListState()
                 val selectedImageIndex = uiState.selectedImageIndex
@@ -182,54 +176,9 @@ fun EditDocumentScreen(
                 }
 
                 AnimatedVisibility(visible = uiState.uiMode == CROP_ROTATE) {
-//
-//                    Column {
-//
-//                        val key = viewModel.requestImageKey(uiState.selectedImageIndex)
-//                        val cachedBitmap: Bitmap? = bitmapCache[key]
-//
-//
-//                        val cropController = cachedBitmap?.let {
-//                            rememberCropController(
-//                                bitmap = it,
-////                            cropOptions = CropDefaults.cropOptions(
-////                                cropShape = cropShape,
-////                                gridLinesType = gridLinesType
-////                            )
-//                            )
-//                        }
-//
-//                        if (cropController != null) {
-//
-//                            ImageCropper(
-//                                modifier = Modifier
-//                                    .fillMaxWidth()
-//                                    .weight(1f)
-//                                    .padding(24.dp),
-//                                cropController = cropController
-//                            )
-//                        }
-
                     CropRotateButtons(
                         onRotate = viewModel::rotateImage,
-                        onReset = {
-
-                            /*cropControllers[uiState.selectedImageIndex] = CropController(
-                                bitmap = displayBitmaps[uiState.selectedImageIndex],
-                                cropColors = CropDefaults.cropColors(
-                                    gridlines = colorScheme.tertiary.copy(0.5f),
-                                    cropRectangle = colorScheme.tertiary.copy(0.5f),
-                                    handle = colorScheme.tertiary
-                                ),
-                                cropOptions = CropDefaults.cropOptions(
-                                    cropShape = CropShape.FreeForm,
-                                    touchPadding = 30.dp
-                                )
-                            )*/
-                        }
                     )
-//                    }
-
                 }
 
                 ToolBar(
@@ -543,8 +492,7 @@ private fun EditColorRow(
 @Composable
 fun CropRotateButtons(
     modifier: Modifier = Modifier,
-    onRotate: () -> Unit,
-    onReset: () -> Unit,
+    onRotate: () -> Unit
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -562,20 +510,6 @@ fun CropRotateButtons(
                     contentDescription = stringResource(R.string.rotate_image_counterclockwise)
                 )
                 Text(stringResource(R.string.rotate))
-            }
-        }
-        OutlinedButton(
-            onClick = onReset
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.undo_24px),
-                    contentDescription = stringResource(R.string.reset)
-                )
-                Text(stringResource(R.string.reset))
             }
         }
     }
@@ -648,15 +582,15 @@ private fun ToolBar(
                 when (targetState) {
                     SCROLL -> {
                         Icon(
-                            painter = painterResource(R.drawable.check_24px),
-                            contentDescription = stringResource(R.string.save_document)
+                            painter = painterResource(R.drawable.save_24px),
+                            contentDescription = stringResource(R.string.save_changes)
                         )
                     }
 
                     else -> {
                         Icon(
-                            painter = painterResource(R.drawable.save_24px),
-                            contentDescription = stringResource(R.string.save_changes)
+                            painter = painterResource(R.drawable.check_24px),
+                            contentDescription = stringResource(R.string.save_document)
                         )
                     }
                 }

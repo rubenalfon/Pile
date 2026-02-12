@@ -216,14 +216,9 @@ class EditPDFViewModel(
         val imageKey = requestImageKey(state.selectedImageIndex)
 
         viewModelScope.launch {
-            state.cropControllers[imageKey]?.rotateClockwise()
+            state.cropControllers[imageKey]?.rotateAntiClockwise()
             rotateImageUseCase(document, selectedImage)
         }
-    }
-
-    fun resetImage() {
-        val state = uiState.value
-        if (state.uiMode != EditDocumentUIMode.CROP_ROTATE) return
     }
 
     private fun cleanSelectedImageCropController() {
@@ -234,7 +229,7 @@ class EditPDFViewModel(
         }
     }
 
-    fun addNewImage(uriList: List<Uri>) {
+    fun addNewImage(uriList: List<Uri>) { // TODO: Select image
         val document = uiState.value.documentModel ?: return
 
         viewModelScope.launch {
