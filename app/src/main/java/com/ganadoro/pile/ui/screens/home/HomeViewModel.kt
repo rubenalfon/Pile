@@ -11,10 +11,10 @@ import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.domain.repositories.FileRepository
 import com.ganadoro.pile.domain.repositories.PileModelRepository
-import com.ganadoro.pile.domain.usecases.CreateDocumentUseCase
-import com.ganadoro.pile.domain.usecases.CreatePileUseCase
-import com.ganadoro.pile.domain.usecases.ManageTemporaryDocumentUseCase
-import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
+import com.ganadoro.pile.domain.usecases.document.CreateDocumentUseCase
+import com.ganadoro.pile.domain.usecases.document.ManageTemporaryDocumentUseCase
+import com.ganadoro.pile.domain.usecases.image.RequestBitmapLoadUseCase
+import com.ganadoro.pile.domain.usecases.pile.CreatePileUseCase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay

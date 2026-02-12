@@ -1,4 +1,4 @@
-package com.ganadoro.pile.domain.usecases
+package com.ganadoro.pile.domain.usecases.image
 
 import android.graphics.Bitmap
 import com.ganadoro.pile.DocumentImage
@@ -15,7 +15,7 @@ import kotlinx.coroutines.withContext
 /**
  * Use case responsible for loading a crop controller for a specific document image.
  */
-class AddCropControllerUseCase(
+class GetCropControllerUseCase(
     private val ioDispatcher: CoroutineDispatcher,
     private val fileRepository: FileRepository,
     private val imageTransformationHelper: ImageTransformationHelper
@@ -24,7 +24,7 @@ class AddCropControllerUseCase(
      * Loads a crop controller for the given document image.
      *
      * @param documentId The ID of the document.
-     * @param documentImage The [DocumentImage] to load the crop controller for.
+     * @param documentImage The [com.ganadoro.pile.DocumentImage] to load the crop controller for.
      * @return The loaded crop controller.
      * @throws IllegalStateException If the bitmap for the image is not found.
      */
@@ -39,7 +39,7 @@ class AddCropControllerUseCase(
             bitmap = bitmap,
             cropColors = CropDefaults.cropColors(),
             cropOptions = CropDefaults.cropOptions(
-                initialCropData = documentImage.crop?.toCropData() ?: CropData.Zero,
+                initialCropData = documentImage.crop?.toCropData() ?: CropData.Companion.Zero,
                 cropShape = CropShape.FreeForm
             )
         )
@@ -61,7 +61,7 @@ class AddCropControllerUseCase(
             file = imageFile,
             rotation = documentImage.rotation.toInt(),
             cropData = null,
-            filter = ImageFilterType.fromId(documentImage.filter.toInt())
+            filter = ImageFilterType.Companion.fromId(documentImage.filter.toInt())
         )
     }
 }

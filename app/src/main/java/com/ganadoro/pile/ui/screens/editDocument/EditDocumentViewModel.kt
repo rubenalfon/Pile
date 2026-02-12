@@ -10,15 +10,15 @@ import com.ganadoro.pile.domain.models.ImageFilterType
 import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.domain.repositories.DocumentModelRepository
-import com.ganadoro.pile.domain.usecases.AddCropControllerUseCase
-import com.ganadoro.pile.domain.usecases.AddPageToDocumentUseCase
-import com.ganadoro.pile.domain.usecases.ApplyImageFilterUseCase
-import com.ganadoro.pile.domain.usecases.CropImageUseCase
-import com.ganadoro.pile.domain.usecases.DeleteDocumentPageUseCase
-import com.ganadoro.pile.domain.usecases.GetAvailableFiltersUseCase
-import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
-import com.ganadoro.pile.domain.usecases.RequestThumbnailLoadUseCase
-import com.ganadoro.pile.domain.usecases.RotateImageUseCase
+import com.ganadoro.pile.domain.usecases.document.AddPageToDocumentUseCase
+import com.ganadoro.pile.domain.usecases.document.DeleteDocumentPageUseCase
+import com.ganadoro.pile.domain.usecases.image.ApplyImageFilterUseCase
+import com.ganadoro.pile.domain.usecases.image.CropImageUseCase
+import com.ganadoro.pile.domain.usecases.image.GetAvailableFiltersUseCase
+import com.ganadoro.pile.domain.usecases.image.GetCropControllerUseCase
+import com.ganadoro.pile.domain.usecases.image.RequestBitmapLoadUseCase
+import com.ganadoro.pile.domain.usecases.image.RequestThumbnailLoadUseCase
+import com.ganadoro.pile.domain.usecases.image.RotateImageUseCase
 import com.tanishranjan.cropkit.CropController
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -56,7 +56,7 @@ class EditPDFViewModel(
     private val applyImageFilterUseCase: ApplyImageFilterUseCase,
     private val getAvailableFiltersUseCase: GetAvailableFiltersUseCase,
     private val deleteDocumentPageUseCase: DeleteDocumentPageUseCase,
-    private val addCropControllerUseCase: AddCropControllerUseCase,
+    private val getCropControllerUseCase: GetCropControllerUseCase,
     private val rotateImageUseCase: RotateImageUseCase,
     private val cropImageUseCase: CropImageUseCase,
     private val documentModelRepository: DocumentModelRepository,
@@ -177,7 +177,7 @@ class EditPDFViewModel(
             if (cropControllers.containsKey(key)) return@launch
 
             try {
-                val cropController = addCropControllerUseCase(documentId, selectedImage)
+                val cropController = getCropControllerUseCase(documentId, selectedImage)
 
                 _uiState.update {
                     it.copy(cropControllers = it.cropControllers + (key to cropController))

@@ -1,4 +1,4 @@
-package com.ganadoro.pile.domain.usecases
+package com.ganadoro.pile.domain.usecases.document
 
 import android.net.Uri
 import com.ganadoro.pile.DocumentImage

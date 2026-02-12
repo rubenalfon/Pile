@@ -1,4 +1,4 @@
-package com.ganadoro.pile.domain.usecases
+package com.ganadoro.pile.domain.usecases.document
 
 import com.ganadoro.pile.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.domain.repositories.DocumentModelRepository
@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 
 /**
  * Use case responsible for orchestrating the deletion of a specific page within a document.
- * 
+ *
  * It ensures data consistency by updating the parent document's metadata, removing
  * image-specific records from the database, and purging the physical file from storage.
  */
@@ -44,6 +44,6 @@ class DeleteDocumentPageUseCase(
         documentImageRepository.deleteDocumentImage(imageId)
 
         fileRepository.deleteDocumentImage(documentId, imageId)
-        
+
     }
 }

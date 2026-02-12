@@ -1,4 +1,4 @@
-package com.ganadoro.pile.domain.usecases
+package com.ganadoro.pile.domain.usecases.document
 
 import android.net.Uri
 import com.ganadoro.pile.DocumentImage
@@ -28,8 +28,8 @@ class AddPageToDocumentUseCase(
      * If the document update fails, it performs a rollback by deleting both the
      * database record and the physical file of the newly added image.
      *
-     * @param document The existing [DocumentModel] to which the page will be added.
-     * @param uris A list of [Uri] objects representing the image files to be added.
+     * @param document The existing [com.ganadoro.pile.DocumentModel] to which the page will be added.
+     * @param uris A list of [android.net.Uri] objects representing the image files to be added.
      * @return A [Result] indicating the success of the operation.
      */
     suspend operator fun invoke(

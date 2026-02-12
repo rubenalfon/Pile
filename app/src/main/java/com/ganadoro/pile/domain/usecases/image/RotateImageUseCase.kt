@@ -1,4 +1,4 @@
-package com.ganadoro.pile.domain.usecases
+package com.ganadoro.pile.domain.usecases.image
 
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel

@@ -8,7 +8,7 @@ import com.ganadoro.pile.domain.models.StringDetail
 import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.domain.repositories.PileModelRepository
-import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
+import com.ganadoro.pile.domain.usecases.image.RequestBitmapLoadUseCase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

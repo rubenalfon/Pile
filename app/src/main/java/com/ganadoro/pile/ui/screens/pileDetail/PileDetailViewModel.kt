@@ -7,7 +7,7 @@ import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.domain.repositories.PileModelRepository
-import com.ganadoro.pile.domain.usecases.RequestBitmapLoadUseCase
+import com.ganadoro.pile.domain.usecases.image.RequestBitmapLoadUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

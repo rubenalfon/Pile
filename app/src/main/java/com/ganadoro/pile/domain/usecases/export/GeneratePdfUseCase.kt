@@ -1,4 +1,4 @@
-package com.ganadoro.pile.domain.usecases
+package com.ganadoro.pile.domain.usecases.export
 
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.domain.repositories.DocumentImageRepository
@@ -10,7 +10,7 @@ import java.io.File
 
 /**
  * Use case responsible for generating a PDF file from a list of document images.
- * 
+ *
  * It retrieves all associated image metadata, ensures there is content to process,
  * and delegates the physical PDF creation to the file repository.
  */
@@ -23,7 +23,7 @@ class GeneratePdfUseCase(
      * Generates a PDF for the given [document].
      *
      * @param document The document model containing the IDs of the images to be included.
-     * @return The generated PDF [File].
+     * @return The generated PDF [java.io.File].
      * @throws IllegalStateException If the document has no images associated with it.
      */
     suspend operator fun invoke(

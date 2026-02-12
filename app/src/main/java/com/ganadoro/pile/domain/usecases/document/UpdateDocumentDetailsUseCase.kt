@@ -1,4 +1,4 @@
-package com.ganadoro.pile.domain.usecases
+package com.ganadoro.pile.domain.usecases.document
 
 import com.ganadoro.pile.domain.models.DetailsModificationResult
 import com.ganadoro.pile.domain.models.DocumentDetail
@@ -18,7 +18,7 @@ class UpdateDocumentDetailsUseCase {
      * @param currentDetails The current list of details shown to the user.
      * @param deletedStack The current stack of deleted items (for undo functionality).
      * @param event The event triggered by the user.
-     * @return A [DetailsModificationResult] containing the new list and new stack.
+     * @return A [com.ganadoro.pile.domain.models.DetailsModificationResult] containing the new list and new stack.
      */
     operator fun invoke(
         currentDetails: List<DocumentDetail>,

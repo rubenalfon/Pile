@@ -1,6 +1,6 @@
-package com.ganadoro.pile.domain.usecases
+package com.ganadoro.pile.domain.usecases.document
 
-import com.ganadoro.pile.domain.models.DocumentStatusConstants.TEMPORARY
+import com.ganadoro.pile.domain.models.DocumentStatusConstants
 import com.ganadoro.pile.domain.models.TemporaryDocumentBackup
 import com.ganadoro.pile.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.domain.repositories.DocumentModelRepository
@@ -9,7 +9,6 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-
 
 /**
  * Use case responsible for handling the lifecycle of temporary documents.
@@ -25,12 +24,12 @@ class ManageTemporaryDocumentUseCase(
      * Finds the existing temporary document (if any) and performs a soft delete.
      * It removes the data from the database but keeps the files in storage, returning a backup object.
      *
-     * @return A [TemporaryDocumentBackup] if a temporary document existed, null otherwise.
+     * @return A [com.ganadoro.pile.domain.models.TemporaryDocumentBackup] if a temporary document existed, null otherwise.
      */
     suspend fun deleteForUndo(): TemporaryDocumentBackup? =
         withContext(ioDispatcher) {
             val documentToDelete = documentModelRepository
-                .getDocumentModelsByStatus(TEMPORARY)
+                .getDocumentModelsByStatus(DocumentStatusConstants.TEMPORARY)
                 .first()
                 .firstOrNull()
 

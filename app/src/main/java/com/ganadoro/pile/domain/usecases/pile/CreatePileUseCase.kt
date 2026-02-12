@@ -1,11 +1,11 @@
-package com.ganadoro.pile.domain.usecases
+package com.ganadoro.pile.domain.usecases.pile
 
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.domain.repositories.PileModelRepository
 import java.util.UUID
 
 /**
- * Use case responsible for creating and persisting a new [PileModel].
+ * Use case responsible for creating and persisting a new [com.ganadoro.pile.PileModel].
  * Encapsulates the ID generation logic and data persistence.
  */
 class CreatePileUseCase(
