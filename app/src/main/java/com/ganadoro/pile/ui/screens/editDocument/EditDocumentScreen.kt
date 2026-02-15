@@ -68,6 +68,8 @@ import com.ganadoro.pile.ui.controllers.rememberDocumentImportController
 import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.COLOR
 import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.CROP_ROTATE
 import com.ganadoro.pile.ui.screens.editDocument.EditDocumentUIMode.SCROLL
+import com.ganadoro.pile.ui.screens.editDocument.EditPDFViewModel.NavigationType.BACK
+import com.ganadoro.pile.ui.screens.editDocument.EditPDFViewModel.NavigationType.NEXT
 import com.ganadoro.pile.ui.screens.editDocument.composables.ActiveIndicator
 import com.ganadoro.pile.ui.screens.editDocument.composables.AddItemCarousel
 import com.tanishranjan.cropkit.CropController
@@ -90,6 +92,15 @@ fun EditDocumentScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect { navigationType ->
+            when (navigationType) {
+                BACK -> popBackStack()
+                NEXT -> onNext()
+            }
+        }
+    }
+
     // Only intended for selecting images on the gallery.
     val importActions = rememberDocumentImportController(
         onPdfSelected = {},
@@ -101,11 +112,11 @@ fun EditDocumentScreen(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
-            ScreenTopAppBar(popBackStack = popBackStack)
+            ScreenTopAppBar(popBackStack = viewModel::onNavigateBack)
         }
     ) { innerPadding ->
         LoadingWrapper(
-            uiState.documentModel == null || uiState.documentImages.isEmpty()
+            uiState.draftDocument == null || uiState.documentImages.isEmpty()
         ) {
             Column(
                 modifier = Modifier
@@ -188,7 +199,7 @@ fun EditDocumentScreen(
                     isSinglePage = uiState.documentImages.count() == 1,
                     onUpdateUiMode = viewModel::updateUIMode,
                     onDeleteImage = viewModel::deleteSelectedImage,
-                    onSave = onNext,
+                    onSave = viewModel::onNavigateNext,
                 )
             }
         }
@@ -233,7 +244,7 @@ private fun ImagePager(
     imageCount: Int,
     bitmapCache: Map<String, Bitmap>,
     cropControllers: Map<String, CropController>,
-    onLoadBitmap: suspend (pageNumber: Int) -> Unit,
+    onLoadBitmap: (pageNumber: Int) -> Unit,
     onRequestImageKey: (pageNumber: Int) -> String,
     onSelectImageIndex: (page: Int) -> Unit,
     onLoadCropController: (key: String) -> Unit
@@ -327,7 +338,7 @@ private fun ThumbnailRow(
     lazyListState: LazyListState,
     imageCount: Int,
     bitmapCache: Map<String, Bitmap>,
-    onLoadBitmap: suspend (pageNumber: Int) -> Unit,
+    onLoadBitmap: (pageNumber: Int) -> Unit,
     onRequestImageKey: (pageNumber: Int) -> String,
     selectedImageIndex: Int,
     onSelectImage: (Int) -> Unit,
@@ -384,7 +395,7 @@ private fun ThumbnailItem(
     isSelected: Boolean,
     cacheKey: String,
     bitmapCache: Map<String, Bitmap>,
-    onLoadBitmap: suspend (Int) -> Unit,
+    onLoadBitmap: (index: Int) -> Unit,
     onSelect: (Int) -> Unit
 ) {
     val cachedBitmap = bitmapCache[cacheKey]

@@ -38,7 +38,7 @@ val viewmodelModule = module {
     }
 
     viewModel { (documentId: String) ->
-        EditPDFViewModel(documentId, get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get())
+        EditPDFViewModel(documentId, get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get())
     }
 
     viewModel { (documentId: String) ->

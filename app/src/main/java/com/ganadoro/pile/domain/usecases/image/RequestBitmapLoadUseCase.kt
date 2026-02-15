@@ -23,7 +23,7 @@ class RequestBitmapLoadUseCase(
      */
     suspend operator fun invoke(document: DocumentModel, pageNumber: Int) {
         if (document.isIncomingPdf) {
-            val file = fileRepository.getPDFFile(document.id)
+            val file = fileRepository.getPDFFile(documentId = document.id)
 
             bitmapCacheRepository.loadBitmap(
                 file = file,
@@ -32,7 +32,7 @@ class RequestBitmapLoadUseCase(
             )
         } else {
             val imageId = document.imageIds.getOrNull(pageNumber) ?: return
-            val file = fileRepository.getImageFile(document.id, imageId)
+            val file = fileRepository.getImageFile(documentId = document.id, imageId =  imageId)
 
             val documentImage = documentImageRepository.getDocumentImageById(imageId).firstOrNull()
 

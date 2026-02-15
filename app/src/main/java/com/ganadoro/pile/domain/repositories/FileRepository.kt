@@ -12,46 +12,73 @@ import java.io.File
  */
 interface FileRepository {
     /**
+     * Enum that represents the different types of storage available in the application.
+     */
+    enum class StorageType {
+        PERSISTENT,
+        CACHE,
+    }
+
+    /**
      * Gets the directory [File] where all assets for a specific document are stored.
      *
+     * @param storageType The type of storage (PERSISTENT or CACHE).
      * @param documentId The unique identifier of the document.
      * @return A [File] representing the document's folder.
      */
-    fun getDocumentDirectory(documentId: String): File
+    fun getDocumentDirectory(
+        storageType: StorageType = StorageType.PERSISTENT,
+        documentId: String
+    ): File
 
     /**
      * Retrieves the PDF file for a specific document.
      *
+     * @param storageType The type of storage (PERSISTENT or CACHE).
      * @param documentId The unique identifier of the document.
      * @return A [File] object pointing to the document's PDF file.
      */
-    fun getPDFFile(documentId: String): File
+    fun getPDFFile(storageType: StorageType = StorageType.PERSISTENT, documentId: String): File
 
     /**
      * Retrieves a specific image file for a document.
      *
+     * @param storageType The type of storage (PERSISTENT or CACHE).
      * @param documentId The unique identifier of the document.
      * @param imageId The unique identifier the image file.
      * @return A [File] object pointing to the image file.
      */
-    fun getImageFile(documentId: String, imageId: String): File
+    fun getImageFile(
+        storageType: StorageType = StorageType.PERSISTENT,
+        documentId: String,
+        imageId: String
+    ): File
 
     /**
      * Deletes all stored files and the directory associated with a specific document.
      *
+     * @param storageType The type of storage (PERSISTENT or CACHE).
      * @param documentId The unique identifier of the document to be removed from storage.
      * @return A [Boolean] indicating whether the operation was successful.
      */
-    suspend fun deleteDocumentStorage(documentId: String): Boolean
+    suspend fun deleteDocumentStorage(
+        storageType: StorageType = StorageType.PERSISTENT,
+        documentId: String
+    ): Boolean
 
     /**
      * Deletes a specific image file from the document folder.
      *
+     * @param storageType The type of storage (PERSISTENT or CACHE).
      * @param documentId The unique identifier for the document.
      * @param imageId The unique identifier for the image file.
      * @return A [Boolean] indicating whether the operation was successful.
      */
-    suspend fun deleteDocumentImage(documentId: String, imageId: String): Boolean
+    suspend fun deleteDocumentImage(
+        storageType: StorageType = StorageType.PERSISTENT,
+        documentId: String,
+        imageId: String
+    ): Boolean
 
     /**
      * Creates a temporary [Uri] for a image file.
@@ -86,12 +113,26 @@ interface FileRepository {
      * @param quality Quality of the saved images (default: 85).
      * @return List of File objects representing the saved images.
      */
-    suspend fun saveImagesToInternalStorage(
+    suspend fun saveImagesToStorage(
+        storageType: StorageType,
         uris: List<Uri>,
         documentId: String,
         maxSize: Int = 1200,
         quality: Int = 85
     ): List<File>
+
+    /**
+     * Copies an image to the internal storage of the app.
+     *
+     * @param documentId The unique identifier of the document where the image will be stored.
+     * @param documentImage The [DocumentImage] object representing the image to be copied.
+     * @return A [File] object representing the copied image in internal storage.
+     */
+    suspend fun copyImageToInternalStorage(
+        documentId: String,
+        documentImage: DocumentImage
+    ): File
+
 
     /**
      * Obtains the name of the file for a given URI.

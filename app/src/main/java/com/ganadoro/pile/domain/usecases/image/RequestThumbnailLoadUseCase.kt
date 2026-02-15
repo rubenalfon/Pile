@@ -3,6 +3,7 @@ package com.ganadoro.pile.domain.usecases.image
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.domain.repositories.FileRepository
+import com.ganadoro.pile.domain.repositories.FileRepository.StorageType
 
 /**
  * Use case responsible for resolving the physical file associated with a specific document image
@@ -20,7 +21,14 @@ class RequestThumbnailLoadUseCase(
      * @param filterId The unique ID of the filter to be applied to the image.
      */
     suspend operator fun invoke(documentId: String, documentImage: DocumentImage, filterId: Int) {
-        val file = fileRepository.getImageFile(documentId, documentImage.id)
+        val storageType = if (documentImage.isDraft) StorageType.CACHE
+        else StorageType.PERSISTENT
+
+        val file = fileRepository.getImageFile(
+            storageType = storageType,
+            documentId = documentId,
+            imageId = documentImage.id
+        )
 
         bitmapCacheRepository.loadImageThumbnail(
             imageFile = file,

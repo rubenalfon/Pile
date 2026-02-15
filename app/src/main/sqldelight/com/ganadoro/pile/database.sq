@@ -192,14 +192,15 @@ WHERE id = ?;
 
 CREATE TABLE IF NOT EXISTS DocumentImage(
     id          TEXT                    PRIMARY KEY,
+    isDraft     INTEGER AS Boolean      NOT NULL,
     crop        TEXT AS ImageCropData,
     filter      INTEGER                 NOT NULL,
     rotation    INTEGER                 NOT NULL
 );
 
 insertDocumentImage:
-INSERT INTO DocumentImage(id, crop, filter, rotation)
-VALUES(?, ?, ?, ?);
+INSERT INTO DocumentImage(id, isDraft, crop, filter, rotation)
+VALUES(?, ?, ?, ?, ?);
 
 selectAllDocumentImages:
 SELECT *
@@ -216,9 +217,15 @@ WHERE id = ?;
 
 updateFullDocumentImage:
 UPDATE DocumentImage
-SET crop = ?,
+SET isDraft = ?,
+    crop = ?,
     filter = ?,
     rotation = ?
+WHERE id = ?;
+
+updateDraft:
+UPDATE DocumentImage
+SET isDraft = ?
 WHERE id = ?;
 
 updateCrop:

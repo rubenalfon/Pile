@@ -27,6 +27,7 @@ class DocumentImageRepositoryImpl(
         withContext(ioDispatcher) {
             databaseQueries.insertDocumentImage(
                 documentImage.id,
+                documentImage.isDraft,
                 documentImage.crop,
                 documentImage.filter,
                 documentImage.rotation
@@ -37,6 +38,7 @@ class DocumentImageRepositoryImpl(
     override suspend fun updateDocumentImage(documentImage: DocumentImage) {
         withContext(ioDispatcher) {
             databaseQueries.updateFullDocumentImage(
+                documentImage.isDraft,
                 documentImage.crop,
                 documentImage.filter,
                 documentImage.rotation,

@@ -10,27 +10,25 @@ import com.ganadoro.pile.domain.models.ImageFilterType
 import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.domain.repositories.DocumentModelRepository
+import com.ganadoro.pile.domain.repositories.FileRepository
+import com.ganadoro.pile.domain.repositories.FileRepository.StorageType
+import com.ganadoro.pile.domain.usecases.RemoveFromCacheUseCase
+import com.ganadoro.pile.domain.usecases.RequestDraftBitmapLoadUseCase
 import com.ganadoro.pile.domain.usecases.document.AddPageToDocumentUseCase
-import com.ganadoro.pile.domain.usecases.document.DeleteDocumentPageUseCase
-import com.ganadoro.pile.domain.usecases.image.ApplyImageFilterUseCase
-import com.ganadoro.pile.domain.usecases.image.CropImageUseCase
+import com.ganadoro.pile.domain.usecases.document.UpdateDocumentUseCase
 import com.ganadoro.pile.domain.usecases.image.GetAvailableFiltersUseCase
 import com.ganadoro.pile.domain.usecases.image.GetCropControllerUseCase
-import com.ganadoro.pile.domain.usecases.image.RequestBitmapLoadUseCase
 import com.ganadoro.pile.domain.usecases.image.RequestThumbnailLoadUseCase
-import com.ganadoro.pile.domain.usecases.image.RotateImageUseCase
 import com.tanishranjan.cropkit.CropController
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -39,7 +37,7 @@ enum class EditDocumentUIMode {
 }
 
 data class EditDocumentUiState(
-    val documentModel: DocumentModel? = null,
+    val draftDocument: DocumentModel? = null,
     val documentImages: List<DocumentImage> = emptyList(),
     val imageFilters: List<ImageFilterType>? = null,
     val selectedImageIndex: Int = 0,
@@ -50,64 +48,82 @@ data class EditDocumentUiState(
 @OptIn(ExperimentalCoroutinesApi::class)
 class EditPDFViewModel(
     private val documentId: String,
-    private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
+    private val requestDraftBitmapLoadUseCase: RequestDraftBitmapLoadUseCase,
     private val requestThumbnailLoadUseCase: RequestThumbnailLoadUseCase,
     private val addPageToDocumentUseCase: AddPageToDocumentUseCase,
-    private val applyImageFilterUseCase: ApplyImageFilterUseCase,
+    private val removeFromCacheUseCase: RemoveFromCacheUseCase,
     private val getAvailableFiltersUseCase: GetAvailableFiltersUseCase,
-    private val deleteDocumentPageUseCase: DeleteDocumentPageUseCase,
+    private val updateDocumentUseCase: UpdateDocumentUseCase,
     private val getCropControllerUseCase: GetCropControllerUseCase,
-    private val rotateImageUseCase: RotateImageUseCase,
-    private val cropImageUseCase: CropImageUseCase,
     private val documentModelRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository,
-    private val documentImageRepository: DocumentImageRepository
+    private val documentImageRepository: DocumentImageRepository,
+    private val fileRepository: FileRepository
 ) : ViewModel() {
     private var _uiState = MutableStateFlow(EditDocumentUiState())
     var uiState: StateFlow<EditDocumentUiState> = _uiState.asStateFlow()
 
     val bitmapCache = bitmapCacheRepository.bitmapCache
 
+    private var deletedDocumentImages = mutableListOf<DocumentImage>()
+
+    enum class NavigationType { NEXT, BACK }
+
+    private val _navigationEvent = Channel<NavigationType>()
+    val navigationEvent = _navigationEvent.receiveAsFlow()
+
     init {
         viewModelScope.launch {
-            val documentFlow = documentModelRepository.getDocumentModelById(documentId)
-                .distinctUntilChanged()
+            val document = documentModelRepository.getDocumentModelById(documentId)
+                .filterNotNull()
+                .first()
 
-            val documentImagesFlow = documentFlow
-                .map { it?.imageIds ?: emptyList() }
-                .distinctUntilChanged()
-                .flatMapLatest { ids ->
-                    if (ids.isEmpty()) flowOf(emptyList())
-                    else {
-                        combine(ids.map { documentImageRepository.getDocumentImageById(it) }) { images ->
-                            images.filterNotNull()
-                        }
-                    }
-                }
+            val imageIds = document.imageIds
 
-            combine(documentFlow, documentImagesFlow) { document, images ->
-                if (document == null) return@combine
+            val documentImages =
+                imageIds.mapNotNull { documentImageRepository.getDocumentImageById(it).first() }
 
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        documentModel = document,
-                        documentImages = images,
-                        imageFilters = currentState.imageFilters ?: getAvailableFiltersUseCase()
-                    )
-                }
-            }.collect()
+
+            _uiState.update { currentState ->
+                currentState.copy(
+                    draftDocument = document,
+                    documentImages = documentImages,
+                    imageFilters = getAvailableFiltersUseCase()
+                )
+            }
+        }
+    }
+
+    fun onNavigateBack() {
+        viewModelScope.launch {
+            fileRepository.deleteDocumentStorage(StorageType.CACHE, documentId)
+
+            _navigationEvent.send(NavigationType.BACK)
+        }
+    }
+
+    fun onNavigateNext() {
+        val state = uiState.value
+        val document = state.draftDocument ?: return
+
+        viewModelScope.launch {
+            updateDocumentUseCase(document, state.documentImages)
+
+            _navigationEvent.send(NavigationType.NEXT)
         }
     }
 
     fun requestBitmapLoad(pageNumber: Int) {
         viewModelScope.launch {
-            val document = uiState.value.documentModel ?: return@launch
-            requestBitmapLoadUseCase(document, pageNumber)
+            val document = uiState.value.draftDocument ?: return@launch
+            val documentImage = uiState.value.documentImages.getOrNull(pageNumber)
+                ?: return@launch
+            requestDraftBitmapLoadUseCase(document, documentImage)
         }
     }
 
     fun requestImageKey(pageNumber: Int): String {
-        val document = uiState.value.documentModel ?: return ""
+        val document = uiState.value.draftDocument ?: return ""
         return bitmapCacheRepository.getImageKey(document, pageNumber)
     }
 
@@ -155,16 +171,17 @@ class EditPDFViewModel(
         val state = uiState.value
         if (state.uiMode != EditDocumentUIMode.COLOR) return
 
-        val document = state.documentModel ?: return
-        val selectedImage = state.documentImages.getOrNull(state.selectedImageIndex) ?: return
+        val document = state.draftDocument ?: return
+        val documentImage = state.documentImages.getOrNull(state.selectedImageIndex) ?: return
 
-        viewModelScope.launch {
-            applyImageFilterUseCase(
-                document = document,
-                documentImage = selectedImage,
-                index
-            )
+        val updatedDocumentImage = documentImage.copy(filter = index.toLong())
+
+        _uiState.update { state ->
+            state.copy(documentImages = state.documentImages.map {
+                if (it.id == updatedDocumentImage.id) updatedDocumentImage else it
+            })
         }
+        removeFromCacheUseCase.removeImage(document, documentImage.id)
     }
 
     fun loadCropController(key: String) {
@@ -194,31 +211,45 @@ class EditPDFViewModel(
         val state = uiState.value
         if (state.uiMode != EditDocumentUIMode.CROP_ROTATE) return
 
-        val document = state.documentModel ?: return
-        val selectedImage = state.documentImages.getOrNull(state.selectedImageIndex) ?: return
+        val document = state.draftDocument ?: return
+        val documentImage = state.documentImages.getOrNull(state.selectedImageIndex) ?: return
         val imageKey = requestImageKey(state.selectedImageIndex)
 
         val selectedCropController = state.cropControllers[imageKey] ?: return
 
-        val cropData = selectedCropController.getCropData()
+        val cropData = ImageCropData.fromCropData(selectedCropController.getCropData())
 
-        viewModelScope.launch {
-            cropImageUseCase(document, selectedImage, ImageCropData.fromCropData(cropData))
+        val updatedDocumentImage = documentImage.copy(crop = cropData)
+
+        _uiState.update { state ->
+            state.copy(documentImages = state.documentImages.map {
+                if (it.id == updatedDocumentImage.id) updatedDocumentImage else it
+            })
         }
+        removeFromCacheUseCase.removeImageThumbnails(document, documentImage.id)
     }
 
     fun rotateImage() {
         val state = uiState.value
         if (state.uiMode != EditDocumentUIMode.CROP_ROTATE) return
 
-        val document = state.documentModel ?: return
-        val selectedImage = state.documentImages.getOrNull(state.selectedImageIndex) ?: return
+        val document = state.draftDocument ?: return
+        val documentImage = state.documentImages.getOrNull(state.selectedImageIndex) ?: return
         val imageKey = requestImageKey(state.selectedImageIndex)
+
+        val newRotation = (documentImage.rotation - 90) % 360
+        val updatedDocumentImage = documentImage.copy(rotation = newRotation)
 
         viewModelScope.launch {
             state.cropControllers[imageKey]?.rotateAntiClockwise()
-            rotateImageUseCase(document, selectedImage)
         }
+
+        _uiState.update { state ->
+            state.copy(documentImages = state.documentImages.map {
+                if (it.id == updatedDocumentImage.id) updatedDocumentImage else it
+            })
+        }
+        removeFromCacheUseCase.removeImageThumbnails(document, documentImage.id)
     }
 
     private fun cleanSelectedImageCropController() {
@@ -230,24 +261,42 @@ class EditPDFViewModel(
     }
 
     fun addNewImage(uriList: List<Uri>) {
-        val document = uiState.value.documentModel ?: return
+        val document = uiState.value.draftDocument ?: return
 
         viewModelScope.launch {
-            try {
-                addPageToDocumentUseCase.invoke(document, uriList)
-            } catch (e: Exception) {
-                Napier.e("Error importing images", e)
-                // TODO: show in ui, toast
+            val (updatedDocument, imageModels) =
+                addPageToDocumentUseCase(document, uriList)
+
+            _uiState.update {
+                it.copy(
+                    draftDocument = updatedDocument,
+                    documentImages = it.documentImages + imageModels
+                )
             }
         }
     }
 
     fun deleteSelectedImage() {
-        val selectedImageIndex = uiState.value.selectedImageIndex
-        val selectedDocumentImage = uiState.value.documentImages[selectedImageIndex]
+        _uiState.update { state ->
+            val document = state.draftDocument ?: return@update state
+            val currentImages = state.documentImages
+            val index = state.selectedImageIndex
 
-        viewModelScope.launch {
-            deleteDocumentPageUseCase(documentId = documentId, imageId = selectedDocumentImage.id)
+            if (index !in currentImages.indices) return@update state
+
+            val imageToDelete = currentImages[index]
+
+            val newImagesList = currentImages.filter { it.id != imageToDelete.id }
+
+            val newImageIds = document.imageIds.filter { it != imageToDelete.id }
+            val updatedDocument = document.copy(imageIds = newImageIds)
+
+            deletedDocumentImages.add(imageToDelete)
+
+            state.copy(
+                draftDocument = updatedDocument,
+                documentImages = newImagesList,
+            )
         }
     }
 }
