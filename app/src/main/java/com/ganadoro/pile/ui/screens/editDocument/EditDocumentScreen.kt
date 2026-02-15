@@ -146,8 +146,17 @@ fun EditDocumentScreen(
 
                 LaunchedEffect(selectedImageIndex) {
                     if (recentlyMoved) return@LaunchedEffect
+
+                    if (selectedImageIndex < 0) return@LaunchedEffect
+
+                    val totalItems = lazyListState.layoutInfo.totalItemsCount
+                    if (selectedImageIndex >= totalItems) return@LaunchedEffect
+
+                    if (!lazyListState.canScrollBackward && !lazyListState.canScrollForward) return@LaunchedEffect
+
                     lazyListState.animateScrollToItem(selectedImageIndex, -150)
                 }
+
                 LaunchedEffect(recentlyMoved) {
                     delay(100)
                     recentlyMoved = false

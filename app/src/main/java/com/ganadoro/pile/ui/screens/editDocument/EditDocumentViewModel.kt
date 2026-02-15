@@ -277,6 +277,7 @@ class EditPDFViewModel(
     }
 
     fun deleteSelectedImage() {
+        Napier.d { "deleteSelectedImage" }
         _uiState.update { state ->
             val document = state.draftDocument ?: return@update state
             val currentImages = state.documentImages
@@ -286,16 +287,18 @@ class EditPDFViewModel(
 
             val imageToDelete = currentImages[index]
 
-            val newImagesList = currentImages.filter { it.id != imageToDelete.id }
+            val newImageList = currentImages.filter { it.id != imageToDelete.id }
 
-            val newImageIds = document.imageIds.filter { it != imageToDelete.id }
-            val updatedDocument = document.copy(imageIds = newImageIds)
+            val updatedDocument = document.copy(
+                imageIds = newImageList.map { it.id }
+            )
 
             deletedDocumentImages.add(imageToDelete)
 
             state.copy(
                 draftDocument = updatedDocument,
-                documentImages = newImagesList,
+                documentImages = newImageList,
+                selectedImageIndex = index.coerceAtMost(newImageList.lastIndex)
             )
         }
     }
