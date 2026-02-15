@@ -33,6 +33,7 @@
     <string name="new_pile">New Pile</string>
     <string name="add_pile">Add Pile</string>
     <string name="pile_name">Pile Name</string>
+    <string name="loading_new_document">Loading new document</string>
 
     <string name="add_document">Add Document</string>
     <string name="add_to_piles">Add to piles</string>
