@@ -76,7 +76,7 @@ class ManageTemporaryDocumentUseCase(
      */
     suspend fun confirmPermanentDeletion(documentId: String) = withContext(ioDispatcher) {
         try {
-            fileRepository.deleteDocumentStorage(documentId)
+            fileRepository.deleteDocumentStorage(documentId = documentId)
         } catch (e: Exception) {
             Napier.e("Failed to delete document storage", e)
             throw e

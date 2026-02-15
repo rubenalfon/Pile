@@ -21,6 +21,7 @@ import com.ganadoro.pile.data.util.ImageTransformationHelper
 import com.ganadoro.pile.data.util.PdfRenderHelper
 import com.ganadoro.pile.domain.models.ImageFilterType
 import com.ganadoro.pile.domain.repositories.FileRepository
+import com.ganadoro.pile.domain.repositories.FileRepository.StorageType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -36,46 +37,54 @@ import java.util.UUID
 class FileRepositoryImpl(
     private val appContext: Context,
     private val appDirectory: File = appContext.filesDir,
+    private val cacheDirectory: File = appContext.cacheDir,
     private val contentResolver: ContentResolver = appContext.contentResolver,
     private val ioDispatcher: CoroutineDispatcher,
     private val pdfRenderHelper: PdfRenderHelper,
     private val imageTransformationHelper: ImageTransformationHelper
 ) : FileRepository {
-    /**
-     * Asegura que el nombre del PDF termine en .pdf sin duplicarlo.
-     */
     private fun getPDFFileName(documentId: String): String {
         val cleanId = documentId.removeSuffix(".pdf")
         return "$cleanId.pdf"
     }
 
-    /**
-     * Asegura que el nombre de la imagen tenga el prefijo img_ y la extensión .jpg
-     * de forma única.
-     */
     private fun getImageFileName(imageId: String): String {
         val cleanId = imageId.removePrefix("img_").removeSuffix(".jpg")
         return "img_$cleanId.jpg"
     }
 
-    override fun getDocumentDirectory(documentId: String): File = File(appDirectory, documentId)
+    private fun getStorage(storageType: StorageType): File = when (storageType) {
+        StorageType.PERSISTENT -> appDirectory
+        StorageType.CACHE -> cacheDirectory
+    }
 
-    override fun getPDFFile(documentId: String): File =
-        File(getDocumentDirectory(documentId), getPDFFileName(documentId))
+    override fun getDocumentDirectory(
+        storageType: StorageType,
+        documentId: String
+    ): File = File(getStorage(storageType), documentId)
 
-    override fun getImageFile(documentId: String, imageId: String): File =
-        File(getDocumentDirectory(documentId), getImageFileName(imageId))
+    override fun getPDFFile(storageType: StorageType, documentId: String): File =
+        File(getDocumentDirectory(storageType, documentId), getPDFFileName(documentId))
 
-    override suspend fun deleteDocumentStorage(documentId: String): Boolean =
-        withContext(ioDispatcher) {
-            getDocumentDirectory(documentId).deleteRecursively()
-        }
+    override fun getImageFile(
+        storageType: StorageType,
+        documentId: String,
+        imageId: String
+    ): File = File(getDocumentDirectory(storageType, documentId), getImageFileName(imageId))
+
+    override suspend fun deleteDocumentStorage(
+        storageType: StorageType,
+        documentId: String
+    ): Boolean = withContext(ioDispatcher) {
+        getDocumentDirectory(storageType, documentId).deleteRecursively()
+    }
 
     override suspend fun deleteDocumentImage(
+        storageType: StorageType,
         documentId: String,
         imageId: String
     ): Boolean = withContext(ioDispatcher) {
-        getImageFile(documentId, imageId).delete()
+        getImageFile(storageType, documentId, imageId).delete()
     }
 
     override fun createTempImageUri(): Uri {
@@ -103,9 +112,9 @@ class FileRepositoryImpl(
 
     override suspend fun isPdfOutdated(document: DocumentModel): Boolean =
         withContext(ioDispatcher) {
-            if (document.isIncomingPdf) return@withContext true
+            if (document.isIncomingPdf) return@withContext false
 
-            val pdfFile = getPDFFile(document.id)
+            val pdfFile = getPDFFile(StorageType.PERSISTENT, document.id)
             if (!pdfFile.exists()) return@withContext true
 
             val pdfFileLastModification = Instant.ofEpochMilli(pdfFile.lastModified())
@@ -114,20 +123,21 @@ class FileRepositoryImpl(
 
             val documentLastModification = document.modificationDateTime
 
-            return@withContext !pdfFileLastModification.isBefore(documentLastModification)
+            return@withContext pdfFileLastModification.isBefore(documentLastModification)
         }
 
-    override suspend fun saveImagesToInternalStorage(
+    override suspend fun saveImagesToStorage(
+        storageType: StorageType,
         uris: List<Uri>,
         documentId: String,
         maxSize: Int,
         quality: Int
     ): List<File> = withContext(ioDispatcher) {
-        val storageDir = File(appDirectory, documentId).apply { if (!exists()) mkdirs() }
+        val storageDir = File(getStorage(storageType), documentId).apply { if (!exists()) mkdirs() }
 
         uris.map { uri ->
             async {
-                saveImageToInternalStorage(
+                saveImageToStorage(
                     uri = uri,
                     storageDir = storageDir,
                     maxSize = maxSize,
@@ -135,6 +145,19 @@ class FileRepositoryImpl(
                 )
             }
         }.awaitAll().filterNotNull()
+    }
+
+    override suspend fun copyImageToInternalStorage(
+        documentId: String,
+        documentImage: DocumentImage
+    ) = withContext(ioDispatcher) {
+        val imageFile = getImageFile(StorageType.CACHE, documentId, documentImage.id)
+        imageFile.copyTo(
+            File(
+                getDocumentDirectory(StorageType.PERSISTENT, documentId),
+                imageFile.name
+            )
+        )
     }
 
     override suspend fun getFileNameFromUri(uri: Uri): String? {
@@ -150,18 +173,18 @@ class FileRepositoryImpl(
     }
 
     override suspend fun getPageCount(documentId: String): Result<Int> =
-        pdfRenderHelper.getPageCount(getPDFFile(documentId))
+        pdfRenderHelper.getPageCount(getPDFFile(StorageType.PERSISTENT, documentId))
 
     override suspend fun createPdfFromImages(
         documentId: String,
         images: List<DocumentImage>
     ): File = withContext(ioDispatcher) {
         val pdfDocument = PdfDocument()
-        val generatedPdfFile = getPDFFile(documentId)
+        val generatedPdfFile = getPDFFile(StorageType.PERSISTENT, documentId)
 
         try {
             images.forEachIndexed { index, documentImage ->
-                val imageFile = getImageFile(documentId, documentImage.id)
+                val imageFile = getImageFile(StorageType.PERSISTENT, documentId, documentImage.id)
 
                 if (!imageFile.exists()) return@forEachIndexed
 
@@ -247,7 +270,7 @@ class FileRepositoryImpl(
         }
 
     /**
-     * Helper function to save an image from an URI with resizing and rotation correction.
+     * Helper function to save an image from a URI with resizing and rotation correction.
      *
      * @param uri URI of the image to be saved.
      * @param storageDir Directory where the image will be saved.
@@ -255,7 +278,7 @@ class FileRepositoryImpl(
      * @param quality Quality of the saved image (default: 85).
      * @return File object representing the saved image
      */
-    private suspend fun saveImageToInternalStorage(
+    private suspend fun saveImageToStorage(
         uri: Uri,
         storageDir: File,
         maxSize: Int = 1200,

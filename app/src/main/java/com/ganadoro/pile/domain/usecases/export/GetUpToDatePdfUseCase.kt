@@ -27,12 +27,12 @@ class GetUpToDatePdfUseCase(
         document: DocumentModel
     ): File = withContext(ioDispatcher) {
         if (document.isIncomingPdf)
-            return@withContext fileRepository.getPDFFile(document.id)
+            return@withContext fileRepository.getPDFFile(documentId = document.id)
 
         if (fileRepository.isPdfOutdated(document))
             return@withContext generatePdfUseCase(document)
         else
-            return@withContext fileRepository.getPDFFile(document.id)
+            return@withContext fileRepository.getPDFFile(documentId = document.id)
 
     }
 }

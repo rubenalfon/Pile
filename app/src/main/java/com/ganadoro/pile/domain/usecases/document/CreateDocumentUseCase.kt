@@ -7,6 +7,7 @@ import com.ganadoro.pile.domain.models.DocumentStatusConstants.TEMPORARY
 import com.ganadoro.pile.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.domain.repositories.FileRepository
+import com.ganadoro.pile.domain.repositories.FileRepository.StorageType
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -71,15 +72,17 @@ class CreateDocumentUseCase(
      */
     suspend fun createFromImages(uris: List<Uri>): DocumentModel = withContext(ioDispatcher) {
         cleanupExistingTemporaryDocument()
-        
+
         val newDocument = createBaseDocument(isPdf = false)
 
         try {
-            val savedFiles = fileRepository.saveImagesToInternalStorage(uris, newDocument.id)
+            val savedFiles =
+                fileRepository.saveImagesToStorage(StorageType.PERSISTENT, uris, newDocument.id)
 
             val imageModels = savedFiles.map { file ->
                 DocumentImage(
                     id = file.name,
+                    isDraft = false,
                     crop = null,
                     filter = 0,
                     rotation = 0
@@ -135,7 +138,7 @@ class CreateDocumentUseCase(
 
         if (tempDocument != null) {
             documentModelRepository.deleteDocumentModel(tempDocument.id)
-            fileRepository.deleteDocumentStorage(tempDocument.id)
+            fileRepository.deleteDocumentStorage(documentId = tempDocument.id)
         }
     }
 
@@ -147,7 +150,7 @@ class CreateDocumentUseCase(
      */
     private suspend fun rollback(documentId: String) {
         try {
-            fileRepository.deleteDocumentStorage(documentId)
+            fileRepository.deleteDocumentStorage(documentId = documentId)
             documentModelRepository.deleteDocumentModel(documentId)
         } catch (e: Exception) {
             Napier.e("Error during rollback", e)

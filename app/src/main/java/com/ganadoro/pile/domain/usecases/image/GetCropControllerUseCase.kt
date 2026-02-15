@@ -5,6 +5,7 @@ import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.data.util.ImageTransformationHelper
 import com.ganadoro.pile.domain.models.ImageFilterType
 import com.ganadoro.pile.domain.repositories.FileRepository
+import com.ganadoro.pile.domain.repositories.FileRepository.StorageType
 import com.tanishranjan.cropkit.CropController
 import com.tanishranjan.cropkit.CropData
 import com.tanishranjan.cropkit.CropDefaults
@@ -39,7 +40,7 @@ class GetCropControllerUseCase(
             bitmap = bitmap,
             cropColors = CropDefaults.cropColors(),
             cropOptions = CropDefaults.cropOptions(
-                initialCropData = documentImage.crop?.toCropData() ?: CropData.Companion.Zero,
+                initialCropData = documentImage.crop?.toCropData() ?: CropData.Zero,
                 cropShape = CropShape.FreeForm
             )
         )
@@ -55,13 +56,18 @@ class GetCropControllerUseCase(
         documentId: String,
         documentImage: DocumentImage
     ): Bitmap? {
-        val imageFile = fileRepository.getImageFile(documentId, documentImage.id)
+        val storageType = if (documentImage.isDraft) StorageType.CACHE
+        else StorageType.PERSISTENT
+
+        val imageFile = fileRepository.getImageFile(
+            storageType = storageType, documentId = documentId, imageId = documentImage.id
+        )
 
         return imageTransformationHelper.transform(
             file = imageFile,
             rotation = documentImage.rotation.toInt(),
             cropData = null,
-            filter = ImageFilterType.Companion.fromId(documentImage.filter.toInt())
+            filter = ImageFilterType.fromId(documentImage.filter.toInt())
         )
     }
 }

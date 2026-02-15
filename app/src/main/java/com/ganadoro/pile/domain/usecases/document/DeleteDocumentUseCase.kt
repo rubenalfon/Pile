@@ -30,6 +30,6 @@ class DeleteDocumentUseCase(
             documentImageRepository.deleteDocumentImage(imageId)
         }
 
-        fileRepository.deleteDocumentStorage(document.id)
+        fileRepository.deleteDocumentStorage(documentId = document.id)
     }
 }

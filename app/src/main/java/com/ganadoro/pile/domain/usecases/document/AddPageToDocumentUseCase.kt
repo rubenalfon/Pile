@@ -3,74 +3,58 @@ package com.ganadoro.pile.domain.usecases.document
 import android.net.Uri
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
-import com.ganadoro.pile.domain.repositories.DocumentImageRepository
-import com.ganadoro.pile.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.domain.repositories.FileRepository
+import com.ganadoro.pile.domain.repositories.FileRepository.StorageType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
 /**
  * Use case responsible for orchestrating the addition of a new page to an existing document.
  *
- * It manages the persistence of the image file, the creation of its associated metadata,
- * and the atomic update of the parent document. It also provides a rollback mechanism
- * to maintain data integrity in case of failures.
+ * This class handles the physical persistence of image files into temporary storage (CACHE)
+ * and generates the corresponding domain models. It does not persist changes to the
+ * database; instead, it returns the updated models for the caller to handle within
+ * a single transaction.
  */
 class AddPageToDocumentUseCase(
     private val ioDispatcher: CoroutineDispatcher,
     private val fileRepository: FileRepository,
-    private val documentImageRepository: DocumentImageRepository,
-    private val documentModelRepository: DocumentModelRepository
 ) {
     /**
-     * Adds a new page (image) to an existing document.
+     * Processes a list of URIs and prepares them to be added to a document.
      *
-     * If the document update fails, it performs a rollback by deleting both the
-     * database record and the physical file of the newly added image.
+     * The process involves:
+     * 1. Saving the images from the [uris] into the internal cache storage.
+     * 2. Creating [DocumentImage] metadata for each file with default values (draft mode).
+     * 3. Producing an updated [DocumentModel] containing the new image IDs.
      *
-     * @param document The existing [com.ganadoro.pile.DocumentModel] to which the page will be added.
-     * @param uris A list of [android.net.Uri] objects representing the image files to be added.
-     * @return A [Result] indicating the success of the operation.
+     * @param document The original [DocumentModel] to which the pages will be attached.
+     * @param uris A list of [Uri] pointing to the source images to be imported.
+     * @return A [Pair] containing:
+     *         - First: The updated [DocumentModel] with the new image IDs appended.
+     *         - Second: A [List] of the newly created [DocumentImage] objects.
+     * @throws Exception If any file I/O operation fails during the saving process.
      */
     suspend operator fun invoke(
         document: DocumentModel,
         uris: List<Uri>
-    ): Result<Boolean> = withContext(ioDispatcher) {
-        runCatching {
-            val savedFiles =
-                fileRepository.saveImagesToInternalStorage(uris, document.id)
+    ): Pair<DocumentModel, List<DocumentImage>> = withContext(ioDispatcher) {
+        val savedImageFiles =
+            fileRepository.saveImagesToStorage(StorageType.CACHE, uris, document.id)
 
-            val imageModels = savedFiles.map { file ->
-                DocumentImage(
-                    id = file.name,
-                    crop = null,
-                    filter = 0,
-                    rotation = 0
-                )
-            }
-
-            imageModels.forEach { documentImageRepository.insertDocumentImage(it) }
-
-            val updatedDocument =
-                document.copy(imageIds = document.imageIds + imageModels.map { it.id })
-
-            try {
-                documentModelRepository.updateDocumentModel(updatedDocument)
-                true
-            } catch (_: Exception) {
-                rollback(document.id, imageModels.map { it.id })
-                false
-            }
+        val imageModels = savedImageFiles.map { file ->
+            DocumentImage(
+                id = file.name,
+                isDraft = true,
+                crop = null,
+                filter = 0,
+                rotation = 0
+            )
         }
-    }
 
-    private suspend fun rollback(
-        documentId: String,
-        imageIds: List<String>
-    ) {
-        imageIds.forEach {
-            documentImageRepository.deleteDocumentImage(it)
-            fileRepository.deleteDocumentImage(documentId, it)
-        }
+        val updatedDocument =
+            document.copy(imageIds = document.imageIds + imageModels.map { it.id })
+
+        return@withContext updatedDocument to imageModels
     }
 }
