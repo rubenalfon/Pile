@@ -24,7 +24,7 @@ class ManageTemporaryDocumentUseCase(
      * Finds the existing temporary document (if any) and performs a soft delete.
      * It removes the data from the database but keeps the files in storage, returning a backup object.
      *
-     * @return A [com.ganadoro.pile.domain.models.TemporaryDocumentBackup] if a temporary document existed, null otherwise.
+     * @return A [TemporaryDocumentBackup] if a temporary document existed, null otherwise.
      */
     suspend fun deleteForUndo(): TemporaryDocumentBackup? =
         withContext(ioDispatcher) {

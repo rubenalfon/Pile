@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.domain.CleanupScheduler
 import com.ganadoro.pile.domain.models.DocumentStatusConstants.TEMPORARY
 import com.ganadoro.pile.domain.models.TemporaryDocumentBackup
 import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
@@ -39,6 +40,7 @@ class HomeViewModel(
     private val manageTemporaryDocumentUseCase: ManageTemporaryDocumentUseCase,
     private val createPileUseCase: CreatePileUseCase,
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
+    private val cleanupScheduler: CleanupScheduler,
     private val pileModelRepository: PileModelRepository,
     private val documentModelRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository,
@@ -77,7 +79,7 @@ class HomeViewModel(
         }
     }
 
-    override fun onCleared() { // TODO: Work manager ?
+    override fun onCleared() {
         super.onCleared()
         confirmErasureUnsavedDeletedDocument()
     }
@@ -157,13 +159,6 @@ class HomeViewModel(
 
         backupUnsavedDocument = null
 
-        viewModelScope.launch {
-            try {
-                manageTemporaryDocumentUseCase.confirmPermanentDeletion(documentId)
-            } catch (e: Exception) {
-                Napier.e { "Error deleting document. Message: ${e.message}" }
-                // TODO: show in ui, toast
-            }
-        }
+        cleanupScheduler.scheduleDocumentDeletion(documentId)
     }
 }

@@ -46,6 +46,10 @@ android {
 }
 
 dependencies {
+
+    //Work manager
+    implementation(libs.androidx.work.runtime.ktx)
+
     // Navigation 3
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
@@ -87,6 +91,7 @@ dependencies {
     // Koin
     implementation(libs.koin.core)
     implementation(libs.koin.android)
+    implementation(libs.koin.workmanager)
     implementation(libs.koin.compose)
 
     // SQL Delight Driver and Extension

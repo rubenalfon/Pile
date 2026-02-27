@@ -1,5 +1,6 @@
 package com.ganadoro.pile.di
 
+import com.ganadoro.pile.data.WorkManagerCleanupScheduler
 import com.ganadoro.pile.data.repositories.BitmapCacheRepositoryImpl
 import com.ganadoro.pile.data.repositories.DocumentImageRepositoryImpl
 import com.ganadoro.pile.data.repositories.DocumentModelRepositoryImpl
@@ -7,6 +8,7 @@ import com.ganadoro.pile.data.repositories.FileRepositoryImpl
 import com.ganadoro.pile.data.repositories.PileModelRepositoryImpl
 import com.ganadoro.pile.data.util.ImageTransformationHelper
 import com.ganadoro.pile.data.util.PdfRenderHelper
+import com.ganadoro.pile.domain.CleanupScheduler
 import com.ganadoro.pile.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.domain.repositories.DocumentModelRepository
@@ -56,5 +58,9 @@ val repositoriesModule = module {
             pdfRenderHelper = get(),
             imageTransformationHelper = get()
         )
+    }
+
+    single<CleanupScheduler> {
+        WorkManagerCleanupScheduler(get())
     }
 }
