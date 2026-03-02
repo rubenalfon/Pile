@@ -849,7 +849,7 @@ private fun AddedSection(
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.tertiary,
         )
-        if (modificationDate != creationDate) {
+        if (modificationDate.toLocalDate() != creationDate.toLocalDate()) {
             Text(
                 text = stringResource(
                     R.string.modified_date,
