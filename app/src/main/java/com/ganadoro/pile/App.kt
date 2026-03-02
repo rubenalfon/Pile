@@ -1,11 +1,16 @@
 package com.ganadoro.pile
 
 import android.app.Application
-import com.ganadoro.pile.di.appModule
-import com.ganadoro.pile.di.databaseModule
-import com.ganadoro.pile.di.domainModule
-import com.ganadoro.pile.di.repositoriesModule
-import com.ganadoro.pile.di.viewmodelModule
+import com.ganadoro.pile.core.di.appModule
+import com.ganadoro.pile.core.di.dataModule
+import com.ganadoro.pile.core.di.databaseModule
+import com.ganadoro.pile.core.di.domainModule
+import com.ganadoro.pile.features.addDocument.di.addDocumentModule
+import com.ganadoro.pile.features.documentDetail.di.documentDetailModule
+import com.ganadoro.pile.features.editDocument.di.editDocumentModule
+import com.ganadoro.pile.features.home.di.homeModule
+import com.ganadoro.pile.features.pileDetail.di.pileDetailModule
+import com.ganadoro.pile.features.search.di.searchBarModule
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import org.koin.android.ext.koin.androidContext
@@ -28,9 +33,14 @@ class App : Application() {
             modules(
                 appModule,
                 databaseModule,
-                repositoriesModule,
+                dataModule,
                 domainModule,
-                viewmodelModule
+                homeModule,
+                searchBarModule,
+                pileDetailModule,
+                documentDetailModule,
+                editDocumentModule,
+                addDocumentModule
             )
         }
     }

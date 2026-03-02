@@ -1,0 +1,164 @@
+package com.ganadoro.pile.features.home.ui
+
+import android.net.Uri
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.ganadoro.pile.DocumentModel
+import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.core.domain.models.DocumentStatusConstants.TEMPORARY
+import com.ganadoro.pile.core.domain.repositories.BitmapCacheRepository
+import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
+import com.ganadoro.pile.core.domain.repositories.FileRepository
+import com.ganadoro.pile.core.domain.repositories.PileModelRepository
+import com.ganadoro.pile.core.domain.useCases.RequestBitmapLoadUseCase
+import com.ganadoro.pile.features.home.domain.models.TemporaryDocumentBackup
+import com.ganadoro.pile.features.home.domain.schedulers.CleanupScheduler
+import com.ganadoro.pile.features.home.domain.useCases.CreateDocumentUseCase
+import com.ganadoro.pile.features.home.domain.useCases.CreatePileUseCase
+import com.ganadoro.pile.features.home.domain.useCases.ManageTemporaryDocumentUseCase
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+data class HomeUiState(
+    val pileModels: List<PileModel>? = null,
+    val documentList: List<DocumentModel>? = null,
+    val temporaryDocument: DocumentModel? = null,
+    val coloredPileIds: List<String>? = null,
+    val isLoadingNewDocument: Boolean = false
+)
+
+class HomeViewModel(
+    private val createDocumentUseCase: CreateDocumentUseCase,
+    private val manageTemporaryDocumentUseCase: ManageTemporaryDocumentUseCase,
+    private val createPileUseCase: CreatePileUseCase,
+    private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
+    private val cleanupScheduler: CleanupScheduler,
+    private val pileModelRepository: PileModelRepository,
+    private val documentModelRepository: DocumentModelRepository,
+    private val bitmapCacheRepository: BitmapCacheRepository,
+    private val fileRepository: FileRepository
+) : ViewModel() {
+    private var _uiState = MutableStateFlow(HomeUiState())
+    var uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    val bitmapCache = bitmapCacheRepository.bitmapCache
+
+    private val _navigationEvent = Channel<DocumentModel>()
+    val navigationEvent = _navigationEvent.receiveAsFlow()
+
+    private var backupUnsavedDocument: TemporaryDocumentBackup? = null
+
+    init {
+        viewModelScope.launch {
+            val pileModelsFlow = pileModelRepository.pileModels
+
+            pileModelsFlow.combine(documentModelRepository.documentModels) { piles, documents ->
+                val coloredPileIds = documents.flatMap { it.documentPileIds }.distinct()
+                val temporaryDocument = documents.find { it.documentStatus == TEMPORARY }
+
+                HomeUiState(
+                    pileModels = piles,
+                    documentList = documents.filter { it.documentStatus != TEMPORARY },
+                    temporaryDocument = temporaryDocument,
+                    coloredPileIds = coloredPileIds,
+                    isLoadingNewDocument = uiState.value.isLoadingNewDocument
+                )
+            }.collect { finalState ->
+                _uiState.update {
+                    finalState
+                }
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        confirmErasureUnsavedDeletedDocument()
+    }
+
+    fun requestBitmapLoad(document: DocumentModel, pageNumber: Int) {
+        viewModelScope.launch {
+            requestBitmapLoadUseCase(document, pageNumber)
+        }
+    }
+
+    fun requestImageKey(document: DocumentModel, pageNumber: Int): String =
+        bitmapCacheRepository.getImageKey(document, pageNumber)
+
+    fun addPile(pileName: String, iconId: String, color: Long) {
+        viewModelScope.launch {
+            createPileUseCase(pileName, iconId, color)
+        }
+    }
+
+    fun handleCameraCapture(): Uri = fileRepository.createTempImageUri()
+
+    fun importPDFIntent(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(isLoadingNewDocument = true) }
+                val newDoc = createDocumentUseCase.createFromPdf(uri)
+                _navigationEvent.send(newDoc)
+            } catch (e: Exception) {
+                Napier.e("Error importing PDF", e)
+                // TODO: show in ui, toast
+            } finally {
+                delay(500)
+                _uiState.update { it.copy(isLoadingNewDocument = false) }
+            }
+        }
+    }
+
+    fun importImagesIntent(uriList: List<Uri>) {
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(isLoadingNewDocument = true) }
+                val newDoc = createDocumentUseCase.createFromImages(uriList)
+                _navigationEvent.send(newDoc)
+            } catch (e: Exception) {
+                Napier.e("Error importing images", e)
+                // TODO: show in ui, toast
+            } finally {
+                delay(500)
+                _uiState.update { it.copy(isLoadingNewDocument = false) }
+            }
+        }
+    }
+
+    fun partialDeleteUnsavedDocument() {
+        viewModelScope.launch {
+            backupUnsavedDocument = manageTemporaryDocumentUseCase.deleteForUndo()
+        }
+    }
+
+    fun restoreUnsavedDeletedDocument() {
+        val backup = backupUnsavedDocument ?: return
+
+        viewModelScope.launch {
+            try {
+                backupUnsavedDocument = null
+                manageTemporaryDocumentUseCase.restoreBackup(backup)
+            } catch (e: Exception) {
+                Napier.e { "Error restoring backup. Message: ${e.message}" }
+                // TODO: show in ui, toast
+            }
+        }
+    }
+
+    fun confirmErasureUnsavedDeletedDocument() {
+        val backup = backupUnsavedDocument ?: return
+        val documentId = backup.document.id
+
+        backupUnsavedDocument = null
+
+        cleanupScheduler.scheduleDocumentDeletion(documentId)
+    }
+}

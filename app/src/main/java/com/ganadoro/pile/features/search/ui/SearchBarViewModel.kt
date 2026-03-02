@@ -1,0 +1,183 @@
+package com.ganadoro.pile.features.search.ui
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.ganadoro.pile.DocumentModel
+import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.core.domain.models.StringDetail
+import com.ganadoro.pile.core.domain.repositories.BitmapCacheRepository
+import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
+import com.ganadoro.pile.core.domain.repositories.PileModelRepository
+import com.ganadoro.pile.core.domain.useCases.RequestBitmapLoadUseCase
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+
+data class SearchBarUiState(
+    val pileList: List<PileModel>? = null,
+    val documentList: List<DocumentModel>? = null,
+    val filteredDocumentList: List<DocumentModel> = emptyList(),
+    val searchQuery: String = "",
+    val selectedFilterPiles: List<String> = emptyList(),
+    val selectedFilterDate: LocalDate? = null
+)
+
+
+class SearchBarViewModel(
+    private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
+    private val pileRepository: PileModelRepository,
+    private val documentRepository: DocumentModelRepository,
+    private val bitmapCacheRepository: BitmapCacheRepository
+) : ViewModel() {
+    private val _uiState = MutableStateFlow(SearchBarUiState())
+    val uiState: StateFlow<SearchBarUiState> = _uiState.asStateFlow()
+
+    val bitmapCache = bitmapCacheRepository.bitmapCache
+
+    fun init() {
+        viewModelScope.launch {
+            val pilesFlow = pileRepository.pileModels
+
+            val documentsFlow = documentRepository.documentModels
+
+            pilesFlow.combine(documentsFlow) { piles, documents ->
+                Pair(piles, documents)
+            }.collect { (piles, documents) ->
+                _uiState.update {
+                    it.copy(
+                        pileList = piles,
+                        documentList = documents
+                    )
+                }
+            }
+        }
+    }
+
+    fun deinit() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update {
+                it.copy(
+                    searchQuery = ""
+                )
+            }
+
+            delay(150) // Fixes visual errors in the animation
+
+            _uiState.update {
+                it.copy(
+                    pileList = null,
+                    documentList = null,
+                    filteredDocumentList = emptyList(),
+                    selectedFilterPiles = emptyList(),
+                    selectedFilterDate = null
+                )
+            }
+        }
+    }
+
+    fun requestBitmapLoad(document: DocumentModel, pageNumber: Int) {
+        viewModelScope.launch {
+            requestBitmapLoadUseCase(document, pageNumber)
+        }
+    }
+
+    fun requestImageKey(document: DocumentModel, pageNumber: Int): String =
+        bitmapCacheRepository.getImageKey(document, pageNumber)
+
+    fun updateSearchQuery(query: String) {
+        _uiState.update {
+            it.copy(
+                searchQuery = query
+            )
+        }
+        filterResults()
+    }
+
+    fun addRemoveFilterPiles(pileId: String) {
+        val piles = uiState.value.selectedFilterPiles.toMutableList()
+
+        if (piles.contains(pileId)) {
+            piles.remove(pileId)
+        } else {
+            piles.add(pileId)
+        }
+
+        _uiState.update {
+            it.copy(
+                selectedFilterPiles = piles
+            )
+        }
+        filterResults()
+    }
+
+    fun updateFilterDate(date: LocalDate?) {
+        Napier.d { "Date: $date" }
+        _uiState.update {
+            it.copy(
+                selectedFilterDate = date
+            )
+        }
+        filterResults()
+    }
+
+
+    fun filterResults() {
+        if (uiState.value.pileList == null || uiState.value.documentList == null) return
+
+        if (uiState.value.searchQuery == "") {
+            _uiState.update {
+                it.copy(
+                    filteredDocumentList = emptyList()
+                )
+            }
+            return
+        }
+
+
+        val pileFilteredDocumentList =
+            if (uiState.value.selectedFilterPiles.isEmpty()) uiState.value.documentList!!
+            else uiState.value.documentList!!.filter { document ->
+                document.documentPileIds.any { it in uiState.value.selectedFilterPiles }
+            }
+
+        val pileDateFilteredDocumentList =
+            if (uiState.value.selectedFilterDate == null) pileFilteredDocumentList
+            else pileFilteredDocumentList.filter { document ->
+                document.creationDateTime == uiState.value.selectedFilterDate || document.modificationDateTime == uiState.value.selectedFilterDate
+            }
+
+        val filteredDocumentList = pileDateFilteredDocumentList.filter { document ->
+            Napier.d { "SS".plus(
+                document.title
+                .plus(" ").plus(document.documentNote)
+                .plus(" ").plus(document.documentDetails.map {
+                    Pair(it.name, (it as? StringDetail)?.value ?: "" )
+                })
+            )
+            }
+
+            document.title
+                .plus(" ").plus(document.documentNote)
+                .plus(" ").plus(document.documentDetails.map {
+                    Pair(it.name, (it as? StringDetail)?.value ?: "" )
+                })
+                .contains(
+                    other = uiState.value.searchQuery,
+                    ignoreCase = true
+                )
+        }
+
+        _uiState.update {
+            it.copy(
+                filteredDocumentList = filteredDocumentList
+            )
+        }
+    }
+}
