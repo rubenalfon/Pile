@@ -18,6 +18,7 @@ import com.ganadoro.pile.features.documentDetail.domain.useCases.ManageDocumentP
 import com.ganadoro.pile.features.documentDetail.domain.useCases.UpdateDocumentDetailsUseCase
 import com.ganadoro.pile.features.documentDetail.domain.useCases.export.ExportDocumentUseCase
 import com.ganadoro.pile.features.documentDetail.domain.useCases.export.GetPdfUriUseCase
+import com.ganadoro.pile.features.home.domain.useCases.CreatePileUseCase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -61,6 +62,7 @@ class DocumentDetailViewModel(
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
     private val deleteDocumentUseCase: DeleteDocumentUseCase,
     private val updateDocumentDetailsUseCase: UpdateDocumentDetailsUseCase,
+    private val createPileUseCase: CreatePileUseCase,
     private val manageDocumentPileUseCase: ManageDocumentPileUseCase,
     private val getPdfUriUseCase: GetPdfUriUseCase,
     private val documentOpener: DocumentOpener,
@@ -200,6 +202,13 @@ class DocumentDetailViewModel(
         viewModelScope.launch {
             val document = uiState.value.documentModel ?: return@launch
             manageDocumentPileUseCase(document, pileId)
+        }
+    }
+
+    fun addPile(pileName: String, iconId: String, color: Long) {
+        viewModelScope.launch {
+            val pileId = createPileUseCase(pileName, iconId, color)
+            addRemoveDocumentPiles(pileId)
         }
     }
 

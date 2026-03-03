@@ -102,6 +102,7 @@ import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
 import com.ganadoro.pile.core.domain.models.DocumentDetail
 import com.ganadoro.pile.core.domain.models.StringDetail
+import com.ganadoro.pile.core.ui.composables.AlertNewPile
 import com.ganadoro.pile.core.ui.composables.LoadingWrapper
 import com.ganadoro.pile.core.ui.composables.Pile
 import com.ganadoro.pile.core.ui.composables.SelectPilesBottomSheet
@@ -134,9 +135,10 @@ fun DocumentDetailScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
-    var isRenameDocumentAlertExpanded by rememberSaveable { mutableStateOf(false) }
-    var isDeleteDocumentAlertExpanded by rememberSaveable { mutableStateOf(false) }
+    var showRenameDocumentAlert by rememberSaveable { mutableStateOf(false) }
+    var showDeleteDocumentAlert by rememberSaveable { mutableStateOf(false) }
     var showDocumentPilesBottomSheet by rememberSaveable { mutableStateOf(false) }
+    var showNewPileAlert by rememberSaveable { mutableStateOf(false) }
 
     var isDocumentDetailsEditing by rememberSaveable { mutableStateOf(false) }
 
@@ -181,16 +183,18 @@ fun DocumentDetailScreen(
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
-            AnimatedVisibility(uiState.documentModel != null,
-                enter = fadeIn(), exit = fadeOut()) {
+            AnimatedVisibility(
+                uiState.documentModel != null,
+                enter = fadeIn(), exit = fadeOut()
+            ) {
                 ToolBar(
                     modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
                     showEditDocument = !(uiState.documentModel?.isIncomingPdf ?: true),
                     onRenameDocument = {
-                        isRenameDocumentAlertExpanded = true
+                        showRenameDocumentAlert = true
                     },
                     onDeleteDocument = {
-                        isDeleteDocumentAlertExpanded = true
+                        showDeleteDocumentAlert = true
                     },
                     onDownloadDocument = viewModel::downloadPDF,
                     onShareDocument = viewModel::openShareSheet,
@@ -288,22 +292,22 @@ fun DocumentDetailScreen(
         }
     }
 
-    if (isRenameDocumentAlertExpanded) {
+    if (showRenameDocumentAlert) {
         AlertEditDocument(
             documentName = uiState.documentModel?.title ?: "",
-            onDismiss = { isRenameDocumentAlertExpanded = false },
+            onDismiss = { showRenameDocumentAlert = false },
             onConfirm = { newDocumentName ->
-                isRenameDocumentAlertExpanded = false
+                showRenameDocumentAlert = false
                 viewModel.renameDocument(newDocumentName)
             }
         )
     }
 
-    if (isDeleteDocumentAlertExpanded) {
+    if (showDeleteDocumentAlert) {
         AlertDeleteDocument(
-            onDismiss = { isDeleteDocumentAlertExpanded = false },
+            onDismiss = { showDeleteDocumentAlert = false },
             onConfirm = {
-                isDeleteDocumentAlertExpanded = false
+                showDeleteDocumentAlert = false
                 viewModel.deleteDocument()
                 popBackStack()
             }
@@ -317,6 +321,17 @@ fun DocumentDetailScreen(
             selectedFilterPiles = uiState.documentModel?.documentPileIds ?: emptyList(),
             onDismissBottomSheet = { showDocumentPilesBottomSheet = false },
             onPileClick = viewModel::addRemoveDocumentPiles,
+            onNewPile = { showNewPileAlert = true }
+        )
+    }
+
+    if (showNewPileAlert) {
+        AlertNewPile(
+            onDismiss = { showNewPileAlert = false },
+            onConfirm = { pileName, pileIconId, pileColorNumber ->
+                showNewPileAlert = false
+                viewModel.addPile(pileName = pileName, iconId = pileIconId, color = pileColorNumber)
+            }
         )
     }
 }

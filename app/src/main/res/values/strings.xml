@@ -62,9 +62,10 @@
     <string name="move_down_detail">Move down detail</string>
     <string name="detail_deleted">Detail deleted</string>
     <string name="delete_detail">Delete detail</string>
+    <string name="no_piles_saved">It looks like there aren\'t any saved piles yet!</string>
 
 
-    <string name="document_no_name_error">Añade un nombre al documento.</string>
+    <string name="document_no_name_error">add a name to your document.</string>
 
     <string name="error_saving_document">Error saving document</string>
     <string name="error_opening_files_explorer">Error opening files explorer</string>
