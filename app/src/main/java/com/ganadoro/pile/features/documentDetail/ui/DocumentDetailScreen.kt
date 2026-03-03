@@ -482,7 +482,12 @@ private fun LazyListScope.documentDetailsSection(
             Card(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .clip(CardDefaults.shape)
+                    .clickable {
+                        updateEditingMode.invoke(true)
+                        onEvent(DocumentDetailEvent.Add)
+                    },
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
                     contentColor = MaterialTheme.colorScheme.onSurface
@@ -494,7 +499,6 @@ private fun LazyListScope.documentDetailsSection(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-
         }
     }
 
@@ -824,7 +828,11 @@ private fun LazyListScope.documentPilesSection(
             Card(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .clip(CardDefaults.shape)
+                    .clickable {
+                        onEditDocumentPiles()
+                    },
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
                     contentColor = MaterialTheme.colorScheme.onSurface
