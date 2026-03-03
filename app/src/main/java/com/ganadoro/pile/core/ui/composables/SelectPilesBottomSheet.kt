@@ -82,7 +82,22 @@ fun SelectPilesBottomSheet(
                 )
                 Spacer(Modifier.height(4.dp))
             }
-
+            if (pileList?.isNotEmpty() == true && onNewPile != null) {
+                Pile(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    pileModel = PileModel(
+                        id = "0",
+                        name = stringResource(R.string.new_pile),
+                        iconId = "Add",
+                        colorNumber = null
+                    ),
+                    isColored = false,
+                    onClick = { onNewPile.invoke() }
+                )
+                Spacer(Modifier.height(4.dp))
+            }
             if (pileList?.isEmpty() == true && onNewPile != null) {
                 Column(
                     modifier = Modifier
