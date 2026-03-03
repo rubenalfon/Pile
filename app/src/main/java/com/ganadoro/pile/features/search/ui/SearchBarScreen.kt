@@ -1,11 +1,17 @@
 package com.ganadoro.pile.features.search.ui
 
 import android.graphics.Bitmap
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -234,10 +240,8 @@ private fun SearchInputField(
                                 contentDescription = null
                             )
                         }
-
                     }
                 }
-
             }
         },
         trailingIcon = {
@@ -284,7 +288,6 @@ private fun FilterChipsRow(
     selectedFilterDate: LocalDate?,
     onShowFilterPilesBottomSheet: () -> Unit,
     onSHowFilterDateAlert: () -> Unit
-
 ) {
     Row(
         modifier
@@ -293,25 +296,44 @@ private fun FilterChipsRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Spacer(Modifier.width(8.dp))
-        FilterChip(
-            onClick = onShowFilterPilesBottomSheet,
-            selected = selectedFilterPiles.isNotEmpty(),
-            label = {
-                val chipText = if (selectedFilterPiles.isEmpty())
-                    stringResource(R.string.piles)
-                else
-                    "${pileList?.firstOrNull { it.id == selectedFilterPiles.firstOrNull() }?.name ?: ""} ${if (selectedFilterPiles.size > 1) " + ${selectedFilterPiles.size - 1}" else ""}"
-
-                Text(chipText)
-            },
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = null
-                )
-            }
+        val chipModifier = Modifier.animateContentSize(
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioLowBouncy,
+                stiffness = Spring.StiffnessLow
+            )
         )
+        if (pileList?.isNotEmpty() == true) {
+            FilterChip(
+                modifier = chipModifier,
+                onClick = onShowFilterPilesBottomSheet,
+                selected = selectedFilterPiles.isNotEmpty(),
+                label = {
+                    val chipText = if (selectedFilterPiles.isEmpty())
+                        stringResource(R.string.piles)
+                    else
+                        "${pileList.firstOrNull { it.id == selectedFilterPiles.firstOrNull() }?.name ?: ""} ${if (selectedFilterPiles.size > 1) " + ${selectedFilterPiles.size - 1}" else ""}"
+
+                    AnimatedContent(
+                        targetState = chipText,
+                        transitionSpec = {
+                            (fadeIn(tween(220, delayMillis = 90)) + scaleIn(initialScale = 0.92f))
+                                .togetherWith(fadeOut(animationSpec = tween(90)))
+                        },
+                        label = "PileChipTextAnimation"
+                    ) { targetText ->
+                        Text(targetText, modifier)
+                    }
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null
+                    )
+                }
+            )
+        }
         FilterChip(
+            modifier = chipModifier,
             onClick = onSHowFilterDateAlert,
             selected = selectedFilterDate != null,
             label = {
@@ -320,7 +342,17 @@ private fun FilterChipsRow(
                 else {
                     selectedFilterDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
                 }
-                Text(chipText)
+
+                AnimatedContent(
+                    targetState = chipText,
+                    transitionSpec = {
+                        (fadeIn(tween(220, delayMillis = 90)) + scaleIn(initialScale = 0.92f))
+                            .togetherWith(fadeOut(animationSpec = tween(90)))
+                    },
+                    label = "DateChipTextAnimation"
+                ) { targetText ->
+                    Text(targetText)
+                }
             },
             trailingIcon = {
                 Icon(
@@ -380,8 +412,9 @@ private fun FilterDateAlert(
     onDismiss: () -> Unit
 ) {
     val millis = selectedFilterDate?.atTime(0, 0, 0)?.toEpochSecond(ZoneOffset.UTC)
-    val years = documentList?.flatMap { listOf(it.creationDateTime.year, it.modificationDateTime.year) }
-        ?.distinct()
+    val years =
+        documentList?.flatMap { listOf(it.creationDateTime.year, it.modificationDateTime.year) }
+            ?.distinct()
 
     val datePickerState: DatePickerState
 
