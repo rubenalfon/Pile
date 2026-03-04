@@ -622,7 +622,7 @@ private fun ReorderableCollectionItemScope.DocumentDetailItem(
     modifier: Modifier = Modifier
 ) {
     val topCornersDp by animateDpAsState(
-        targetValue = if (isFirstItem) 14.dp else 4.dp,
+        targetValue = if (isFirstItem) 12.dp else 4.dp,
         label = "topCorners"
     )
     val bottomCornersDp by animateDpAsState(
