@@ -1,6 +1,5 @@
 package com.ganadoro.pile.features.home.di
 
-import com.ganadoro.pile.core.domain.useCases.CreatePileUseCase
 import com.ganadoro.pile.features.home.data.schedulers.WorkManagerCleanupScheduler
 import com.ganadoro.pile.features.home.data.workers.CleanupWorker
 import com.ganadoro.pile.features.home.domain.schedulers.CleanupScheduler
@@ -15,7 +14,6 @@ import org.koin.dsl.module
 val homeModule = module {
     factoryOf(::CreateDocumentUseCase)
     factoryOf(::ManageTemporaryDocumentUseCase)
-    factoryOf(::CreatePileUseCase)
 
     workerOf(::CleanupWorker)
     single<CleanupScheduler> {

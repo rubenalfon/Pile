@@ -1,4 +1,4 @@
-package com.ganadoro.pile.features.documentDetail.domain.useCases
+package com.ganadoro.pile.core.domain.useCases
 
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
  * It allows toggling the presence of a document within a specific pile, updating the
  * document's metadata accordingly in the database.
  */
-class ManageDocumentPileUseCase( // TODO: See implementation of add document screen
+class ManageDocumentPileUseCase(
     private val ioDispatcher: CoroutineDispatcher,
     private val documentModelRepository: DocumentModelRepository
 ) {

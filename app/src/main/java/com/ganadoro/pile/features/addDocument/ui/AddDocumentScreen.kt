@@ -77,6 +77,12 @@ fun AddDocumentScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect {
+            navigateToDocumentDetail(documentId)
+        }
+    }
+
     var isNewPileAlertExpanded by rememberSaveable { mutableStateOf(false) }
 
     KeyboardAware {
@@ -88,11 +94,7 @@ fun AddDocumentScreen(
             },
             floatingActionButton = {
                 MediumFloatingActionButton(
-                    onClick = {
-                        viewModel.saveDocument(onSuccess = {
-                            navigateToDocumentDetail(documentId)
-                        })
-                    },
+                    onClick = viewModel::saveDocument,
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ) {
@@ -217,10 +219,10 @@ fun AddDocumentScreen(
                             availableWidth = availableWidth,
                             piles = uiState.allPileModels!!,
                             onPileClick = { pileId ->
-                                viewModel.updatePileSelectState(pileId)
+                                viewModel.addRemoveDocumentPiles(pileId)
                             },
                             onNewPileClick = { isNewPileAlertExpanded = true },
-                            coloredPileIds = uiState.selectedPileModelIds,
+                            coloredPileIds = uiState.documentModel?.documentPileIds ?: emptyList(),
                             backgroundColor = colorScheme.surfaceContainer
                         )
 
@@ -232,7 +234,6 @@ fun AddDocumentScreen(
                                     .background(colorScheme.surfaceContainer)
                             )
                         }
-
                     }
                 }
             }
