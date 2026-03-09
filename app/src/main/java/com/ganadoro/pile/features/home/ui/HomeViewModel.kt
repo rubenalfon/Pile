@@ -47,7 +47,7 @@ class HomeViewModel(
     private val fileRepository: FileRepository
 ) : ViewModel() {
     private var _uiState = MutableStateFlow(HomeUiState())
-    var uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     val bitmapCache = bitmapCacheRepository.bitmapCache
 

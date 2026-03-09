@@ -28,6 +28,8 @@ import com.ganadoro.pile.features.editDocument.ui.EditDocumentScreen
 import com.ganadoro.pile.features.home.ui.HomeScreen
 import com.ganadoro.pile.features.pileDetail.ui.PileDetailScreen
 import com.ganadoro.pile.features.search.ui.SearchBarScreen
+import com.ganadoro.pile.features.settings.ui.overview.SettingsOverviewScreen
+import com.ganadoro.pile.features.settings.ui.resolution.SettingsResolutionScreen
 import kotlinx.coroutines.delay
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -65,10 +67,13 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                         backStack.add(Pane.DocumentDetail(documentId = id))
                     },
                     navigateToEditPDF = { id ->
-                        backStack.add(Pane.EditNewPDF(documentId = id))
+                        backStack.add(Pane.EditNewDocument(documentId = id))
                     },
                     navigateToAddDocument = {
                         backStack.add(Pane.AddDocument(documentId = it))
+                    },
+                    navigateToSettings = {
+                        backStack.add(Pane.SettingsOverview)
                     }
                 )
             }
@@ -96,7 +101,7 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                         backStack.add(Pane.PileDetail(pileId = id))
                     },
                     navigateToEditDocument = { id ->
-                        backStack.add(Pane.EditExistingPDF(documentId = id))
+                        backStack.add(Pane.EditExistingDocument(documentId = id))
                     },
                     popBackStack = {
                         backStack.removeLastOrNull()
@@ -104,7 +109,7 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                 )
             }
 
-            entry<Pane.EditExistingPDF> { backStackKey ->
+            entry<Pane.EditExistingDocument> { backStackKey ->
                 EditDocumentScreen(
                     documentId = backStackKey.documentId,
                     popBackStack = {
@@ -116,7 +121,7 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                 )
             }
 
-            entry<Pane.EditNewPDF> { backStackKey ->
+            entry<Pane.EditNewDocument> { backStackKey ->
                 EditDocumentScreen(
                     documentId = backStackKey.documentId,
                     popBackStack = {
@@ -180,6 +185,21 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                         )
                     },
                     content = {}
+                )
+            }
+
+            entry<Pane.SettingsOverview> {
+                SettingsOverviewScreen(
+                    popBackStack = backStack::removeLastOrNull,
+                    navigateToSettingsResolution = {
+                        backStack.add(Pane.SettingsResolution)
+                    }
+                )
+            }
+
+            entry<Pane.SettingsResolution> {
+                SettingsResolutionScreen(
+                    popBackStack = backStack::removeLastOrNull
                 )
             }
         }

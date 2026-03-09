@@ -3,8 +3,11 @@ package com.ganadoro.pile.features.editDocument.domain.useCases
 import android.net.Uri
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
+import com.ganadoro.pile.core.domain.models.ImageResolution
 import com.ganadoro.pile.core.domain.repositories.FileRepository
+import com.ganadoro.pile.core.domain.repositories.SettingsRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
 /**
@@ -18,6 +21,7 @@ import kotlinx.coroutines.withContext
 class AddPageToDocumentUseCase(
     private val ioDispatcher: CoroutineDispatcher,
     private val fileRepository: FileRepository,
+    private val settingsRepository: SettingsRepository
 ) {
     /**
      * Processes a list of URIs and prepares them to be added to a document.
@@ -38,8 +42,15 @@ class AddPageToDocumentUseCase(
         document: DocumentModel,
         uris: List<Uri>
     ): Pair<DocumentModel, List<DocumentImage>> = withContext(ioDispatcher) {
-        val savedImageFiles =
-            fileRepository.saveImagesToStorage(FileRepository.StorageType.CACHE, uris, document.id)
+        val imageResolution = settingsRepository.userSettings.first().imageResolution
+
+        val savedImageFiles = fileRepository.saveImagesToStorage(
+            storageType = FileRepository.StorageType.CACHE,
+            uris = uris,
+            documentId = document.id,
+            maxSize = if (imageResolution == ImageResolution.ORIGINAL) 0 else 1200,
+            quality = if (imageResolution == ImageResolution.ORIGINAL) 100 else 85
+        )
 
         val imageModels = savedImageFiles.map { file ->
             DocumentImage(

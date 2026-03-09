@@ -5,12 +5,14 @@ import com.ganadoro.pile.core.di.appModule
 import com.ganadoro.pile.core.di.dataModule
 import com.ganadoro.pile.core.di.databaseModule
 import com.ganadoro.pile.core.di.domainModule
+import com.ganadoro.pile.features.activities.di.activitiesModule
 import com.ganadoro.pile.features.addDocument.di.addDocumentModule
 import com.ganadoro.pile.features.documentDetail.di.documentDetailModule
 import com.ganadoro.pile.features.editDocument.di.editDocumentModule
 import com.ganadoro.pile.features.home.di.homeModule
 import com.ganadoro.pile.features.pileDetail.di.pileDetailModule
 import com.ganadoro.pile.features.search.di.searchBarModule
+import com.ganadoro.pile.features.settings.di.settingsModule
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import org.koin.android.ext.koin.androidContext
@@ -35,12 +37,14 @@ class App : Application() {
                 databaseModule,
                 dataModule,
                 domainModule,
+                activitiesModule,
                 homeModule,
                 searchBarModule,
                 pileDetailModule,
                 documentDetailModule,
                 editDocumentModule,
-                addDocumentModule
+                addDocumentModule,
+                settingsModule
             )
         }
     }

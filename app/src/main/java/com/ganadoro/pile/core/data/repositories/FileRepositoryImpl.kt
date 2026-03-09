@@ -274,7 +274,7 @@ class FileRepositoryImpl(
      *
      * @param uri URI of the image to be saved.
      * @param storageDir Directory where the image will be saved.
-     * @param maxSize Maximum size of the image in pixels (default: 1200).
+     * @param maxSize Maximum size of the image in pixels (default: 1200). If set to 0, the image will not be resized.
      * @param quality Quality of the saved image (default: 85).
      * @return File object representing the saved image
      */
@@ -294,7 +294,11 @@ class FileRepositoryImpl(
             contentResolver.openInputStream(uri)?.use {
                 BitmapFactory.decodeStream(it, null, options)
             }
-            options.inSampleSize = imageTransformationHelper.calculateInSampleSize(options, maxSize)
+            if (maxSize > 0) {
+                options.inSampleSize = imageTransformationHelper.calculateInSampleSize(options, maxSize)
+            } else {
+                options.inSampleSize = 1
+            }
             options.inJustDecodeBounds = false
 
             val bitmap = contentResolver.openInputStream(uri)?.use {
@@ -302,7 +306,10 @@ class FileRepositoryImpl(
             }
 
             bitmap?.let { original ->
-                var finalBitmap = scaleBitmap(original, maxSize)
+                val shouldScale = maxSize != 0 && maxSize < original.width && maxSize < original.height
+
+                var finalBitmap = if (shouldScale) scaleBitmap(original, maxSize)
+                else original
 
                 if (rotation != 0) finalBitmap = rotateBitmap(finalBitmap, rotation)
 

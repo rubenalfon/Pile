@@ -46,6 +46,8 @@ android {
 }
 
 dependencies {
+    // DataStore
+    implementation(libs.androidx.datastore)
 
     //Work manager
     implementation(libs.androidx.work.runtime.ktx)

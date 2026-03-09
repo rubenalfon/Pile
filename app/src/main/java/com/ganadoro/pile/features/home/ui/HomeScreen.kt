@@ -104,6 +104,7 @@ fun HomeScreen(
     navigateToDocumentDetail: (documentId: String) -> Unit,
     navigateToEditPDF: (documentId: String) -> Unit,
     navigateToAddDocument: (documentId: String) -> Unit,
+    navigateToSettings: () -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -178,7 +179,7 @@ fun HomeScreen(
                     .padding(end = displayCutoutEndPaddingAnimated),
                 expanded = isSearchBarExpanded,
                 onExpandedChange = { isSearchBarExpanded = it },
-                onSettingsClick = { /*TODO: Add settings */ },
+                onSettingsClick = navigateToSettings,
                 navigateToDocumentDetail = navigateToDocumentDetail
             )
         },

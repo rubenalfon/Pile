@@ -28,6 +28,8 @@
     <string name="date">Date</string>
     <string name="ok">OK</string>
     <string name="clear">Clear</string>
+    <string name="select">Select</string>
+    <string name="selected_">Selected</string>
 
 
     <string name="new_pile">New Pile</string>
@@ -116,6 +118,31 @@
     <string name="no_pdf_found">No pdf was found.</string>
     <string name="error_creating_pdf">Error creating PDF</string>
     <string name="error_importing_pdf">Error importing PDF</string>
+
+
+    <string name="appearance">Appearance</string>
+    <string name="artificial_intelligence">Artificial intelligence</string>
+    <string name="resolution">Resolution</string>
+
+    <string name="theme">Theme</string>
+    <string name="select_theme">Select theme</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="system_default">System default</string>
+
+    <string name="use_system_theme_color">Use system theme color</string>
+
+    <string name="activate_local_ai_tittle">Activate local AI features</string>
+    <string name="activate_local_ai_body">Use AI in device to extract data from your documents.</string>
+    <string name="select_language_model">Select language model</string>
+    <string name="no_model_selected">No model selected</string>
+
+    <string name="document_resolution">Document resolution</string>
+    <string name="original_quality_tittle">Original quality</string>
+    <string name="original_quality_body">Save the original images in your documents.</string>
+    <string name="storage_saver_tittle">Storage saver</string>
+    <string name="storage_saver_body">Save additional files at a slightly lower quality. Imported PDFs will retain their original quality</string>
+
 
     <!--    <string name=""></string>-->
 </resources>

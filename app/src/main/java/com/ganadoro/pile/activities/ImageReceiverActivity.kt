@@ -15,6 +15,7 @@ import com.ganadoro.pile.R
 import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.core.ui.composables.LoadingComposable
 import com.ganadoro.pile.core.ui.theme.PileTheme
+import com.ganadoro.pile.features.activities.MainActivity
 import org.koin.android.ext.android.inject
 
 class ImageReceiverActivity(

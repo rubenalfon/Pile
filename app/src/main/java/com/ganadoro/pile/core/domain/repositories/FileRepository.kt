@@ -109,7 +109,7 @@ interface FileRepository {
      *
      * @param uris List of URIs of images to be saved.
      * @param documentId Unique identifier of the document where the images will be stored.
-     * @param maxSize Maximum size of the images in pixels (default: 1200).
+     * @param maxSize Maximum size of the images in pixels (default: 1200). If set to 0, the image will not be resized.
      * @param quality Quality of the saved images (default: 85).
      * @return List of File objects representing the saved images.
      */

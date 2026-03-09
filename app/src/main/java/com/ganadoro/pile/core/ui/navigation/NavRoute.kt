@@ -31,13 +31,13 @@ sealed interface Pane : Parcelable, NavKey {
 
     @Parcelize
     @Serializable
-    data class EditNewPDF(
+    data class EditNewDocument(
         val documentId: String,
     ) : Pane
 
     @Parcelize
     @Serializable
-    data class EditExistingPDF(
+    data class EditExistingDocument(
         val documentId: String,
     ) : Pane
 
@@ -50,4 +50,16 @@ sealed interface Pane : Parcelable, NavKey {
     @Parcelize
     @Serializable
     data object Search : Pane
+
+    @Parcelize
+    @Serializable
+    data object SettingsOverview : Pane
+
+    @Parcelize
+    @Serializable
+    data object SettingsResolution : Pane
+
+    @Parcelize
+    @Serializable
+    data object SettingsLanguageModel : Pane
 }

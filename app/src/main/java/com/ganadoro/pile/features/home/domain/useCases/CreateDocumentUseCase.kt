@@ -4,9 +4,11 @@ import android.net.Uri
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.core.domain.models.DocumentStatusConstants
+import com.ganadoro.pile.core.domain.models.ImageResolution
 import com.ganadoro.pile.core.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.core.domain.repositories.FileRepository
+import com.ganadoro.pile.core.domain.repositories.SettingsRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -22,10 +24,11 @@ import java.util.UUID
  * by providing a rollback mechanism if storage or database operations fail.
  */
 class CreateDocumentUseCase(
+    private val ioDispatcher: CoroutineDispatcher,
     private val fileRepository: FileRepository,
+    private val settingsRepository: SettingsRepository,
     private val documentModelRepository: DocumentModelRepository,
-    private val documentImageRepository: DocumentImageRepository,
-    private val ioDispatcher: CoroutineDispatcher
+    private val documentImageRepository: DocumentImageRepository
 ) {
 
     /**
@@ -74,13 +77,16 @@ class CreateDocumentUseCase(
 
         val newDocument = createBaseDocument(isPdf = false)
 
+        val imageResolution = settingsRepository.userSettings.first().imageResolution
+
         try {
-            val savedFiles =
-                fileRepository.saveImagesToStorage(
-                    FileRepository.StorageType.PERSISTENT,
-                    uris,
-                    newDocument.id
-                )
+            val savedFiles = fileRepository.saveImagesToStorage(
+                storageType = FileRepository.StorageType.PERSISTENT,
+                uris = uris,
+                documentId = newDocument.id,
+                maxSize = if (imageResolution == ImageResolution.ORIGINAL) 0 else 1200,
+                quality = if (imageResolution == ImageResolution.ORIGINAL) 100 else 85
+            )
 
             val imageModels = savedFiles.map { file ->
                 DocumentImage(

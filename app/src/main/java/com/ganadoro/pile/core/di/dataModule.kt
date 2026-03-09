@@ -1,21 +1,42 @@
 package com.ganadoro.pile.core.di
 
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.dataStore
+import com.ganadoro.pile.core.data.local.UserSettingsSerializer
 import com.ganadoro.pile.core.data.repositories.BitmapCacheRepositoryImpl
+import com.ganadoro.pile.core.data.repositories.DataStoreSettingsRepository
 import com.ganadoro.pile.core.data.repositories.DocumentImageRepositoryImpl
 import com.ganadoro.pile.core.data.repositories.DocumentModelRepositoryImpl
 import com.ganadoro.pile.core.data.repositories.FileRepositoryImpl
 import com.ganadoro.pile.core.data.repositories.PileModelRepositoryImpl
 import com.ganadoro.pile.core.data.util.ImageTransformationHelper
 import com.ganadoro.pile.core.data.util.PdfRenderHelper
+import com.ganadoro.pile.core.domain.models.UserSettings
 import com.ganadoro.pile.core.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.core.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.core.domain.repositories.FileRepository
 import com.ganadoro.pile.core.domain.repositories.PileModelRepository
+import com.ganadoro.pile.core.domain.repositories.SettingsRepository
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
+val Context.dataStore: DataStore<UserSettings> by dataStore(
+    fileName = "settings.json",
+    serializer = UserSettingsSerializer,
+)
+
 val dataModule = module {
+    single {
+        androidContext().dataStore
+    }
+
+    single<SettingsRepository> {
+        DataStoreSettingsRepository(dataStore = get(), ioDispatcher = get())
+    }
+
     singleOf(::ImageTransformationHelper)
     singleOf(::PdfRenderHelper)
 

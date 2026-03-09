@@ -13,6 +13,7 @@ navigation3 = "1.0.1"
 lifecycleViewmodelNav3 = "2.10.0"
 lifecycle = "2.10.0"
 workRuntimeKtx = "2.11.1"
+datastore = "1.2.0"
 
 koin = "4.1.1"
 napier = "2.7.1"
@@ -42,6 +43,7 @@ androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecy
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 
 # Lifecycle (Compose + ViewModel)
 lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycle" }
