@@ -1,4 +1,4 @@
-package com.ganadoro.pile.uiAppIcon
+package com.ganadoro.pile.activities
 
 import android.content.Intent
 import android.net.Uri
