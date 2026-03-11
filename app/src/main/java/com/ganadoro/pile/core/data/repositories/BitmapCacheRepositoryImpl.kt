@@ -72,12 +72,12 @@ class BitmapCacheRepositoryImpl(
 
         if (_bitmapCache.value.containsKey(thumbnailId)) return@withContext
 
-        val bitmap = imageTransformationHelper.transformThumbnail(
+        val bitmap = imageTransformationHelper.transform(
             file = imageFile,
-            maxSize = 500,
             rotation = documentImage.rotation.toInt(),
             cropData = documentImage.crop,
             filter = ImageFilterType.fromId(filterId),
+            reqSize = 700
         )
 
         if (bitmap != null) {

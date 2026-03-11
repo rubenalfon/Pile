@@ -28,6 +28,19 @@ data class ImageCropData(
         height = height
     )
 
+    /**
+     * Scales the crop rectangle by a given factor.
+     *
+     * @param scaleFactor The scaling factor.
+     * @return A new [ImageCropData] object with the scaled dimensions.
+     */
+    fun scale(scaleFactor: Float) = ImageCropData (
+        x = (x * scaleFactor).toInt(),
+        y = (y * scaleFactor).toInt(),
+        width = (width * scaleFactor).toInt(),
+        height = (height * scaleFactor).toInt()
+    )
+
     companion object {
         /**
          * Creates an [ImageCropData] object from a [CropData] object.

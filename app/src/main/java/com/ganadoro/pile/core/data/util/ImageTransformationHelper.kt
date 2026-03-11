@@ -30,32 +30,73 @@ class ImageTransformationHelper(
     private val contentResolver: ContentResolver = appContext.contentResolver,
 ) {
     /**
-     * Takes a raw file and applies a chain of transformations (Rotation -> Crop -> Filter).
+     * Takes a raw file and applies a chain of transformations safely managing memory
+     * (Rotation -> Crop -> Filter).
      *
      * @param file The source image file.
      * @param rotation Degrees to rotate.
      * @param cropData The cropping parameters.
      * @param filter The [ImageFilterType] to be applied.
+     * @param reqSize The maximum size of the image in pixels (default: 1080). 0 for no limit.
      * @return The transformed [Bitmap]. Returns null if the transformation fails.
      */
     suspend fun transform(
         file: File,
         rotation: Int,
         cropData: ImageCropData?,
-        filter: ImageFilterType
+        filter: ImageFilterType,
+        reqSize: Int = 1080
     ): Bitmap? = withContext(ioDispatcher) {
-        var bitmap = BitmapFactory.decodeFile(file.absolutePath)
-            ?: return@withContext null
+        try {
+            val options = BitmapFactory.Options().apply {
+                inJustDecodeBounds = true
+            }
+            BitmapFactory.decodeFile(file.absolutePath, options)
+            val originalWidth = options.outWidth
 
-        val finalRotation = rotation + getExifRotation(file)
+            // Subsampling
+            options.inSampleSize = if (reqSize > 0) {
+                calculateInSampleSize(options, reqSize)
+            } else 1
 
-        if (finalRotation != 0) bitmap = rotateBitmap(bitmap, finalRotation)
+            options.inJustDecodeBounds = false
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888
 
-        if (cropData != null) bitmap = cropBitmap(bitmap, cropData)
 
-        if (filter != ImageFilterType.ORIGINAL) bitmap = applyFilter(bitmap, filter)
+            var bitmap = BitmapFactory.decodeFile(file.absolutePath, options)
+                ?: return@withContext null
 
-        return@withContext bitmap
+
+            val finalRotation = rotation + getExifRotation(file)
+            if (finalRotation != 0) bitmap = rotateBitmap(bitmap, finalRotation)
+
+
+            if (cropData != null) {
+                val scaleFactor = bitmap.width.toFloat() / originalWidth.toFloat()
+
+                val scaledCrop = cropData.scale(scaleFactor)
+
+                bitmap = cropBitmap(bitmap, scaledCrop)
+            }
+
+            if (filter != ImageFilterType.ORIGINAL) bitmap = applyFilter(bitmap, filter)
+
+            return@withContext bitmap
+        } catch (e: OutOfMemoryError) {
+            e.printStackTrace()
+            if (reqSize < 265) return@withContext null
+
+            transform(
+                file = file,
+                rotation = rotation,
+                cropData = cropData,
+                filter = filter,
+                reqSize = reqSize / 2
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
     /**
@@ -70,7 +111,7 @@ class ImageTransformationHelper(
             val exif = ExifInterface(file.absolutePath)
 
             Napier.d { "correct" }
-            getRotationFromExif(exif)
+            getExifRotation(exif)
         } catch (_: IOException) {
             Napier.e { "Error getting rotation degrees" }
             0
@@ -87,7 +128,7 @@ class ImageTransformationHelper(
         try {
             contentResolver.openInputStream(uri)?.use { input ->
                 val exif = ExifInterface(input)
-                getRotationFromExif(exif)
+                getExifRotation(exif)
             } ?: 0
         } catch (_: IOException) {
             0
@@ -100,11 +141,7 @@ class ImageTransformationHelper(
      * @param exif The ExifInterface to be mapped.
      * @return The rotation degrees (0, 90, 180, or 270).
      */
-    private fun getRotationFromExif(exif: ExifInterface): Int {
-        Napier.d { "Exif: $exif, tag: ${exif.getAttribute(ExifInterface.TAG_ORIENTATION)}, orientation: ${exif.getAttributeInt(
-            ExifInterface.TAG_ORIENTATION,
-            ExifInterface.ORIENTATION_NORMAL
-        )}" }
+    private fun getExifRotation(exif: ExifInterface): Int {
         return when (exif.getAttributeInt(
             ExifInterface.TAG_ORIENTATION,
             ExifInterface.ORIENTATION_NORMAL
@@ -205,44 +242,6 @@ class ImageTransformationHelper(
     }
 
     /**
-     * Efficiently loads a downsampled version of the image (thumbnail)
-     * and applies transformations.
-     *
-     * @param maxSize The desired width of the thumbnail (e.g., 200px).
-     */
-    suspend fun transformThumbnail(
-        file: File,
-        maxSize: Int,
-        rotation: Int,
-        cropData: ImageCropData?,
-        filter: ImageFilterType
-    ): Bitmap? = withContext(ioDispatcher) {
-        if (!file.exists()) return@withContext null
-        val options = BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-        }
-        BitmapFactory.decodeFile(file.absolutePath, options)
-
-        options.inSampleSize = calculateInSampleSize(options, maxSize)
-        options.inJustDecodeBounds = false
-
-        var bitmap = BitmapFactory.decodeFile(file.absolutePath, options)
-            ?: return@withContext null
-
-        val finalRotation = rotation + getExifRotation(file)
-
-        if (finalRotation != 0) bitmap = rotateBitmap(bitmap, finalRotation)
-
-        if (cropData != null) {
-            bitmap = cropThumbnail(bitmap, cropData, options.inSampleSize)
-        }
-
-        if (filter != ImageFilterType.ORIGINAL) bitmap = applyFilter(bitmap, filter)
-
-        return@withContext bitmap
-    }
-
-    /**
      * Calculates the optimal sample size for decoding a bitmap.
      *
      * @param options The [BitmapFactory.Options] object containing bitmap metadata.
@@ -263,21 +262,5 @@ class ImageTransformationHelper(
             }
         }
         return inSampleSize
-    }
-
-    private fun cropThumbnail(source: Bitmap, crop: ImageCropData, sampleSize: Int): Bitmap {
-        val scaledX = crop.x / sampleSize
-        val scaledY = crop.y / sampleSize
-        val scaledW = crop.width / sampleSize
-        val scaledH = crop.height / sampleSize
-
-        val safeX = scaledX.coerceAtLeast(0)
-        val safeY = scaledY.coerceAtLeast(0)
-        val safeW = scaledW.coerceAtMost(source.width - safeX)
-        val safeH = scaledH.coerceAtMost(source.height - safeY)
-
-        val cropped = Bitmap.createBitmap(source, safeX, safeY, safeW, safeH)
-        if (cropped != source) source.recycle()
-        return cropped
     }
 }

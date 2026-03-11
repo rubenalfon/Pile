@@ -10,4 +10,6 @@ val appModule = module {
     single<CoroutineDispatcher> { Dispatchers.IO }
 
     single { WorkManager.getInstance(androidContext()) }
+
+    single { androidContext().contentResolver }
 }

@@ -210,7 +210,8 @@ class FileRepositoryImpl(
                     file = imageFile,
                     rotation = documentImage.rotation.toInt(),
                     cropData = documentImage.crop,
-                    filter = ImageFilterType.fromId(documentImage.filter.toInt())
+                    filter = ImageFilterType.fromId(documentImage.filter.toInt()),
+                    reqSize = 0 // When exporting full resolution
                 ) ?: return@forEachIndexed
 
                 val pageInfo =
