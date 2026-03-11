@@ -4,11 +4,10 @@ import android.net.Uri
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.core.domain.models.DocumentStatusConstants
-import com.ganadoro.pile.core.domain.models.ImageResolution
 import com.ganadoro.pile.core.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.core.domain.repositories.FileRepository
-import com.ganadoro.pile.core.domain.repositories.SettingsRepository
+import com.ganadoro.pile.core.domain.useCases.SaveImagesUseCase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -25,8 +24,8 @@ import java.util.UUID
  */
 class CreateDocumentUseCase(
     private val ioDispatcher: CoroutineDispatcher,
+    private val saveImagesUseCase: SaveImagesUseCase,
     private val fileRepository: FileRepository,
-    private val settingsRepository: SettingsRepository,
     private val documentModelRepository: DocumentModelRepository,
     private val documentImageRepository: DocumentImageRepository
 ) {
@@ -77,18 +76,11 @@ class CreateDocumentUseCase(
 
         val newDocument = createBaseDocument(isPdf = false)
 
-        val imageResolution = settingsRepository.userSettings.first().imageResolution
-
         try {
-            val savedFiles = fileRepository.saveImagesToStorage(
-                storageType = FileRepository.StorageType.PERSISTENT,
-                uris = uris,
-                documentId = newDocument.id,
-                maxSize = if (imageResolution == ImageResolution.ORIGINAL) 0 else 1200,
-                quality = if (imageResolution == ImageResolution.ORIGINAL) 100 else 85
-            )
+            val imageFiles =
+                saveImagesUseCase(FileRepository.StorageType.PERSISTENT, uris, newDocument.id)
 
-            val imageModels = savedFiles.map { file ->
+            val documentImages = imageFiles.map { file ->
                 DocumentImage(
                     id = file.name,
                     isDraft = false,
@@ -98,9 +90,9 @@ class CreateDocumentUseCase(
                 )
             }
 
-            imageModels.forEach { documentImageRepository.insertDocumentImage(it) }
+            documentImages.forEach { documentImageRepository.insertDocumentImage(it) }
 
-            val finalDocument = newDocument.copy(imageIds = imageModels.map { it.id })
+            val finalDocument = newDocument.copy(imageIds = documentImages.map { it.id })
             documentModelRepository.updateDocumentModel(finalDocument)
 
             return@withContext finalDocument

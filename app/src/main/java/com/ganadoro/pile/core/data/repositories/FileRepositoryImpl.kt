@@ -22,6 +22,7 @@ import com.ganadoro.pile.core.data.util.PdfRenderHelper
 import com.ganadoro.pile.core.domain.models.ImageFilterType
 import com.ganadoro.pile.core.domain.repositories.FileRepository
 import com.ganadoro.pile.core.domain.repositories.FileRepository.StorageType
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -126,7 +127,7 @@ class FileRepositoryImpl(
             return@withContext pdfFileLastModification.isBefore(documentLastModification)
         }
 
-    override suspend fun saveImagesToStorage(
+    override suspend fun saveResizeRotateImagesToStorage(
         storageType: StorageType,
         uris: List<Uri>,
         documentId: String,
@@ -137,7 +138,7 @@ class FileRepositoryImpl(
 
         uris.map { uri ->
             async {
-                saveImageToStorage(
+                saveResizeRotateImageToStorage(
                     uri = uri,
                     storageDir = storageDir,
                     maxSize = maxSize,
@@ -145,6 +146,25 @@ class FileRepositoryImpl(
                 )
             }
         }.awaitAll().filterNotNull()
+    }
+
+    override suspend fun saveImageToStorage(
+        storageType: StorageType,
+        uris: List<Uri>,
+        documentId: String
+    ): List<File> = withContext(ioDispatcher) {
+        val storageDir = File(getStorage(storageType), documentId).apply { if (!exists()) mkdirs() }
+
+        uris.map { uri ->
+            async {
+                val fileName = getImageFileName(UUID.randomUUID().toString())
+                val destFile = File(storageDir, fileName)
+
+                copyContentUriToFile(uri, destFile)
+
+                destFile
+            }
+        }.awaitAll()
     }
 
     override suspend fun copyImageToInternalStorage(
@@ -269,16 +289,41 @@ class FileRepositoryImpl(
             }
         }
 
+    override suspend fun getRotationDegrees(file: File): Int = withContext(ioDispatcher) {
+        try {
+            if (!file.exists()) return@withContext 0
+            val exif = ExifInterface(file.absolutePath)
+
+            Napier.d { "correct" }
+            getRotationFromExif(exif)
+        } catch (_: IOException) {
+            Napier.e { "Error getting rotation degrees" }
+            0
+        }
+    }
+
+    override suspend fun getRotationDegrees(uri: Uri): Int = withContext(ioDispatcher) {
+        try {
+            contentResolver.openInputStream(uri)?.use { input ->
+                val exif = ExifInterface(input)
+                getRotationFromExif(exif)
+            } ?: 0
+        } catch (_: IOException) {
+            0
+        }
+    }
+
+
     /**
-     * Helper function to save an image from a URI with resizing and rotation correction.
+     * Helper function to save an image from a URI with resizing and rotating based on EXIF data.
      *
      * @param uri URI of the image to be saved.
      * @param storageDir Directory where the image will be saved.
-     * @param maxSize Maximum size of the image in pixels (default: 1200). If set to 0, the image will not be resized.
+     * @param maxSize Maximum size of the image in pixels (default: 1200).
      * @param quality Quality of the saved image (default: 85).
      * @return File object representing the saved image
      */
-    private suspend fun saveImageToStorage(
+    private suspend fun saveResizeRotateImageToStorage(
         uri: Uri,
         storageDir: File,
         maxSize: Int = 1200,
@@ -294,11 +339,8 @@ class FileRepositoryImpl(
             contentResolver.openInputStream(uri)?.use {
                 BitmapFactory.decodeStream(it, null, options)
             }
-            if (maxSize > 0) {
-                options.inSampleSize = imageTransformationHelper.calculateInSampleSize(options, maxSize)
-            } else {
-                options.inSampleSize = 1
-            }
+
+            options.inSampleSize = imageTransformationHelper.calculateInSampleSize(options, maxSize)
             options.inJustDecodeBounds = false
 
             val bitmap = contentResolver.openInputStream(uri)?.use {
@@ -306,10 +348,7 @@ class FileRepositoryImpl(
             }
 
             bitmap?.let { original ->
-                val shouldScale = maxSize != 0 && maxSize < original.width && maxSize < original.height
-
-                var finalBitmap = if (shouldScale) scaleBitmap(original, maxSize)
-                else original
+                var finalBitmap = scaleBitmap(original, maxSize)
 
                 if (rotation != 0) finalBitmap = rotateBitmap(finalBitmap, rotation)
 
@@ -327,45 +366,26 @@ class FileRepositoryImpl(
         }
     }
 
-
     /**
-     * Retrieves the rotation degrees of an image from its URI.
+     * Helper function to map ExifInterface orientation tags to degrees.
      *
-     * @param uri The URI of the image.
-     * @return The rotation degrees
+     * @param exif The ExifInterface to be mapped.
+     * @return The rotation degrees (0, 90, 180, or 270).
      */
-    private fun getRotationDegrees(uri: Uri): Int {
-        return try {
-            contentResolver.openInputStream(uri)?.use { input ->
-                val exif = ExifInterface(input)
-                when (exif.getAttributeInt(
-                    ExifInterface.TAG_ORIENTATION,
-                    ExifInterface.ORIENTATION_NORMAL
-                )) {
-                    ExifInterface.ORIENTATION_ROTATE_90 -> 90
-                    ExifInterface.ORIENTATION_ROTATE_180 -> 180
-                    ExifInterface.ORIENTATION_ROTATE_270 -> 270
-                    else -> 0
-                }
-            } ?: 0
-        } catch (_: Exception) {
-            0
+    private fun getRotationFromExif(exif: ExifInterface): Int {
+        Napier.d { "Exif: $exif, tag: ${exif.getAttribute(ExifInterface.TAG_ORIENTATION)}, orientation: ${exif.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL
+        )}" }
+        return when (exif.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL
+        )) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> 90
+            ExifInterface.ORIENTATION_ROTATE_180 -> 180
+            ExifInterface.ORIENTATION_ROTATE_270 -> 270
+            else -> 0
         }
-    }
-
-    /**
-     * Rotates a [Bitmap] by a specified number of degrees.
-     *
-     * @param source The [Bitmap] to be rotated.
-     * @param degrees The number of degrees to rotate the [Bitmap].
-     * @return The rotated [Bitmap].
-     */
-    private fun rotateBitmap(source: Bitmap, degrees: Int): Bitmap {
-        if (degrees == 0) return source
-        val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
-        val rotated = Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
-        source.recycle()
-        return rotated
     }
 
     /**
@@ -394,6 +414,21 @@ class FileRepositoryImpl(
         }
 
         return source.scale(targetWidth, targetHeight)
+    }
+
+    /**
+     * Rotates a [Bitmap] by a specified number of degrees.
+     *
+     * @param source The [Bitmap] to be rotated.
+     * @param degrees The number of degrees to rotate the [Bitmap].
+     * @return The rotated [Bitmap].
+     */
+    private fun rotateBitmap(source: Bitmap, degrees: Int): Bitmap {
+        if (degrees == 0) return source
+        val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
+        val rotated = Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
+        source.recycle()
+        return rotated
     }
 
     /**

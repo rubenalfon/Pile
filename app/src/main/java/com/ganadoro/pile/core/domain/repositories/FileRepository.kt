@@ -105,20 +105,36 @@ interface FileRepository {
     suspend fun isPdfOutdated(document: DocumentModel): Boolean
 
     /**
-     * Saves a list of [Bitmap] objects as images within the document's storage.
+     * Saves a list of [Bitmap] objects, resized to a specific size and rotated based on their EXIF data,
+     * within the document's storage.
      *
+     * @param storageType The type of storage (PERSISTENT or CACHE).
      * @param uris List of URIs of images to be saved.
      * @param documentId Unique identifier of the document where the images will be stored.
-     * @param maxSize Maximum size of the images in pixels (default: 1200). If set to 0, the image will not be resized.
+     * @param maxSize Maximum size of the images in pixels (default: 1200).
      * @param quality Quality of the saved images (default: 85).
      * @return List of File objects representing the saved images.
      */
-    suspend fun saveImagesToStorage(
+    suspend fun saveResizeRotateImagesToStorage(
         storageType: StorageType,
         uris: List<Uri>,
         documentId: String,
         maxSize: Int = 1200,
         quality: Int = 85
+    ): List<File>
+
+    /**
+     * Saves a list of [Uri] objects without any changes as images within the document's storage.
+     *
+     * @param storageType The type of storage (PERSISTENT or CACHE).
+     * @param uris List of URIs of images to be saved.
+     * @param documentId Unique identifier of the document where the images will be stored.
+     * @return List of File objects representing the saved images.
+     */
+    suspend fun saveImageToStorage(
+        storageType: StorageType,
+        uris: List<Uri>,
+        documentId: String
     ): List<File>
 
     /**
@@ -185,4 +201,19 @@ interface FileRepository {
      * @return A [Result] indicating the final name of the file or a failure.
      */
     suspend fun exportFileToDownloads(file: File, publicName: String): Result<String>
+
+    /**
+     * Retrieves the rotation degrees of an image from its physical [File].
+     *
+     * @param file The image file.
+     * @return The rotation degrees (0, 90, 180, or 270).
+     */
+    suspend fun getRotationDegrees(file: File): Int
+    /**
+     * Retrieves the rotation degrees of an image from its [Uri].
+     *
+     * @param uri The image URI.
+     * @return The rotation degrees (0, 90, 180, or 270).
+     */
+    suspend fun getRotationDegrees(uri: Uri): Int
 }

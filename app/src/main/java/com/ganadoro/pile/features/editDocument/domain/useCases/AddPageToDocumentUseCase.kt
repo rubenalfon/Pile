@@ -3,11 +3,9 @@ package com.ganadoro.pile.features.editDocument.domain.useCases
 import android.net.Uri
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
-import com.ganadoro.pile.core.domain.models.ImageResolution
 import com.ganadoro.pile.core.domain.repositories.FileRepository
-import com.ganadoro.pile.core.domain.repositories.SettingsRepository
+import com.ganadoro.pile.core.domain.useCases.SaveImagesUseCase
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
 /**
@@ -20,39 +18,30 @@ import kotlinx.coroutines.withContext
  */
 class AddPageToDocumentUseCase(
     private val ioDispatcher: CoroutineDispatcher,
-    private val fileRepository: FileRepository,
-    private val settingsRepository: SettingsRepository
+    private val saveImagesUseCase: SaveImagesUseCase,
 ) {
     /**
      * Processes a list of URIs and prepares them to be added to a document.
      *
      * The process involves:
      * 1. Saving the images from the [uris] into the internal cache storage.
-     * 2. Creating [com.ganadoro.pile.DocumentImage] metadata for each file with default values (draft mode).
-     * 3. Producing an updated [com.ganadoro.pile.DocumentModel] containing the new image IDs.
+     * 2. Creating [DocumentImage] metadata for each file with default values (draft mode).
+     * 3. Producing an updated [DocumentModel] containing the new image IDs.
      *
-     * @param document The original [com.ganadoro.pile.DocumentModel] to which the pages will be attached.
-     * @param uris A list of [android.net.Uri] pointing to the source images to be imported.
+     * @param document The original [DocumentModel] to which the pages will be attached.
+     * @param uris A list of [Uri] pointing to the source images to be imported.
      * @return A [Pair] containing:
-     *         - First: The updated [com.ganadoro.pile.DocumentModel] with the new image IDs appended.
-     *         - Second: A [List] of the newly created [com.ganadoro.pile.DocumentImage] objects.
+     *         - First: The updated [DocumentModel] with the new image IDs appended.
+     *         - Second: A [List] of the newly created [DocumentImage] objects.
      * @throws Exception If any file I/O operation fails during the saving process.
      */
     suspend operator fun invoke(
         document: DocumentModel,
         uris: List<Uri>
     ): Pair<DocumentModel, List<DocumentImage>> = withContext(ioDispatcher) {
-        val imageResolution = settingsRepository.userSettings.first().imageResolution
+        val imageFiles = saveImagesUseCase(FileRepository.StorageType.CACHE, uris, document.id)
 
-        val savedImageFiles = fileRepository.saveImagesToStorage(
-            storageType = FileRepository.StorageType.CACHE,
-            uris = uris,
-            documentId = document.id,
-            maxSize = if (imageResolution == ImageResolution.ORIGINAL) 0 else 1200,
-            quality = if (imageResolution == ImageResolution.ORIGINAL) 100 else 85
-        )
-
-        val imageModels = savedImageFiles.map { file ->
+        val documentImages = imageFiles.map { file ->
             DocumentImage(
                 id = file.name,
                 isDraft = true,
@@ -63,8 +52,8 @@ class AddPageToDocumentUseCase(
         }
 
         val updatedDocument =
-            document.copy(imageIds = document.imageIds + imageModels.map { it.id })
+            document.copy(imageIds = document.imageIds + documentImages.map { it.id })
 
-        return@withContext updatedDocument to imageModels
+        return@withContext updatedDocument to documentImages
     }
 }

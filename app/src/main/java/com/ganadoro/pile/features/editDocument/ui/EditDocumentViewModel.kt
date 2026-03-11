@@ -262,8 +262,7 @@ class EditDocumentViewModel(
         val document = uiState.value.draftDocument ?: return
 
         viewModelScope.launch {
-            val (updatedDocument, imageModels) =
-                addPageToDocumentUseCase(document, uriList)
+            val (updatedDocument, imageModels) = addPageToDocumentUseCase(document, uriList)
 
             _uiState.update {
                 it.copy(
