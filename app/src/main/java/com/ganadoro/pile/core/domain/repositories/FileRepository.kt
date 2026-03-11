@@ -208,12 +208,12 @@ interface FileRepository {
      * @param file The image file.
      * @return The rotation degrees (0, 90, 180, or 270).
      */
-    suspend fun getRotationDegrees(file: File): Int
+    suspend fun getExifRotation(file: File): Int
     /**
      * Retrieves the rotation degrees of an image from its [Uri].
      *
      * @param uri The image URI.
      * @return The rotation degrees (0, 90, 180, or 270).
      */
-    suspend fun getRotationDegrees(uri: Uri): Int
+    suspend fun getExifRotation(uri: Uri): Int
 }

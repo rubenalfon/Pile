@@ -1,5 +1,7 @@
 package com.ganadoro.pile.core.data.util
 
+import android.content.ContentResolver
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -7,20 +9,25 @@ import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Matrix
 import android.graphics.Paint
+import android.net.Uri
 import androidx.core.graphics.createBitmap
 import androidx.exifinterface.media.ExifInterface
 import com.ganadoro.pile.core.domain.models.ImageCropData
 import com.ganadoro.pile.core.domain.models.ImageFilterType
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.IOException
 
 /**
  * Helper class responsible for applying graphical transformations to Bitmaps.
  * Handles Rotation, Cropping, and Color Filters using standard Android Graphics APIs.
  */
 class ImageTransformationHelper(
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    private val appContext: Context,
+    private val contentResolver: ContentResolver = appContext.contentResolver,
 ) {
     /**
      * Takes a raw file and applies a chain of transformations (Rotation -> Crop -> Filter).
@@ -29,7 +36,7 @@ class ImageTransformationHelper(
      * @param rotation Degrees to rotate.
      * @param cropData The cropping parameters.
      * @param filter The [ImageFilterType] to be applied.
-     * @return The transformed [android.graphics.Bitmap]. Returns null if the transformation fails.
+     * @return The transformed [Bitmap]. Returns null if the transformation fails.
      */
     suspend fun transform(
         file: File,
@@ -52,25 +59,60 @@ class ImageTransformationHelper(
     }
 
     /**
-     * Retrieves the rotation degrees from the EXIF data of an image file.
+     * Retrieves the rotation degrees of an image from its physical [File].
      *
-     * @param file The source image file.
-     * @return The rotation degrees.
+     * @param file The image file.
+     * @return The rotation degrees (0, 90, 180, or 270).
      */
-    private suspend fun getExifRotation(file: File): Int = withContext(ioDispatcher) {
+    suspend fun getExifRotation(file: File): Int = withContext(ioDispatcher) {
         try {
+            if (!file.exists()) return@withContext 0
             val exif = ExifInterface(file.absolutePath)
-            when (exif.getAttributeInt(
-                ExifInterface.TAG_ORIENTATION,
-                ExifInterface.ORIENTATION_NORMAL
-            )) {
-                ExifInterface.ORIENTATION_ROTATE_90 -> 90
-                ExifInterface.ORIENTATION_ROTATE_180 -> 180
-                ExifInterface.ORIENTATION_ROTATE_270 -> 270
-                else -> 0
-            }
-        } catch (_: Exception) {
+
+            Napier.d { "correct" }
+            getRotationFromExif(exif)
+        } catch (_: IOException) {
+            Napier.e { "Error getting rotation degrees" }
             0
+        }
+    }
+
+    /**
+     * Retrieves the rotation degrees of an image from its [Uri].
+     *
+     * @param uri The image URI.
+     * @return The rotation degrees (0, 90, 180, or 270).
+     */
+    suspend fun getExifRotation(uri: Uri): Int = withContext(ioDispatcher) {
+        try {
+            contentResolver.openInputStream(uri)?.use { input ->
+                val exif = ExifInterface(input)
+                getRotationFromExif(exif)
+            } ?: 0
+        } catch (_: IOException) {
+            0
+        }
+    }
+
+    /**
+     * Helper function to map ExifInterface orientation tags to degrees.
+     *
+     * @param exif The ExifInterface to be mapped.
+     * @return The rotation degrees (0, 90, 180, or 270).
+     */
+    private fun getRotationFromExif(exif: ExifInterface): Int {
+        Napier.d { "Exif: $exif, tag: ${exif.getAttribute(ExifInterface.TAG_ORIENTATION)}, orientation: ${exif.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL
+        )}" }
+        return when (exif.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL
+        )) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> 90
+            ExifInterface.ORIENTATION_ROTATE_180 -> 180
+            ExifInterface.ORIENTATION_ROTATE_270 -> 270
+            else -> 0
         }
     }
 

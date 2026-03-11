@@ -14,7 +14,6 @@ import android.provider.MediaStore
 import android.provider.OpenableColumns
 import androidx.core.content.FileProvider
 import androidx.core.graphics.scale
-import androidx.exifinterface.media.ExifInterface
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.core.data.util.ImageTransformationHelper
@@ -22,7 +21,6 @@ import com.ganadoro.pile.core.data.util.PdfRenderHelper
 import com.ganadoro.pile.core.domain.models.ImageFilterType
 import com.ganadoro.pile.core.domain.repositories.FileRepository
 import com.ganadoro.pile.core.domain.repositories.FileRepository.StorageType
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -289,30 +287,12 @@ class FileRepositoryImpl(
             }
         }
 
-    override suspend fun getRotationDegrees(file: File): Int = withContext(ioDispatcher) {
-        try {
-            if (!file.exists()) return@withContext 0
-            val exif = ExifInterface(file.absolutePath)
+    override suspend fun getExifRotation(file: File): Int =
+        imageTransformationHelper.getExifRotation(file)
 
-            Napier.d { "correct" }
-            getRotationFromExif(exif)
-        } catch (_: IOException) {
-            Napier.e { "Error getting rotation degrees" }
-            0
-        }
-    }
 
-    override suspend fun getRotationDegrees(uri: Uri): Int = withContext(ioDispatcher) {
-        try {
-            contentResolver.openInputStream(uri)?.use { input ->
-                val exif = ExifInterface(input)
-                getRotationFromExif(exif)
-            } ?: 0
-        } catch (_: IOException) {
-            0
-        }
-    }
-
+    override suspend fun getExifRotation(uri: Uri): Int =
+        imageTransformationHelper.getExifRotation(uri)
 
     /**
      * Helper function to save an image from a URI with resizing and rotating based on EXIF data.
@@ -330,7 +310,7 @@ class FileRepositoryImpl(
         quality: Int = 85
     ): File? = withContext(ioDispatcher) {
         try {
-            val rotation = getRotationDegrees(uri)
+            val rotation = getExifRotation(uri)
 
             val fileName = getImageFileName(UUID.randomUUID().toString())
             val destFile = File(storageDir, fileName)
@@ -366,27 +346,6 @@ class FileRepositoryImpl(
         }
     }
 
-    /**
-     * Helper function to map ExifInterface orientation tags to degrees.
-     *
-     * @param exif The ExifInterface to be mapped.
-     * @return The rotation degrees (0, 90, 180, or 270).
-     */
-    private fun getRotationFromExif(exif: ExifInterface): Int {
-        Napier.d { "Exif: $exif, tag: ${exif.getAttribute(ExifInterface.TAG_ORIENTATION)}, orientation: ${exif.getAttributeInt(
-            ExifInterface.TAG_ORIENTATION,
-            ExifInterface.ORIENTATION_NORMAL
-        )}" }
-        return when (exif.getAttributeInt(
-            ExifInterface.TAG_ORIENTATION,
-            ExifInterface.ORIENTATION_NORMAL
-        )) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> 90
-            ExifInterface.ORIENTATION_ROTATE_180 -> 180
-            ExifInterface.ORIENTATION_ROTATE_270 -> 270
-            else -> 0
-        }
-    }
 
     /**
      * Scales a [Bitmap] to a specified maximum size.
