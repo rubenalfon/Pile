@@ -282,7 +282,7 @@ class EditDocumentViewModel(
         }
     }
 
-    fun deleteSelectedImage() {
+    fun partialDeleteSelectedImage() {
         _uiState.update { state ->
             val document = state.draftDocument ?: return@update state
             val currentImages = state.documentImages
@@ -306,5 +306,34 @@ class EditDocumentViewModel(
                 selectedImageIndex = index.coerceAtMost(newImageList.lastIndex)
             )
         }
+    }
+
+    fun restoreDeletedImage() {
+        if (deletedDocumentImages.isEmpty()) return
+
+        val state = uiState.value
+
+        val restoredDocumentImage = deletedDocumentImages.first()
+        deletedDocumentImages -= restoredDocumentImage
+
+        val updatedDocumentImages = state.documentImages + restoredDocumentImage
+        val updatedDocument = state.draftDocument?.copy(
+            imageIds = updatedDocumentImages.map { it.id }
+        ) ?: return
+
+        _uiState.update {
+            it.copy(
+                draftDocument = updatedDocument,
+                documentImages = updatedDocumentImages
+            )
+        }
+    }
+
+    fun erasureDeletedImage() {
+        if (deletedDocumentImages.isEmpty()) return
+
+        deletedDocumentImages -= deletedDocumentImages.first()
+
+        // No need to remove from storage. Exiting the screen will do.
     }
 }

@@ -39,6 +39,10 @@ import androidx.compose.material3.IconButtonDefaults.smallContainerSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -48,6 +52,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -72,6 +77,7 @@ import com.tanishranjan.cropkit.CropController
 import com.tanishranjan.cropkit.ImageCropper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -104,11 +110,52 @@ fun EditDocumentScreen(
         createTempImageUri = { null }
     )
 
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarStrings = Pair(
+        stringResource(R.string.image_deleted),
+        stringResource(R.string.undo)
+    )
+
     Scaffold(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             ScreenTopAppBar(popBackStack = viewModel::onNavigateBack)
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
+        bottomBar = {
+            ToolBar(
+                modifier = Modifier
+                    .padding(bottom = ScreenOffset),
+                uiMode = uiState.uiMode,
+                isSinglePage = uiState.documentImages.count() == 1,
+                onUpdateUiMode = viewModel::updateUIMode,
+                onDeleteImage = {
+                    viewModel.partialDeleteSelectedImage()
+
+                    scope.launch {
+                        val result = snackbarHostState
+                            .showSnackbar(
+                                message = snackbarStrings.first,
+                                actionLabel = snackbarStrings.second,
+                                duration = SnackbarDuration.Short
+                            )
+                        when (result) {
+                            SnackbarResult.ActionPerformed -> { // restore
+                                viewModel.restoreDeletedImage()
+                            }
+
+                            SnackbarResult.Dismissed -> {
+                                viewModel.erasureDeletedImage()
+                            }
+                        }
+                    }
+                },
+                onSave = viewModel::onNavigateNext,
+            )
         }
     ) { innerPadding ->
         LoadingWrapper(
@@ -197,15 +244,7 @@ fun EditDocumentScreen(
                     )
                 }
 
-                ToolBar(
-                    modifier = Modifier
-                        .padding(bottom = ScreenOffset),
-                    uiMode = uiState.uiMode,
-                    isSinglePage = uiState.documentImages.count() == 1,
-                    onUpdateUiMode = viewModel::updateUIMode,
-                    onDeleteImage = viewModel::deleteSelectedImage,
-                    onSave = viewModel::onNavigateNext,
-                )
+
             }
         }
     }
@@ -548,8 +587,9 @@ private fun ToolBar(
     var isDeleteImageAlertExpanded by rememberSaveable { mutableStateOf(false) }
 
     Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
     ) {
         HorizontalFloatingToolbar(
             expanded = true,
@@ -632,7 +672,6 @@ private fun ToolBar(
         )
     }
 }
-
 
 @Composable
 private fun AlertDeleteImage(
