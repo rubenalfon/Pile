@@ -41,7 +41,8 @@ data class EditDocumentUiState(
     val imageFilters: List<ImageFilterType>? = null,
     val selectedImageIndex: Int = 0,
     val uiMode: EditDocumentUIMode = EditDocumentUIMode.SCROLL,
-    val cropControllers: Map<String, CropController> = emptyMap()
+    val cropControllers: Map<String, CropController> = emptyMap(),
+    val isLoadingNewImage: Boolean = false
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -103,6 +104,8 @@ class EditDocumentViewModel(
     fun onNavigateNext() {
         val state = uiState.value
         val document = state.draftDocument ?: return
+
+        if (state.isLoadingNewImage) return
 
         viewModelScope.launch {
             updateDocumentUseCase(document, state.documentImages)
@@ -259,7 +262,12 @@ class EditDocumentViewModel(
     }
 
     fun addNewImage(uriList: List<Uri>) {
-        val document = uiState.value.draftDocument ?: return
+        val state = uiState.value
+        val document = state.draftDocument ?: return
+
+        if (state.isLoadingNewImage) return
+
+        _uiState.update { it.copy(isLoadingNewImage = true) }
 
         viewModelScope.launch {
             val (updatedDocument, imageModels) = addPageToDocumentUseCase(document, uriList)
@@ -267,7 +275,8 @@ class EditDocumentViewModel(
             _uiState.update {
                 it.copy(
                     draftDocument = updatedDocument,
-                    documentImages = it.documentImages + imageModels
+                    documentImages = it.documentImages + imageModels,
+                    isLoadingNewImage = false
                 )
             }
         }

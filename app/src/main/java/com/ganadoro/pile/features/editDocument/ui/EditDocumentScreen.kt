@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
 import com.ganadoro.pile.core.domain.models.ImageFilterType
+import com.ganadoro.pile.core.ui.composables.LoadingAlert
 import com.ganadoro.pile.core.ui.composables.LoadingWrapper
 import com.ganadoro.pile.core.ui.controllers.rememberDocumentImportController
 import com.ganadoro.pile.features.editDocument.ui.composables.ActiveIndicator
@@ -207,6 +208,10 @@ fun EditDocumentScreen(
                 )
             }
         }
+    }
+
+    if (uiState.isLoadingNewImage) {
+        LoadingAlert(stringResource(R.string.adding_images))
     }
 }
 
@@ -505,7 +510,7 @@ private fun EditColorRow(
 }
 
 @Composable
-fun CropRotateButtons(
+private fun CropRotateButtons(
     modifier: Modifier = Modifier,
     onRotate: () -> Unit
 ) {
@@ -586,9 +591,11 @@ private fun ToolBar(
             modifier = Modifier.padding(end = 8.dp)
         )
         FloatingActionButton(
-            onClick = { if (uiMode == EditDocumentUIMode.SCROLL) onSave() else onUpdateUiMode(
-                EditDocumentUIMode.SCROLL
-            ) },
+            onClick = {
+                if (uiMode == EditDocumentUIMode.SCROLL) onSave() else onUpdateUiMode(
+                    EditDocumentUIMode.SCROLL
+                )
+            },
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ) {

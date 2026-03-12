@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,7 +35,6 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Photo
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -44,7 +42,6 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -85,6 +82,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
 import com.ganadoro.pile.core.ui.composables.AlertNewPile
+import com.ganadoro.pile.core.ui.composables.LoadingAlert
 import com.ganadoro.pile.core.ui.composables.LoadingWrapper
 import com.ganadoro.pile.core.ui.composables.SwipeBox
 import com.ganadoro.pile.core.ui.composables.itemDocumentsCompleteList
@@ -342,7 +340,7 @@ fun HomeScreen(
     }
 
     if (uiState.isLoadingNewDocument) {
-        LoadingNewDocumentAlert()
+        LoadingAlert(stringResource(R.string.loading_new_document))
     }
 }
 
@@ -478,25 +476,3 @@ private fun UnsavedDocumentCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun LoadingNewDocumentAlert(modifier: Modifier = Modifier) {
-    AlertDialog(
-        modifier = modifier,
-        onDismissRequest = {},
-        title = { Text(stringResource(R.string.loading_new_document)) },
-        text = {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = 18.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                LoadingIndicator(
-                    Modifier.size(108.dp)
-                )
-            }
-        },
-        confirmButton = { }
-    )
-}
