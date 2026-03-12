@@ -173,7 +173,7 @@ class DocumentDetailViewModel(
 
         val detailsModificationResult = updateDocumentDetailsUseCase(
             currentDetails = currentDetails,
-            deletedStack = emptyList(),
+            deletedStack = recentlyDeletedDetails,
             event = event
         )
 
