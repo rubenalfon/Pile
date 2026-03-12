@@ -274,7 +274,6 @@ class EditDocumentViewModel(
     }
 
     fun deleteSelectedImage() {
-        Napier.d { "deleteSelectedImage" }
         _uiState.update { state ->
             val document = state.draftDocument ?: return@update state
             val currentImages = state.documentImages
