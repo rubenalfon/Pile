@@ -140,8 +140,6 @@ fun DocumentDetailScreen(
     var showDocumentPilesBottomSheet by rememberSaveable { mutableStateOf(false) }
     var showNewPileAlert by rememberSaveable { mutableStateOf(false) }
 
-    var isDocumentDetailsEditing by rememberSaveable { mutableStateOf(false) }
-
     val focusManager = LocalFocusManager.current
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -191,27 +189,27 @@ fun DocumentDetailScreen(
                     modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
                     showEditDocument = !(uiState.documentModel?.isIncomingPdf ?: true),
                     onRenameDocument = {
-                        isDocumentDetailsEditing = false
+                        viewModel.updateIsEditingMode(false)
                         focusManager.clearFocus()
                         showRenameDocumentAlert = true
                     },
                     onDeleteDocument = {
-                        isDocumentDetailsEditing = false
+                        viewModel.updateIsEditingMode(false)
                         focusManager.clearFocus()
                         showDeleteDocumentAlert = true
                     },
                     onDownloadDocument = {
-                        isDocumentDetailsEditing = false
+                        viewModel.updateIsEditingMode(false)
                         focusManager.clearFocus()
                         viewModel.downloadPDF()
                     },
                     onShareDocument = {
-                        isDocumentDetailsEditing = false
+                        viewModel.updateIsEditingMode(false)
                         focusManager.clearFocus()
                         viewModel.openShareSheet()
                     },
                     onEditDocument = {
-                        isDocumentDetailsEditing = false
+                        viewModel.updateIsEditingMode(false)
                         focusManager.clearFocus()
                         navigateToEditDocument(documentId)
                     },
@@ -242,7 +240,7 @@ fun DocumentDetailScreen(
                             onLoadBitmap = viewModel::requestBitmapLoad,
                             onRequestImageKey = viewModel::requestImageKey,
                             onClick = {
-                                isDocumentDetailsEditing = false
+                                viewModel.updateIsEditingMode(false)
                                 focusManager.clearFocus()
                                 viewModel.openDocumentPDF()
                             }
@@ -253,13 +251,12 @@ fun DocumentDetailScreen(
                     documentDetailsSection(
                         reorderableLazyListState = reorderableLazyListState,
                         documentDetails = uiState.localDocumentDetails ?: emptyList(),
-                        isEditingMode = isDocumentDetailsEditing,
+                        isEditingMode = uiState.isDocumentDetailsEditing,
                         updateEditingMode = {
                             focusManager.clearFocus()
-                            isDocumentDetailsEditing = it
+                            viewModel.updateIsEditingMode(it)
                         },
                         onEvent = {
-                            focusManager.clearFocus()
                             viewModel.onDocumentDetailEvent(event = it)
                             if (it !is DocumentDetailEvent.Delete) return@documentDetailsSection
 
@@ -290,7 +287,7 @@ fun DocumentDetailScreen(
                             documentModel = uiState.documentModel,
                             onUpdateDocumentNote = viewModel::updateDocumentNote,
                             onFocused = {
-                                isDocumentDetailsEditing = false
+                                viewModel.updateIsEditingMode(false)
                             }
                         )
                     }
@@ -300,12 +297,12 @@ fun DocumentDetailScreen(
                     documentPilesSection(
                         documentPileModels = uiState.documentPileModels ?: emptyList(),
                         onPileClick = {
-                            isDocumentDetailsEditing = false
+                            viewModel.updateIsEditingMode(false)
                             focusManager.clearFocus()
                             navigateToPileDetail(it)
                         },
                         onEditDocumentPiles = {
-                            isDocumentDetailsEditing = false
+                            viewModel.updateIsEditingMode(false)
                             focusManager.clearFocus()
                             showDocumentPilesBottomSheet = true
                         }
@@ -799,7 +796,7 @@ private fun DocumentNoteSection(
                     .fillMaxWidth()
                     .onFocusChanged { focusState ->
                         isFocused = focusState.isFocused
-                        onFocused()
+                        if (isFocused) onFocused()
                     },
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface

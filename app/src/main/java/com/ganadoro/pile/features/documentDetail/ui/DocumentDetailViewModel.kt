@@ -42,6 +42,7 @@ data class DocumentDetailUiState(
     val documentImages: List<DocumentImage>? = null,
     val pdfPageNumber: Int? = null,
     val allPiles: List<PileModel>? = null,
+    val isDocumentDetailsEditing: Boolean = false
 )
 
 sealed interface DocumentDetailEvent {
@@ -256,5 +257,9 @@ class DocumentDetailViewModel(
 
             deleteDocumentUseCase(documentModel)
         }
+    }
+
+    fun updateIsEditingMode(newMode: Boolean) {
+        _uiState.update { it.copy(isDocumentDetailsEditing = newMode) }
     }
 }
