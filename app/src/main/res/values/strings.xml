@@ -30,6 +30,8 @@
     <string name="clear">Clear</string>
     <string name="select">Select</string>
     <string name="selected_">Selected</string>
+    <string name="keep_editing">Keep editing</string>
+    <string name="discard">Discard</string>
 
 
     <string name="new_pile">New Pile</string>
@@ -102,7 +104,8 @@
 
     <string name="close_pile_selection_bottom_sheet">Close pile selection bottom sheet</string>
 
-
+    <string name="discard_changes">Discard changes?</string>
+    <string name="discard_changes_body">Your changes are not saved</string>
 
 
     <string name="expanded">Expanded</string>

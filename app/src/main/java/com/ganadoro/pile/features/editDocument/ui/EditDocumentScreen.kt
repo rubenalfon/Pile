@@ -1,6 +1,7 @@
 package com.ganadoro.pile.features.editDocument.ui
 
 import android.graphics.Bitmap
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
@@ -117,6 +118,10 @@ fun EditDocumentScreen(
         stringResource(R.string.undo)
     )
 
+    BackHandler(viewModel.isDocumentModified()) {
+        viewModel.updateShowUnsavedChangesAlert(true)
+    }
+
     Scaffold(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.surface,
@@ -154,7 +159,7 @@ fun EditDocumentScreen(
                         }
                     }
                 },
-                onSave = viewModel::onNavigateNext,
+                onSave = viewModel::onNavigateNext
             )
         }
     ) { innerPadding ->
@@ -251,6 +256,17 @@ fun EditDocumentScreen(
 
     if (uiState.isLoadingNewImage) {
         LoadingAlert(stringResource(R.string.adding_images))
+    }
+
+    if (uiState.showUnsavedChangesAlert) {
+        AlertUnsavedChanges(
+            onKeepEditing = {
+                viewModel.updateShowUnsavedChangesAlert(false)
+            },
+            onDiscard = {
+                viewModel.onNavigateBack(force = true)
+            }
+        )
     }
 }
 
@@ -704,6 +720,36 @@ private fun AlertDeleteImage(
                 onDismiss.invoke()
             }) {
                 Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
+private fun AlertUnsavedChanges(
+    modifier: Modifier = Modifier,
+    onKeepEditing: () -> Unit,
+    onDiscard: () -> Unit
+) {
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = onKeepEditing,
+        title = { Text(stringResource(R.string.discard_changes)) },
+        text = { Text(stringResource(R.string.discard_changes_body)) },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onDiscard.invoke()
+                }
+            ) {
+                Text(stringResource(R.string.discard))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = {
+                onKeepEditing.invoke()
+            }) {
+                Text(stringResource(R.string.keep_editing))
             }
         }
     )

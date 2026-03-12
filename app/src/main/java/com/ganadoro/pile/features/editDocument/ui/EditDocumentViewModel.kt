@@ -42,7 +42,8 @@ data class EditDocumentUiState(
     val selectedImageIndex: Int = 0,
     val uiMode: EditDocumentUIMode = EditDocumentUIMode.SCROLL,
     val cropControllers: Map<String, CropController> = emptyMap(),
-    val isLoadingNewImage: Boolean = false
+    val isLoadingNewImage: Boolean = false,
+    val showUnsavedChangesAlert: Boolean = false
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -71,6 +72,9 @@ class EditDocumentViewModel(
     private val _navigationEvent = Channel<NavigationType>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
+    private var originalDocument: DocumentModel? = null
+    private var originalDocumentImages: List<DocumentImage> = emptyList()
+
     init {
         viewModelScope.launch {
             val document = documentModelRepository.getDocumentModelById(documentId)
@@ -82,6 +86,8 @@ class EditDocumentViewModel(
             val documentImages =
                 imageIds.mapNotNull { documentImageRepository.getDocumentImageById(it).first() }
 
+            originalDocument = document
+            originalDocumentImages = documentImages
 
             _uiState.update { currentState ->
                 currentState.copy(
@@ -93,7 +99,13 @@ class EditDocumentViewModel(
         }
     }
 
-    fun onNavigateBack() {
+    fun onNavigateBack(force: Boolean = false) {
+        if (isDocumentModified() && !force) {
+            updateShowUnsavedChangesAlert(true)
+            return
+        }
+        updateShowUnsavedChangesAlert(false)
+
         viewModelScope.launch {
             fileRepository.deleteDocumentStorage(StorageType.CACHE, documentId)
 
@@ -336,4 +348,16 @@ class EditDocumentViewModel(
 
         // No need to remove from storage. Exiting the screen will do.
     }
+
+    fun isDocumentModified(): Boolean {
+        val state = uiState.value
+
+        val isDocumentModelModified = originalDocument != state.draftDocument
+        val isDocumentImagesModified = originalDocumentImages != state.documentImages
+
+        return isDocumentModelModified || isDocumentImagesModified
+    }
+
+    fun updateShowUnsavedChangesAlert(show: Boolean) =
+        _uiState.update { it.copy(showUnsavedChangesAlert = show) }
 }
