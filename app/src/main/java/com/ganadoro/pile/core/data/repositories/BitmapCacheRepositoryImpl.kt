@@ -50,7 +50,7 @@ class BitmapCacheRepositoryImpl(
                 rotation = documentImage?.rotation?.toInt() ?: 0,
                 cropData = documentImage?.crop,
                 filter = ImageFilterType.fromId(documentImage?.filter?.toInt() ?: 0)
-            )
+            )?.bitmap
         }
 
         if (bitmap != null) {
@@ -78,7 +78,7 @@ class BitmapCacheRepositoryImpl(
             cropData = documentImage.crop,
             filter = ImageFilterType.fromId(filterId),
             reqSize = 700
-        )
+        )?.bitmap
 
         if (bitmap != null) {
             _bitmapCache.update { currentCache ->

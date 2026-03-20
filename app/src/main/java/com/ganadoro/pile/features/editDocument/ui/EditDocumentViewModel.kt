@@ -12,13 +12,13 @@ import com.ganadoro.pile.core.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.core.domain.repositories.FileRepository
 import com.ganadoro.pile.core.domain.repositories.FileRepository.StorageType
+import com.ganadoro.pile.features.editDocument.domain.models.ExtendedCropController
 import com.ganadoro.pile.features.editDocument.domain.useCases.AddPageToDocumentUseCase
 import com.ganadoro.pile.features.editDocument.domain.useCases.GetCropControllerUseCase
 import com.ganadoro.pile.features.editDocument.domain.useCases.RemoveBitmapFromCacheUseCase
 import com.ganadoro.pile.features.editDocument.domain.useCases.RequestDraftBitmapLoadUseCase
 import com.ganadoro.pile.features.editDocument.domain.useCases.RequestThumbnailLoadUseCase
 import com.ganadoro.pile.features.editDocument.domain.useCases.UpdateDocumentUseCase
-import com.tanishranjan.cropkit.CropController
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -41,7 +41,7 @@ data class EditDocumentUiState(
     val imageFilters: List<ImageFilterType>? = null,
     val selectedImageIndex: Int = 0,
     val uiMode: EditDocumentUIMode = EditDocumentUIMode.SCROLL,
-    val cropControllers: Map<String, CropController> = emptyMap(),
+    val cropControllers: Map<String, ExtendedCropController> = emptyMap(),
     val isLoadingNewImage: Boolean = false,
     val showUnsavedChangesAlert: Boolean = false
 )
@@ -207,10 +207,10 @@ class EditDocumentViewModel(
             if (cropControllers.containsKey(key)) return@launch
 
             try {
-                val cropController = getCropControllerUseCase(documentId, selectedImage)
+                val extendedCropController = getCropControllerUseCase(documentId, selectedImage)
 
                 _uiState.update {
-                    it.copy(cropControllers = it.cropControllers + (key to cropController))
+                    it.copy(cropControllers = it.cropControllers + (key to extendedCropController))
                 }
             } catch (ex: Exception) {
                 Napier.e("Error loading crop controller", ex)
@@ -228,11 +228,20 @@ class EditDocumentViewModel(
         val documentImage = state.documentImages.getOrNull(state.selectedImageIndex) ?: return
         val imageKey = requestImageKey(state.selectedImageIndex)
 
-        val selectedCropController = state.cropControllers[imageKey] ?: return
+        val selectedExtendedCropController = state.cropControllers[imageKey] ?: return
 
-        val cropData = ImageCropData.fromCropData(selectedCropController.getCropData())
 
-        val updatedDocumentImage = documentImage.copy(crop = cropData)
+        val cropData = ImageCropData.fromCropData(
+            selectedExtendedCropController.cropController.getCropData()
+        )
+        val scaleFactor = selectedExtendedCropController.scaleFactor
+
+        val scaledCropData = cropData.scale(1/scaleFactor)
+        Napier.d { "\uD83D\uDE08Crop data: $cropData" }
+        Napier.d { "\uD83D\uDE08scaleFactor: $scaleFactor" }
+        Napier.d { "\uD83D\uDE08scaledCropData: $scaledCropData" }
+
+        val updatedDocumentImage = documentImage.copy(crop = scaledCropData)
 
         _uiState.update { state ->
             state.copy(documentImages = state.documentImages.map {
@@ -254,7 +263,7 @@ class EditDocumentViewModel(
         val updatedDocumentImage = documentImage.copy(rotation = newRotation)
 
         viewModelScope.launch {
-            state.cropControllers[imageKey]?.rotateAntiClockwise()
+            state.cropControllers[imageKey]?.cropController?.rotateAntiClockwise()
         }
 
         _uiState.update { state ->

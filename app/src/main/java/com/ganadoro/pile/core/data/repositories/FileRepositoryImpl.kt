@@ -212,7 +212,7 @@ class FileRepositoryImpl(
                     cropData = documentImage.crop,
                     filter = ImageFilterType.fromId(documentImage.filter.toInt()),
                     reqSize = 0 // When exporting full resolution
-                ) ?: return@forEachIndexed
+                )?.bitmap ?: return@forEachIndexed
 
                 val pageInfo =
                     PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, index + 1).create()

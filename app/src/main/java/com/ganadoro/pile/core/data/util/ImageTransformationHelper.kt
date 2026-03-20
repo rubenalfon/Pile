@@ -14,6 +14,7 @@ import androidx.core.graphics.createBitmap
 import androidx.exifinterface.media.ExifInterface
 import com.ganadoro.pile.core.domain.models.ImageCropData
 import com.ganadoro.pile.core.domain.models.ImageFilterType
+import com.ganadoro.pile.core.domain.models.ResizedBitmap
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -38,7 +39,8 @@ class ImageTransformationHelper(
      * @param cropData The cropping parameters.
      * @param filter The [ImageFilterType] to be applied.
      * @param reqSize The maximum size of the image in pixels (default: 1080). 0 for no limit.
-     * @return The transformed [Bitmap]. Returns null if the transformation fails.
+     * @return An object [ResizedBitmap] that contains the transformed [Bitmap] and its scale
+     * factor as a [Float]. Returns null if the transformation fails.
      */
     suspend fun transform(
         file: File,
@@ -46,7 +48,7 @@ class ImageTransformationHelper(
         cropData: ImageCropData?,
         filter: ImageFilterType,
         reqSize: Int = 1080
-    ): Bitmap? = withContext(ioDispatcher) {
+    ): ResizedBitmap? = withContext(ioDispatcher) {
         try {
             val options = BitmapFactory.Options().apply {
                 inJustDecodeBounds = true
@@ -71,9 +73,11 @@ class ImageTransformationHelper(
             if (finalRotation != 0) bitmap = rotateBitmap(bitmap, finalRotation)
 
 
-            if (cropData != null) {
-                val scaleFactor = bitmap.width.toFloat() / originalWidth.toFloat()
+            val scaleFactor: Float = bitmap.width.toFloat() / originalWidth.toFloat()
 
+            Napier.d { "\uD83D\uDE08 ${file.name}'s scale: $scaleFactor" }
+
+            if (cropData != null) {
                 val scaledCrop = cropData.scale(scaleFactor)
 
                 bitmap = cropBitmap(bitmap, scaledCrop)
@@ -81,7 +85,7 @@ class ImageTransformationHelper(
 
             if (filter != ImageFilterType.ORIGINAL) bitmap = applyFilter(bitmap, filter)
 
-            return@withContext bitmap
+            return@withContext ResizedBitmap(bitmap, scaleFactor)
         } catch (e: OutOfMemoryError) {
             e.printStackTrace()
             if (reqSize < 265) return@withContext null

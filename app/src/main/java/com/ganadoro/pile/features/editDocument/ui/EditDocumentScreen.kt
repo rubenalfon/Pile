@@ -72,9 +72,9 @@ import com.ganadoro.pile.core.domain.models.ImageFilterType
 import com.ganadoro.pile.core.ui.composables.LoadingAlert
 import com.ganadoro.pile.core.ui.composables.LoadingWrapper
 import com.ganadoro.pile.core.ui.controllers.rememberDocumentImportController
+import com.ganadoro.pile.features.editDocument.domain.models.ExtendedCropController
 import com.ganadoro.pile.features.editDocument.ui.composables.ActiveIndicator
 import com.ganadoro.pile.features.editDocument.ui.composables.AddItemCarousel
-import com.tanishranjan.cropkit.CropController
 import com.tanishranjan.cropkit.ImageCropper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -307,7 +307,7 @@ private fun ImagePager(
     selectedImageIndex: Int,
     imageCount: Int,
     bitmapCache: Map<String, Bitmap>,
-    cropControllers: Map<String, CropController>,
+    cropControllers: Map<String, ExtendedCropController>,
     onLoadBitmap: (pageNumber: Int) -> Unit,
     onRequestImageKey: (pageNumber: Int) -> String,
     onSelectImageIndex: (page: Int) -> Unit,
@@ -375,20 +375,20 @@ private fun ImagePager(
                     )
                 }
             } else {
-                val cropController = cropControllers[key]
+                val extendedCropController = cropControllers[key]
 
-                if (cropController == null) {
+                if (extendedCropController == null) {
                     LaunchedEffect(key1 = cachedBitmap) {
                         if (cachedBitmap == null) return@LaunchedEffect
                         onLoadCropController(key)
                     }
                 }
-                LoadingWrapper(cropController == null) {
-                    if (cropController == null) return@LoadingWrapper
+                LoadingWrapper(extendedCropController == null) {
+                    if (extendedCropController == null) return@LoadingWrapper
                     ImageCropper(
                         modifier = Modifier
                             .fillMaxSize(),
-                        cropController = cropController
+                        cropController = extendedCropController.cropController
                     )
                 }
             }

@@ -1,10 +1,11 @@
 package com.ganadoro.pile.features.editDocument.domain.useCases
 
-import android.graphics.Bitmap
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.core.data.util.ImageTransformationHelper
 import com.ganadoro.pile.core.domain.models.ImageFilterType
+import com.ganadoro.pile.core.domain.models.ResizedBitmap
 import com.ganadoro.pile.core.domain.repositories.FileRepository
+import com.ganadoro.pile.features.editDocument.domain.models.ExtendedCropController
 import com.tanishranjan.cropkit.CropController
 import com.tanishranjan.cropkit.CropData
 import com.tanishranjan.cropkit.CropDefaults
@@ -25,24 +26,26 @@ class GetCropControllerUseCase(
      *
      * @param documentId The ID of the document.
      * @param documentImage The [com.ganadoro.pile.DocumentImage] to load the crop controller for.
-     * @return The loaded crop controller.
+     * @return A pair containing the [CropController] and the scale factor.
      * @throws IllegalStateException If the bitmap for the image is not found.
      */
     suspend operator fun invoke(
         documentId: String,
         documentImage: DocumentImage
-    ): CropController = withContext(ioDispatcher) {
-        val bitmap = getUncroppedBitmap(documentId, documentImage)
+    ): ExtendedCropController = withContext(ioDispatcher) {
+        val resizedBitmap = getUncroppedBitmap(documentId, documentImage)
             ?: throw IllegalStateException("Bitmap not found for image ${documentImage.id}")
 
-        CropController(
-            bitmap = bitmap,
+        val cropController = CropController(
+            bitmap = resizedBitmap.bitmap,
             cropColors = CropDefaults.cropColors(),
             cropOptions = CropDefaults.cropOptions(
                 initialCropData = documentImage.crop?.toCropData() ?: CropData.Zero,
                 cropShape = CropShape.FreeForm
             )
         )
+
+        ExtendedCropController(cropController, resizedBitmap.scaleFactor)
     }
 
     /**
@@ -54,7 +57,7 @@ class GetCropControllerUseCase(
     private suspend fun getUncroppedBitmap(
         documentId: String,
         documentImage: DocumentImage
-    ): Bitmap? {
+    ): ResizedBitmap? {
         val storageType = if (documentImage.isDraft) FileRepository.StorageType.CACHE
         else FileRepository.StorageType.PERSISTENT
 
