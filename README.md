@@ -182,7 +182,7 @@ If you want to connect or discuss the project, feel free to reach out through Gi
 
 This project is licensed under the **Apache License 2.0**.
 
-See the [LICENSE](./LICENCE) file for full details.
+See the [LICENSE](./LICENSE) file for full details.
 
 ```
 Copyright 2025 Rubén Alfonso
