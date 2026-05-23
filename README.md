@@ -6,7 +6,7 @@ The project is built with **Kotlin** and **Jetpack Compose**, following a **Clea
 
 > 🚧 This project is currently under active development.
 
-## Capturas de pantalla
+## Screenshots
 
 <p align="center">
 <img src="./screenshots/home.png" alt="Home screen" width="250"/>
@@ -19,7 +19,7 @@ The project is built with **Kotlin** and **Jetpack Compose**, following a **Clea
 
 - Centralized document management
 - Tags for easy document management
-- Modern Material expresive design
+- Modern Material expresive desing
 - Local persistence for storing and retrieving document data
 - Reactive state management using Coroutines and Flow
 - Full PDF support
@@ -35,36 +35,36 @@ The project is built with **Kotlin** and **Jetpack Compose**, following a **Clea
 - **Koin** for dependency injection
 - **SQLDelight** for local persistence
 - **Kotlin Coroutines**
-- **Kotling Flow**
+- **Kotlin Flow**
 - **Navigation Compose**
 
 
 ### Why these technologies?
 
-- **Jetpack Compose** was chosen to built a modern UI following the recomended guidelines from Google.
-- **Koin** was selected as the dependency injection framework due to its lightweight setup and compatibiiity with Kotling Multiplatform-oriented projects.
-- **SQLDelight** was chosen over Room because of its strong SQL-first approach and multiplatform compatibility, which keeps the project open tu future KMP evolution.
+- **Jetpack Compose** was chosen to build a modern UI following the recomended guidelines from Google.
+- **Koin** was selected as the dependency injection framework due to its lightweight setup and compatibility with Kotlin Multiplatform-oriented projects.
+- **SQLDelight** was chosen over Room because of its strong SQL-first approach and multiplatform compatibility, which keeps the project open to future KMP evolution.
 - **Coroutines + Flow** provide a clean and reactive way to handle asynchronous work and UI state updates.
 
 
-## Arquitecture
+## Architecture
 
 Pile follows a **feature-based modular architecture** combined with **Clean Architecture** principles.
 
-The codebaswe is organized into two main areas:
+The codebase is organized into two main areas:
 
 - **`core/`** — Shared code used across the entire application:
     - Common data sources, repositories and utilities
     - Shared domain models and base use cases
     - Global dependency injection modules
     - Reusable UI components, app theme and navigation
-- **`features/`** — Each featyure is self-contain and follows its own Cean Architecture layering:
-    - **`data/`** — Feature-specific data sourcers and helpers
-    - **`domain/`** — Feature-specifit models and use cases
+- **`features/`** — Each feature is self-contained and follows its own Clean Architecture layering:
+    - **`data/`** — Feature-specific data sources and helpers
+    - **`domain/`** — Feature-specific models and use cases
     - **`ui/`** — Compose screens, view models and feature-scoped composables
     - **`di/`** — Feature-scoped Koin modules
 
-This structure keep each feature isolated, easier to maintain, and ready for a potential migration to fully independent Gradle modules in the future.
+This structure keeps each feature isolated, easier to maintain, and ready for a potential migration to fully independent Gradle modules in the future.
 
 
 ## Project Structure
@@ -89,7 +89,10 @@ app/
  │       └── util/
  │
  └── features/
-     └── sample feature/
+     ├── addDocument/
+     ├── documentDetail/
+     ├── editDocument/
+     └── home/
          ├── data/
          ├── di/
          ├── domain/
@@ -115,7 +118,7 @@ At the moment, the main focus is:
 
 Planned next steps for the project include:
 
-- [ ]  Improve overall stabiilty and error handling
+- [ ]  Improve overall stability and error handling
 - [ ]  Improve document import and sharing flows
 - [ ]  Refine UI/UX details across the app
 - [ ]  Add local AI-assisted document information extraction
@@ -131,7 +134,7 @@ This feature is still in the research and design stage.
 
 ## Known limitations
 
-As the proyect is still evolving, these areas are not fully polished:
+As the project is still evolving, these areas are not fully polished:
 
 - Some flows may require additional validation and error handling
 - UI details and consistency are still being improved
@@ -143,7 +146,7 @@ As the proyect is still evolving, these areas are not fully polished:
 
 ### Requirements
 
-- Android Studio (latest stable version recomended)
+- Android Studio (latest stable version recommended)
 - JDK 17 or higher (JDK 21 recommended)
 - Android SDK configured
 
@@ -152,11 +155,11 @@ As the proyect is still evolving, these areas are not fully polished:
 1. Clone the repository:
 
 ```bash
-https://github.com/rubenalfon/Pile.git
+git clone https://github.com/rubenalfon/Pile.git
 ```
 
-1. Open the project in Android Studio
-2. Sync Gadle and run the app 
+2. Open the project in Android Studio
+3. Sync Gradle and run the app 
 
 
 ## Development Notes
