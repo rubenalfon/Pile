@@ -21,7 +21,7 @@ sqlDelight = "2.3.2"
 kotlinxSerializationJson = "1.11.0"
 exifinterface = "1.4.2"
 reorderable = "3.0.0"
-cropKit = "1.0.3-BETA01"
+cropKit = "1.0.7-BETA02"
 
 [libraries]
 # --- Compose ---

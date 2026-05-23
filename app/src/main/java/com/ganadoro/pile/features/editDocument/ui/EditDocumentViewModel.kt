@@ -237,16 +237,19 @@ class EditDocumentViewModel(
         val scaleFactor = selectedExtendedCropController.scaleFactor
 
         val scaledCropData = cropData.scale(1/scaleFactor)
-        Napier.d { "\uD83D\uDE08Crop data: $cropData" }
-        Napier.d { "\uD83D\uDE08scaleFactor: $scaleFactor" }
-        Napier.d { "\uD83D\uDE08scaledCropData: $scaledCropData" }
+        Napier.d { "ñ Crop data: $cropData" }
+        Napier.d { "ñ scaleFactor: $scaleFactor" }
+        Napier.d { "ñ scaledCropData: $scaledCropData" }
 
         val updatedDocumentImage = documentImage.copy(crop = scaledCropData)
 
         _uiState.update { state ->
-            state.copy(documentImages = state.documentImages.map {
-                if (it.id == updatedDocumentImage.id) updatedDocumentImage else it
-            })
+            state.copy(
+                documentImages = state.documentImages.map {
+                    if (it.id == updatedDocumentImage.id) updatedDocumentImage else it
+                },
+//                cropControllers = state.cropControllers - imageKey
+            )
         }
         removeBitmapFromCacheUseCase.removeImageThumbnails(document, documentImage.id)
     }
