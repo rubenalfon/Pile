@@ -12,12 +12,12 @@ kotlin {
 
 android {
     namespace = "com.ganadoro.pile"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.ganadoro.pile"
         minSdk = 29
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
