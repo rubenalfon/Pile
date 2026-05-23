@@ -23,3 +23,5 @@ local.properties
 /app/release/baselineProfiles/1/app-release.dm
 /app/release/output-metadata.json
 /.idea/emulatorDisplays.xml
+/.idea/markdown.xml
+/.idea/studiobot.xml
