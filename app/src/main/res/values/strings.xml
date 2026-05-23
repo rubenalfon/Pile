@@ -57,7 +57,7 @@
     <string name="save_changes_in_document_section_name">Save changes in document section %1$s</string>
 
     <string name="add_a_note">Add a note…</string>
-    <string name="no_piles_in_document">No piles found in this document.</string>
+    <string name="no_piles_in_document">No piles selected</string>
     <string name="no_document_details">No document details</string>
     <string name="add_a_detail">Add a detail</string>
     <string name="detail_hint_title">Detail</string>
