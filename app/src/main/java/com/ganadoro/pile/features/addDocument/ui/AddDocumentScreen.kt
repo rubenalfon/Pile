@@ -74,7 +74,7 @@ fun AddDocumentScreen(
     navigateToDocumentDetail: (String) -> Unit,
     viewModel: AddDocumentViewModel = koinViewModel { parametersOf(documentId) }
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -94,7 +94,7 @@ fun AddDocumentScreen(
             },
             floatingActionButton = {
                 MediumFloatingActionButton(
-                    onClick = viewModel::saveDocument,
+                    onClick = { viewModel.handleEvent(AddDocumentEvent.OnSaveDocument) },
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ) {
@@ -106,7 +106,7 @@ fun AddDocumentScreen(
             }
         ) { innerPadding ->
             LoadingWrapper(
-                uiState.documentModel == null || uiState.allPileModels == null
+                state.documentModel == null || state.allPileModels == null
             ) {
                 var availableWidth by remember { mutableStateOf(0.dp) }
                 val density = LocalDensity.current
@@ -141,12 +141,12 @@ fun AddDocumentScreen(
                                     .clip(RoundedCornerShape(28.dp))
                                     .background(MaterialTheme.colorScheme.surfaceContainerHigh),
                             ) {
-                                val imageId = viewModel.requestImageKey()
+                                val imageId = state.coverImageCacheKey
                                 val cachedBitmap: Bitmap? = bitmapCache[imageId]
 
                                 if (cachedBitmap == null) {
                                     LaunchedEffect(key1 = imageId) {
-                                        viewModel.requestBitmapLoad()
+                                        viewModel.handleEvent(AddDocumentEvent.OnImageVisible)
                                     }
                                 }
 
@@ -166,18 +166,16 @@ fun AddDocumentScreen(
 
                         item {
                             OutlinedTextField(
-                                value = uiState.documentName,
-                                onValueChange = { viewModel.setDocumentName(it) },
+                                value = state.documentName,
+                                onValueChange = { viewModel.handleEvent(AddDocumentEvent.OnNameChanged(it)) },
                                 label = { Text(stringResource(R.string.document_name)) },
                                 trailingIcon = {
-                                    if (uiState.documentName.isNotEmpty()) {
+                                    if (state.documentName.isNotEmpty()) {
                                         Icon(
                                             imageVector = Icons.Default.Close,
                                             contentDescription = stringResource(R.string.delete_text),
                                             modifier = Modifier.clickable {
-                                                viewModel.setDocumentName(
-                                                    ""
-                                                )
+                                                viewModel.handleEvent(AddDocumentEvent.OnNameChanged(""))
                                             })
                                     }
                                 },
@@ -185,10 +183,10 @@ fun AddDocumentScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp),
-                                isError = uiState.noDocumentNameError,
+                                isError = state.noDocumentNameError,
                                 supportingText = {
                                     AnimatedVisibility(
-                                        visible = uiState.noDocumentNameError,
+                                        visible = state.noDocumentNameError,
                                         enter = fadeIn() + expandVertically(),
                                         exit = fadeOut() + shrinkVertically()
                                     ) {
@@ -217,12 +215,12 @@ fun AddDocumentScreen(
 
                         itemPileGrid(
                             availableWidth = availableWidth,
-                            piles = uiState.allPileModels!!,
+                            piles = state.allPileModels!!,
                             onPileClick = { pileId ->
-                                viewModel.addRemoveDocumentPiles(pileId)
+                                viewModel.handleEvent(AddDocumentEvent.OnAddPile(pileId))
                             },
                             onNewPileClick = { isNewPileAlertExpanded = true },
-                            coloredPileIds = uiState.documentModel?.documentPileIds ?: emptyList(),
+                            coloredPileIds = state.documentModel?.documentPileIds ?: emptyList(),
                             backgroundColor = colorScheme.surfaceContainer
                         )
 
@@ -245,7 +243,7 @@ fun AddDocumentScreen(
             onDismiss = { isNewPileAlertExpanded = false },
             onConfirm = { pileName, pileIconId, pileColorNumber ->
                 isNewPileAlertExpanded = false
-                viewModel.addPile(pileName, pileIconId, pileColorNumber)
+                viewModel.handleEvent(AddDocumentEvent.OnCreateNewPile(pileName, pileIconId, pileColorNumber))
             }
         )
     }
