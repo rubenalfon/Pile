@@ -11,7 +11,7 @@ The project is built with **Kotlin** and **Jetpack Compose**, following a **Clea
 <p align="center">
 <img src="./screenshots/home.png" alt="Home screen" width="250"/>
 <img src="./screenshots/detail.png" alt="Document detail screen" width="250"/>
-<img src="./screenshots/share.png" alt="Share document screen" width="250"/>
+<img src="./screenshots/edit.png" alt="Document edit screen" width="250"/>
 </p>
 
 
