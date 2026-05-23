@@ -3,6 +3,7 @@ package com.ganadoro.pile.features.documentDetail.di
 import com.ganadoro.pile.features.documentDetail.data.helper.DocumentOpenerImpl
 import com.ganadoro.pile.features.documentDetail.domain.helper.DocumentOpener
 import com.ganadoro.pile.features.documentDetail.domain.useCases.DeleteDocumentUseCase
+import com.ganadoro.pile.features.documentDetail.domain.useCases.ManageDocumentPileUseCase
 import com.ganadoro.pile.features.documentDetail.domain.useCases.UpdateDocumentDetailsUseCase
 import com.ganadoro.pile.features.documentDetail.domain.useCases.export.ExportDocumentUseCase
 import com.ganadoro.pile.features.documentDetail.domain.useCases.export.GeneratePdfUseCase
@@ -22,6 +23,7 @@ val documentDetailModule = module {
     factoryOf(::GetPdfUriUseCase)
     factoryOf(::GetUpToDatePdfUseCase)
     factoryOf(::ExportDocumentUseCase)
+    factoryOf(::ManageDocumentPileUseCase)
 
     viewModelOf(::DocumentDetailViewModel)
 }

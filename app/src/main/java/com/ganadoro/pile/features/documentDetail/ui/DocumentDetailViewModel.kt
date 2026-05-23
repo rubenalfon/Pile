@@ -12,10 +12,10 @@ import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.core.domain.repositories.FileRepository
 import com.ganadoro.pile.core.domain.repositories.PileModelRepository
 import com.ganadoro.pile.core.domain.useCases.CreatePileUseCase
-import com.ganadoro.pile.core.domain.useCases.ManageDocumentPileUseCase
 import com.ganadoro.pile.core.domain.useCases.RequestBitmapLoadUseCase
 import com.ganadoro.pile.features.documentDetail.domain.helper.DocumentOpener
 import com.ganadoro.pile.features.documentDetail.domain.useCases.DeleteDocumentUseCase
+import com.ganadoro.pile.features.documentDetail.domain.useCases.ManageDocumentPileUseCase
 import com.ganadoro.pile.features.documentDetail.domain.useCases.UpdateDocumentDetailsUseCase
 import com.ganadoro.pile.features.documentDetail.domain.useCases.export.ExportDocumentUseCase
 import com.ganadoro.pile.features.documentDetail.domain.useCases.export.GetPdfUriUseCase
