@@ -19,7 +19,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -49,9 +50,11 @@ class AddDocumentViewModel(
                 documentModelRepository.getDocumentModelById(documentId).distinctUntilChanged()
 
             val documentFirstImageFlow = documentFlow
-                .mapNotNull { it?.imageIds?.firstOrNull() }
+                .map { it?.imageIds?.firstOrNull() }
                 .distinctUntilChanged()
                 .flatMapLatest { imageId ->
+                    if (imageId == null) return@flatMapLatest flowOf(null)
+
                     documentImageRepository.getDocumentImageById(imageId)
                 }
 
