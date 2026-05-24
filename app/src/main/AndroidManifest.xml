@@ -15,7 +15,7 @@
         android:theme="@style/Theme.Pile"
         tools:targetApi="31">
         <activity
-            android:name=".features.activities.MainActivity"
+            android:name=".core.activities.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Pile">
             <intent-filter>

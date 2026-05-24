@@ -1,11 +1,11 @@
 package com.ganadoro.pile
 
 import android.app.Application
+import com.ganadoro.pile.core.activities.di.activitiesModule
 import com.ganadoro.pile.core.di.appModule
 import com.ganadoro.pile.core.di.dataModule
 import com.ganadoro.pile.core.di.databaseModule
 import com.ganadoro.pile.core.di.domainModule
-import com.ganadoro.pile.features.activities.di.activitiesModule
 import com.ganadoro.pile.features.addDocument.di.addDocumentModule
 import com.ganadoro.pile.features.documentDetail.di.documentDetailModule
 import com.ganadoro.pile.features.editDocument.di.editDocumentModule

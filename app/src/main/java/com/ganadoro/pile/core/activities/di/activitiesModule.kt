@@ -1,6 +1,6 @@
-package com.ganadoro.pile.features.activities.di
+package com.ganadoro.pile.core.activities.di
 
-import com.ganadoro.pile.features.activities.MainViewModel
+import com.ganadoro.pile.core.activities.MainViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 

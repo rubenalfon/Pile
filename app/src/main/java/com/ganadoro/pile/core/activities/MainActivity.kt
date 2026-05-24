@@ -1,4 +1,4 @@
-package com.ganadoro.pile.features.activities
+package com.ganadoro.pile.core.activities
 
 import android.content.Intent
 import android.os.Bundle
