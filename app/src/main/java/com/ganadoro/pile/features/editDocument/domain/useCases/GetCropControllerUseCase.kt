@@ -10,7 +10,6 @@ import com.tanishranjan.cropkit.CropController
 import com.tanishranjan.cropkit.CropData
 import com.tanishranjan.cropkit.CropDefaults
 import com.tanishranjan.cropkit.CropShape
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -42,13 +41,6 @@ class GetCropControllerUseCase(
         val resizedImageCropData = imageCropData?.scale(resizedBitmap.scaleFactor)
 
         val resizedCropData = resizedImageCropData?.toCropData()
-
-        Napier.d {
-            "ñ Get crop controller\n" +
-                    "\tImageCropData: $imageCropData\n" +
-                    "\tResizedImageCropData: $resizedImageCropData\n" +
-                    "\tResizedCropData: $resizedCropData\n"
-        }
 
         val cropController = CropController(
             bitmap = resizedBitmap.bitmap,
