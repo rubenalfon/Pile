@@ -74,12 +74,14 @@ import com.ganadoro.pile.core.ui.composables.LoadingWrapper
 import com.ganadoro.pile.core.ui.composables.SelectPilesBottomSheet
 import com.ganadoro.pile.core.ui.composables.adaptiveSizeItemsGrid
 import com.ganadoro.pile.core.ui.util.horizontalPaddingValues
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import kotlin.time.Duration.Companion.milliseconds
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,11 +95,14 @@ fun SearchBarScreen(
     navigateToDocumentDetail: (documentId: String) -> Unit,
     focusRequester: FocusRequester? = null
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
-    if (uiState.pileList == null || uiState.documentList == null) {
-        viewModel.init()
+    LaunchedEffect(expanded) {
+        if (!expanded) {
+            delay(300.milliseconds)
+            viewModel.handleEvent(SearchBarEvent.OnCloseSearch)
+        }
     }
 
     var showFilterPilesBottomSheet by remember { mutableStateOf(false) }
@@ -110,23 +115,17 @@ fun SearchBarScreen(
             val focusRequester = focusRequester ?: remember { FocusRequester() }
 
             SearchInputField(
-                searchQuery = uiState.searchQuery,
-                onQueryChange = viewModel::updateSearchQuery,
-                onSearch = viewModel::filterResults,
+                searchQuery = state.searchQuery,
+                onQueryChange = { viewModel.handleEvent(SearchBarEvent.OnSearchQueryChanged(it)) },
+                onSearch = { viewModel.handleEvent(SearchBarEvent.OnSearch) },
                 expanded = expanded,
-                onExpandedChange = {
-                    if (!it) viewModel.deinit()
-                    onExpandedChange(it)
-                },
+                onExpandedChange = { onExpandedChange(it) },
                 onSettingsClick = onSettingsClick,
                 focusRequester = focusRequester
             )
         },
         expanded = expanded,
-        onExpandedChange = {
-            if (!it) viewModel.deinit()
-            onExpandedChange(it)
-        }
+        onExpandedChange = { onExpandedChange(it) }
     ) {
         Column(
             modifier = Modifier.padding(
@@ -135,9 +134,9 @@ fun SearchBarScreen(
             )
         ) {
             FilterChipsRow(
-                selectedFilterPiles = uiState.selectedFilterPiles,
-                pileList = uiState.pileList,
-                selectedFilterDate = uiState.selectedFilterDate,
+                selectedFilterPiles = state.selectedFilterPiles,
+                pileList = state.pileList,
+                selectedFilterDate = state.selectedFilterDate,
                 onShowFilterPilesBottomSheet = { showFilterPilesBottomSheet = true },
                 onSHowFilterDateAlert = { showFilterDateAlert = true }
             )
@@ -145,7 +144,7 @@ fun SearchBarScreen(
             var availableWidth by remember { mutableStateOf(0.dp) }
             val density = LocalDensity.current
 
-            LoadingWrapper(uiState.pileList == null || uiState.documentList == null) {
+            LoadingWrapper(state.pileList.isEmpty() || state.documentList.isEmpty()) {
                 LazyColumn(
                     modifier = Modifier
                         .imePadding()
@@ -157,13 +156,19 @@ fun SearchBarScreen(
                 ) {
                     itemDocumentsCustomList(
                         availableWidth = availableWidth,
-                        documents = uiState.filteredDocumentList,
+                        documents = state.filteredDocumentList,
                         onDocumentClick = { documentId ->
                             navigateToDocumentDetail(documentId)
                         },
                         bitmapCache = bitmapCache,
-                        onLoadBitmap = viewModel::requestBitmapLoad,
-                        onRequestImageKey = viewModel::requestImageKey
+                        onLoadBitmap = { document, pageNumber ->
+                            viewModel.handleEvent(
+                                SearchBarEvent.OnImageDisplayed(
+                                    document,
+                                    pageNumber
+                                )
+                            )
+                        }
                     )
                     item {
                         Spacer(Modifier.height(50.dp))
@@ -176,19 +181,19 @@ fun SearchBarScreen(
     if (showFilterPilesBottomSheet) {
         SelectPilesBottomSheet(
             title = stringResource(R.string.piles),
-            pileList = uiState.pileList,
-            selectedFilterPiles = uiState.selectedFilterPiles,
+            pileList = state.pileList,
+            selectedFilterPiles = state.selectedFilterPiles,
             onDismissBottomSheet = { showFilterPilesBottomSheet = false },
-            onPileClick = viewModel::addRemoveFilterPiles,
+            onPileClick = { viewModel.handleEvent(SearchBarEvent.OnFilterPilesChanged(it)) }
         )
     }
 
 
     if (showFilterDateAlert) {
         FilterDateAlert(
-            onDateSelected = viewModel::updateFilterDate,
-            selectedFilterDate = uiState.selectedFilterDate,
-            documentList = uiState.documentList,
+            onDateSelected = { viewModel.handleEvent(SearchBarEvent.OnFilterDateChanged(it)) },
+            selectedFilterDate = state.selectedFilterDate,
+            documentList = state.documentList,
             onDismiss = { showFilterDateAlert = false }
         )
     }
@@ -367,10 +372,9 @@ private fun FilterChipsRow(
 
 private fun LazyListScope.itemDocumentsCustomList(
     availableWidth: Dp,
-    documents: List<DocumentModel>,
+    documents: List<DocumentSearchItem>,
     bitmapCache: Map<String, Bitmap>,
     onLoadBitmap: suspend (document: DocumentModel, pageNumber: Int) -> Unit,
-    onRequestImageKey: (document: DocumentModel, pageNumber: Int) -> String,
     onDocumentClick: (documentId: String) -> Unit = {}
 ) {
     adaptiveSizeItemsGrid(
@@ -381,19 +385,19 @@ private fun LazyListScope.itemDocumentsCustomList(
         horizontalSpacing = 16.dp,
         verticalSpacing = 16.dp,
         horizontalPadding = 16.dp,
-        content = { modifier, document ->
-            val key = onRequestImageKey(document, 0)
+        content = { modifier, documentItem ->
+            val key = documentItem.coverImageCacheKey
 
             val cachedBitmap: Bitmap? = bitmapCache[key]
 
             if (cachedBitmap == null) {
                 LaunchedEffect(key1 = key) {
-                    onLoadBitmap(document, 0)
+                    onLoadBitmap(documentItem.document, 0)
                 }
             }
 
             Document(
-                documentModel = document,
+                documentModel = documentItem.document,
                 imageBitmap = cachedBitmap?.asImageBitmap(),
                 modifier = modifier,
                 onClick = onDocumentClick

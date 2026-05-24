@@ -3,32 +3,19 @@ package com.ganadoro.pile.features.search.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
-import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.core.domain.models.StringDetail
 import com.ganadoro.pile.core.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.core.domain.repositories.PileModelRepository
 import com.ganadoro.pile.core.domain.useCases.RequestBitmapLoadUseCase
-import io.github.aakira.napier.Napier
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-
-data class SearchBarUiState(
-    val pileList: List<PileModel>? = null,
-    val documentList: List<DocumentModel>? = null,
-    val filteredDocumentList: List<DocumentModel> = emptyList(),
-    val searchQuery: String = "",
-    val selectedFilterPiles: List<String> = emptyList(),
-    val selectedFilterDate: LocalDate? = null
-)
-
 
 class SearchBarViewModel(
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
@@ -36,63 +23,104 @@ class SearchBarViewModel(
     private val documentRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(SearchBarUiState())
-    val uiState: StateFlow<SearchBarUiState> = _uiState.asStateFlow()
+    private val _state = MutableStateFlow(SearchBarState())
+    val state: StateFlow<SearchBarState> = _state.asStateFlow()
 
     val bitmapCache = bitmapCacheRepository.bitmapCache
 
-    fun init() {
+    init {
         viewModelScope.launch {
             val pilesFlow = pileRepository.pileModels
 
             val documentsFlow = documentRepository.documentModels
 
             pilesFlow.combine(documentsFlow) { piles, documents ->
-                Pair(piles, documents)
-            }.collect { (piles, documents) ->
-                _uiState.update {
+                _state.update {
                     it.copy(
                         pileList = piles,
                         documentList = documents
                     )
                 }
-            }
+            }.collect()
         }
     }
 
-    fun deinit() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _uiState.update {
-                it.copy(
-                    searchQuery = ""
-                )
-            }
-
-            delay(150) // Fixes visual errors in the animation
-
-            _uiState.update {
-                it.copy(
-                    pileList = null,
-                    documentList = null,
-                    filteredDocumentList = emptyList(),
-                    selectedFilterPiles = emptyList(),
-                    selectedFilterDate = null
-                )
-            }
+    fun handleEvent(event: SearchBarEvent) {
+        when (event) {
+            SearchBarEvent.OnSearch -> filterResults()
+            SearchBarEvent.OnCloseSearch -> resetSearch()
+            is SearchBarEvent.OnImageDisplayed -> requestBitmapLoad(event.document, event.pageNumber)
+            is SearchBarEvent.OnSearchQueryChanged -> updateSearchQuery(event.query)
+            is SearchBarEvent.OnFilterPilesChanged -> addRemoveFilterPiles(event.pileId)
+            is SearchBarEvent.OnFilterDateChanged -> updateFilterDate(event.date)
         }
     }
 
-    fun requestBitmapLoad(document: DocumentModel, pageNumber: Int) {
+    private fun filterResults() {
+        val state = state.value
+
+        if (state.pileList.isEmpty() || state.documentList.isEmpty()) return
+
+        if (state.searchQuery == "") {
+            _state.update { it.copy(filteredDocumentList = emptyList()) }
+            return
+        }
+
+        val pileFilteredDocumentList =
+            if (state.selectedFilterPiles.isEmpty()) state.documentList
+            else state.documentList.filter { document ->
+                document.documentPileIds.any { it in state.selectedFilterPiles }
+            }
+
+        val pileDateFilteredDocumentList =
+            if (state.selectedFilterDate == null) pileFilteredDocumentList
+            else pileFilteredDocumentList.filter { document ->
+                document.creationDateTime == state.selectedFilterDate || document.modificationDateTime == state.selectedFilterDate
+            }
+
+        val filteredDocumentList = pileDateFilteredDocumentList.filter { document ->
+            document.title
+                .plus(" ").plus(document.documentNote)
+                .plus(" ").plus(document.documentDetails.map {
+                    Pair(it.name, (it as? StringDetail)?.value ?: "")
+                })
+                .contains(
+                    other = state.searchQuery,
+                    ignoreCase = true
+                )
+        }.map { document ->
+            DocumentSearchItem(
+                document = document,
+                coverImageCacheKey = bitmapCacheRepository.getImageKey(document, 0)
+            )
+        }
+
+        _state.update {
+            it.copy(
+                filteredDocumentList = filteredDocumentList
+            )
+        }
+    }
+
+    private fun resetSearch() {
+        _state.update {
+            it.copy(
+                searchQuery = "",
+                filteredDocumentList = emptyList(),
+                selectedFilterPiles = emptyList(),
+                selectedFilterDate = null
+            )
+        }
+    }
+
+    private fun requestBitmapLoad(document: DocumentModel, pageNumber: Int) {
         viewModelScope.launch {
             requestBitmapLoadUseCase(document, pageNumber)
         }
     }
 
-    fun requestImageKey(document: DocumentModel, pageNumber: Int): String =
-        bitmapCacheRepository.getImageKey(document, pageNumber)
-
-    fun updateSearchQuery(query: String) {
-        _uiState.update {
+    private fun updateSearchQuery(query: String) {
+        _state.update {
             it.copy(
                 searchQuery = query
             )
@@ -100,8 +128,8 @@ class SearchBarViewModel(
         filterResults()
     }
 
-    fun addRemoveFilterPiles(pileId: String) {
-        val piles = uiState.value.selectedFilterPiles.toMutableList()
+    private fun addRemoveFilterPiles(pileId: String) {
+        val piles = state.value.selectedFilterPiles.toMutableList()
 
         if (piles.contains(pileId)) {
             piles.remove(pileId)
@@ -109,7 +137,7 @@ class SearchBarViewModel(
             piles.add(pileId)
         }
 
-        _uiState.update {
+        _state.update {
             it.copy(
                 selectedFilterPiles = piles
             )
@@ -117,67 +145,12 @@ class SearchBarViewModel(
         filterResults()
     }
 
-    fun updateFilterDate(date: LocalDate?) {
-        Napier.d { "Date: $date" }
-        _uiState.update {
+    private fun updateFilterDate(date: LocalDate?) {
+        _state.update {
             it.copy(
                 selectedFilterDate = date
             )
         }
         filterResults()
-    }
-
-
-    fun filterResults() {
-        if (uiState.value.pileList == null || uiState.value.documentList == null) return
-
-        if (uiState.value.searchQuery == "") {
-            _uiState.update {
-                it.copy(
-                    filteredDocumentList = emptyList()
-                )
-            }
-            return
-        }
-
-
-        val pileFilteredDocumentList =
-            if (uiState.value.selectedFilterPiles.isEmpty()) uiState.value.documentList!!
-            else uiState.value.documentList!!.filter { document ->
-                document.documentPileIds.any { it in uiState.value.selectedFilterPiles }
-            }
-
-        val pileDateFilteredDocumentList =
-            if (uiState.value.selectedFilterDate == null) pileFilteredDocumentList
-            else pileFilteredDocumentList.filter { document ->
-                document.creationDateTime == uiState.value.selectedFilterDate || document.modificationDateTime == uiState.value.selectedFilterDate
-            }
-
-        val filteredDocumentList = pileDateFilteredDocumentList.filter { document ->
-            Napier.d { "SS".plus(
-                document.title
-                .plus(" ").plus(document.documentNote)
-                .plus(" ").plus(document.documentDetails.map {
-                    Pair(it.name, (it as? StringDetail)?.value ?: "" )
-                })
-            )
-            }
-
-            document.title
-                .plus(" ").plus(document.documentNote)
-                .plus(" ").plus(document.documentDetails.map {
-                    Pair(it.name, (it as? StringDetail)?.value ?: "" )
-                })
-                .contains(
-                    other = uiState.value.searchQuery,
-                    ignoreCase = true
-                )
-        }
-
-        _uiState.update {
-            it.copy(
-                filteredDocumentList = filteredDocumentList
-            )
-        }
     }
 }
