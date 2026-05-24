@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
+import com.ganadoro.pile.R
 import com.ganadoro.pile.core.domain.models.ImageCropData
 import com.ganadoro.pile.core.domain.models.ImageFilterType
 import com.ganadoro.pile.core.domain.repositories.BitmapCacheRepository
@@ -12,7 +13,7 @@ import com.ganadoro.pile.core.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.core.domain.repositories.FileRepository
 import com.ganadoro.pile.core.domain.repositories.FileRepository.StorageType
-import com.ganadoro.pile.features.editDocument.domain.models.ExtendedCropController
+import com.ganadoro.pile.core.ui.util.UiText
 import com.ganadoro.pile.features.editDocument.domain.useCases.AddPageToDocumentUseCase
 import com.ganadoro.pile.features.editDocument.domain.useCases.GetCropControllerUseCase
 import com.ganadoro.pile.features.editDocument.domain.useCases.RemoveBitmapFromCacheUseCase
@@ -31,21 +32,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-enum class EditDocumentUIMode {
-    SCROLL, COLOR, CROP_ROTATE
-}
-
-data class EditDocumentUiState(
-    val draftDocument: DocumentModel? = null,
-    val documentImages: List<DocumentImage> = emptyList(),
-    val imageFilters: List<ImageFilterType>? = null,
-    val selectedImageIndex: Int = 0,
-    val uiMode: EditDocumentUIMode = EditDocumentUIMode.SCROLL,
-    val cropControllers: Map<String, ExtendedCropController> = emptyMap(),
-    val isLoadingNewImage: Boolean = false,
-    val showUnsavedChangesAlert: Boolean = false
-)
-
 @OptIn(ExperimentalCoroutinesApi::class)
 class EditDocumentViewModel(
     private val documentId: String,
@@ -60,8 +46,8 @@ class EditDocumentViewModel(
     private val documentImageRepository: DocumentImageRepository,
     private val fileRepository: FileRepository
 ) : ViewModel() {
-    private var _uiState = MutableStateFlow(EditDocumentUiState())
-    var uiState: StateFlow<EditDocumentUiState> = _uiState.asStateFlow()
+    private var _state = MutableStateFlow(EditDocumentState())
+    var state: StateFlow<EditDocumentState> = _state.asStateFlow()
 
     val bitmapCache = bitmapCacheRepository.bitmapCache
 
@@ -89,22 +75,77 @@ class EditDocumentViewModel(
             originalDocument = document
             originalDocumentImages = documentImages
 
-            _uiState.update { currentState ->
-                currentState.copy(
-                    draftDocument = document,
-                    documentImages = documentImages,
-                    imageFilters = ImageFilterType.entries
-                )
-            }
+            _state.update { it.copy(imageFilters = ImageFilterType.entries) }
+            updateImagesAndStatus(draft = document, images = documentImages)
         }
     }
 
-    fun onNavigateBack(force: Boolean = false) {
-        if (isDocumentModified() && !force) {
-            updateShowUnsavedChangesAlert(true)
+    private fun updateImagesAndStatus(
+        draft: DocumentModel? = state.value.draftDocument,
+        images: List<DocumentImage> = state.value.documentItems.map { it.image },
+        selectedIndex: Int = state.value.selectedImageIndex
+    ) {
+        val documentItems = draft?.let { doc ->
+            images.mapIndexed { index, image ->
+                DocumentEditItem(
+                    image = image,
+                    cacheKey = bitmapCacheRepository.getImageKey(doc, index)
+                )
+            }
+        } ?: emptyList()
+
+        val selectedImage = images.getOrNull(selectedIndex)
+        val thumbnailKeys = selectedImage?.let { img ->
+            state.value.imageFilters.indices.map { filterId ->
+                bitmapCacheRepository.getImageThumbnailKey(img.id, filterId)
+            }
+        } ?: emptyList()
+
+        val isModified = originalDocument != draft || originalDocumentImages != images
+
+        _state.update {
+            it.copy(
+                draftDocument = draft,
+                documentItems = documentItems,
+                thumbnailKeys = thumbnailKeys,
+                selectedImageIndex = selectedIndex,
+                isDocumentModified = isModified
+            )
+        }
+    }
+
+    fun handleEvent(event: EditDocumentEvent) {
+        when (event) {
+            is EditDocumentEvent.OnBackClicked -> navigateBack(event.force)
+            EditDocumentEvent.OnExitCanceled -> _state.update { it.copy(showUnsavedChangesAlert = false) }
+            EditDocumentEvent.OnExitConfirmed -> navigateBack(true)
+            EditDocumentEvent.OnSave -> navigateNext()
+
+            is EditDocumentEvent.OnImageDisplayed -> requestBitmapLoad(event.pageNumber)
+            is EditDocumentEvent.OnThumbnailDisplayed -> requestThumbnailLoad(event.filterIndex)
+            is EditDocumentEvent.OnCropDisplayed -> loadCropController(event.imageKey)
+            is EditDocumentEvent.OnSelectImage -> selectImage(event.index)
+
+            is EditDocumentEvent.OnImportImages -> addImages(event.uris)
+            is EditDocumentEvent.OnModeChange -> updateUIMode(event.mode)
+
+            is EditDocumentEvent.OnUpdateFilter -> updateFilter(event.index)
+            EditDocumentEvent.OnRotate -> rotateImage()
+
+            EditDocumentEvent.OnRemoveSelectedImage -> removeSelectedImage()
+            EditDocumentEvent.OnRestoreRemovedImage -> restoreRemovedImage()
+            EditDocumentEvent.OnPurgeRemovedImage -> purgeRemovedImage()
+
+            EditDocumentEvent.OnErrorDismissed -> _state.update { it.copy(errorMessage = null) }
+        }
+    }
+
+    private fun navigateBack(force: Boolean = false) {
+        if (state.value.isDocumentModified && !force) {
+            _state.update { it.copy(showUnsavedChangesAlert = true) }
             return
         }
-        updateShowUnsavedChangesAlert(false)
+        _state.update { it.copy(showUnsavedChangesAlert = false) }
 
         viewModelScope.launch {
             fileRepository.deleteDocumentStorage(StorageType.CACHE, documentId)
@@ -113,122 +154,121 @@ class EditDocumentViewModel(
         }
     }
 
-    fun onNavigateNext() {
-        val state = uiState.value
+    private fun navigateNext() {
+        val state = state.value
         val document = state.draftDocument ?: return
 
         if (state.isLoadingNewImage) return
 
         viewModelScope.launch {
-            updateDocumentUseCase(document, state.documentImages)
+            updateDocumentUseCase(document, state.documentItems.map { it.image })
 
             _navigationEvent.send(NavigationType.NEXT)
         }
     }
 
-    fun requestBitmapLoad(pageNumber: Int) {
+    private fun requestBitmapLoad(pageNumber: Int) {
         viewModelScope.launch {
-            val document = uiState.value.draftDocument ?: return@launch
-            val documentImage = uiState.value.documentImages.getOrNull(pageNumber)
+            val currentState = state.value
+            val document = currentState.draftDocument ?: return@launch
+            val documentImage = currentState.documentItems.getOrNull(pageNumber)?.image
                 ?: return@launch
             requestDraftBitmapLoadUseCase(document, documentImage)
         }
     }
 
-    fun requestImageKey(pageNumber: Int): String {
-        val document = uiState.value.draftDocument ?: return ""
-        return bitmapCacheRepository.getImageKey(document, pageNumber)
-    }
-
-    fun requestThumbnailLoad(filterNumber: Int) {
+    private fun requestThumbnailLoad(filterIndex: Int) {
         viewModelScope.launch {
+            val currentState = state.value
             val documentImage =
-                uiState.value.documentImages.getOrNull(uiState.value.selectedImageIndex)
+                currentState.documentItems.getOrNull(currentState.selectedImageIndex)?.image
                     ?: return@launch
-            requestThumbnailLoadUseCase(documentId, documentImage, filterNumber)
+            requestThumbnailLoadUseCase(documentId, documentImage, filterIndex)
         }
     }
 
-    fun requestThumbnailKey(filterNumber: Int): String {
-        val documentImage =
-            uiState.value.documentImages.getOrNull(uiState.value.selectedImageIndex) ?: return ""
+    private fun selectImage(index: Int) {
+        if (state.value.uiMode != EditDocumentMode.SCROLL) return
 
-        return bitmapCacheRepository.getImageThumbnailKey(
-            imageId = documentImage.id,
-            filterId = filterNumber
-        )
+        updateImagesAndStatus(selectedIndex = index)
     }
 
-    fun setSelectedImageIndex(index: Int) {
-        if (uiState.value.uiMode != EditDocumentUIMode.SCROLL) return
-
-        viewModelScope.launch {
-            _uiState.update { it.copy(selectedImageIndex = index) }
-        }
-    }
-
-    fun updateUIMode(newUiMode: EditDocumentUIMode) {
-        val currentUiMode = uiState.value.uiMode
+    private fun updateUIMode(newUiMode: EditDocumentMode) {
+        val currentUiMode = state.value.uiMode
 
         when (currentUiMode) {
-            EditDocumentUIMode.COLOR -> cleanSelectedImageCropController()
-            EditDocumentUIMode.CROP_ROTATE -> cropImage()
+            EditDocumentMode.COLOR -> cleanSelectedCropController()
+            EditDocumentMode.CROP_ROTATE -> cropImage()
             else -> {}
         }
 
-        if (currentUiMode == newUiMode) _uiState.update { it.copy(uiMode = EditDocumentUIMode.SCROLL) }
-        else _uiState.update { it.copy(uiMode = newUiMode) }
+        if (currentUiMode == newUiMode) _state.update { it.copy(uiMode = EditDocumentMode.SCROLL) }
+        else _state.update { it.copy(uiMode = newUiMode) }
     }
 
-    fun setSelectedColorIndex(index: Int) {
-        val state = uiState.value
-        if (state.uiMode != EditDocumentUIMode.COLOR) return
+    private fun cleanSelectedCropController() {
+        _state.update { state ->
+            val cropControllers = state.cropControllers
+            val selectedImageKey = state.documentItems.getOrNull(state.selectedImageIndex)?.cacheKey ?: ""
+            state.copy(cropControllers = cropControllers.filter { it.key != selectedImageKey })
+        }
+    }
 
-        val document = state.draftDocument ?: return
-        val documentImage = state.documentImages.getOrNull(state.selectedImageIndex) ?: return
+    private fun updateFilter(index: Int) {
+        val currentState = state.value
+        if (currentState.uiMode != EditDocumentMode.COLOR) return
+
+        val document = currentState.draftDocument ?: return
+        val documentItem = currentState.documentItems.getOrNull(currentState.selectedImageIndex) ?: return
+        val documentImage = documentItem.image
 
         val updatedDocumentImage = documentImage.copy(filter = index.toLong())
 
-        _uiState.update { state ->
-            state.copy(documentImages = state.documentImages.map {
-                if (it.id == updatedDocumentImage.id) updatedDocumentImage else it
-            })
+        val updatedImages = currentState.documentItems.map {
+            if (it.image.id == updatedDocumentImage.id) updatedDocumentImage else it.image
         }
+
+        updateImagesAndStatus(images = updatedImages)
         removeBitmapFromCacheUseCase.removeImage(document, documentImage.id)
     }
 
-    fun loadCropController(key: String) {
+    private fun loadCropController(key: String) {
         viewModelScope.launch {
-            val state = uiState.value
-            val selectedImage = state.documentImages.getOrNull(state.selectedImageIndex)
+            val currentState = state.value
+            val selectedImage = currentState.documentItems.getOrNull(currentState.selectedImageIndex)?.image
                 ?: return@launch
 
-            val cropControllers = state.cropControllers
+            val cropControllers = currentState.cropControllers
             if (cropControllers.containsKey(key)) return@launch
 
             try {
                 val extendedCropController = getCropControllerUseCase(documentId, selectedImage)
 
-                _uiState.update {
+                _state.update {
                     it.copy(cropControllers = it.cropControllers + (key to extendedCropController))
                 }
             } catch (ex: Exception) {
                 Napier.e("Error loading crop controller", ex)
-                return@launch
-                // TODO: Gestionar errores
+                _state.update {
+                    it.copy(
+                        uiMode = EditDocumentMode.SCROLL,
+                        errorMessage = UiText.StringResource(R.string.error_loading_crop_controller)
+                    )
+                }
             }
         }
     }
 
     private fun cropImage() {
-        val state = uiState.value
-        if (state.uiMode != EditDocumentUIMode.CROP_ROTATE) return
+        val currentState = state.value
+        if (currentState.uiMode != EditDocumentMode.CROP_ROTATE) return
 
-        val document = state.draftDocument ?: return
-        val documentImage = state.documentImages.getOrNull(state.selectedImageIndex) ?: return
-        val imageKey = requestImageKey(state.selectedImageIndex)
+        val document = currentState.draftDocument ?: return
+        val documentItem = currentState.documentItems.getOrNull(currentState.selectedImageIndex) ?: return
+        val documentImage = documentItem.image
+        val imageKey = documentItem.cacheKey
 
-        val selectedExtendedCropController = state.cropControllers[imageKey] ?: return
+        val selectedExtendedCropController = currentState.cropControllers[imageKey] ?: return
 
 
         val cropData = ImageCropData.fromCropData(
@@ -236,140 +276,118 @@ class EditDocumentViewModel(
         )
         val scaleFactor = selectedExtendedCropController.scaleFactor
 
-        val scaledCropData = cropData.scale(1/scaleFactor)
-        Napier.d { "ñ Crop data: $cropData" }
-        Napier.d { "ñ scaleFactor: $scaleFactor" }
-        Napier.d { "ñ scaledCropData: $scaledCropData" }
+        val scaledCropData = cropData.scale(1 / scaleFactor)
 
         val updatedDocumentImage = documentImage.copy(crop = scaledCropData)
 
-        _uiState.update { state ->
-            state.copy(
-                documentImages = state.documentImages.map {
-                    if (it.id == updatedDocumentImage.id) updatedDocumentImage else it
-                },
-//                cropControllers = state.cropControllers - imageKey
-            )
+        val updatedImages = currentState.documentItems.map {
+            if (it.image.id == updatedDocumentImage.id) updatedDocumentImage else it.image
         }
+
+        updateImagesAndStatus(images = updatedImages)
         removeBitmapFromCacheUseCase.removeImageThumbnails(document, documentImage.id)
     }
 
-    fun rotateImage() {
-        val state = uiState.value
-        if (state.uiMode != EditDocumentUIMode.CROP_ROTATE) return
+    private fun rotateImage() {
+        val currentState = state.value
+        if (currentState.uiMode != EditDocumentMode.CROP_ROTATE) return
 
-        val document = state.draftDocument ?: return
-        val documentImage = state.documentImages.getOrNull(state.selectedImageIndex) ?: return
-        val imageKey = requestImageKey(state.selectedImageIndex)
+        val document = currentState.draftDocument ?: return
+        val documentItem = currentState.documentItems.getOrNull(currentState.selectedImageIndex) ?: return
+        val documentImage = documentItem.image
+        val imageKey = documentItem.cacheKey
 
         val newRotation = (documentImage.rotation - 90) % 360
         val updatedDocumentImage = documentImage.copy(rotation = newRotation)
 
         viewModelScope.launch {
-            state.cropControllers[imageKey]?.cropController?.rotateAntiClockwise()
+            currentState.cropControllers[imageKey]?.cropController?.rotateAntiClockwise()
         }
 
-        _uiState.update { state ->
-            state.copy(documentImages = state.documentImages.map {
-                if (it.id == updatedDocumentImage.id) updatedDocumentImage else it
-            })
+        val updatedImages = currentState.documentItems.map {
+            if (it.image.id == updatedDocumentImage.id) updatedDocumentImage else it.image
         }
+
+        updateImagesAndStatus(images = updatedImages)
         removeBitmapFromCacheUseCase.removeImageThumbnails(document, documentImage.id)
     }
 
-    private fun cleanSelectedImageCropController() {
-        _uiState.update { state ->
-            val cropControllers = state.cropControllers
-            val selectedImageKey = requestImageKey(state.selectedImageIndex)
-            state.copy(cropControllers = cropControllers.filter { it.key != selectedImageKey })
-        }
-    }
+    private fun addImages(uriList: List<Uri>) {
+        val currentState = state.value
+        val document = currentState.draftDocument ?: return
 
-    fun addNewImage(uriList: List<Uri>) {
-        val state = uiState.value
-        val document = state.draftDocument ?: return
+        if (currentState.isLoadingNewImage) return
 
-        if (state.isLoadingNewImage) return
-
-        _uiState.update { it.copy(isLoadingNewImage = true) }
+        _state.update { it.copy(isLoadingNewImage = true) }
 
         viewModelScope.launch {
             val (updatedDocument, imageModels) = addPageToDocumentUseCase(document, uriList)
 
-            _uiState.update {
-                it.copy(
-                    draftDocument = updatedDocument,
-                    documentImages = it.documentImages + imageModels,
-                    isLoadingNewImage = false
-                )
-            }
+            val updatedImages = currentState.documentItems.map { it.image } + imageModels
+            
+            _state.update { it.copy(isLoadingNewImage = false) }
+            updateImagesAndStatus(draft = updatedDocument, images = updatedImages)
         }
     }
 
-    fun partialDeleteSelectedImage() {
-        _uiState.update { state ->
-            val document = state.draftDocument ?: return@update state
-            val currentImages = state.documentImages
-            val index = state.selectedImageIndex
+    private fun removeSelectedImage() {
+        val currentState = state.value
+        val document = currentState.draftDocument ?: return
+        val currentItems = currentState.documentItems
+        val index = currentState.selectedImageIndex
 
-            if (index !in currentImages.indices) return@update state
+        if (index !in currentItems.indices) return
 
-            val imageToDelete = currentImages[index]
+        val itemToDelete = currentItems[index]
+        val imageToDelete = itemToDelete.image
 
-            val newImageList = currentImages.filter { it.id != imageToDelete.id }
+        val newImageList = currentItems.filter { it.image.id != imageToDelete.id }.map { it.image }
 
-            val updatedDocument = document.copy(
-                imageIds = newImageList.map { it.id }
-            )
+        val updatedDocument = document.copy(
+            imageIds = newImageList.map { it.id }
+        )
 
-            deletedDocumentImages.add(imageToDelete)
+        deletedDocumentImages.add(imageToDelete)
 
-            state.copy(
-                draftDocument = updatedDocument,
-                documentImages = newImageList,
-                selectedImageIndex = index.coerceAtMost(newImageList.lastIndex)
-            )
-        }
+        updateImagesAndStatus(
+            draft = updatedDocument,
+            images = newImageList,
+            selectedIndex = index.coerceAtMost(newImageList.lastIndex)
+        )
     }
 
-    fun restoreDeletedImage() {
+    private fun restoreRemovedImage() {
         if (deletedDocumentImages.isEmpty()) return
 
-        val state = uiState.value
+        val currentState = state.value
 
         val restoredDocumentImage = deletedDocumentImages.first()
         deletedDocumentImages -= restoredDocumentImage
 
-        val updatedDocumentImages = state.documentImages + restoredDocumentImage
-        val updatedDocument = state.draftDocument?.copy(
-            imageIds = updatedDocumentImages.map { it.id }
+        val updatedImages = currentState.documentItems.map { it.image } + restoredDocumentImage
+        val updatedDocument = currentState.draftDocument?.copy(
+            imageIds = updatedImages.map { it.id }
         ) ?: return
 
-        _uiState.update {
-            it.copy(
-                draftDocument = updatedDocument,
-                documentImages = updatedDocumentImages
-            )
+        updateImagesAndStatus(draft = updatedDocument, images = updatedImages)
+    }
+
+    private fun purgeRemovedImage() {
+        val document = state.value.draftDocument ?: return
+        
+        val imageToPurge = deletedDocumentImages.firstOrNull() ?: return
+        deletedDocumentImages.removeAt(0)
+
+        removeBitmapFromCacheUseCase.removeImageThumbnails(document, imageToPurge.id)
+
+        if (imageToPurge.isDraft) {
+            viewModelScope.launch {
+                fileRepository.deleteDocumentImage(
+                    storageType = StorageType.CACHE,
+                    documentId = documentId,
+                    imageId = imageToPurge.id
+                )
+            }
         }
     }
-
-    fun erasureDeletedImage() {
-        if (deletedDocumentImages.isEmpty()) return
-
-        deletedDocumentImages -= deletedDocumentImages.first()
-
-        // No need to remove from storage. Exiting the screen will do.
-    }
-
-    fun isDocumentModified(): Boolean {
-        val state = uiState.value
-
-        val isDocumentModelModified = originalDocument != state.draftDocument
-        val isDocumentImagesModified = originalDocumentImages != state.documentImages
-
-        return isDocumentModelModified || isDocumentImagesModified
-    }
-
-    fun updateShowUnsavedChangesAlert(show: Boolean) =
-        _uiState.update { it.copy(showUnsavedChangesAlert = show) }
 }

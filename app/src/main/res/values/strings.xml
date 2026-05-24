@@ -101,6 +101,7 @@
 
     <string name="rotate_image_counterclockwise">Rotate image counterclockwise</string>
     <string name="reset_image_crop">Reset image crop</string>
+    <string name="error_loading_crop_controller">Error loading crop editor</string>
 
     <string name="close_pile_selection_bottom_sheet">Close pile selection bottom sheet</string>
 

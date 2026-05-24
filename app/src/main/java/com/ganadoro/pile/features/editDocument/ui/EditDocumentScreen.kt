@@ -63,6 +63,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -81,6 +82,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.time.Duration.Companion.milliseconds
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -92,7 +94,7 @@ fun EditDocumentScreen(
     onNext: () -> Unit,
     viewModel: EditDocumentViewModel = koinViewModel { parametersOf(documentId) }
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -107,7 +109,7 @@ fun EditDocumentScreen(
     // Only intended for selecting images on the gallery.
     val importActions = rememberDocumentImportController(
         onPdfSelected = {},
-        onImagesSelected = viewModel::addNewImage,
+        onImagesSelected = { viewModel.handleEvent(EditDocumentEvent.OnImportImages(it)) },
         createTempImageUri = { null }
     )
 
@@ -118,15 +120,29 @@ fun EditDocumentScreen(
         stringResource(R.string.undo)
     )
 
-    BackHandler(viewModel.isDocumentModified()) {
-        viewModel.updateShowUnsavedChangesAlert(true)
+    val context = LocalContext.current
+
+    BackHandler(uiState.isDocumentModified) {
+        viewModel.handleEvent(EditDocumentEvent.OnBackClicked())
+    }
+
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let { uiText ->
+            snackbarHostState.showSnackbar(
+                message = uiText.asString(context),
+                duration = SnackbarDuration.Short
+            )
+            viewModel.handleEvent(EditDocumentEvent.OnErrorDismissed)
+        }
     }
 
     Scaffold(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
-            ScreenTopAppBar(popBackStack = viewModel::onNavigateBack)
+            ScreenTopAppBar(popBackStack = {
+                viewModel.handleEvent(EditDocumentEvent.OnBackClicked())
+            })
         },
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
@@ -136,10 +152,10 @@ fun EditDocumentScreen(
                 modifier = Modifier
                     .padding(bottom = ScreenOffset),
                 uiMode = uiState.uiMode,
-                isSinglePage = uiState.documentImages.count() == 1,
-                onUpdateUiMode = viewModel::updateUIMode,
+                isSinglePage = uiState.documentItems.count() == 1,
+                onUpdateUiMode = { viewModel.handleEvent(EditDocumentEvent.OnModeChange(it)) },
                 onDeleteImage = {
-                    viewModel.partialDeleteSelectedImage()
+                    viewModel.handleEvent(EditDocumentEvent.OnRemoveSelectedImage)
 
                     scope.launch {
                         val result = snackbarHostState
@@ -150,21 +166,21 @@ fun EditDocumentScreen(
                             )
                         when (result) {
                             SnackbarResult.ActionPerformed -> { // restore
-                                viewModel.restoreDeletedImage()
+                                viewModel.handleEvent(EditDocumentEvent.OnRestoreRemovedImage)
                             }
 
                             SnackbarResult.Dismissed -> {
-                                viewModel.erasureDeletedImage()
+                                viewModel.handleEvent(EditDocumentEvent.OnPurgeRemovedImage)
                             }
                         }
                     }
                 },
-                onSave = viewModel::onNavigateNext
+                onSave = { viewModel.handleEvent(EditDocumentEvent.OnSave) }
             )
         }
     ) { innerPadding ->
         LoadingWrapper(
-            uiState.draftDocument == null || uiState.documentImages.isEmpty()
+            uiState.draftDocument == null || uiState.documentItems.isEmpty()
         ) {
             Column(
                 modifier = Modifier
@@ -178,13 +194,18 @@ fun EditDocumentScreen(
                         .weight(1f),
                     uiMode = uiState.uiMode,
                     selectedImageIndex = uiState.selectedImageIndex,
-                    imageCount = uiState.documentImages.count(),
+                    documentItems = uiState.documentItems,
                     bitmapCache = bitmapCache,
                     cropControllers = uiState.cropControllers,
-                    onLoadBitmap = viewModel::requestBitmapLoad,
-                    onRequestImageKey = viewModel::requestImageKey,
-                    onSelectImageIndex = viewModel::setSelectedImageIndex,
-                    onLoadCropController = viewModel::loadCropController
+                    onLoadBitmap = { viewModel.handleEvent(EditDocumentEvent.OnImageDisplayed(it)) },
+                    onSelectImageIndex = { viewModel.handleEvent(EditDocumentEvent.OnSelectImage(it)) },
+                    onLoadCropController = {
+                        viewModel.handleEvent(
+                            EditDocumentEvent.OnCropDisplayed(
+                                it
+                            )
+                        )
+                    }
                 )
 
                 val lazyListState = rememberLazyListState()
@@ -206,50 +227,47 @@ fun EditDocumentScreen(
                 }
 
                 LaunchedEffect(recentlyMoved) {
-                    delay(100)
+                    delay(100.milliseconds)
                     recentlyMoved = false
                 }
 
-                AnimatedVisibility(visible = uiState.uiMode == EditDocumentUIMode.SCROLL) {
+                AnimatedVisibility(visible = uiState.uiMode == EditDocumentMode.SCROLL) {
                     ThumbnailRow(
                         modifier = Modifier.padding(bottom = 16.dp),
                         lazyListState = lazyListState,
-                        imageCount = uiState.documentImages.count(),
+                        documentItems = uiState.documentItems,
                         bitmapCache = bitmapCache,
-                        onLoadBitmap = viewModel::requestBitmapLoad,
-                        onRequestImageKey = viewModel::requestImageKey,
+                        onLoadBitmap = { viewModel.handleEvent(EditDocumentEvent.OnImageDisplayed(it)) },
                         selectedImageIndex = selectedImageIndex,
                         onSelectImage = {
                             recentlyMoved = true
-                            viewModel.setSelectedImageIndex(it)
+                            viewModel.handleEvent(EditDocumentEvent.OnSelectImage(it))
                         },
                         onNewImage = importActions.launchGallery
                     )
                 }
 
-                AnimatedVisibility(visible = uiState.uiMode == EditDocumentUIMode.COLOR) {
-                    val imageFilters = uiState.imageFilters ?: return@AnimatedVisibility
-
-                    val selectedImage = uiState.documentImages.getOrNull(uiState.selectedImageIndex)
+                AnimatedVisibility(visible = uiState.uiMode == EditDocumentMode.COLOR) {
 
                     EditColorRow(
                         modifier = Modifier.padding(bottom = 16.dp),
-                        imageFilters = imageFilters,
-                        activeFilterIndex = selectedImage?.filter?.toInt() ?: 0,
-                        onSelectColorIndex = viewModel::setSelectedColorIndex,
-                        bitmapCache = bitmapCache,
-                        onLoadThumbnail = viewModel::requestThumbnailLoad,
-                        onRequestThumbnailKey = viewModel::requestThumbnailKey
+                        imageFilters = uiState.imageFilters,
+                        activeFilterIndex = uiState.documentItems.getOrNull(uiState.selectedImageIndex)?.image?.filter?.toInt()
+                            ?: 0,
+                        onSelectColorIndex = {
+                            viewModel.handleEvent(EditDocumentEvent.OnUpdateFilter(it))
+                        },
+                        thumbnailKeys = uiState.thumbnailKeys,
+                        onLoadThumbnail = { viewModel.handleEvent(EditDocumentEvent.OnThumbnailDisplayed(it)) },
+                        bitmapCache = bitmapCache
                     )
                 }
 
-                AnimatedVisibility(visible = uiState.uiMode == EditDocumentUIMode.CROP_ROTATE) {
+                AnimatedVisibility(visible = uiState.uiMode == EditDocumentMode.CROP_ROTATE) {
                     CropRotateButtons(
-                        onRotate = viewModel::rotateImage,
+                        onRotate = { viewModel.handleEvent(EditDocumentEvent.OnRotate) }
                     )
                 }
-
-
             }
         }
     }
@@ -261,10 +279,10 @@ fun EditDocumentScreen(
     if (uiState.showUnsavedChangesAlert) {
         AlertUnsavedChanges(
             onKeepEditing = {
-                viewModel.updateShowUnsavedChangesAlert(false)
+                viewModel.handleEvent(EditDocumentEvent.OnExitCanceled)
             },
             onDiscard = {
-                viewModel.onNavigateBack(force = true)
+                viewModel.handleEvent(EditDocumentEvent.OnBackClicked(force = true))
             }
         )
     }
@@ -303,17 +321,16 @@ private fun ScreenTopAppBar(
 @Composable
 private fun ImagePager(
     modifier: Modifier = Modifier,
-    uiMode: EditDocumentUIMode,
+    uiMode: EditDocumentMode,
     selectedImageIndex: Int,
-    imageCount: Int,
+    documentItems: List<DocumentEditItem>,
     bitmapCache: Map<String, Bitmap>,
     cropControllers: Map<String, ExtendedCropController>,
     onLoadBitmap: (pageNumber: Int) -> Unit,
-    onRequestImageKey: (pageNumber: Int) -> String,
     onSelectImageIndex: (page: Int) -> Unit,
     onLoadCropController: (key: String) -> Unit
 ) {
-    val pagerState = rememberPagerState(pageCount = { imageCount })
+    val pagerState = rememberPagerState(pageCount = { documentItems.size })
 
     var isSelectedImageIndexRecent by rememberSaveable { mutableStateOf(false) }
     var isChangedFromCarouselRecent by rememberSaveable { mutableStateOf(false) }
@@ -346,10 +363,10 @@ private fun ImagePager(
         state = pagerState,
         contentPadding = PaddingValues(horizontal = 16.dp),
         pageSpacing = 16.dp,
-        userScrollEnabled = uiMode == EditDocumentUIMode.SCROLL,
+        userScrollEnabled = uiMode == EditDocumentMode.SCROLL,
         modifier = modifier
     ) { page ->
-        val key = onRequestImageKey(page)
+        val key = documentItems.getOrNull(page)?.cacheKey ?: ""
         val cachedBitmap: Bitmap? = bitmapCache[key]
 
         if (cachedBitmap == null) {
@@ -361,7 +378,7 @@ private fun ImagePager(
             targetState = uiMode,
             label = "Image pager crossfade"
         ) { uiMode ->
-            if (uiMode != EditDocumentUIMode.CROP_ROTATE) {
+            if (uiMode != EditDocumentMode.CROP_ROTATE) {
                 LoadingWrapper(cachedBitmap == null) {
                     if (cachedBitmap == null) return@LoadingWrapper
                     Image(
@@ -400,10 +417,9 @@ private fun ImagePager(
 private fun ThumbnailRow(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState,
-    imageCount: Int,
+    documentItems: List<DocumentEditItem>,
     bitmapCache: Map<String, Bitmap>,
     onLoadBitmap: (pageNumber: Int) -> Unit,
-    onRequestImageKey: (pageNumber: Int) -> String,
     selectedImageIndex: Int,
     onSelectImage: (Int) -> Unit,
     onNewImage: () -> Unit
@@ -425,14 +441,14 @@ private fun ThumbnailRow(
             contentPadding = PaddingValues(start = 16.dp, end = 0.dp)
         ) {
             items(
-                count = imageCount,
-                key = { index -> onRequestImageKey(index) }
+                count = documentItems.size,
+                key = { index -> documentItems[index].image.id }
             ) { index ->
                 ThumbnailItem(
                     modifier = Modifier.animateItem(),
                     index = index,
                     isSelected = index == selectedImageIndex,
-                    cacheKey = onRequestImageKey(index),
+                    cacheKey = documentItems[index].cacheKey,
                     bitmapCache = bitmapCache,
                     onLoadBitmap = onLoadBitmap,
                     onSelect = onSelectImage
@@ -511,9 +527,9 @@ private fun EditColorRow(
     imageFilters: List<ImageFilterType>,
     activeFilterIndex: Int,
     onSelectColorIndex: (Int) -> Unit,
+    thumbnailKeys: List<String>,
+    onLoadThumbnail: (Int) -> Unit,
     bitmapCache: Map<String, Bitmap>,
-    onLoadThumbnail: suspend (filterNumber: Int) -> Unit,
-    onRequestThumbnailKey: (filterNumber: Int) -> String
 ) {
     LazyRow(
         modifier = modifier,
@@ -524,7 +540,7 @@ private fun EditColorRow(
             Box(
                 contentAlignment = Alignment.Center
             ) {
-                val key = onRequestThumbnailKey(i)
+                val key = thumbnailKeys.getOrNull(i) ?: ""
                 val cachedBitmap: Bitmap? = bitmapCache[key]
 
                 val isSelected = i == activeFilterIndex
@@ -590,13 +606,13 @@ private fun CropRotateButtons(
     }
 }
 
-@Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
 private fun ToolBar(
     modifier: Modifier = Modifier,
-    uiMode: EditDocumentUIMode,
+    uiMode: EditDocumentMode,
     isSinglePage: Boolean,
-    onUpdateUiMode: (uiMode: EditDocumentUIMode) -> Unit,
+    onUpdateUiMode: (uiMode: EditDocumentMode) -> Unit,
     onDeleteImage: () -> Unit,
     onSave: () -> Unit,
 ) {
@@ -611,10 +627,10 @@ private fun ToolBar(
             expanded = true,
             content = {
                 IconButton(
-                    onClick = { onUpdateUiMode(EditDocumentUIMode.COLOR) },
+                    onClick = { onUpdateUiMode(EditDocumentMode.COLOR) },
                     colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = if (uiMode == EditDocumentUIMode.COLOR) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
-                        contentColor = if (uiMode == EditDocumentUIMode.COLOR) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
+                        containerColor = if (uiMode == EditDocumentMode.COLOR) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+                        contentColor = if (uiMode == EditDocumentMode.COLOR) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
                     )
                 ) {
                     Icon(
@@ -623,10 +639,10 @@ private fun ToolBar(
                     )
                 }
                 IconButton(
-                    onClick = { onUpdateUiMode(EditDocumentUIMode.CROP_ROTATE) },
+                    onClick = { onUpdateUiMode(EditDocumentMode.CROP_ROTATE) },
                     colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = if (uiMode == EditDocumentUIMode.CROP_ROTATE) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
-                        contentColor = if (uiMode == EditDocumentUIMode.CROP_ROTATE) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
+                        containerColor = if (uiMode == EditDocumentMode.CROP_ROTATE) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+                        contentColor = if (uiMode == EditDocumentMode.CROP_ROTATE) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
                     )
                 ) {
                     Icon(
@@ -648,8 +664,8 @@ private fun ToolBar(
         )
         FloatingActionButton(
             onClick = {
-                if (uiMode == EditDocumentUIMode.SCROLL) onSave() else onUpdateUiMode(
-                    EditDocumentUIMode.SCROLL
+                if (uiMode == EditDocumentMode.SCROLL) onSave() else onUpdateUiMode(
+                    EditDocumentMode.SCROLL
                 )
             },
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -660,7 +676,7 @@ private fun ToolBar(
                 label = "Change ui mode toolbar icon"
             ) { targetState ->
                 when (targetState) {
-                    EditDocumentUIMode.SCROLL -> {
+                    EditDocumentMode.SCROLL -> {
                         Icon(
                             painter = painterResource(R.drawable.save_24px),
                             contentDescription = stringResource(R.string.save_changes)
