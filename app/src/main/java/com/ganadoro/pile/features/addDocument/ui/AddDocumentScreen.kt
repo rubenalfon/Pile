@@ -106,7 +106,7 @@ fun AddDocumentScreen(
             }
         ) { innerPadding ->
             LoadingWrapper(
-                state.documentModel == null || state.allPileModels == null
+                state.documentModel == null || state.allPileModels.isEmpty()
             ) {
                 var availableWidth by remember { mutableStateOf(0.dp) }
                 val density = LocalDensity.current
@@ -215,7 +215,7 @@ fun AddDocumentScreen(
 
                         itemPileGrid(
                             availableWidth = availableWidth,
-                            piles = state.allPileModels!!,
+                            piles = state.allPileModels,
                             onPileClick = { pileId ->
                                 viewModel.handleEvent(AddDocumentEvent.OnAddPile(pileId))
                             },
