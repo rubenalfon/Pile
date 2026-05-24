@@ -35,12 +35,7 @@ class SearchBarViewModel(
             val documentsFlow = documentRepository.documentModels
 
             pilesFlow.combine(documentsFlow) { piles, documents ->
-                _state.update {
-                    it.copy(
-                        pileList = piles,
-                        documentList = documents
-                    )
-                }
+                _state.update { it.copy(pileList = piles, documentList = documents) }
             }.collect()
         }
     }
@@ -49,7 +44,11 @@ class SearchBarViewModel(
         when (event) {
             SearchBarEvent.OnSearch -> filterResults()
             SearchBarEvent.OnCloseSearch -> resetSearch()
-            is SearchBarEvent.OnImageDisplayed -> requestBitmapLoad(event.document, event.pageNumber)
+            is SearchBarEvent.OnImageDisplayed -> requestBitmapLoad(
+                event.document,
+                event.pageNumber
+            )
+
             is SearchBarEvent.OnSearchQueryChanged -> updateSearchQuery(event.query)
             is SearchBarEvent.OnFilterPilesChanged -> addRemoveFilterPiles(event.pileId)
             is SearchBarEvent.OnFilterDateChanged -> updateFilterDate(event.date)
@@ -57,25 +56,25 @@ class SearchBarViewModel(
     }
 
     private fun filterResults() {
-        val state = state.value
+        val currentState = state.value
 
-        if (state.pileList.isEmpty() || state.documentList.isEmpty()) return
+        if (currentState.pileList.isEmpty() || currentState.documentList.isEmpty()) return
 
-        if (state.searchQuery == "") {
+        if (currentState.searchQuery == "") {
             _state.update { it.copy(filteredDocumentList = emptyList()) }
             return
         }
 
         val pileFilteredDocumentList =
-            if (state.selectedFilterPiles.isEmpty()) state.documentList
-            else state.documentList.filter { document ->
-                document.documentPileIds.any { it in state.selectedFilterPiles }
+            if (currentState.selectedFilterPiles.isEmpty()) currentState.documentList
+            else currentState.documentList.filter { document ->
+                document.documentPileIds.any { it in currentState.selectedFilterPiles }
             }
 
         val pileDateFilteredDocumentList =
-            if (state.selectedFilterDate == null) pileFilteredDocumentList
+            if (currentState.selectedFilterDate == null) pileFilteredDocumentList
             else pileFilteredDocumentList.filter { document ->
-                document.creationDateTime == state.selectedFilterDate || document.modificationDateTime == state.selectedFilterDate
+                document.creationDateTime == currentState.selectedFilterDate || document.modificationDateTime == currentState.selectedFilterDate
             }
 
         val filteredDocumentList = pileDateFilteredDocumentList.filter { document ->
@@ -85,7 +84,7 @@ class SearchBarViewModel(
                     Pair(it.name, (it as? StringDetail)?.value ?: "")
                 })
                 .contains(
-                    other = state.searchQuery,
+                    other = currentState.searchQuery,
                     ignoreCase = true
                 )
         }.map { document ->
@@ -120,11 +119,7 @@ class SearchBarViewModel(
     }
 
     private fun updateSearchQuery(query: String) {
-        _state.update {
-            it.copy(
-                searchQuery = query
-            )
-        }
+        _state.update { it.copy(searchQuery = query) }
         filterResults()
     }
 
@@ -137,20 +132,12 @@ class SearchBarViewModel(
             piles.add(pileId)
         }
 
-        _state.update {
-            it.copy(
-                selectedFilterPiles = piles
-            )
-        }
+        _state.update { it.copy(selectedFilterPiles = piles) }
         filterResults()
     }
 
     private fun updateFilterDate(date: LocalDate?) {
-        _state.update {
-            it.copy(
-                selectedFilterDate = date
-            )
-        }
+        _state.update { it.copy(selectedFilterDate = date) }
         filterResults()
     }
 }
