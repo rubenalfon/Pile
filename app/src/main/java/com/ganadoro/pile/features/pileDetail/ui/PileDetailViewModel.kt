@@ -3,7 +3,7 @@ package com.ganadoro.pile.features.pileDetail.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
-import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.core.domain.models.DocumentCoverItem
 import com.ganadoro.pile.core.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.core.domain.repositories.PileModelRepository
@@ -11,14 +11,10 @@ import com.ganadoro.pile.core.domain.useCases.RequestBitmapLoadUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-data class PileDetailUiState(
-    val pile: PileModel? = null,
-    val documentList: List<DocumentModel>? = null
-)
 
 class PileDetailViewModel(
     private val pileId: String,
@@ -27,8 +23,8 @@ class PileDetailViewModel(
     private val documentModelRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(PileDetailUiState())
-    val uiState: StateFlow<PileDetailUiState> = _uiState.asStateFlow()
+    private val _state = MutableStateFlow(PileDetailState())
+    val state: StateFlow<PileDetailState> = _state.asStateFlow()
 
     val bitmapCache = bitmapCacheRepository.bitmapCache
 
@@ -38,46 +34,52 @@ class PileDetailViewModel(
             val documentFlow = documentModelRepository.getDocumentModelsByPileId(pileId)
 
             pileFlow.combine(documentFlow) { pile, documents ->
-                pile to documents
-            }.collect { (pile, documents) ->
-                _uiState.update {
-                    it.copy(
-                        pile = pile,
-                        documentList = documents
+
+                val documentList = documents.mapIndexed { index, documentModel ->
+                    DocumentCoverItem(
+                        document = documentModel,
+                        coverImageCacheKey = bitmapCacheRepository.getImageKey(documentModel, index)
                     )
                 }
-            }
+
+                _state.update { it.copy(pile = pile, documentList = documentList) }
+            }.collect()
         }
     }
 
-    fun requestBitmapLoad(document: DocumentModel, pageNumber: Int) {
+    fun handleEvent(event: PileDetailEvent) {
+        when (event) {
+            is PileDetailEvent.OnImageDisplayed -> requestBitmapLoad(event.document)
+            PileDetailEvent.OnDeletePile -> deletePile()
+            is PileDetailEvent.OnPileChange -> updatePile(event.name, event.iconId, event.color)
+        }
+    }
+
+    private fun requestBitmapLoad(document: DocumentModel) {
         viewModelScope.launch {
-            requestBitmapLoadUseCase(document, pageNumber)
+            requestBitmapLoadUseCase(document, 0)
         }
     }
 
-    fun requestImageKey(document: DocumentModel, pageNumber: Int): String =
-        bitmapCacheRepository.getImageKey(document, pageNumber)
-
-    fun updatePile(newPileName: String, newPileIconId: String, newPileColor: Long) { // TODO USECASE
-        val pile = uiState.value.pile ?: return
+    private fun updatePile(name: String, iconId: String, color: Long) { // TODO USECASE
+        val pile = state.value.pile ?: return
 
         viewModelScope.launch {
             val newPile = pile.copy(
-                name = newPileName,
-                iconId = newPileIconId,
-                colorNumber = newPileColor
+                name = name,
+                iconId = iconId,
+                colorNumber = color
             )
 
             pileModelRepository.updatePileModel(newPile)
         }
     }
 
-    fun deletePile() {
-        if (uiState.value.pile == null) return
+    private fun deletePile() {
+        val pile = state.value.pile ?: return
 
         viewModelScope.launch {
-            pileModelRepository.deletePileModel(uiState.value.pile!!.id)
+            pileModelRepository.deletePileModel(pile.id)
         }
     }
 }

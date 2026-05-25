@@ -85,7 +85,6 @@ import com.ganadoro.pile.core.ui.composables.AlertNewPile
 import com.ganadoro.pile.core.ui.composables.LoadingAlert
 import com.ganadoro.pile.core.ui.composables.LoadingWrapper
 import com.ganadoro.pile.core.ui.composables.SwipeBox
-import com.ganadoro.pile.core.ui.composables.itemDocumentsCompleteList
 import com.ganadoro.pile.core.ui.composables.itemPileGrid
 import com.ganadoro.pile.core.ui.controllers.ImportActions
 import com.ganadoro.pile.core.ui.controllers.rememberDocumentImportController
@@ -307,15 +306,15 @@ fun HomeScreen(
                         }
                     }
 
-                    itemDocumentsCompleteList(
-                        availableWidth = availableWidth,
-                        backgroundColor = documentsColorSection,
-                        documents = uiState.documentList!!,
-                        onDocumentClick = navigateToDocumentDetail,
-                        bitmapCache = bitmapCache,
-                        onLoadBitmap = viewModel::requestBitmapLoad,
-                        onRequestImageKey = viewModel::requestImageKey
-                    )
+//            todo        itemDocumentsCompleteList(
+//                        availableWidth = availableWidth,
+//                        backgroundColor = documentsColorSection,
+//                        documents = uiState.documentList!!,
+//                        onDocumentClick = navigateToDocumentDetail,
+//                        bitmapCache = bitmapCache,
+//                        onLoadBitmap = viewModel::requestBitmapLoad,
+//                        onRequestImageKey = viewModel::requestImageKey
+//                    )
 
                     item {
                         Box(

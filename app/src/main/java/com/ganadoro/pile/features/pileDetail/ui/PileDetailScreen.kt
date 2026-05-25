@@ -62,7 +62,7 @@ fun PileDetailScreen(
     popBackStack: () -> Unit,
     viewModel: PileDetailViewModel = koinViewModel { parametersOf(pileId) }
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -97,7 +97,7 @@ fun PileDetailScreen(
             var availableWidth by remember { mutableStateOf(0.dp) }
             val density = LocalDensity.current
 
-            LoadingWrapper(uiState.pile == null || uiState.documentList == null) {
+            LoadingWrapper(uiState.pile == null || uiState.documentList.isEmpty()) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -109,13 +109,13 @@ fun PileDetailScreen(
                 ) {
                     itemDocumentsCompleteList(
                         availableWidth = availableWidth,
-                        documents = uiState.documentList!!,
+                        documents = uiState.documentList,
                         onDocumentClick = { documentId ->
                             navigateToDocumentDetail(documentId)
                         },
                         bitmapCache = bitmapCache,
-                        onLoadBitmap = viewModel::requestBitmapLoad,
-                        onRequestImageKey = viewModel::requestImageKey
+                        onLoadBitmap = { document ->
+                            viewModel.handleEvent(PileDetailEvent.OnImageDisplayed(document)) },
                     )
                     item {
                         Spacer(Modifier.height(100.dp))
@@ -130,7 +130,7 @@ fun PileDetailScreen(
                 onDismiss = { isUpdatePileExpanded = false },
                 onConfirm = { pileName, pileIconId, colorNumber ->
                     isUpdatePileExpanded = false
-                    viewModel.updatePile(pileName, pileIconId, colorNumber)
+                    viewModel.handleEvent(PileDetailEvent.OnPileChange(pileName, pileIconId, colorNumber))
                 }
             )
         }
@@ -140,7 +140,7 @@ fun PileDetailScreen(
                 onDismiss = { isDeletePileExpanded = false },
                 onConfirm = {
                     isDeletePileExpanded = false
-                    viewModel.deletePile()
+                    viewModel.handleEvent(PileDetailEvent.OnDeletePile)
                     popBackStack()
                 }
             )

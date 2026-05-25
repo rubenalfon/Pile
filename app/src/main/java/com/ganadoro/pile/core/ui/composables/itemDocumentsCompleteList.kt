@@ -14,24 +14,24 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ganadoro.pile.DocumentModel
+import com.ganadoro.pile.core.domain.models.DocumentCoverItem
 import com.ganadoro.pile.core.domain.models.DocumentStatusConstants
 import java.time.LocalDate
 
 fun LazyListScope.itemDocumentsCompleteList(
     availableWidth: Dp,
     backgroundColor: Color = Color.Transparent,
-    documents: List<DocumentModel>,
+    documents: List<DocumentCoverItem>,
     bitmapCache: Map<String, Bitmap>,
-    onLoadBitmap: suspend (document: DocumentModel, pageNumber: Int) -> Unit,
-    onRequestImageKey: (document: DocumentModel, pageNumber: Int) -> String,
+    onLoadBitmap: suspend (document: DocumentModel) -> Unit,
     onDocumentClick: (documentId: String) -> Unit = {}
 ) {
-    val groupedDocuments: List<Pair<LocalDate, List<DocumentModel>>> =
+    val groupedDocuments: List<Pair<LocalDate, List<DocumentCoverItem>>> =
         documents
-            .filter { it.documentStatus == DocumentStatusConstants.SAVED }
-            .groupBy { it.modificationDateTime.toLocalDate() }
+            .filter { it.document.documentStatus == DocumentStatusConstants.SAVED }
+            .groupBy { it.document.modificationDateTime.toLocalDate() }
             .toSortedMap(compareByDescending { it })
-            .map { (date, docs) -> date to docs.sortedByDescending { it.modificationDateTime } }
+            .map { (date, docs) -> date to docs.sortedByDescending { it.document.modificationDateTime } }
 
     for (entry in groupedDocuments) {
         val (date, docs) = entry
@@ -64,17 +64,18 @@ fun LazyListScope.itemDocumentsCompleteList(
             verticalSpacing = 16.dp,
             horizontalPadding = 16.dp,
             content = { modifier, document ->
-                val key = onRequestImageKey(document, 0)
+                val key = document.coverImageCacheKey
+
                 val cachedBitmap: Bitmap? = bitmapCache[key]
 
                 if (cachedBitmap == null) {
                     LaunchedEffect(key1 = key) {
-                        onLoadBitmap(document, 0)
+                        onLoadBitmap(document.document)
                     }
                 }
 
                 Document(
-                    documentModel = document,
+                    documentModel = document.document,
                     imageBitmap = cachedBitmap?.asImageBitmap(),
                     modifier = modifier,
                     onClick = onDocumentClick
