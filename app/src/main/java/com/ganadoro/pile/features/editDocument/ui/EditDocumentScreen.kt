@@ -94,7 +94,7 @@ fun EditDocumentScreen(
     onNext: () -> Unit,
     viewModel: EditDocumentViewModel = koinViewModel { parametersOf(documentId) }
 ) {
-    val uiState by viewModel.state.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -120,12 +120,12 @@ fun EditDocumentScreen(
 
     val context = LocalContext.current
 
-    BackHandler(uiState.isDocumentModified) {
+    BackHandler(state.isDocumentModified) {
         viewModel.handleEvent(EditDocumentEvent.OnBackClicked())
     }
 
-    LaunchedEffect(uiState.errorMessage) {
-        uiState.errorMessage?.let { uiText ->
+    LaunchedEffect(state.errorMessage) {
+        state.errorMessage?.let { uiText ->
             snackbarHostState.showSnackbar(
                 message = uiText.asString(context),
                 duration = SnackbarDuration.Short
@@ -149,8 +149,8 @@ fun EditDocumentScreen(
             ToolBar(
                 modifier = Modifier
                     .padding(bottom = ScreenOffset),
-                uiMode = uiState.uiMode,
-                isSinglePage = uiState.documentItems.count() == 1,
+                uiMode = state.uiMode,
+                isSinglePage = state.documentItems.count() == 1,
                 onUpdateUiMode = { viewModel.handleEvent(EditDocumentEvent.OnModeChange(it)) },
                 onDeleteImage = {
                     viewModel.handleEvent(EditDocumentEvent.OnRemoveSelectedImage)
@@ -178,7 +178,7 @@ fun EditDocumentScreen(
         }
     ) { innerPadding ->
         LoadingWrapper(
-            uiState.draftDocument == null || uiState.documentItems.isEmpty()
+            state.draftDocument == null || state.documentItems.isEmpty()
         ) {
             Column(
                 modifier = Modifier
@@ -190,11 +190,11 @@ fun EditDocumentScreen(
                     modifier = Modifier
                         .padding(bottom = 16.dp)
                         .weight(1f),
-                    uiMode = uiState.uiMode,
-                    selectedImageIndex = uiState.selectedImageIndex,
-                    documentItems = uiState.documentItems,
+                    uiMode = state.uiMode,
+                    selectedImageIndex = state.selectedImageIndex,
+                    documentItems = state.documentItems,
                     bitmapCache = bitmapCache,
-                    cropControllers = uiState.cropControllers,
+                    cropControllers = state.cropControllers,
                     onLoadBitmap = { viewModel.handleEvent(EditDocumentEvent.OnImageDisplayed(it)) },
                     onSelectImageIndex = { viewModel.handleEvent(EditDocumentEvent.OnSelectImage(it)) },
                     onLoadCropController = {
@@ -207,7 +207,7 @@ fun EditDocumentScreen(
                 )
 
                 val lazyListState = rememberLazyListState()
-                val selectedImageIndex = uiState.selectedImageIndex
+                val selectedImageIndex = state.selectedImageIndex
 
                 var recentlyMoved by remember { mutableStateOf(false) }
 
@@ -229,11 +229,11 @@ fun EditDocumentScreen(
                     recentlyMoved = false
                 }
 
-                AnimatedVisibility(visible = uiState.uiMode == EditDocumentMode.SCROLL) {
+                AnimatedVisibility(visible = state.uiMode == EditDocumentMode.SCROLL) {
                     ThumbnailRow(
                         modifier = Modifier.padding(bottom = 16.dp),
                         lazyListState = lazyListState,
-                        documentItems = uiState.documentItems,
+                        documentItems = state.documentItems,
                         bitmapCache = bitmapCache,
                         onLoadBitmap = { viewModel.handleEvent(EditDocumentEvent.OnImageDisplayed(it)) },
                         selectedImageIndex = selectedImageIndex,
@@ -245,17 +245,17 @@ fun EditDocumentScreen(
                     )
                 }
 
-                AnimatedVisibility(visible = uiState.uiMode == EditDocumentMode.COLOR) {
+                AnimatedVisibility(visible = state.uiMode == EditDocumentMode.COLOR) {
 
                     EditColorRow(
                         modifier = Modifier.padding(bottom = 16.dp),
-                        imageFilters = uiState.imageFilters,
-                        activeFilterIndex = uiState.documentItems.getOrNull(uiState.selectedImageIndex)?.image?.filter?.toInt()
+                        imageFilters = state.imageFilters,
+                        activeFilterIndex = state.documentItems.getOrNull(state.selectedImageIndex)?.image?.filter?.toInt()
                             ?: 0,
                         onSelectColorIndex = {
                             viewModel.handleEvent(EditDocumentEvent.OnUpdateFilter(it))
                         },
-                        thumbnailKeys = uiState.thumbnailKeys,
+                        thumbnailKeys = state.thumbnailKeys,
                         onLoadThumbnail = {
                             viewModel.handleEvent(
                                 EditDocumentEvent.OnThumbnailDisplayed(
@@ -267,7 +267,7 @@ fun EditDocumentScreen(
                     )
                 }
 
-                AnimatedVisibility(visible = uiState.uiMode == EditDocumentMode.CROP_ROTATE) {
+                AnimatedVisibility(visible = state.uiMode == EditDocumentMode.CROP_ROTATE) {
                     CropRotateButtons(
                         onRotate = { viewModel.handleEvent(EditDocumentEvent.OnRotate) }
                     )
@@ -276,11 +276,11 @@ fun EditDocumentScreen(
         }
     }
 
-    if (uiState.isLoadingNewImage) {
+    if (state.isLoadingNewImage) {
         LoadingAlert(stringResource(R.string.adding_images))
     }
 
-    if (uiState.showUnsavedChangesAlert) {
+    if (state.showUnsavedChangesAlert) {
         AlertUnsavedChanges(
             onKeepEditing = {
                 viewModel.handleEvent(EditDocumentEvent.OnExitCanceled)
