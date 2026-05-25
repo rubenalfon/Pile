@@ -62,7 +62,7 @@ fun PileDetailScreen(
     popBackStack: () -> Unit,
     viewModel: PileDetailViewModel = koinViewModel { parametersOf(pileId) }
 ) {
-    val uiState by viewModel.state.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -75,7 +75,7 @@ fun PileDetailScreen(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                pileName = uiState.pile?.name ?: "",
+                pileName = state.pile?.name ?: "",
                 popBackStack = popBackStack,
                 onSearchClick = navigateToSearchScreen,
                 scrollBehavior = scrollBehavior
@@ -97,7 +97,7 @@ fun PileDetailScreen(
             var availableWidth by remember { mutableStateOf(0.dp) }
             val density = LocalDensity.current
 
-            LoadingWrapper(uiState.pile == null || uiState.documentList.isEmpty()) {
+            LoadingWrapper(state.pile == null || state.documentCoverItems.isEmpty()) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -109,7 +109,7 @@ fun PileDetailScreen(
                 ) {
                     itemDocumentsCompleteList(
                         availableWidth = availableWidth,
-                        documents = uiState.documentList,
+                        documents = state.documentCoverItems,
                         onDocumentClick = { documentId ->
                             navigateToDocumentDetail(documentId)
                         },
@@ -126,7 +126,7 @@ fun PileDetailScreen(
 
         if (isUpdatePileExpanded) {
             AlertEditPile(
-                pileModel = uiState.pile!!,
+                pileModel = state.pile!!,
                 onDismiss = { isUpdatePileExpanded = false },
                 onConfirm = { pileName, pileIconId, colorNumber ->
                     isUpdatePileExpanded = false

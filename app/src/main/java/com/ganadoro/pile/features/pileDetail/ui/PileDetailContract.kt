@@ -7,7 +7,7 @@ import com.ganadoro.pile.core.domain.models.DocumentCoverItem
 
 data class PileDetailState(
     val pile: PileModel? = null,
-    val documentList: List<DocumentCoverItem> = emptyList()
+    val documentCoverItems: List<DocumentCoverItem> = emptyList()
 )
 
 sealed interface PileDetailEvent {

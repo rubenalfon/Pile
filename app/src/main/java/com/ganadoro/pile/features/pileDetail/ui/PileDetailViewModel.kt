@@ -8,6 +8,8 @@ import com.ganadoro.pile.core.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
 import com.ganadoro.pile.core.domain.repositories.PileModelRepository
 import com.ganadoro.pile.core.domain.useCases.RequestBitmapLoadUseCase
+import com.ganadoro.pile.features.pileDetail.domain.usecases.DeletePileUseCase
+import com.ganadoro.pile.features.pileDetail.domain.usecases.UpdatePileUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,6 +21,8 @@ import kotlinx.coroutines.launch
 class PileDetailViewModel(
     private val pileId: String,
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
+    private val updatePileUseCase: UpdatePileUseCase,
+    private val deletePileUseCase: DeletePileUseCase,
     private val pileModelRepository: PileModelRepository,
     private val documentModelRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository
@@ -35,14 +39,14 @@ class PileDetailViewModel(
 
             pileFlow.combine(documentFlow) { pile, documents ->
 
-                val documentList = documents.mapIndexed { index, documentModel ->
+                val documentCoverItems = documents.mapIndexed { index, documentModel ->
                     DocumentCoverItem(
                         document = documentModel,
                         coverImageCacheKey = bitmapCacheRepository.getImageKey(documentModel, index)
                     )
                 }
 
-                _state.update { it.copy(pile = pile, documentList = documentList) }
+                _state.update { it.copy(pile = pile, documentCoverItems = documentCoverItems) }
             }.collect()
         }
     }
@@ -61,17 +65,11 @@ class PileDetailViewModel(
         }
     }
 
-    private fun updatePile(name: String, iconId: String, color: Long) { // TODO USECASE
+    private fun updatePile(name: String, iconId: String, color: Long) {
         val pile = state.value.pile ?: return
 
         viewModelScope.launch {
-            val newPile = pile.copy(
-                name = name,
-                iconId = iconId,
-                colorNumber = color
-            )
-
-            pileModelRepository.updatePileModel(newPile)
+            updatePileUseCase(id = pile.id, name = name, iconId = iconId, color = color)
         }
     }
 
@@ -79,7 +77,7 @@ class PileDetailViewModel(
         val pile = state.value.pile ?: return
 
         viewModelScope.launch {
-            pileModelRepository.deletePileModel(pile.id)
+            deletePileUseCase(pile.id)
         }
     }
 }
