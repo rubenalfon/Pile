@@ -86,23 +86,23 @@ class FileRepositoryImpl(
         getImageFile(storageType, documentId, imageId).delete()
     }
 
-    override fun createTempImageUri(): Uri {
+    override suspend fun createTempImageUri(): Uri = withContext(ioDispatcher) {
         val imageDir = File(appContext.cacheDir, "images")
         if (!imageDir.exists()) imageDir.mkdirs()
 
         val imageFile = File.createTempFile("IMG_", ".jpg", imageDir)
 
-        return FileProvider.getUriForFile(
+        FileProvider.getUriForFile(
             appContext,
             "${appContext.packageName}.provider",
             imageFile
         )
     }
 
-    override fun getUriForFile(file: File): Uri {
+    override suspend fun getUriForFile(file: File): Uri = withContext(ioDispatcher) {
         val authority = "${appContext.packageName}.provider"
 
-        return FileProvider.getUriForFile(
+        FileProvider.getUriForFile(
             appContext,
             authority,
             file

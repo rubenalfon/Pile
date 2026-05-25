@@ -85,7 +85,7 @@ interface FileRepository {
      *
      * @return A [Uri] object representing the temporary image file.
      */
-    fun createTempImageUri(): Uri
+    suspend fun createTempImageUri(): Uri
 
     /**
      * Provides a secure [Uri] for a given [File] using a FileProvider.
@@ -94,7 +94,7 @@ interface FileRepository {
      * @param file The [File] to generate a URI for.
      * @return A content [Uri] that can be used for sharing or external access.
      */
-    fun getUriForFile(file: File): Uri
+    suspend fun getUriForFile(file: File): Uri
 
     /**
      * Checks if a PDF file for a document is outdated based on the modification date.

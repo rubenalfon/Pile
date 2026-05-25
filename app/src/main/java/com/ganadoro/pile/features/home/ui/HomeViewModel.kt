@@ -4,7 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
-import com.ganadoro.pile.PileModel
+import com.ganadoro.pile.core.domain.models.DocumentCoverItem
 import com.ganadoro.pile.core.domain.models.DocumentStatusConstants.TEMPORARY
 import com.ganadoro.pile.core.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
@@ -22,18 +22,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-data class HomeUiState(
-    val pileModels: List<PileModel>? = null,
-    val documentList: List<DocumentModel>? = null,
-    val temporaryDocument: DocumentModel? = null,
-    val coloredPileIds: List<String>? = null,
-    val isLoadingNewDocument: Boolean = false
-)
 
 class HomeViewModel(
     private val createDocumentUseCase: CreateDocumentUseCase,
@@ -46,8 +39,8 @@ class HomeViewModel(
     private val bitmapCacheRepository: BitmapCacheRepository,
     private val fileRepository: FileRepository
 ) : ViewModel() {
-    private var _uiState = MutableStateFlow(HomeUiState())
-    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    private var _state = MutableStateFlow(HomeState())
+    val state: StateFlow<HomeState> = _state.asStateFlow()
 
     val bitmapCache = bitmapCacheRepository.bitmapCache
 
@@ -61,85 +54,113 @@ class HomeViewModel(
             val pileModelsFlow = pileModelRepository.pileModels
 
             pileModelsFlow.combine(documentModelRepository.documentModels) { piles, documents ->
-                val coloredPileIds = documents.flatMap { it.documentPileIds }.distinct()
                 val temporaryDocument = documents.find { it.documentStatus == TEMPORARY }
+                val coloredPileIds = documents.flatMap { it.documentPileIds }.distinct()
 
-                HomeUiState(
-                    pileModels = piles,
-                    documentList = documents.filter { it.documentStatus != TEMPORARY },
-                    temporaryDocument = temporaryDocument,
-                    coloredPileIds = coloredPileIds,
-                    isLoadingNewDocument = uiState.value.isLoadingNewDocument
-                )
-            }.collect { finalState ->
-                _uiState.update {
-                    finalState
+                val documentCoverItems = documents.filter { it.documentStatus != TEMPORARY }
+                    .map { documentModel ->
+                        DocumentCoverItem(
+                            document = documentModel,
+                            coverImageCacheKey = bitmapCacheRepository.getImageKey(documentModel, 0)
+                        )
+                    }
+
+                _state.update {
+                    it.copy(
+                        pileModels = piles,
+                        documentCoverItems = documentCoverItems,
+                        temporaryDocument = temporaryDocument,
+                        coloredPileIds = coloredPileIds,
+                        isInitialLoading = false
+                    )
                 }
-            }
+            }.collect()
         }
     }
 
     override fun onCleared() {
         super.onCleared()
-        confirmErasureUnsavedDeletedDocument()
+        purgeDraftDocument()
     }
 
-    fun requestBitmapLoad(document: DocumentModel, pageNumber: Int) {
-        viewModelScope.launch {
-            requestBitmapLoadUseCase(document, pageNumber)
+    fun handleEvent(event: HomeEvent) {
+        when (event) {
+            is HomeEvent.OnImageDisplayed -> requestBitmapLoad(event.document)
+
+            is HomeEvent.OnRemoveDraftDocument -> removeDraftDocument()
+            HomeEvent.OnRestoreDraftDocument -> restoreDraftDocument()
+            HomeEvent.OnPurgeDraftDocument -> purgeDraftDocument()
+
+            is HomeEvent.OnCreatePile -> addPile(event.pileName, event.iconId, event.color)
+
+            is HomeEvent.OnPdfImported -> importPDFIntent(event.uri)
+            is HomeEvent.OnImagesImported -> importImagesIntent(event.uris)
+            HomeEvent.OnCameraClick -> createCameraUri()
+            HomeEvent.OnCameraUriConsumed -> dismissCameraUri()
         }
     }
 
-    fun requestImageKey(document: DocumentModel, pageNumber: Int): String =
-        bitmapCacheRepository.getImageKey(document, pageNumber)
+    private fun requestBitmapLoad(document: DocumentModel) {
+        viewModelScope.launch {
+            requestBitmapLoadUseCase(document, 0)
+        }
+    }
 
-    fun addPile(pileName: String, iconId: String, color: Long) {
+    private fun addPile(pileName: String, iconId: String, color: Long) {
         viewModelScope.launch {
             createPileUseCase(pileName, iconId, color)
         }
     }
 
-    fun handleCameraCapture(): Uri = fileRepository.createTempImageUri()
+    private fun createCameraUri() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(cameraUri = fileRepository.createTempImageUri())
+            }
+        }
+    }
 
-    fun importPDFIntent(uri: Uri) {
+    private fun dismissCameraUri() = _state.update { it.copy(cameraUri = null) }
+
+    private fun importPDFIntent(uri: Uri) {
         viewModelScope.launch {
             try {
-                _uiState.update { it.copy(isLoadingNewDocument = true) }
+                _state.update { it.copy(isLoadingNewDocument = true) }
                 val newDoc = createDocumentUseCase.createFromPdf(uri)
                 _navigationEvent.send(newDoc)
             } catch (e: Exception) {
                 Napier.e("Error importing PDF", e)
                 // TODO: show in ui, toast
             } finally {
-                delay(500)
-                _uiState.update { it.copy(isLoadingNewDocument = false) }
+                delay(500) // TODO: Not correct
+                _state.update { it.copy(isLoadingNewDocument = false) }
             }
         }
     }
 
-    fun importImagesIntent(uriList: List<Uri>) {
+    private fun importImagesIntent(uriList: List<Uri>) {
         viewModelScope.launch {
             try {
-                _uiState.update { it.copy(isLoadingNewDocument = true) }
+                _state.update { it.copy(isLoadingNewDocument = true) }
                 val newDoc = createDocumentUseCase.createFromImages(uriList)
                 _navigationEvent.send(newDoc)
             } catch (e: Exception) {
                 Napier.e("Error importing images", e)
                 // TODO: show in ui, toast
             } finally {
-                delay(500)
-                _uiState.update { it.copy(isLoadingNewDocument = false) }
+                delay(500) // TODO: Not correct
+                _state.update { it.copy(isLoadingNewDocument = false) }
             }
         }
     }
 
-    fun partialDeleteUnsavedDocument() {
+    private fun removeDraftDocument() {
         viewModelScope.launch {
             backupUnsavedDocument = manageTemporaryDocumentUseCase.deleteForUndo()
         }
     }
 
-    fun restoreUnsavedDeletedDocument() {
+    private fun restoreDraftDocument() {
         val backup = backupUnsavedDocument ?: return
 
         viewModelScope.launch {
@@ -153,7 +174,7 @@ class HomeViewModel(
         }
     }
 
-    fun confirmErasureUnsavedDeletedDocument() {
+    private fun purgeDraftDocument() {
         val backup = backupUnsavedDocument ?: return
         val documentId = backup.document.id
 

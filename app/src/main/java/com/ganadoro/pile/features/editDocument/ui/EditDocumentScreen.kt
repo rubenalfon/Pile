@@ -108,9 +108,7 @@ fun EditDocumentScreen(
 
     // Only intended for selecting images on the gallery.
     val importActions = rememberDocumentImportController(
-        onPdfSelected = {},
-        onImagesSelected = { viewModel.handleEvent(EditDocumentEvent.OnImportImages(it)) },
-        createTempImageUri = { null }
+        onImagesSelected = { viewModel.handleEvent(EditDocumentEvent.OnImportImages(it)) }
     )
 
     val scope = rememberCoroutineScope()
@@ -258,7 +256,13 @@ fun EditDocumentScreen(
                             viewModel.handleEvent(EditDocumentEvent.OnUpdateFilter(it))
                         },
                         thumbnailKeys = uiState.thumbnailKeys,
-                        onLoadThumbnail = { viewModel.handleEvent(EditDocumentEvent.OnThumbnailDisplayed(it)) },
+                        onLoadThumbnail = {
+                            viewModel.handleEvent(
+                                EditDocumentEvent.OnThumbnailDisplayed(
+                                    it
+                                )
+                            )
+                        },
                         bitmapCache = bitmapCache
                     )
                 }

@@ -85,6 +85,7 @@ import com.ganadoro.pile.core.ui.composables.AlertNewPile
 import com.ganadoro.pile.core.ui.composables.LoadingAlert
 import com.ganadoro.pile.core.ui.composables.LoadingWrapper
 import com.ganadoro.pile.core.ui.composables.SwipeBox
+import com.ganadoro.pile.core.ui.composables.itemDocumentsCompleteList
 import com.ganadoro.pile.core.ui.composables.itemPileGrid
 import com.ganadoro.pile.core.ui.controllers.ImportActions
 import com.ganadoro.pile.core.ui.controllers.rememberDocumentImportController
@@ -104,7 +105,7 @@ fun HomeScreen(
     navigateToSettings: () -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -120,9 +121,11 @@ fun HomeScreen(
     var isNewPileAlertExpanded by rememberSaveable { mutableStateOf(false) }
 
     val importActions = rememberDocumentImportController(
-        onPdfSelected = viewModel::importPDFIntent,
-        onImagesSelected = viewModel::importImagesIntent,
-        createTempImageUri = viewModel::handleCameraCapture
+        cameraUri = state.cameraUri,
+        onUriConsumed = { viewModel.handleEvent(HomeEvent.OnCameraUriConsumed) },
+        onPdfSelected = { viewModel.handleEvent(HomeEvent.OnPdfImported(it)) },
+        onImagesSelected = { viewModel.handleEvent(HomeEvent.OnImagesImported(it)) },
+        onCameraClick = { viewModel.handleEvent(HomeEvent.OnCameraClick) }
     )
 
     var isSearchBarExpanded by rememberSaveable { mutableStateOf(false) }
@@ -192,9 +195,7 @@ fun HomeScreen(
         val layoutDirection = LocalLayoutDirection.current
 
 
-        LoadingWrapper(
-            isLoading = uiState.pileModels == null || uiState.documentList == null || uiState.coloredPileIds == null
-        ) {
+        LoadingWrapper(state.isInitialLoading) {
             Box(
                 Modifier
                     .padding(
@@ -226,7 +227,7 @@ fun HomeScreen(
                     item { Spacer(Modifier.height(8.dp)) }
 
                     item {
-                        val tempDocument = uiState.temporaryDocument
+                        val tempDocument = state.temporaryDocument
                         AnimatedVisibility(
                             visible = tempDocument != null,
                             enter = fadeIn(tween(100)) + expandVertically(),
@@ -242,7 +243,7 @@ fun HomeScreen(
                                         navigateToEditPDF(tempDocument.id)
                                 },
                                 onDismiss = {
-                                    viewModel.partialDeleteUnsavedDocument()
+                                    viewModel.handleEvent(HomeEvent.OnRemoveDraftDocument)
 
                                     scope.launch {
                                         val result = snackbarHostState
@@ -253,11 +254,11 @@ fun HomeScreen(
                                             )
                                         when (result) {
                                             SnackbarResult.ActionPerformed -> { // restore
-                                                viewModel.restoreUnsavedDeletedDocument()
+                                                viewModel.handleEvent(HomeEvent.OnRestoreDraftDocument)
                                             }
 
                                             SnackbarResult.Dismissed -> {
-                                                viewModel.confirmErasureUnsavedDeletedDocument()
+                                                viewModel.handleEvent(HomeEvent.OnPurgeDraftDocument)
                                             }
                                         }
                                     }
@@ -278,10 +279,10 @@ fun HomeScreen(
 
                     itemPileGrid(
                         availableWidth = availableWidth,
-                        piles = uiState.pileModels!!,
+                        piles = state.pileModels,
                         onPileClick = navigateToPileDetail,
                         onNewPileClick = { isNewPileAlertExpanded = true },
-                        coloredPileIds = uiState.coloredPileIds!!
+                        coloredPileIds = state.coloredPileIds
                     )
 
                     item { Spacer(Modifier.height(30.dp)) }
@@ -306,15 +307,14 @@ fun HomeScreen(
                         }
                     }
 
-//            todo        itemDocumentsCompleteList(
-//                        availableWidth = availableWidth,
-//                        backgroundColor = documentsColorSection,
-//                        documents = uiState.documentList!!,
-//                        onDocumentClick = navigateToDocumentDetail,
-//                        bitmapCache = bitmapCache,
-//                        onLoadBitmap = viewModel::requestBitmapLoad,
-//                        onRequestImageKey = viewModel::requestImageKey
-//                    )
+                    itemDocumentsCompleteList(
+                        availableWidth = availableWidth,
+                        backgroundColor = documentsColorSection,
+                        documents = state.documentCoverItems,
+                        onDocumentClick = navigateToDocumentDetail,
+                        bitmapCache = bitmapCache,
+                        onLoadBitmap = { viewModel.handleEvent(HomeEvent.OnImageDisplayed(it)) }
+                    )
 
                     item {
                         Box(
@@ -333,12 +333,12 @@ fun HomeScreen(
             onDismiss = { isNewPileAlertExpanded = false },
             onConfirm = { pileName, pileIconId, pileColorNumber ->
                 isNewPileAlertExpanded = false
-                viewModel.addPile(pileName = pileName, iconId = pileIconId, color = pileColorNumber)
+                viewModel.handleEvent(HomeEvent.OnCreatePile(pileName, pileIconId, pileColorNumber))
             }
         )
     }
 
-    if (uiState.isLoadingNewDocument) {
+    if (state.isLoadingNewDocument) {
         LoadingAlert(stringResource(R.string.loading_new_document))
     }
 }

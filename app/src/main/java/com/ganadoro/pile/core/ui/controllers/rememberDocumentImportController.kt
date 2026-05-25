@@ -5,10 +5,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 
 /**
  * Data class holding the callbacks to trigger document import actions.
@@ -24,24 +22,34 @@ data class ImportActions(
  * A headless composable controller that manages ActivityResultLaunchers
  * for document imports.
  *
- * @param createTempImageUri Function to create a temporary URI for the camera.
+ * @param cameraUri URI for the camera.
+ * @param onUriConsumed Callback when the URI is consumed.
+ * @param onCameraClick Callback when the camera button is clicked.
  * @param onPdfSelected Callback when a PDF is selected.
  * @param onImagesSelected Callback when images are selected.
  * @return An ImportActions object with callbacks to trigger document import actions.
  */
 @Composable
 fun rememberDocumentImportController(
-    createTempImageUri: () -> Uri?,
-    onPdfSelected: (Uri) -> Unit,
-    onImagesSelected: (List<Uri>) -> Unit
+    cameraUri: Uri? = null,
+    onUriConsumed: () -> Unit = {},
+    onCameraClick: () -> Unit = {},
+    onPdfSelected: (Uri) -> Unit = {},
+    onImagesSelected: (List<Uri>) -> Unit = {}
 ): ImportActions {
-    var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
-
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
-        if (success && tempCameraUri != null) {
-            onImagesSelected(listOf(tempCameraUri!!))
+        if (success && cameraUri != null) {
+            onImagesSelected(listOf(cameraUri))
+        }
+        onUriConsumed()
+    }
+
+    // REACCIÓN: Cuando el ViewModel genera el URI, lanzamos la cámara automáticamente
+    LaunchedEffect(cameraUri) {
+        cameraUri?.let {
+            cameraLauncher.launch(it)
         }
     }
 
@@ -60,7 +68,7 @@ fun rememberDocumentImportController(
     }
 
 
-    return remember(createTempImageUri) {
+    return remember {
         ImportActions(
             launchPdfPicker = {
                 pdfLauncher.launch(arrayOf("application/pdf"))
@@ -73,9 +81,7 @@ fun rememberDocumentImportController(
                 )
             },
             launchCamera = {
-                val uri = createTempImageUri()
-                tempCameraUri = uri
-                uri?.let { cameraLauncher.launch(it) }
+                onCameraClick()
             }
         )
     }
