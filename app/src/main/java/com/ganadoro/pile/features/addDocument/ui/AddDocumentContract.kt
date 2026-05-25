@@ -9,7 +9,7 @@ data class AddDocumentState(
     val coverDocumentImage: DocumentImage? = null,
     val coverImageCacheKey: String = "",
     val documentName: String = "",
-    val allPileModels: List<PileModel> = emptyList(),
+    val allPileModels: List<PileModel>? = null,
     val noDocumentNameError: Boolean = false
 )
 
