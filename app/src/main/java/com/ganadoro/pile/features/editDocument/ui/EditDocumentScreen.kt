@@ -70,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ganadoro.pile.R
 import com.ganadoro.pile.core.domain.models.ImageFilterType
+import com.ganadoro.pile.core.domain.models.ImageItem
 import com.ganadoro.pile.core.ui.composables.LoadingAlert
 import com.ganadoro.pile.core.ui.composables.LoadingWrapper
 import com.ganadoro.pile.core.ui.controllers.rememberDocumentImportController
@@ -151,7 +152,7 @@ fun EditDocumentScreen(
                 modifier = Modifier
                     .padding(bottom = ScreenOffset),
                 uiMode = state.uiMode,
-                isSinglePage = state.documentItems.count() == 1,
+                isSinglePage = state.imageItems.count() == 1,
                 onUpdateUiMode = { viewModel.handleEvent(EditDocumentEvent.OnModeChange(it)) },
                 onDeleteImage = {
                     viewModel.handleEvent(EditDocumentEvent.OnRemoveSelectedImage)
@@ -179,7 +180,7 @@ fun EditDocumentScreen(
         }
     ) { innerPadding ->
         LoadingWrapper(
-            state.draftDocument == null || state.documentItems.isEmpty()
+            state.draftDocument == null || state.imageItems.isEmpty()
         ) {
             Column(
                 modifier = Modifier
@@ -193,7 +194,7 @@ fun EditDocumentScreen(
                         .weight(1f),
                     uiMode = state.uiMode,
                     selectedImageIndex = state.selectedImageIndex,
-                    documentItems = state.documentItems,
+                    imageItems = state.imageItems,
                     bitmapCache = bitmapCache,
                     cropControllers = state.cropControllers,
                     onLoadBitmap = { viewModel.handleEvent(EditDocumentEvent.OnImageDisplayed(it)) },
@@ -234,7 +235,7 @@ fun EditDocumentScreen(
                     ThumbnailRow(
                         modifier = Modifier.padding(bottom = 16.dp),
                         lazyListState = lazyListState,
-                        documentItems = state.documentItems,
+                        imageItems = state.imageItems,
                         bitmapCache = bitmapCache,
                         onLoadBitmap = { viewModel.handleEvent(EditDocumentEvent.OnImageDisplayed(it)) },
                         selectedImageIndex = selectedImageIndex,
@@ -251,7 +252,7 @@ fun EditDocumentScreen(
                     EditColorRow(
                         modifier = Modifier.padding(bottom = 16.dp),
                         imageFilters = state.imageFilters,
-                        activeFilterIndex = state.documentItems.getOrNull(state.selectedImageIndex)?.image?.filter?.toInt()
+                        activeFilterIndex = state.imageItems.getOrNull(state.selectedImageIndex)?.image?.filter?.toInt()
                             ?: 0,
                         onSelectColorIndex = {
                             viewModel.handleEvent(EditDocumentEvent.OnUpdateFilter(it))
@@ -328,14 +329,14 @@ private fun ImagePager(
     modifier: Modifier = Modifier,
     uiMode: EditDocumentMode,
     selectedImageIndex: Int,
-    documentItems: List<DocumentEditItem>,
+    imageItems: List<ImageItem>,
     bitmapCache: Map<String, Bitmap>,
     cropControllers: Map<String, ExtendedCropController>,
     onLoadBitmap: (pageNumber: Int) -> Unit,
     onSelectImageIndex: (page: Int) -> Unit,
     onLoadCropController: (key: String) -> Unit
 ) {
-    val pagerState = rememberPagerState(pageCount = { documentItems.size })
+    val pagerState = rememberPagerState(pageCount = { imageItems.size })
 
     var isSelectedImageIndexRecent by rememberSaveable { mutableStateOf(false) }
     var isChangedFromCarouselRecent by rememberSaveable { mutableStateOf(false) }
@@ -371,7 +372,7 @@ private fun ImagePager(
         userScrollEnabled = uiMode == EditDocumentMode.SCROLL,
         modifier = modifier
     ) { page ->
-        val key = documentItems.getOrNull(page)?.cacheKey ?: ""
+        val key = imageItems.getOrNull(page)?.cacheKey ?: ""
         val cachedBitmap: Bitmap? = bitmapCache[key]
 
         if (cachedBitmap == null) {
@@ -422,7 +423,7 @@ private fun ImagePager(
 private fun ThumbnailRow(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState,
-    documentItems: List<DocumentEditItem>,
+    imageItems: List<ImageItem>,
     bitmapCache: Map<String, Bitmap>,
     onLoadBitmap: (pageNumber: Int) -> Unit,
     selectedImageIndex: Int,
@@ -446,14 +447,14 @@ private fun ThumbnailRow(
             contentPadding = PaddingValues(start = 16.dp, end = 0.dp)
         ) {
             items(
-                count = documentItems.size,
-                key = { index -> documentItems[index].image.id }
+                count = imageItems.size,
+                key = { index -> imageItems[index].image.id }
             ) { index ->
                 ThumbnailItem(
                     modifier = Modifier.animateItem(),
                     index = index,
                     isSelected = index == selectedImageIndex,
-                    cacheKey = documentItems[index].cacheKey,
+                    cacheKey = imageItems[index].cacheKey,
                     bitmapCache = bitmapCache,
                     onLoadBitmap = onLoadBitmap,
                     onSelect = onSelectImage

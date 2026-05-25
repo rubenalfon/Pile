@@ -8,6 +8,7 @@ import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.R
 import com.ganadoro.pile.core.domain.models.ImageCropData
 import com.ganadoro.pile.core.domain.models.ImageFilterType
+import com.ganadoro.pile.core.domain.models.ImageItem
 import com.ganadoro.pile.core.domain.repositories.BitmapCacheRepository
 import com.ganadoro.pile.core.domain.repositories.DocumentImageRepository
 import com.ganadoro.pile.core.domain.repositories.DocumentModelRepository
@@ -82,12 +83,12 @@ class EditDocumentViewModel(
 
     private fun updateImagesAndStatus(
         draft: DocumentModel? = state.value.draftDocument,
-        images: List<DocumentImage> = state.value.documentItems.map { it.image },
+        images: List<DocumentImage> = state.value.imageItems.map { it.image },
         selectedIndex: Int = state.value.selectedImageIndex
     ) {
-        val documentItems = draft?.let { doc ->
+        val imageItems = draft?.let { doc ->
             images.mapIndexed { index, image ->
-                DocumentEditItem(
+                ImageItem(
                     image = image,
                     cacheKey = bitmapCacheRepository.getImageKey(doc, index)
                 )
@@ -106,7 +107,7 @@ class EditDocumentViewModel(
         _state.update {
             it.copy(
                 draftDocument = draft,
-                documentItems = documentItems,
+                imageItems = imageItems,
                 thumbnailKeys = thumbnailKeys,
                 selectedImageIndex = selectedIndex,
                 isDocumentModified = isModified
@@ -161,7 +162,7 @@ class EditDocumentViewModel(
         if (state.isLoadingNewImage) return
 
         viewModelScope.launch {
-            updateDocumentUseCase(document, state.documentItems.map { it.image })
+            updateDocumentUseCase(document, state.imageItems.map { it.image })
 
             _navigationEvent.send(NavigationType.NEXT)
         }
@@ -171,7 +172,7 @@ class EditDocumentViewModel(
         viewModelScope.launch {
             val currentState = state.value
             val document = currentState.draftDocument ?: return@launch
-            val documentImage = currentState.documentItems.getOrNull(pageNumber)?.image
+            val documentImage = currentState.imageItems.getOrNull(pageNumber)?.image
                 ?: return@launch
             requestDraftBitmapLoadUseCase(document, documentImage)
         }
@@ -181,7 +182,7 @@ class EditDocumentViewModel(
         viewModelScope.launch {
             val currentState = state.value
             val documentImage =
-                currentState.documentItems.getOrNull(currentState.selectedImageIndex)?.image
+                currentState.imageItems.getOrNull(currentState.selectedImageIndex)?.image
                     ?: return@launch
             requestThumbnailLoadUseCase(documentId, documentImage, filterIndex)
         }
@@ -209,7 +210,7 @@ class EditDocumentViewModel(
     private fun cleanSelectedCropController() {
         _state.update { state ->
             val cropControllers = state.cropControllers
-            val selectedImageKey = state.documentItems.getOrNull(state.selectedImageIndex)?.cacheKey ?: ""
+            val selectedImageKey = state.imageItems.getOrNull(state.selectedImageIndex)?.cacheKey ?: ""
             state.copy(cropControllers = cropControllers.filter { it.key != selectedImageKey })
         }
     }
@@ -219,12 +220,12 @@ class EditDocumentViewModel(
         if (currentState.uiMode != EditDocumentMode.COLOR) return
 
         val document = currentState.draftDocument ?: return
-        val documentItem = currentState.documentItems.getOrNull(currentState.selectedImageIndex) ?: return
-        val documentImage = documentItem.image
+        val imageItem = currentState.imageItems.getOrNull(currentState.selectedImageIndex) ?: return
+        val documentImage = imageItem.image
 
         val updatedDocumentImage = documentImage.copy(filter = index.toLong())
 
-        val updatedImages = currentState.documentItems.map {
+        val updatedImages = currentState.imageItems.map {
             if (it.image.id == updatedDocumentImage.id) updatedDocumentImage else it.image
         }
 
@@ -235,7 +236,7 @@ class EditDocumentViewModel(
     private fun loadCropController(key: String) {
         viewModelScope.launch {
             val currentState = state.value
-            val selectedImage = currentState.documentItems.getOrNull(currentState.selectedImageIndex)?.image
+            val selectedImage = currentState.imageItems.getOrNull(currentState.selectedImageIndex)?.image
                 ?: return@launch
 
             val cropControllers = currentState.cropControllers
@@ -264,9 +265,9 @@ class EditDocumentViewModel(
         if (currentState.uiMode != EditDocumentMode.CROP_ROTATE) return
 
         val document = currentState.draftDocument ?: return
-        val documentItem = currentState.documentItems.getOrNull(currentState.selectedImageIndex) ?: return
-        val documentImage = documentItem.image
-        val imageKey = documentItem.cacheKey
+        val imageItem = currentState.imageItems.getOrNull(currentState.selectedImageIndex) ?: return
+        val documentImage = imageItem.image
+        val imageKey = imageItem.cacheKey
 
         val selectedExtendedCropController = currentState.cropControllers[imageKey] ?: return
 
@@ -280,7 +281,7 @@ class EditDocumentViewModel(
 
         val updatedDocumentImage = documentImage.copy(crop = scaledCropData)
 
-        val updatedImages = currentState.documentItems.map {
+        val updatedImages = currentState.imageItems.map {
             if (it.image.id == updatedDocumentImage.id) updatedDocumentImage else it.image
         }
 
@@ -293,9 +294,9 @@ class EditDocumentViewModel(
         if (currentState.uiMode != EditDocumentMode.CROP_ROTATE) return
 
         val document = currentState.draftDocument ?: return
-        val documentItem = currentState.documentItems.getOrNull(currentState.selectedImageIndex) ?: return
-        val documentImage = documentItem.image
-        val imageKey = documentItem.cacheKey
+        val imageItem = currentState.imageItems.getOrNull(currentState.selectedImageIndex) ?: return
+        val documentImage = imageItem.image
+        val imageKey = imageItem.cacheKey
 
         val newRotation = (documentImage.rotation - 90) % 360
         val updatedDocumentImage = documentImage.copy(rotation = newRotation)
@@ -304,7 +305,7 @@ class EditDocumentViewModel(
             currentState.cropControllers[imageKey]?.cropController?.rotateAntiClockwise()
         }
 
-        val updatedImages = currentState.documentItems.map {
+        val updatedImages = currentState.imageItems.map {
             if (it.image.id == updatedDocumentImage.id) updatedDocumentImage else it.image
         }
 
@@ -323,7 +324,7 @@ class EditDocumentViewModel(
         viewModelScope.launch {
             val (updatedDocument, imageModels) = addPageToDocumentUseCase(document, uriList)
 
-            val updatedImages = currentState.documentItems.map { it.image } + imageModels
+            val updatedImages = currentState.imageItems.map { it.image } + imageModels
             
             _state.update { it.copy(isLoadingNewImage = false) }
             updateImagesAndStatus(draft = updatedDocument, images = updatedImages)
@@ -333,7 +334,7 @@ class EditDocumentViewModel(
     private fun removeSelectedImage() {
         val currentState = state.value
         val document = currentState.draftDocument ?: return
-        val currentItems = currentState.documentItems
+        val currentItems = currentState.imageItems
         val index = currentState.selectedImageIndex
 
         if (index !in currentItems.indices) return
@@ -364,7 +365,7 @@ class EditDocumentViewModel(
         val restoredDocumentImage = deletedDocumentImages.first()
         deletedDocumentImages -= restoredDocumentImage
 
-        val updatedImages = currentState.documentItems.map { it.image } + restoredDocumentImage
+        val updatedImages = currentState.imageItems.map { it.image } + restoredDocumentImage
         val updatedDocument = currentState.draftDocument?.copy(
             imageIds = updatedImages.map { it.id }
         ) ?: return

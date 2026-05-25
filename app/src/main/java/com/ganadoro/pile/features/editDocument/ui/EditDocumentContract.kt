@@ -1,16 +1,16 @@
 package com.ganadoro.pile.features.editDocument.ui
 
 import android.net.Uri
-import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.core.domain.models.ImageFilterType
+import com.ganadoro.pile.core.domain.models.ImageItem
 import com.ganadoro.pile.core.ui.util.UiText
 import com.ganadoro.pile.features.editDocument.domain.models.ExtendedCropController
 
 
 data class EditDocumentState(
     val draftDocument: DocumentModel? = null,
-    val documentItems: List<DocumentEditItem> = emptyList(),
+    val imageItems: List<ImageItem> = emptyList(),
     val thumbnailKeys: List<String> = emptyList(),
     val imageFilters: List<ImageFilterType> = emptyList(),
     val selectedImageIndex: Int = 0,
@@ -20,11 +20,6 @@ data class EditDocumentState(
     val showUnsavedChangesAlert: Boolean = false,
     val isDocumentModified: Boolean = false,
     val errorMessage: UiText? = null
-)
-
-data class DocumentEditItem(
-    val image: DocumentImage,
-    val cacheKey: String
 )
 
 enum class EditDocumentMode {
