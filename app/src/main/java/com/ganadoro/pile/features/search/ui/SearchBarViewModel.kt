@@ -44,10 +44,7 @@ class SearchBarViewModel(
         when (event) {
             SearchBarEvent.OnSearch -> filterResults()
             SearchBarEvent.OnCloseSearch -> resetSearch()
-            is SearchBarEvent.OnImageDisplayed -> requestBitmapLoad(
-                event.document,
-                event.pageNumber
-            )
+            is SearchBarEvent.OnImageDisplayed -> requestBitmapLoad(event.document)
 
             is SearchBarEvent.OnSearchQueryChanged -> updateSearchQuery(event.query)
             is SearchBarEvent.OnFilterPilesChanged -> addRemoveFilterPiles(event.pileId)
@@ -112,9 +109,9 @@ class SearchBarViewModel(
         }
     }
 
-    private fun requestBitmapLoad(document: DocumentModel, pageNumber: Int) {
+    private fun requestBitmapLoad(document: DocumentModel) {
         viewModelScope.launch {
-            requestBitmapLoadUseCase(document, pageNumber)
+            requestBitmapLoadUseCase(document, 0)
         }
     }
 

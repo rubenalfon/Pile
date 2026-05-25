@@ -161,12 +161,9 @@ fun SearchBarScreen(
                             navigateToDocumentDetail(documentId)
                         },
                         bitmapCache = bitmapCache,
-                        onLoadBitmap = { document, pageNumber ->
+                        onLoadBitmap = { document ->
                             viewModel.handleEvent(
-                                SearchBarEvent.OnImageDisplayed(
-                                    document,
-                                    pageNumber
-                                )
+                                SearchBarEvent.OnImageDisplayed(document)
                             )
                         }
                     )
@@ -374,7 +371,7 @@ private fun LazyListScope.itemDocumentsCustomList(
     availableWidth: Dp,
     documents: List<DocumentSearchItem>,
     bitmapCache: Map<String, Bitmap>,
-    onLoadBitmap: suspend (document: DocumentModel, pageNumber: Int) -> Unit,
+    onLoadBitmap: suspend (document: DocumentModel) -> Unit,
     onDocumentClick: (documentId: String) -> Unit = {}
 ) {
     adaptiveSizeItemsGrid(
@@ -392,7 +389,7 @@ private fun LazyListScope.itemDocumentsCustomList(
 
             if (cachedBitmap == null) {
                 LaunchedEffect(key1 = key) {
-                    onLoadBitmap(documentItem.document, 0)
+                    onLoadBitmap(documentItem.document)
                 }
             }
 
