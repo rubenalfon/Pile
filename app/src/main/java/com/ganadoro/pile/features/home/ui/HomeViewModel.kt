@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganadoro.pile.DocumentModel
+import com.ganadoro.pile.R
 import com.ganadoro.pile.core.domain.models.DocumentCoverItem
 import com.ganadoro.pile.core.domain.models.DocumentStatusConstants.TEMPORARY
 import com.ganadoro.pile.core.domain.repositories.BitmapCacheRepository
@@ -12,13 +13,13 @@ import com.ganadoro.pile.core.domain.repositories.FileRepository
 import com.ganadoro.pile.core.domain.repositories.PileModelRepository
 import com.ganadoro.pile.core.domain.useCases.CreatePileUseCase
 import com.ganadoro.pile.core.domain.useCases.RequestBitmapLoadUseCase
+import com.ganadoro.pile.core.ui.util.UiText
 import com.ganadoro.pile.features.home.domain.models.TemporaryDocumentBackup
 import com.ganadoro.pile.features.home.domain.schedulers.CleanupScheduler
 import com.ganadoro.pile.features.home.domain.useCases.CreateDocumentUseCase
 import com.ganadoro.pile.features.home.domain.useCases.ManageTemporaryDocumentUseCase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -97,6 +98,8 @@ class HomeViewModel(
             is HomeEvent.OnImagesImported -> importImagesIntent(event.uris)
             HomeEvent.OnCameraClick -> createCameraUri()
             HomeEvent.OnCameraUriConsumed -> dismissCameraUri()
+
+            HomeEvent.OnErrorDismissed -> _state.update { it.copy(errorMessage = null) }
         }
     }
 
@@ -130,9 +133,10 @@ class HomeViewModel(
                 _navigationEvent.send(newDoc)
             } catch (e: Exception) {
                 Napier.e("Error importing PDF", e)
-                // TODO: show in ui, toast
+                _state.update {
+                    it.copy(errorMessage = UiText.StringResource(R.string.error_importing_pdf))
+                }
             } finally {
-                delay(500) // TODO: Not correct
                 _state.update { it.copy(isLoadingNewDocument = false) }
             }
         }
@@ -146,9 +150,10 @@ class HomeViewModel(
                 _navigationEvent.send(newDoc)
             } catch (e: Exception) {
                 Napier.e("Error importing images", e)
-                // TODO: show in ui, toast
+                _state.update {
+                    it.copy(errorMessage = UiText.StringResource(R.string.error_importing_images))
+                }
             } finally {
-                delay(500) // TODO: Not correct
                 _state.update { it.copy(isLoadingNewDocument = false) }
             }
         }
@@ -169,7 +174,11 @@ class HomeViewModel(
                 manageTemporaryDocumentUseCase.restoreBackup(backup)
             } catch (e: Exception) {
                 Napier.e { "Error restoring backup. Message: ${e.message}" }
-                // TODO: show in ui, toast
+                _state.update {
+                    it.copy(
+                        errorMessage = UiText.StringResource(R.string.error_restoring_draft_document)
+                    )
+                }
             }
         }
     }

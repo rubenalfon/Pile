@@ -118,11 +118,12 @@ fun EditDocumentScreen(
         stringResource(R.string.undo)
     )
 
-    val context = LocalContext.current
 
     BackHandler(state.isDocumentModified) {
         viewModel.handleEvent(EditDocumentEvent.OnBackClicked())
     }
+
+    val context = LocalContext.current
 
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.let { uiText ->

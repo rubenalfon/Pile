@@ -4,6 +4,7 @@ import android.net.Uri
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.core.domain.models.DocumentCoverItem
+import com.ganadoro.pile.core.ui.util.UiText
 
 
 data class HomeState(
@@ -13,7 +14,8 @@ data class HomeState(
     val coloredPileIds: List<String> = emptyList(),
     val cameraUri: Uri? = null,
     val isLoadingNewDocument: Boolean = false,
-    val isInitialLoading: Boolean = true
+    val isInitialLoading: Boolean = true,
+    val errorMessage: UiText? = null
 )
 
 sealed interface HomeEvent {
@@ -29,4 +31,6 @@ sealed interface HomeEvent {
     data class OnImagesImported(val uris: List<Uri>) : HomeEvent
     data object OnCameraClick : HomeEvent
     data object OnCameraUriConsumed : HomeEvent
+
+    data object OnErrorDismissed : HomeEvent
 }

@@ -67,6 +67,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -108,8 +109,11 @@ fun HomeScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
+    var isNavigating by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { document ->
+            isNavigating = true
             if (document.isIncomingPdf) navigateToAddDocument(document.id)
             else navigateToEditPDF(document.id)
         }
@@ -136,6 +140,18 @@ fun HomeScreen(
         stringResource(R.string.document_unsaved_changes_deleted),
         stringResource(R.string.undo)
     )
+
+    val context = LocalContext.current
+
+    LaunchedEffect(state.errorMessage) {
+        state.errorMessage?.let { uiText ->
+            snackbarHostState.showSnackbar(
+                message = uiText.asString(context),
+                duration = SnackbarDuration.Short
+            )
+            viewModel.handleEvent(HomeEvent.OnErrorDismissed)
+        }
+    }
 
     Scaffold(
         modifier = modifier,
@@ -338,7 +354,7 @@ fun HomeScreen(
         )
     }
 
-    if (state.isLoadingNewDocument) {
+    if (state.isLoadingNewDocument || isNavigating) {
         LoadingAlert(stringResource(R.string.loading_new_document))
     }
 }
