@@ -3,6 +3,7 @@ package com.pile.core.ui.composables
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ToggleButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -40,19 +42,43 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pile.PileModel
 import com.pile.R
 import com.pile.core.ui.theme.AppIcons
 import com.pile.core.ui.theme.ExtendedTheme
+import com.pile.core.ui.theme.PileTheme
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
+
+@Preview
+@Composable
+internal fun AlertEditPilePreview() {
+    PileTheme {
+        AlertEditPile(
+            pileModel = PileModel(
+                id = "1",
+                name = "Sample Piles",
+                iconId = "Bank",
+                colorNumber = 1L
+            ),
+            onDismiss = {},
+            onConfirm = { _, _, _ -> }
+        )
+    }
+}
 
 @Composable
 fun AlertNewPile(
@@ -105,7 +131,7 @@ private fun AlertNewEditPile(
                 pileIconId = pileIconId,
                 onUpdatePileName = { pileName = it },
                 onUpdatePileIcon = { pileIconId = it },
-                onUpdatePileColor = { pileColorNumber = it },
+                onUpdatePileColor = { pileColorNumber = it }
             )
         },
         confirmButton = {
@@ -136,29 +162,56 @@ private fun BodyAlertNewPile(
     pileIconId: String,
     onUpdatePileName: (name: String) -> Unit,
     onUpdatePileIcon: (iconId: String) -> Unit,
-    onUpdatePileColor: (colorNumber: Long) -> Unit,
+    onUpdatePileColor: (colorNumber: Long) -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    var hasRequestedFocus by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (!hasRequestedFocus) {
+            delay(100.milliseconds) // Prevents errors
+            focusRequester.requestFocus()
+            hasRequestedFocus = true
+        }
+    }
+
     Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.clickable(
+            indication = null,
+            interactionSource = remember { MutableInteractionSource() }
+        ) {
+            focusManager.clearFocus()
+        }
     ) {
+        var selectedMode by remember { mutableIntStateOf(0) }
+
         Row(
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             val foregroundColor =
-               ExtendedTheme.colors.customColorList.getOrNull(
+                ExtendedTheme.colors.customColorList.getOrNull(
                     pileColorNumber.toInt()
                 )?.onColorContainer
 
             Box(
-                Modifier
+                modifier = Modifier
                     .size(56.dp)
                     .clip(CircleShape)
                     .border(
                         width = 4.dp,
                         color = foregroundColor ?: MaterialTheme.colorScheme.surfaceVariant,
                         shape = CircleShape
-                    ),
+                    )
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        selectedMode = 1 - selectedMode
+                        focusManager.clearFocus()
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -175,6 +228,7 @@ private fun BodyAlertNewPile(
             OutlinedTextField(
                 value = pileName,
                 onValueChange = { onUpdatePileName(it) },
+                modifier = Modifier.focusRequester(focusRequester),
                 label = { Text(stringResource(R.string.pile_name)) },
                 trailingIcon = {
                     if (pileName.isNotEmpty()) {
@@ -191,8 +245,6 @@ private fun BodyAlertNewPile(
             )
         }
 
-        var selectedIndex by remember { mutableIntStateOf(0) }
-
         Row(
             horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
         ) {
@@ -200,8 +252,11 @@ private fun BodyAlertNewPile(
 
             options.forEachIndexed { index, label ->
                 ToggleButton(
-                    checked = selectedIndex == index,
-                    onCheckedChange = { selectedIndex = index },
+                    checked = selectedMode == index,
+                    onCheckedChange = {
+                        selectedMode = if (selectedMode == index) 1 - index else index
+                        focusManager.clearFocus()
+                    },
                     modifier = Modifier.semantics { role = Role.RadioButton },
                     shapes =
                         when (index) {
@@ -222,7 +277,7 @@ private fun BodyAlertNewPile(
                 .padding(16.dp)
         ) {
             val customColorList = ExtendedTheme.colors.customColorList
-            when (selectedIndex) {
+            when (selectedMode) {
                 0 -> {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(5),
@@ -231,7 +286,10 @@ private fun BodyAlertNewPile(
                     ) {
                         items(customColorList.size) { index ->
                             FilledIconButton(
-                                onClick = { onUpdatePileColor(index.toLong()) },
+                                onClick = {
+                                    onUpdatePileColor(index.toLong())
+                                    focusManager.clearFocus()
+                                },
                                 colors = IconButtonColors(
                                     containerColor = customColorList[index].onColorContainer,
                                     contentColor = Color.Red,
@@ -264,7 +322,10 @@ private fun BodyAlertNewPile(
                             val isColorful = pileIconId == iconList[index].id
 
                             FilledIconButton(
-                                onClick = { onUpdatePileIcon(iconList[index].id) },
+                                onClick = {
+                                    onUpdatePileIcon(iconList[index].id)
+                                    focusManager.clearFocus()
+                                },
                                 colors = IconButtonColors(
                                     containerColor = if (isColorful) customColorList[pileColorNumber.toInt()].onColorContainer else Color.Transparent,
                                     contentColor = Color.Red,
@@ -284,6 +345,5 @@ private fun BodyAlertNewPile(
                 }
             }
         }
-
     }
 }
