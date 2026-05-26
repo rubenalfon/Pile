@@ -7,7 +7,8 @@ import com.pile.core.domain.models.DocumentCoverItem
 
 data class PileDetailState(
     val pile: PileModel? = null,
-    val documentCoverItems: List<DocumentCoverItem> = emptyList()
+    val documentCoverItems: List<DocumentCoverItem> = emptyList(),
+    val isLoading: Boolean = true
 )
 
 sealed interface PileDetailEvent {

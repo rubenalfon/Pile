@@ -46,7 +46,13 @@ class PileDetailViewModel(
                     )
                 }
 
-                _state.update { it.copy(pile = pile, documentCoverItems = documentCoverItems) }
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        pile = pile,
+                        documentCoverItems = documentCoverItems
+                    )
+                }
             }.collect()
         }
     }
