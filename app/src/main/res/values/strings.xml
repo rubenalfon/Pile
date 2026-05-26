@@ -28,6 +28,10 @@
     <string name="date">Date</string>
     <string name="ok">OK</string>
     <string name="clear">Clear</string>
+    <string name="select">Select</string>
+    <string name="selected_">Selected</string>
+    <string name="keep_editing">Keep editing</string>
+    <string name="discard">Discard</string>
 
 
     <string name="new_pile">New Pile</string>
@@ -53,7 +57,7 @@
     <string name="save_changes_in_document_section_name">Save changes in document section %1$s</string>
 
     <string name="add_a_note">Add a note…</string>
-    <string name="no_piles_in_document">No piles found in this document.</string>
+    <string name="no_piles_in_document">No piles selected</string>
     <string name="no_document_details">No document details</string>
     <string name="add_a_detail">Add a detail</string>
     <string name="detail_hint_title">Detail</string>
@@ -62,12 +66,19 @@
     <string name="move_down_detail">Move down detail</string>
     <string name="detail_deleted">Detail deleted</string>
     <string name="delete_detail">Delete detail</string>
+    <string name="no_piles_saved">It looks like there aren\'t any saved piles yet!</string>
 
 
-    <string name="document_no_name_error">Añade un nombre al documento.</string>
-
+    <string name="document_no_name_error">add a name to your document.</string>
     <string name="error_saving_document">Error saving document</string>
     <string name="error_opening_files_explorer">Error opening files explorer</string>
+    <string name="error_importing_images">Error importing images</string>
+    <string name="error_importing_pdf">Error importing the PDF</string>
+    <string name="error_restoring_draft_document">Error restoring draft document</string>
+    <string name="error_exporting_pdf">Error exporting the PDF</string>
+
+    <string name="exporting_document">Exporting document</string>
+    <string name="pdf_exported_successfully">PDF exported successfully</string>
 
     <string name="piles">Piles</string>
     <string name="note">Note</string>
@@ -81,23 +92,27 @@
 
 
     <string name="preview">Preview</string>
-    <string name="edit_image_colors">Edit Image Colors</string>
-    <string name="resize_image">Resize Image</string>
-    <string name="delete_image">Delete Image</string>
-    <string name="add_image">Add Image</string>
+    <string name="edit_image_colors">Edit image colors</string>
+    <string name="resize_image">Resize image</string>
+    <string name="delete_image">Delete image</string>
+    <string name="image_deleted">Image deleted</string>
+    <string name="add_image">Add image</string>
     <string name="image_number">Image number %1$d</string>
     <string name="delete_image_body">Are you sure you want to delete this image?</string>
     <string name="save_changes">Save changes</string>
+    <string name="adding_images">Adding new images</string>
 
     <string name="document_first_image">Document first image</string>
     <string name="document_name">Document name</string>
 
     <string name="rotate_image_counterclockwise">Rotate image counterclockwise</string>
     <string name="reset_image_crop">Reset image crop</string>
+    <string name="error_loading_crop_controller">Error loading crop editor</string>
 
     <string name="close_pile_selection_bottom_sheet">Close pile selection bottom sheet</string>
 
-
+    <string name="discard_changes">Discard changes?</string>
+    <string name="discard_changes_body">Your changes are not saved</string>
 
 
     <string name="expanded">Expanded</string>
@@ -112,9 +127,33 @@
 
 
     <string name="no_images_found">No images were found.</string>
-    <string name="no_pdf_found">No pdf was found.</string>
+    <string name="no_pdf_found">No PDF was found.</string>
     <string name="error_creating_pdf">Error creating PDF</string>
-    <string name="error_importing_pdf">Error importing PDF</string>
+
+
+    <string name="appearance">Appearance</string>
+    <string name="artificial_intelligence">Artificial intelligence</string>
+    <string name="resolution">Resolution</string>
+
+    <string name="theme">Theme</string>
+    <string name="select_theme">Select theme</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="system_default">System default</string>
+
+    <string name="use_system_theme_color">Use system theme color</string>
+
+    <string name="activate_local_ai_tittle">Activate local AI features</string>
+    <string name="activate_local_ai_body">Use AI in device to extract data from your documents.</string>
+    <string name="select_language_model">Select language model</string>
+    <string name="no_model_selected">No model selected</string>
+
+    <string name="document_resolution">Document resolution</string>
+    <string name="original_quality_tittle">Original quality</string>
+    <string name="original_quality_body">Save the original images in your documents.</string>
+    <string name="storage_saver_tittle">Storage saver</string>
+    <string name="storage_saver_body">Save additional files at a slightly lower quality. Imported PDFs will retain their original quality</string>
+
 
     <!--    <string name=""></string>-->
 </resources>

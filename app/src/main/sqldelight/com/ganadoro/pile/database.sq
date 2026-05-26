@@ -1,6 +1,6 @@
-import com.ganadoro.pile.domain.models.DocumentDetail;
-import com.ganadoro.pile.domain.models.DocumentStatus;
-import com.ganadoro.pile.domain.models.ImageCropData;
+import com.ganadoro.pile.core.domain.models.DocumentDetail;
+import com.ganadoro.pile.core.domain.models.DocumentStatus;
+import com.ganadoro.pile.core.domain.models.ImageCropData;
 import java.time.LocalDateTime;
 import kotlin.Boolean;
 import kotlin.String;

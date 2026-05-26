@@ -1,0 +1,280 @@
+package com.ganadoro.pile.features.addDocument.ui
+
+import android.graphics.Bitmap
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.IconButtonDefaults.smallContainerSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumFloatingActionButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ganadoro.pile.R
+import com.ganadoro.pile.core.ui.composables.AlertNewPile
+import com.ganadoro.pile.core.ui.composables.KeyboardAware
+import com.ganadoro.pile.core.ui.composables.LoadingWrapper
+import com.ganadoro.pile.core.ui.composables.itemPileGrid
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun AddDocumentScreen(
+    modifier: Modifier = Modifier,
+    documentId: String,
+    popBackStack: () -> Unit,
+    navigateToDocumentDetail: (String) -> Unit,
+    viewModel: AddDocumentViewModel = koinViewModel { parametersOf(documentId) }
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect {
+            navigateToDocumentDetail(documentId)
+        }
+    }
+
+    var isNewPileAlertExpanded by rememberSaveable { mutableStateOf(false) }
+
+    KeyboardAware {
+        Scaffold(
+            modifier = modifier,
+            containerColor = MaterialTheme.colorScheme.surface,
+            topBar = {
+                ScreenTopAppBar(popBackStack = popBackStack)
+            },
+            floatingActionButton = {
+                MediumFloatingActionButton(
+                    onClick = { viewModel.handleEvent(AddDocumentEvent.OnSaveDocument) },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.check_24px),
+                        contentDescription = stringResource(R.string.add_document)
+                    )
+                }
+            }
+        ) { innerPadding ->
+            LoadingWrapper(
+                state.documentModel == null || state.allPileModels == null
+            ) {
+                var availableWidth by remember { mutableStateOf(0.dp) }
+                val density = LocalDensity.current
+
+                val colorScheme = MaterialTheme.colorScheme
+                val layoutDirection = LocalLayoutDirection.current
+
+                Box(
+                    Modifier
+                        .padding(
+                            top = innerPadding.calculateTopPadding(),
+                            start = innerPadding.calculateStartPadding(layoutDirection),
+                            end = innerPadding.calculateEndPadding(layoutDirection)
+                        )
+                        .fillMaxSize()
+                        .background(colorScheme.surfaceContainer)
+                ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(bottom = innerPadding.calculateBottomPadding())
+                            .background(colorScheme.surface)
+                            .onGloballyPositioned { coordinates ->
+                                val widthPx = coordinates.size.width
+                                availableWidth = with(density) { widthPx.toDp() }.value.dp
+                            },
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .size(200.dp)
+                                    .clip(RoundedCornerShape(28.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                            ) {
+                                val imageId = state.coverImageCacheKey
+                                val cachedBitmap: Bitmap? = bitmapCache[imageId]
+
+                                if (cachedBitmap == null) {
+                                    LaunchedEffect(key1 = imageId) {
+                                        viewModel.handleEvent(AddDocumentEvent.OnImageVisible)
+                                    }
+                                }
+
+                                LoadingWrapper(cachedBitmap == null) {
+                                    if (cachedBitmap == null) return@LoadingWrapper
+                                    Image(
+                                        bitmap = cachedBitmap.asImageBitmap(),
+                                        contentDescription = stringResource(R.string.document_first_image),
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                            }
+                        }
+
+                        item { Spacer(Modifier.height(16.dp)) }
+
+                        item {
+                            OutlinedTextField(
+                                value = state.documentName,
+                                onValueChange = { viewModel.handleEvent(AddDocumentEvent.OnNameChanged(it)) },
+                                label = { Text(stringResource(R.string.document_name)) },
+                                trailingIcon = {
+                                    if (state.documentName.isNotEmpty()) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = stringResource(R.string.delete_text),
+                                            modifier = Modifier.clickable {
+                                                viewModel.handleEvent(AddDocumentEvent.OnNameChanged(""))
+                                            })
+                                    }
+                                },
+                                singleLine = true,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp),
+                                isError = state.noDocumentNameError,
+                                supportingText = {
+                                    AnimatedVisibility(
+                                        visible = state.noDocumentNameError,
+                                        enter = fadeIn() + expandVertically(),
+                                        exit = fadeOut() + shrinkVertically()
+                                    ) {
+                                        Text(stringResource(R.string.document_no_name_error))
+                                    }
+                                },
+                                keyboardOptions = KeyboardOptions(
+                                    capitalization = KeyboardCapitalization.Sentences
+                                )
+                            )
+                        }
+
+                        item { Spacer(Modifier.height(16.dp)) }
+
+                        item {
+                            Text(
+                                text = stringResource(R.string.add_to_piles),
+                                style = MaterialTheme.typography.headlineSmall,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                                    .background(colorScheme.surfaceContainer)
+                                    .padding(top = 16.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
+                            )
+                        }
+
+                        itemPileGrid(
+                            availableWidth = availableWidth,
+                            piles = state.allPileModels!!,
+                            onPileClick = { pileId ->
+                                viewModel.handleEvent(AddDocumentEvent.OnAddPile(pileId))
+                            },
+                            onNewPileClick = { isNewPileAlertExpanded = true },
+                            coloredPileIds = state.documentModel?.documentPileIds ?: emptyList(),
+                            backgroundColor = colorScheme.surfaceContainer
+                        )
+
+                        item {
+                            Box(
+                                Modifier
+                                    .height(104.dp)
+                                    .fillMaxWidth()
+                                    .background(colorScheme.surfaceContainer)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (isNewPileAlertExpanded) {
+        AlertNewPile(
+            onDismiss = { isNewPileAlertExpanded = false },
+            onConfirm = { pileName, pileIconId, pileColorNumber ->
+                isNewPileAlertExpanded = false
+                viewModel.handleEvent(AddDocumentEvent.OnCreateNewPile(pileName, pileIconId, pileColorNumber))
+            }
+        )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+private fun ScreenTopAppBar(
+    modifier: Modifier = Modifier,
+    popBackStack: () -> Unit,
+) {
+    TopAppBar(
+        modifier = modifier,
+        title = {
+            Text(stringResource(R.string.add_document))
+        },
+        navigationIcon = {
+            FilledIconButton(
+                modifier = Modifier
+                    .padding(start = 14.dp, end = 4.dp)
+                    .size(smallContainerSize(IconButtonDefaults.IconButtonWidthOption.Wide)),
+                onClick = popBackStack
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.arrow_back_24px),
+                    contentDescription = stringResource(R.string.return_)
+                )
+            }
+        },
+        colors = topAppBarColors(
+            containerColor = Color.Transparent
+        )
+    )
+}

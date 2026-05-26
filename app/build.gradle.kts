@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.sqlDelight)
     alias(libs.plugins.kotlinx.serialization)
@@ -13,12 +12,12 @@ kotlin {
 
 android {
     namespace = "com.ganadoro.pile"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.ganadoro.pile"
         minSdk = 29
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -46,6 +45,12 @@ android {
 }
 
 dependencies {
+    // DataStore
+    implementation(libs.androidx.datastore)
+
+    //Work manager
+    implementation(libs.androidx.work.runtime.ktx)
+
     // Navigation 3
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
@@ -87,6 +92,7 @@ dependencies {
     // Koin
     implementation(libs.koin.core)
     implementation(libs.koin.android)
+    implementation(libs.koin.workmanager)
     implementation(libs.koin.compose)
 
     // SQL Delight Driver and Extension
