@@ -22,7 +22,7 @@ sealed interface SearchBarEvent {
     data object OnSearch : SearchBarEvent
     data object OnCloseSearch : SearchBarEvent
     data class OnImageDisplayed(val document: DocumentModel) : SearchBarEvent
-    data class OnSearchQueryChanged(val query: String) : SearchBarEvent
-    data class OnFilterPilesChanged(val pileId: String) : SearchBarEvent
-    data class OnFilterDateChanged(val date: LocalDate?) : SearchBarEvent
+    data class OnUpdateSearchQuery(val query: String) : SearchBarEvent
+    data class OnUpdateFilterPiles(val pileId: String) : SearchBarEvent
+    data class OnUpdateFilterDate(val date: LocalDate?) : SearchBarEvent
 }

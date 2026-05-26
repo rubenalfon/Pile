@@ -46,9 +46,9 @@ class SearchBarViewModel(
             SearchBarEvent.OnCloseSearch -> resetSearch()
             is SearchBarEvent.OnImageDisplayed -> requestBitmapLoad(event.document)
 
-            is SearchBarEvent.OnSearchQueryChanged -> updateSearchQuery(event.query)
-            is SearchBarEvent.OnFilterPilesChanged -> addRemoveFilterPiles(event.pileId)
-            is SearchBarEvent.OnFilterDateChanged -> updateFilterDate(event.date)
+            is SearchBarEvent.OnUpdateSearchQuery -> updateSearchQuery(event.query)
+            is SearchBarEvent.OnUpdateFilterPiles -> addRemoveFilterPiles(event.pileId)
+            is SearchBarEvent.OnUpdateFilterDate -> updateFilterDate(event.date)
         }
     }
 

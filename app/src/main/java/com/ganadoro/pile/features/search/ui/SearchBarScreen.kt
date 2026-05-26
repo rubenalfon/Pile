@@ -116,7 +116,7 @@ fun SearchBarScreen(
 
             SearchInputField(
                 searchQuery = state.searchQuery,
-                onQueryChange = { viewModel.handleEvent(SearchBarEvent.OnSearchQueryChanged(it)) },
+                onQueryChange = { viewModel.handleEvent(SearchBarEvent.OnUpdateSearchQuery(it)) },
                 onSearch = { viewModel.handleEvent(SearchBarEvent.OnSearch) },
                 expanded = expanded,
                 onExpandedChange = { onExpandedChange(it) },
@@ -181,14 +181,14 @@ fun SearchBarScreen(
             pileList = state.pileList,
             selectedFilterPiles = state.selectedFilterPiles,
             onDismissBottomSheet = { showFilterPilesBottomSheet = false },
-            onPileClick = { viewModel.handleEvent(SearchBarEvent.OnFilterPilesChanged(it)) }
+            onPileClick = { viewModel.handleEvent(SearchBarEvent.OnUpdateFilterPiles(it)) }
         )
     }
 
 
     if (showFilterDateAlert) {
         FilterDateAlert(
-            onDateSelected = { viewModel.handleEvent(SearchBarEvent.OnFilterDateChanged(it)) },
+            onDateSelected = { viewModel.handleEvent(SearchBarEvent.OnUpdateFilterDate(it)) },
             selectedFilterDate = state.selectedFilterDate,
             documentList = state.documentList,
             onDismiss = { showFilterDateAlert = false }
