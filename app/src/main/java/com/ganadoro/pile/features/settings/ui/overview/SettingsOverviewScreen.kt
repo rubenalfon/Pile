@@ -114,13 +114,13 @@ fun SettingsOverviewContent(
                     onAppThemeChange = { showAppThemeDialog = true },
                     onMaterialColorToggle = { onEvent(SettingsOverviewEvent.OnMaterialColorToggled) }
                 )
-
-                AISection(
-                    isLocalAiEnabled = state.isLocalAiEnabled,
-                    selectedModel = state.selectedModel,
-                    onToggleLocalAi = { onEvent(SettingsOverviewEvent.OnLocalAiToggled) },
-                    onSelectLanguageModel = { /*todo Navigate*/ }
-                )
+//                  todo implement AI
+//                AISection(
+//                    isLocalAiEnabled = state.isLocalAiEnabled,
+//                    selectedModel = state.selectedModel,
+//                    onToggleLocalAi = { onEvent(SettingsOverviewEvent.OnLocalAiToggled) },
+//                    onSelectLanguageModel = { }
+//                )
 
                 ResolutionSection(
                     imageResolution = state.imageResolution,
