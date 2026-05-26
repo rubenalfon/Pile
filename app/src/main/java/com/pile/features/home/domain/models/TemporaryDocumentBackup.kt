@@ -1,0 +1,12 @@
+package com.pile.features.home.domain.models
+
+import com.pile.DocumentImage
+import com.pile.DocumentModel
+
+/**
+ * Data class representing a snapshot of a deleted document for restoration purposes.
+ */
+data class TemporaryDocumentBackup(
+    val document: DocumentModel,
+    val images: List<DocumentImage>
+)

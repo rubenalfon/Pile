@@ -1,0 +1,547 @@
+package com.pile.core.ui.theme
+
+
+import android.os.Build
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+
+@Immutable
+data class ExtendedColorScheme(
+    val customColorList: List<ColorFamily> = emptyList()
+)
+
+private val lightScheme = lightColorScheme(
+    primary = primaryLight,
+    onPrimary = onPrimaryLight,
+    primaryContainer = primaryContainerLight,
+    onPrimaryContainer = onPrimaryContainerLight,
+    secondary = secondaryLight,
+    onSecondary = onSecondaryLight,
+    secondaryContainer = secondaryContainerLight,
+    onSecondaryContainer = onSecondaryContainerLight,
+    tertiary = tertiaryLight,
+    onTertiary = onTertiaryLight,
+    tertiaryContainer = tertiaryContainerLight,
+    onTertiaryContainer = onTertiaryContainerLight,
+    error = errorLight,
+    onError = onErrorLight,
+    errorContainer = errorContainerLight,
+    onErrorContainer = onErrorContainerLight,
+    background = backgroundLight,
+    onBackground = onBackgroundLight,
+    surface = surfaceLight,
+    onSurface = onSurfaceLight,
+    surfaceVariant = surfaceVariantLight,
+    onSurfaceVariant = onSurfaceVariantLight,
+    outline = outlineLight,
+    outlineVariant = outlineVariantLight,
+    scrim = scrimLight,
+    inverseSurface = inverseSurfaceLight,
+    inverseOnSurface = inverseOnSurfaceLight,
+    inversePrimary = inversePrimaryLight,
+    surfaceDim = surfaceDimLight,
+    surfaceBright = surfaceBrightLight,
+    surfaceContainerLowest = surfaceContainerLowestLight,
+    surfaceContainerLow = surfaceContainerLowLight,
+    surfaceContainer = surfaceContainerLight,
+    surfaceContainerHigh = surfaceContainerHighLight,
+    surfaceContainerHighest = surfaceContainerHighestLight,
+)
+
+private val darkScheme = darkColorScheme(
+    primary = primaryDark,
+    onPrimary = onPrimaryDark,
+    primaryContainer = primaryContainerDark,
+    onPrimaryContainer = onPrimaryContainerDark,
+    secondary = secondaryDark,
+    onSecondary = onSecondaryDark,
+    secondaryContainer = secondaryContainerDark,
+    onSecondaryContainer = onSecondaryContainerDark,
+    tertiary = tertiaryDark,
+    onTertiary = onTertiaryDark,
+    tertiaryContainer = tertiaryContainerDark,
+    onTertiaryContainer = onTertiaryContainerDark,
+    error = errorDark,
+    onError = onErrorDark,
+    errorContainer = errorContainerDark,
+    onErrorContainer = onErrorContainerDark,
+    background = backgroundDark,
+    onBackground = onBackgroundDark,
+    surface = surfaceDark,
+    onSurface = onSurfaceDark,
+    surfaceVariant = surfaceVariantDark,
+    onSurfaceVariant = onSurfaceVariantDark,
+    outline = outlineDark,
+    outlineVariant = outlineVariantDark,
+    scrim = scrimDark,
+    inverseSurface = inverseSurfaceDark,
+    inverseOnSurface = inverseOnSurfaceDark,
+    inversePrimary = inversePrimaryDark,
+    surfaceDim = surfaceDimDark,
+    surfaceBright = surfaceBrightDark,
+    surfaceContainerLowest = surfaceContainerLowestDark,
+    surfaceContainerLow = surfaceContainerLowDark,
+    surfaceContainer = surfaceContainerDark,
+    surfaceContainerHigh = surfaceContainerHighDark,
+    surfaceContainerHighest = surfaceContainerHighestDark,
+)
+
+private val mediumContrastLightColorScheme = lightColorScheme(
+    primary = primaryLightMediumContrast,
+    onPrimary = onPrimaryLightMediumContrast,
+    primaryContainer = primaryContainerLightMediumContrast,
+    onPrimaryContainer = onPrimaryContainerLightMediumContrast,
+    secondary = secondaryLightMediumContrast,
+    onSecondary = onSecondaryLightMediumContrast,
+    secondaryContainer = secondaryContainerLightMediumContrast,
+    onSecondaryContainer = onSecondaryContainerLightMediumContrast,
+    tertiary = tertiaryLightMediumContrast,
+    onTertiary = onTertiaryLightMediumContrast,
+    tertiaryContainer = tertiaryContainerLightMediumContrast,
+    onTertiaryContainer = onTertiaryContainerLightMediumContrast,
+    error = errorLightMediumContrast,
+    onError = onErrorLightMediumContrast,
+    errorContainer = errorContainerLightMediumContrast,
+    onErrorContainer = onErrorContainerLightMediumContrast,
+    background = backgroundLightMediumContrast,
+    onBackground = onBackgroundLightMediumContrast,
+    surface = surfaceLightMediumContrast,
+    onSurface = onSurfaceLightMediumContrast,
+    surfaceVariant = surfaceVariantLightMediumContrast,
+    onSurfaceVariant = onSurfaceVariantLightMediumContrast,
+    outline = outlineLightMediumContrast,
+    outlineVariant = outlineVariantLightMediumContrast,
+    scrim = scrimLightMediumContrast,
+    inverseSurface = inverseSurfaceLightMediumContrast,
+    inverseOnSurface = inverseOnSurfaceLightMediumContrast,
+    inversePrimary = inversePrimaryLightMediumContrast,
+    surfaceDim = surfaceDimLightMediumContrast,
+    surfaceBright = surfaceBrightLightMediumContrast,
+    surfaceContainerLowest = surfaceContainerLowestLightMediumContrast,
+    surfaceContainerLow = surfaceContainerLowLightMediumContrast,
+    surfaceContainer = surfaceContainerLightMediumContrast,
+    surfaceContainerHigh = surfaceContainerHighLightMediumContrast,
+    surfaceContainerHighest = surfaceContainerHighestLightMediumContrast,
+)
+
+private val highContrastLightColorScheme = lightColorScheme(
+    primary = primaryLightHighContrast,
+    onPrimary = onPrimaryLightHighContrast,
+    primaryContainer = primaryContainerLightHighContrast,
+    onPrimaryContainer = onPrimaryContainerLightHighContrast,
+    secondary = secondaryLightHighContrast,
+    onSecondary = onSecondaryLightHighContrast,
+    secondaryContainer = secondaryContainerLightHighContrast,
+    onSecondaryContainer = onSecondaryContainerLightHighContrast,
+    tertiary = tertiaryLightHighContrast,
+    onTertiary = onTertiaryLightHighContrast,
+    tertiaryContainer = tertiaryContainerLightHighContrast,
+    onTertiaryContainer = onTertiaryContainerLightHighContrast,
+    error = errorLightHighContrast,
+    onError = onErrorLightHighContrast,
+    errorContainer = errorContainerLightHighContrast,
+    onErrorContainer = onErrorContainerLightHighContrast,
+    background = backgroundLightHighContrast,
+    onBackground = onBackgroundLightHighContrast,
+    surface = surfaceLightHighContrast,
+    onSurface = onSurfaceLightHighContrast,
+    surfaceVariant = surfaceVariantLightHighContrast,
+    onSurfaceVariant = onSurfaceVariantLightHighContrast,
+    outline = outlineLightHighContrast,
+    outlineVariant = outlineVariantLightHighContrast,
+    scrim = scrimLightHighContrast,
+    inverseSurface = inverseSurfaceLightHighContrast,
+    inverseOnSurface = inverseOnSurfaceLightHighContrast,
+    inversePrimary = inversePrimaryLightHighContrast,
+    surfaceDim = surfaceDimLightHighContrast,
+    surfaceBright = surfaceBrightLightHighContrast,
+    surfaceContainerLowest = surfaceContainerLowestLightHighContrast,
+    surfaceContainerLow = surfaceContainerLowLightHighContrast,
+    surfaceContainer = surfaceContainerLightHighContrast,
+    surfaceContainerHigh = surfaceContainerHighLightHighContrast,
+    surfaceContainerHighest = surfaceContainerHighestLightHighContrast,
+)
+
+private val mediumContrastDarkColorScheme = darkColorScheme(
+    primary = primaryDarkMediumContrast,
+    onPrimary = onPrimaryDarkMediumContrast,
+    primaryContainer = primaryContainerDarkMediumContrast,
+    onPrimaryContainer = onPrimaryContainerDarkMediumContrast,
+    secondary = secondaryDarkMediumContrast,
+    onSecondary = onSecondaryDarkMediumContrast,
+    secondaryContainer = secondaryContainerDarkMediumContrast,
+    onSecondaryContainer = onSecondaryContainerDarkMediumContrast,
+    tertiary = tertiaryDarkMediumContrast,
+    onTertiary = onTertiaryDarkMediumContrast,
+    tertiaryContainer = tertiaryContainerDarkMediumContrast,
+    onTertiaryContainer = onTertiaryContainerDarkMediumContrast,
+    error = errorDarkMediumContrast,
+    onError = onErrorDarkMediumContrast,
+    errorContainer = errorContainerDarkMediumContrast,
+    onErrorContainer = onErrorContainerDarkMediumContrast,
+    background = backgroundDarkMediumContrast,
+    onBackground = onBackgroundDarkMediumContrast,
+    surface = surfaceDarkMediumContrast,
+    onSurface = onSurfaceDarkMediumContrast,
+    surfaceVariant = surfaceVariantDarkMediumContrast,
+    onSurfaceVariant = onSurfaceVariantDarkMediumContrast,
+    outline = outlineDarkMediumContrast,
+    outlineVariant = outlineVariantDarkMediumContrast,
+    scrim = scrimDarkMediumContrast,
+    inverseSurface = inverseSurfaceDarkMediumContrast,
+    inverseOnSurface = inverseOnSurfaceDarkMediumContrast,
+    inversePrimary = inversePrimaryDarkMediumContrast,
+    surfaceDim = surfaceDimDarkMediumContrast,
+    surfaceBright = surfaceBrightDarkMediumContrast,
+    surfaceContainerLowest = surfaceContainerLowestDarkMediumContrast,
+    surfaceContainerLow = surfaceContainerLowDarkMediumContrast,
+    surfaceContainer = surfaceContainerDarkMediumContrast,
+    surfaceContainerHigh = surfaceContainerHighDarkMediumContrast,
+    surfaceContainerHighest = surfaceContainerHighestDarkMediumContrast,
+)
+
+private val highContrastDarkColorScheme = darkColorScheme(
+    primary = primaryDarkHighContrast,
+    onPrimary = onPrimaryDarkHighContrast,
+    primaryContainer = primaryContainerDarkHighContrast,
+    onPrimaryContainer = onPrimaryContainerDarkHighContrast,
+    secondary = secondaryDarkHighContrast,
+    onSecondary = onSecondaryDarkHighContrast,
+    secondaryContainer = secondaryContainerDarkHighContrast,
+    onSecondaryContainer = onSecondaryContainerDarkHighContrast,
+    tertiary = tertiaryDarkHighContrast,
+    onTertiary = onTertiaryDarkHighContrast,
+    tertiaryContainer = tertiaryContainerDarkHighContrast,
+    onTertiaryContainer = onTertiaryContainerDarkHighContrast,
+    error = errorDarkHighContrast,
+    onError = onErrorDarkHighContrast,
+    errorContainer = errorContainerDarkHighContrast,
+    onErrorContainer = onErrorContainerDarkHighContrast,
+    background = backgroundDarkHighContrast,
+    onBackground = onBackgroundDarkHighContrast,
+    surface = surfaceDarkHighContrast,
+    onSurface = onSurfaceDarkHighContrast,
+    surfaceVariant = surfaceVariantDarkHighContrast,
+    onSurfaceVariant = onSurfaceVariantDarkHighContrast,
+    outline = outlineDarkHighContrast,
+    outlineVariant = outlineVariantDarkHighContrast,
+    scrim = scrimDarkHighContrast,
+    inverseSurface = inverseSurfaceDarkHighContrast,
+    inverseOnSurface = inverseOnSurfaceDarkHighContrast,
+    inversePrimary = inversePrimaryDarkHighContrast,
+    surfaceDim = surfaceDimDarkHighContrast,
+    surfaceBright = surfaceBrightDarkHighContrast,
+    surfaceContainerLowest = surfaceContainerLowestDarkHighContrast,
+    surfaceContainerLow = surfaceContainerLowDarkHighContrast,
+    surfaceContainer = surfaceContainerDarkHighContrast,
+    surfaceContainerHigh = surfaceContainerHighDarkHighContrast,
+    surfaceContainerHighest = surfaceContainerHighestDarkHighContrast,
+)
+
+val extendedLight = ExtendedColorScheme(
+    customColorList = listOf(
+
+        ColorFamily(
+            customColor1ContainerLight,
+            onCustomColor1ContainerLight,
+        ),
+        ColorFamily(
+            customColor2ContainerLight,
+            onCustomColor2ContainerLight,
+        ),
+        ColorFamily(
+            customColor3ContainerLight,
+            onCustomColor3ContainerLight,
+        ),
+        ColorFamily(
+            customColor4ContainerLight,
+            onCustomColor4ContainerLight,
+        ),
+        ColorFamily(
+            customColor5ContainerLight,
+            onCustomColor5ContainerLight,
+        ),
+        ColorFamily(
+            customColor6ContainerLight,
+            onCustomColor6ContainerLight,
+        ),
+        ColorFamily(
+            customColor7ContainerLight,
+            onCustomColor7ContainerLight,
+        ),
+        ColorFamily(
+            customColor8ContainerLight,
+            onCustomColor8ContainerLight,
+        ),
+        ColorFamily(
+            customColor9ContainerLight,
+            onCustomColor9ContainerLight,
+        ),
+        ColorFamily(
+            customColor10ContainerLight,
+            onCustomColor10ContainerLight,
+        ),
+        ColorFamily(
+            customColor11ContainerLight,
+            onCustomColor11ContainerLight,
+        ),
+        ColorFamily(
+            customColor12ContainerLight,
+            onCustomColor12ContainerLight,
+        ),
+        ColorFamily(
+            customColor13ContainerLight,
+            onCustomColor13ContainerLight,
+        ),
+        ColorFamily(
+            customColor14ContainerLight,
+            onCustomColor14ContainerLight,
+        ),
+        ColorFamily(
+            customColor15ContainerLight,
+            onCustomColor15ContainerLight,
+        ),
+        ColorFamily(
+            customColor16ContainerLight,
+            onCustomColor16ContainerLight,
+        ),
+        ColorFamily(
+            customColor17ContainerLight,
+            onCustomColor17ContainerLight,
+        ),
+        ColorFamily(
+            customColor18ContainerLight,
+            onCustomColor18ContainerLight,
+        ),
+        ColorFamily(
+            customColor19ContainerLight,
+            onCustomColor19ContainerLight,
+        ),
+        ColorFamily(
+            customColor20ContainerLight,
+            onCustomColor20ContainerLight,
+        ),
+        ColorFamily(
+            customColor21ContainerLight,
+            onCustomColor21ContainerLight,
+        ),
+        ColorFamily(
+            customColor22ContainerLight,
+            onCustomColor22ContainerLight,
+        ),
+        ColorFamily(
+            customColor23ContainerLight,
+            onCustomColor23ContainerLight,
+        ),
+        ColorFamily(
+            customColor24ContainerLight,
+            onCustomColor24ContainerLight,
+        ),
+        ColorFamily(
+            customColor25ContainerLight,
+            onCustomColor25ContainerLight,
+        ),
+        ColorFamily(
+            customColor26ContainerLight,
+            onCustomColor26ContainerLight,
+        ),
+        ColorFamily(
+            customColor27ContainerLight,
+            onCustomColor27ContainerLight,
+        ),
+        ColorFamily(
+            customColor28ContainerLight,
+            onCustomColor28ContainerLight,
+        ),
+        ColorFamily(
+            customColor29ContainerLight,
+            onCustomColor29ContainerLight,
+        ),
+        ColorFamily(
+            customColor30ContainerLight,
+            onCustomColor30ContainerLight,
+        )
+    )
+)
+
+val extendedDark = ExtendedColorScheme(
+    customColorList = listOf(
+        ColorFamily(
+            customColor1ContainerDark,
+            onCustomColor1ContainerDark
+        ),
+        ColorFamily(
+            customColor2ContainerDark,
+            onCustomColor2ContainerDark
+        ),
+        ColorFamily(
+            customColor3ContainerDark,
+            onCustomColor3ContainerDark,
+        ),
+        ColorFamily(
+            customColor4ContainerDark,
+            onCustomColor4ContainerDark,
+        ),
+        ColorFamily(
+            customColor5ContainerDark,
+            onCustomColor5ContainerDark,
+        ),
+        ColorFamily(
+            customColor6ContainerDark,
+            onCustomColor6ContainerDark,
+        ),
+        ColorFamily(
+            customColor7ContainerDark,
+            onCustomColor7ContainerDark,
+        ),
+        ColorFamily(
+            customColor8ContainerDark,
+            onCustomColor8ContainerDark,
+        ),
+        ColorFamily(
+            customColor9ContainerDark,
+            onCustomColor9ContainerDark,
+        ),
+        ColorFamily(
+            customColor10ContainerDark,
+            onCustomColor10ContainerDark,
+        ),
+        ColorFamily(
+            customColor11ContainerDark,
+            onCustomColor11ContainerDark,
+        ),
+        ColorFamily(
+            customColor12ContainerDark,
+            onCustomColor12ContainerDark,
+        ),
+        ColorFamily(
+            customColor13ContainerDark,
+            onCustomColor13ContainerDark,
+        ),
+        ColorFamily(
+            customColor14ContainerDark,
+            onCustomColor14ContainerDark,
+        ),
+        ColorFamily(
+            customColor15ContainerDark,
+            onCustomColor15ContainerDark,
+        ),
+        ColorFamily(
+            customColor16ContainerDark,
+            onCustomColor16ContainerDark,
+        ),
+        ColorFamily(
+            customColor17ContainerDark,
+            onCustomColor17ContainerDark,
+        ),
+        ColorFamily(
+            customColor18ContainerDark,
+            onCustomColor18ContainerDark,
+        ),
+        ColorFamily(
+            customColor19ContainerDark,
+            onCustomColor19ContainerDark,
+        ),
+        ColorFamily(
+            customColor20ContainerDark,
+            onCustomColor20ContainerDark,
+        ),
+        ColorFamily(
+            customColor21ContainerDark,
+            onCustomColor21ContainerDark,
+        ),
+        ColorFamily(
+            customColor22ContainerDark,
+            onCustomColor22ContainerDark,
+        ),
+        ColorFamily(
+            customColor23ContainerDark,
+            onCustomColor23ContainerDark,
+        ),
+        ColorFamily(
+            customColor24ContainerDark,
+            onCustomColor24ContainerDark,
+        ),
+        ColorFamily(
+            customColor25ContainerDark,
+            onCustomColor25ContainerDark,
+        ),
+        ColorFamily(
+            customColor26ContainerDark,
+            onCustomColor26ContainerDark,
+        ),
+        ColorFamily(
+            customColor27ContainerDark,
+            onCustomColor27ContainerDark,
+        ),
+        ColorFamily(
+            customColor28ContainerDark,
+            onCustomColor28ContainerDark,
+        ),
+        ColorFamily(
+            customColor29ContainerDark,
+            onCustomColor29ContainerDark,
+        ),
+        ColorFamily(
+            customColor30ContainerDark,
+            onCustomColor30ContainerDark,
+        )
+    )
+)
+
+@Immutable
+data class ColorFamily(
+    val colorContainer: Color,
+    val onColorContainer: Color
+)
+
+private val LocalExtendedColorScheme = staticCompositionLocalOf<ExtendedColorScheme> {
+    error("No ExtendedColorScheme provided")
+}
+
+@Composable
+fun PileTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
+    content: @Composable() () -> Unit
+) {
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+
+        darkTheme -> darkScheme
+        else -> lightScheme
+    }
+
+    val extendedColors = if (darkTheme) extendedDark else extendedLight
+
+    CompositionLocalProvider(
+        LocalExtendedColorScheme provides extendedColors
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            content = content
+        )
+    }
+}
+
+
+object ExtendedTheme {
+    val colors: ExtendedColorScheme
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalExtendedColorScheme.current
+}

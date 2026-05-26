@@ -11,11 +11,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.ganadoro.pile"
+    namespace = "com.pile"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.ganadoro.pile"
+        applicationId = "com.pile"
         minSdk = 29
         targetSdk = 37
         versionCode = 1
@@ -122,7 +122,7 @@ dependencies {
 sqldelight {
     databases {
         create("Database") {
-            packageName.set("com.ganadoro.pile")
+            packageName.set("com.pile")
         }
     }
 }
