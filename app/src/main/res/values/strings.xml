@@ -70,12 +70,15 @@
 
 
     <string name="document_no_name_error">add a name to your document.</string>
-
     <string name="error_saving_document">Error saving document</string>
     <string name="error_opening_files_explorer">Error opening files explorer</string>
     <string name="error_importing_images">Error importing images</string>
     <string name="error_importing_pdf">Error importing the PDF</string>
     <string name="error_restoring_draft_document">Error restoring draft document</string>
+    <string name="error_exporting_pdf">Error exporting the PDF</string>
+
+    <string name="exporting_document">Exporting document</string>
+    <string name="pdf_exported_successfully">PDF exported successfully</string>
 
     <string name="piles">Piles</string>
     <string name="note">Note</string>

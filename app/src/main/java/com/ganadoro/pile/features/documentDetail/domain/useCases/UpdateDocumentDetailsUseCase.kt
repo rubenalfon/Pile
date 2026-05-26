@@ -2,8 +2,8 @@ package com.ganadoro.pile.features.documentDetail.domain.useCases
 
 import com.ganadoro.pile.core.domain.models.DocumentDetail
 import com.ganadoro.pile.core.domain.models.StringDetail
-import com.ganadoro.pile.features.documentDetail.domain.models.DetailsModificationResult
-import com.ganadoro.pile.features.documentDetail.ui.DocumentDetailEvent
+import com.ganadoro.pile.features.documentDetail.domain.models.DetailsCollectionResult
+import com.ganadoro.pile.features.documentDetail.ui.DetailsActionEvent
 import java.util.UUID
 
 /**
@@ -18,16 +18,16 @@ class UpdateDocumentDetailsUseCase {
      * @param currentDetails The current list of details shown to the user.
      * @param deletedStack The current stack of deleted items (for undo functionality).
      * @param event The event triggered by the user.
-     * @return A [DetailsModificationResult] containing the new list and new stack.
+     * @return A [DetailsCollectionResult] containing the new list and new stack.
      */
     operator fun invoke(
         currentDetails: List<DocumentDetail>,
         deletedStack: List<DocumentDetail>,
-        event: DocumentDetailEvent
-    ): DetailsModificationResult {
+        event: DetailsActionEvent
+    ): DetailsCollectionResult {
         return when (event) {
-            is DocumentDetailEvent.MoveIndex -> {
-                DetailsModificationResult(
+            is DetailsActionEvent.OnIndexMove -> {
+                DetailsCollectionResult(
                     updatedDetails = moveItem(
                         currentDetails = currentDetails,
                         fromIndex = event.fromIndex,
@@ -37,8 +37,8 @@ class UpdateDocumentDetailsUseCase {
                 )
             }
 
-            is DocumentDetailEvent.MoveId -> {
-                DetailsModificationResult(
+            is DetailsActionEvent.OnIdMove -> {
+                DetailsCollectionResult(
                     updatedDetails = moveItemById(
                         currentDetails = currentDetails,
                         fromId = event.fromId,
@@ -48,8 +48,8 @@ class UpdateDocumentDetailsUseCase {
                 )
             }
 
-            is DocumentDetailEvent.UpdateText -> {
-                DetailsModificationResult(
+            is DetailsActionEvent.OnUpdateText -> {
+                DetailsCollectionResult(
                     updatedDetails = updateText(
                         list = currentDetails,
                         id = event.id,
@@ -60,16 +60,16 @@ class UpdateDocumentDetailsUseCase {
                 )
             }
 
-            is DocumentDetailEvent.Add -> {
-                DetailsModificationResult(
+            is DetailsActionEvent.OnNew -> {
+                DetailsCollectionResult(
                     updatedDetails = addItem(currentDetails),
                     updatedDeletedStack = deletedStack
                 )
             }
 
-            is DocumentDetailEvent.Delete -> {
+            is DetailsActionEvent.OnRemove -> {
                 val item = currentDetails.getOrNull(event.index)
-                    ?: return DetailsModificationResult(
+                    ?: return DetailsCollectionResult(
                         updatedDetails = currentDetails,
                         updatedDeletedStack = deletedStack
                     )
@@ -77,15 +77,15 @@ class UpdateDocumentDetailsUseCase {
                 val updatedDetails = currentDetails.filterIndexed { i, _ -> i != event.index }
                 val updatedDeletedStack = deletedStack + item
 
-                DetailsModificationResult(
+                DetailsCollectionResult(
                     updatedDetails = updatedDetails,
                     updatedDeletedStack = updatedDeletedStack
                 )
             }
 
-            is DocumentDetailEvent.Restore -> {
+            is DetailsActionEvent.OnRestore -> {
                 if (deletedStack.isEmpty()) {
-                    return DetailsModificationResult(
+                    return DetailsCollectionResult(
                         updatedDetails = currentDetails,
                         updatedDeletedStack = deletedStack
                     )
@@ -101,15 +101,15 @@ class UpdateDocumentDetailsUseCase {
                 val updatedDeletedStack = deletedStack - lastDeleted
 
 
-                DetailsModificationResult(
+                DetailsCollectionResult(
                     updatedDetails = updatedDetails,
                     updatedDeletedStack = updatedDeletedStack
                 )
             }
 
-            is DocumentDetailEvent.ConfirmErasure -> {
+            is DetailsActionEvent.OnPurge -> {
                 if (deletedStack.isEmpty()) {
-                    return DetailsModificationResult(
+                    return DetailsCollectionResult(
                         updatedDetails = currentDetails,
                         updatedDeletedStack = deletedStack
                     )
@@ -119,7 +119,7 @@ class UpdateDocumentDetailsUseCase {
                 val updatedDetails = currentDetails - lastDeleted
                 val updatedDeletedStack = deletedStack - lastDeleted
 
-                DetailsModificationResult(
+                DetailsCollectionResult(
                     updatedDetails = updatedDetails,
                     updatedDeletedStack = updatedDeletedStack
                 )

@@ -83,6 +83,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
@@ -96,13 +97,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ganadoro.pile.DocumentImage
 import com.ganadoro.pile.DocumentModel
 import com.ganadoro.pile.PileModel
 import com.ganadoro.pile.R
 import com.ganadoro.pile.core.domain.models.DocumentDetail
 import com.ganadoro.pile.core.domain.models.StringDetail
 import com.ganadoro.pile.core.ui.composables.AlertNewPile
+import com.ganadoro.pile.core.ui.composables.LoadingAlert
 import com.ganadoro.pile.core.ui.composables.LoadingWrapper
 import com.ganadoro.pile.core.ui.composables.Pile
 import com.ganadoro.pile.core.ui.composables.SelectPilesBottomSheet
@@ -121,6 +122,8 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -132,7 +135,7 @@ fun DocumentDetailScreen(
     popBackStack: () -> Unit,
     viewModel: DocumentDetailViewModel = koinViewModel { parametersOf(documentId) }
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     var showRenameDocumentAlert by rememberSaveable { mutableStateOf(false) }
@@ -145,12 +148,8 @@ fun DocumentDetailScreen(
 
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-        viewModel.onDocumentDetailEvent(
-            DocumentDetailEvent.MoveId(
-                from.key as String,
-                to.key as String
-            )
-        )
+        val detailsActionEvent = DetailsActionEvent.OnIdMove(from.key as String, to.key as String)
+        viewModel.handleEvent(DocumentDetailEvent.OnUpdateDetails(detailsActionEvent))
 
         hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
     }
@@ -162,6 +161,18 @@ fun DocumentDetailScreen(
         stringResource(R.string.undo)
     )
 
+    val context = LocalContext.current
+
+    LaunchedEffect(state.userMessage) {
+        state.userMessage?.let { uiText ->
+            snackbarHostState.showSnackbar(
+                message = uiText.asString(context),
+                duration = SnackbarDuration.Short
+            )
+            viewModel.handleEvent(DocumentDetailEvent.OnMessageDismissed)
+        }
+    }
+
     Scaffold(
         contentWindowInsets = WindowInsets.displayCutout,
         modifier = modifier
@@ -170,46 +181,47 @@ fun DocumentDetailScreen(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
             ) {
+                viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                 focusManager.clearFocus()
             },
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             ScreenTopAppBar(
                 popBackStack = popBackStack,
-                title = uiState.documentModel?.title ?: ""
+                title = state.documentModel?.title ?: ""
             )
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
             AnimatedVisibility(
-                uiState.documentModel != null,
+                state.documentModel != null,
                 enter = fadeIn(), exit = fadeOut()
             ) {
                 ToolBar(
                     modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
-                    showEditDocument = !(uiState.documentModel?.isIncomingPdf ?: true),
+                    showEditDocument = !(state.documentModel?.isIncomingPdf ?: true),
                     onRenameDocument = {
-                        viewModel.updateIsEditingMode(false)
+                        viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                         focusManager.clearFocus()
                         showRenameDocumentAlert = true
                     },
                     onDeleteDocument = {
-                        viewModel.updateIsEditingMode(false)
+                        viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                         focusManager.clearFocus()
                         showDeleteDocumentAlert = true
                     },
                     onDownloadDocument = {
-                        viewModel.updateIsEditingMode(false)
+                        viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                         focusManager.clearFocus()
-                        viewModel.downloadPDF()
+                        viewModel.handleEvent(DocumentDetailEvent.OnDownload)
                     },
                     onShareDocument = {
-                        viewModel.updateIsEditingMode(false)
+                        viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                         focusManager.clearFocus()
-                        viewModel.openShareSheet()
+                        viewModel.handleEvent(DocumentDetailEvent.OnShare)
                     },
                     onEditDocument = {
-                        viewModel.updateIsEditingMode(false)
+                        viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                         focusManager.clearFocus()
                         navigateToEditDocument(documentId)
                     },
@@ -225,7 +237,7 @@ fun DocumentDetailScreen(
                 .padding(innerPadding)
         ) {
             LoadingWrapper(
-                uiState.documentModel == null || uiState.documentPileModels == null
+                state.documentModel == null || state.documentPileModels == null
             ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -235,14 +247,18 @@ fun DocumentDetailScreen(
                     item {
                         ImagePager(
                             bitmapCache = bitmapCache,
-                            documentImages = uiState.documentImages ?: emptyList(),
-                            pdfPageCount = uiState.pdfPageNumber,
-                            onLoadBitmap = viewModel::requestBitmapLoad,
-                            onRequestImageKey = viewModel::requestImageKey,
+                            pageCacheKeys = state.pageCacheKeys,
+                            onLoadBitmap = {
+                                viewModel.handleEvent(
+                                    DocumentDetailEvent.OnImageDisplayed(
+                                        it
+                                    )
+                                )
+                            },
                             onClick = {
-                                viewModel.updateIsEditingMode(false)
+                                viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                                 focusManager.clearFocus()
-                                viewModel.openDocumentPDF()
+                                viewModel.handleEvent(DocumentDetailEvent.OnOpenDocument)
                             }
                         )
                     }
@@ -250,15 +266,15 @@ fun DocumentDetailScreen(
 
                     documentDetailsSection(
                         reorderableLazyListState = reorderableLazyListState,
-                        documentDetails = uiState.localDocumentDetails ?: emptyList(),
-                        isEditingMode = uiState.isDocumentDetailsEditing,
+                        documentDetails = state.localDocumentDetails,
+                        isEditingMode = state.isDetailsEditing,
                         updateEditingMode = {
                             focusManager.clearFocus()
-                            viewModel.updateIsEditingMode(it)
+                            viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(it))
                         },
                         onEvent = {
-                            viewModel.onDocumentDetailEvent(event = it)
-                            if (it !is DocumentDetailEvent.Delete) return@documentDetailsSection
+                            viewModel.handleEvent(DocumentDetailEvent.OnUpdateDetails(it))
+                            if (it !is DetailsActionEvent.OnRemove) return@documentDetailsSection
 
                             scope.launch {
                                 val result = snackbarHostState
@@ -269,11 +285,21 @@ fun DocumentDetailScreen(
                                     )
                                 when (result) {
                                     SnackbarResult.ActionPerformed -> { // Undo
-                                        viewModel.restoreDocumentDetail()
+                                        val action = DetailsActionEvent.OnRestore
+                                        viewModel.handleEvent(
+                                            DocumentDetailEvent.OnUpdateDetails(
+                                                action
+                                            )
+                                        )
                                     }
 
                                     SnackbarResult.Dismissed -> {
-                                        viewModel.confirmErasureDocumentDetail()
+                                        val action = DetailsActionEvent.OnPurge
+                                        viewModel.handleEvent(
+                                            DocumentDetailEvent.OnUpdateDetails(
+                                                action
+                                            )
+                                        )
                                     }
                                 }
                             }
@@ -284,10 +310,14 @@ fun DocumentDetailScreen(
 
                     item {
                         DocumentNoteSection(
-                            documentModel = uiState.documentModel,
-                            onUpdateDocumentNote = viewModel::updateDocumentNote,
+                            documentModel = state.documentModel,
+                            onUpdateDocumentNote = {
+                                viewModel.handleEvent(
+                                    DocumentDetailEvent.OnUpdateNote(it)
+                                )
+                            },
                             onFocused = {
-                                viewModel.updateIsEditingMode(false)
+                                viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                             }
                         )
                     }
@@ -295,14 +325,14 @@ fun DocumentDetailScreen(
                     item { Spacer(Modifier.height(8.dp)) }
 
                     documentPilesSection(
-                        documentPileModels = uiState.documentPileModels ?: emptyList(),
+                        documentPileModels = state.documentPileModels ?: emptyList(),
                         onPileClick = {
-                            viewModel.updateIsEditingMode(false)
+                            viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                             focusManager.clearFocus()
                             navigateToPileDetail(it)
                         },
                         onEditDocumentPiles = {
-                            viewModel.updateIsEditingMode(false)
+                            viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                             focusManager.clearFocus()
                             showDocumentPilesBottomSheet = true
                         }
@@ -312,8 +342,8 @@ fun DocumentDetailScreen(
 
                     item {
                         AddedSection(
-                            creationDate = uiState.documentModel!!.creationDateTime,
-                            modificationDate = uiState.documentModel!!.modificationDateTime
+                            creationDate = state.documentModel!!.creationDateTime,
+                            modificationDate = state.documentModel!!.modificationDateTime
                         )
                     }
 
@@ -325,11 +355,11 @@ fun DocumentDetailScreen(
 
     if (showRenameDocumentAlert) {
         AlertEditDocument(
-            documentName = uiState.documentModel?.title ?: "",
+            documentName = state.documentModel?.title ?: "",
             onDismiss = { showRenameDocumentAlert = false },
-            onConfirm = { newDocumentName ->
+            onConfirm = { newName ->
                 showRenameDocumentAlert = false
-                viewModel.renameDocument(newDocumentName)
+                viewModel.handleEvent(DocumentDetailEvent.OnRenameDocument(newName))
             }
         )
     }
@@ -339,7 +369,7 @@ fun DocumentDetailScreen(
             onDismiss = { showDeleteDocumentAlert = false },
             onConfirm = {
                 showDeleteDocumentAlert = false
-                viewModel.deleteDocument()
+                viewModel.handleEvent(DocumentDetailEvent.OnDeleteDocument)
                 popBackStack()
             }
         )
@@ -348,10 +378,10 @@ fun DocumentDetailScreen(
     if (showDocumentPilesBottomSheet) {
         SelectPilesBottomSheet(
             title = stringResource(R.string.piles),
-            pileList = uiState.allPiles,
-            selectedFilterPiles = uiState.documentModel?.documentPileIds ?: emptyList(),
+            pileList = state.allPiles,
+            selectedFilterPiles = state.documentModel?.documentPileIds ?: emptyList(),
             onDismissBottomSheet = { showDocumentPilesBottomSheet = false },
-            onPileClick = viewModel::addRemoveDocumentPiles,
+            onPileClick = { viewModel.handleEvent(DocumentDetailEvent.OnUpdatePileSelection(it)) },
             onNewPile = { showNewPileAlert = true }
         )
     }
@@ -361,10 +391,16 @@ fun DocumentDetailScreen(
             onDismiss = { showNewPileAlert = false },
             onConfirm = { pileName, pileIconId, pileColorNumber ->
                 showNewPileAlert = false
-                viewModel.addPile(pileName = pileName, iconId = pileIconId, color = pileColorNumber)
+                viewModel.handleEvent(
+                    DocumentDetailEvent.OnNewPile(
+                        pileName = pileName, iconId = pileIconId, color = pileColorNumber
+                    )
+                )
             }
         )
     }
+
+    AlertExporting(isExporting = state.isExporting)
 }
 
 @Composable
@@ -408,13 +444,11 @@ private fun ScreenTopAppBar(
 private fun ImagePager(
     modifier: Modifier = Modifier,
     bitmapCache: Map<String, Bitmap>,
-    documentImages: List<DocumentImage>,
-    pdfPageCount: Int?,
+    pageCacheKeys: List<String>,
     onLoadBitmap: suspend (pageNumber: Int) -> Unit,
-    onRequestImageKey: (pageNumber: Int) -> String,
     onClick: () -> Unit
 ) {
-    val pageCount: Int = pdfPageCount ?: documentImages.size
+    val pageCount = pageCacheKeys.size
 
     val pagerState = rememberPagerState(pageCount = { pageCount })
 
@@ -424,7 +458,7 @@ private fun ImagePager(
         if (pageCount == 1) return@LaunchedEffect
 
         isPageNumberVisible = true
-        delay(5000)
+        delay(5.seconds)
         isPageNumberVisible = false
     }
 
@@ -443,7 +477,7 @@ private fun ImagePager(
                 .background(MaterialTheme.colorScheme.surfaceContainer)
                 .clickable { onClick.invoke() }
         ) { page ->
-            val key = onRequestImageKey(page)
+            val key = pageCacheKeys.getOrNull(page) ?: ""
             val cachedBitmap: Bitmap? = bitmapCache[key]
 
             if (cachedBitmap == null) {
@@ -495,7 +529,7 @@ private fun LazyListScope.documentDetailsSection(
     documentDetails: List<DocumentDetail>,
     isEditingMode: Boolean,
     updateEditingMode: (state: Boolean) -> Unit,
-    onEvent: (event: DocumentDetailEvent) -> Unit
+    onEvent: (event: DetailsActionEvent) -> Unit
 ) {
     item {
         SectionTitleBar(
@@ -517,7 +551,7 @@ private fun LazyListScope.documentDetailsSection(
                     .clip(CardDefaults.shape)
                     .clickable {
                         updateEditingMode.invoke(true)
-                        onEvent(DocumentDetailEvent.Add)
+                        onEvent(DetailsActionEvent.OnNew)
                     },
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -540,7 +574,7 @@ private fun LazyListScope.documentDetailsSection(
             key = documentDetail.id
         ) { isDragging ->
             SwipeBox(
-                onDelete = { onEvent(DocumentDetailEvent.Delete(index)) },
+                onDelete = { onEvent(DetailsActionEvent.OnRemove(index)) },
                 contentPaddingValues = PaddingValues(horizontal = 16.dp),
                 enabled = isEditingMode,
                 modifier = Modifier.padding(bottom = if (index != documentDetails.size - 1) 3.dp else 0.dp)
@@ -555,7 +589,7 @@ private fun LazyListScope.documentDetailsSection(
                     isEditingMode = isEditingMode,
                     onMove = { from, to ->
                         onEvent(
-                            DocumentDetailEvent.MoveIndex(
+                            DetailsActionEvent.OnIndexMove(
                                 from,
                                 to
                             )
@@ -563,7 +597,7 @@ private fun LazyListScope.documentDetailsSection(
                     },
                     onTextChange = { newName, newValue ->
                         onEvent(
-                            DocumentDetailEvent.UpdateText(
+                            DetailsActionEvent.OnUpdateText(
                                 documentDetail.id,
                                 newName,
                                 newValue
@@ -585,7 +619,7 @@ private fun LazyListScope.documentDetailsSection(
         ) {
             Button(
                 onClick = {
-                    onEvent(DocumentDetailEvent.Add)
+                    onEvent(DetailsActionEvent.OnNew)
                 },
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -760,7 +794,7 @@ private fun DocumentNoteSection(
     }
 
     LaunchedEffect(unsavedDocumentNoteDetail) {
-        delay(500)
+        delay(5.seconds)
 
         if (unsavedDocumentNoteDetail == documentModel?.documentNote) return@LaunchedEffect
 
@@ -1066,4 +1100,22 @@ private fun AlertDeleteDocument(
             }
         }
     )
+}
+
+@Composable
+fun AlertExporting(isExporting: Boolean, modifier: Modifier = Modifier) {
+    var showExportLoading by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(isExporting) {
+        if (isExporting) {
+            delay(200.milliseconds)
+            showExportLoading = true
+        } else {
+            showExportLoading = false
+        }
+    }
+
+    if (showExportLoading) {
+        LoadingAlert(title = stringResource(R.string.exporting_document), modifier = modifier)
+    }
 }
