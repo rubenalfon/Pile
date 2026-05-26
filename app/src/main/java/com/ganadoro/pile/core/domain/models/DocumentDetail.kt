@@ -14,6 +14,7 @@ data class StringDetail(
     val value: String
 ) : DocumentDetail
 
+// Possible update ;)
 //@Serializable
 //data class FloatDetail(
 //    override val id: String,
@@ -21,7 +22,7 @@ data class StringDetail(
 //    val value: Float
 //) : DocumentDetail
 
-//@Serializable TODO hacer esto
+//@Serializable
 //data class DateDetail(
 //    override val name: String,
 //    val value: LocalDate
