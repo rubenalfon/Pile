@@ -1,8 +1,8 @@
 # Pile
 
-Pile is an application focused on centralized document management, designed to make personal files easier to organize, access and share. Based on a tag system called piles!
+Pile is an application focused on centralized document management, designed to make personal files easier to organize, access and share. Featuring a unique tag-based system called **piles**!
 
-The project is built with **Kotlin** and **Jetpack Compose**, following a **Clean architecture + MVVM** approach, with a strong focus on maintainability, scalability and modern Android development practices.
+The project is built with **Kotlin** and **Jetpack Compose**, following a **Clean architecture + MVI / UDF** approach, with a strong focus on maintainability, scalability and modern Android development practices.
 
 > 🚧 This project is currently under active development.
 
@@ -19,7 +19,7 @@ The project is built with **Kotlin** and **Jetpack Compose**, following a **Clea
 
 - Centralized document management
 - Tags for easy document management
-- Modern Material expresive desing
+- Modern Material expressive design
 - Local persistence for storing and retrieving document data
 - Reactive state management using Coroutines and Flow
 - Full PDF support
@@ -29,14 +29,14 @@ The project is built with **Kotlin** and **Jetpack Compose**, following a **Clea
 ## Tech Stack
 
 - **Kotlin**
-- **Jetpack Compose**
-- **MVVM**
-- **Clean architecture**
+- **Jetpack Compose** with **Material 3 Expressive**
+- **MVI / UDF** (Unidirectional Data Flow)
 - **Koin** for dependency injection
 - **SQLDelight** for local persistence
 - **Kotlin Coroutines**
 - **Kotlin Flow**
-- **Navigation Compose**
+- **Navigation 3**
+- **Napier** for logging
 
 
 ### Why these technologies?
@@ -71,32 +71,19 @@ This structure keeps each feature isolated, easier to maintain, and ready for a 
 
 ```
 app/
- ├── core/
- │   ├── data/
- │   │   ├── local/
- │   │   ├── repositories/
- │   │   └── util/
+ ├── core/              # Shared infrastructure
+ │   ├── activities/    # Global Activity management
+ │   ├── data/          
  │   ├── di/
- │   ├── domain/
- │   │   ├── models/
- │   │   ├── repositories/
- │   │   └── useCases/
- │   └── ui/
- │       ├── composables/
- │       ├── controllers/
- │       ├── navigation/
- │       ├── theme/
- │       └── util/
+ │   ├── domain/        
+ │   └── ui/            # Reusable UI & Utilities
  │
- └── features/
-     ├── addDocument/
-     ├── documentDetail/
-     ├── editDocument/
-     └── home/
+ └── features/          # Self-contained features
+     └── search/        # Example feature
          ├── data/
          ├── di/
-         ├── domain/
-         └── ui/
+         ├── domain/    
+         └── ui/        # UI Contract, Screen and ViewModel
 ```
 
 > The exact package structure may evolve as the project grows.
