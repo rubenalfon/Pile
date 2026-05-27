@@ -36,6 +36,7 @@ sealed interface EditDocumentEvent {
     data class OnThumbnailDisplayed(val filterIndex: Int) : EditDocumentEvent
     data class OnCropDisplayed(val imageKey: String) : EditDocumentEvent
     data class OnSelectImage(val index: Int) : EditDocumentEvent
+    data class OnMoveImage(val fromIndex: Int, val toIndex: Int) : EditDocumentEvent
 
     data class OnImportImages(val uris: List<Uri>) : EditDocumentEvent
     data class OnModeChange(val mode: EditDocumentMode) : EditDocumentEvent

@@ -5,9 +5,11 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,8 +25,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -63,11 +67,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pile.R
 import com.pile.core.domain.models.ImageFilterType
@@ -79,12 +90,13 @@ import com.pile.features.editDocument.domain.models.ExtendedCropController
 import com.pile.features.editDocument.ui.composables.ActiveIndicator
 import com.pile.features.editDocument.ui.composables.AddItemCarousel
 import com.tanishranjan.cropkit.ImageCropper
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
-import kotlin.time.Duration.Companion.milliseconds
+import sh.calvin.reorderable.ReorderableCollectionItemScope
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -119,7 +131,6 @@ fun EditDocumentScreen(
         stringResource(R.string.image_deleted),
         stringResource(R.string.undo)
     )
-
 
     BackHandler(state.isDocumentModified) {
         viewModel.handleEvent(EditDocumentEvent.OnBackClicked())
@@ -190,47 +201,44 @@ fun EditDocumentScreen(
                     .padding(innerPadding),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                val pagerState = rememberPagerState(pageCount = { state.imageItems.size })
+                var isCarouselDragging by remember { mutableStateOf(false) }
+
+                PagerSyncEffect(
+                    pagerState = pagerState,
+                    selectedImageIndex = state.selectedImageIndex,
+                    isPaused = isCarouselDragging,
+                    onSelectImageIndex = { viewModel.handleEvent(EditDocumentEvent.OnSelectImage(it)) }
+                )
+
                 ImagePager(
                     modifier = Modifier
                         .padding(bottom = 16.dp)
                         .weight(1f),
                     uiMode = state.uiMode,
-                    selectedImageIndex = state.selectedImageIndex,
+                    pagerState = pagerState,
                     imageItems = state.imageItems,
+                    userScrollEnabled = state.uiMode == EditDocumentMode.SCROLL && !isCarouselDragging,
                     bitmapCache = bitmapCache,
                     cropControllers = state.cropControllers,
                     onLoadBitmap = { viewModel.handleEvent(EditDocumentEvent.OnImageDisplayed(it)) },
-                    onSelectImageIndex = { viewModel.handleEvent(EditDocumentEvent.OnSelectImage(it)) },
                     onLoadCropController = {
-                        viewModel.handleEvent(
-                            EditDocumentEvent.OnCropDisplayed(
-                                it
-                            )
-                        )
+                        viewModel.handleEvent(EditDocumentEvent.OnCropDisplayed(it))
                     }
                 )
 
                 val lazyListState = rememberLazyListState()
                 val selectedImageIndex = state.selectedImageIndex
 
-                var recentlyMoved by remember { mutableStateOf(false) }
-
+                // Animate scroll
                 LaunchedEffect(selectedImageIndex) {
-                    if (recentlyMoved) return@LaunchedEffect
-
-                    if (selectedImageIndex < 0) return@LaunchedEffect
+                    if (isCarouselDragging) return@LaunchedEffect
 
                     val totalItems = lazyListState.layoutInfo.totalItemsCount
-                    if (selectedImageIndex >= totalItems) return@LaunchedEffect
-
+                    if (selectedImageIndex !in 0..<totalItems) return@LaunchedEffect
                     if (!lazyListState.canScrollBackward && !lazyListState.canScrollForward) return@LaunchedEffect
 
                     lazyListState.animateScrollToItem(selectedImageIndex, -150)
-                }
-
-                LaunchedEffect(recentlyMoved) {
-                    delay(100.milliseconds)
-                    recentlyMoved = false
                 }
 
                 AnimatedVisibility(visible = state.uiMode == EditDocumentMode.SCROLL) {
@@ -241,16 +249,18 @@ fun EditDocumentScreen(
                         bitmapCache = bitmapCache,
                         onLoadBitmap = { viewModel.handleEvent(EditDocumentEvent.OnImageDisplayed(it)) },
                         selectedImageIndex = selectedImageIndex,
+                        onDragStateChange = { isCarouselDragging = it },
                         onSelectImage = {
-                            recentlyMoved = true
                             viewModel.handleEvent(EditDocumentEvent.OnSelectImage(it))
+                        },
+                        onMoveImage = { from, to ->
+                            viewModel.handleEvent(EditDocumentEvent.OnMoveImage(from, to))
                         },
                         onNewImage = importActions.launchGallery
                     )
                 }
 
                 AnimatedVisibility(visible = state.uiMode == EditDocumentMode.COLOR) {
-
                     EditColorRow(
                         modifier = Modifier.padding(bottom = 16.dp),
                         imageFilters = state.imageFilters,
@@ -262,9 +272,7 @@ fun EditDocumentScreen(
                         thumbnailKeys = state.thumbnailKeys,
                         onLoadThumbnail = {
                             viewModel.handleEvent(
-                                EditDocumentEvent.OnThumbnailDisplayed(
-                                    it
-                                )
+                                EditDocumentEvent.OnThumbnailDisplayed(it)
                             )
                         },
                         bitmapCache = bitmapCache
@@ -330,48 +338,20 @@ private fun ScreenTopAppBar(
 private fun ImagePager(
     modifier: Modifier = Modifier,
     uiMode: EditDocumentMode,
-    selectedImageIndex: Int,
+    pagerState: PagerState,
     imageItems: List<ImageItem>,
+    userScrollEnabled: Boolean,
     bitmapCache: Map<String, Bitmap>,
     cropControllers: Map<String, ExtendedCropController>,
     onLoadBitmap: (pageNumber: Int) -> Unit,
-    onSelectImageIndex: (page: Int) -> Unit,
     onLoadCropController: (key: String) -> Unit
 ) {
-    val pagerState = rememberPagerState(pageCount = { imageItems.size })
-
-    var isSelectedImageIndexRecent by rememberSaveable { mutableStateOf(false) }
-    var isChangedFromCarouselRecent by rememberSaveable { mutableStateOf(false) }
-
-    LaunchedEffect(selectedImageIndex) {
-        if (isChangedFromCarouselRecent) return@LaunchedEffect
-
-        if (pagerState.isScrollInProgress) return@LaunchedEffect
-
-        if (pagerState.currentPage == selectedImageIndex) return@LaunchedEffect
-
-        isSelectedImageIndexRecent = true
-        pagerState.animateScrollToPage(selectedImageIndex)
-        isSelectedImageIndexRecent = false
-    }
-
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.currentPage }
-            .distinctUntilChanged()
-            .collect { page ->
-                if (isSelectedImageIndexRecent) return@collect
-
-                isChangedFromCarouselRecent = true
-                onSelectImageIndex(page)
-                isChangedFromCarouselRecent = false
-            }
-    }
-
     HorizontalPager(
         state = pagerState,
+        key = { page -> imageItems.getOrNull(page)?.image?.id ?: page },
         contentPadding = PaddingValues(horizontal = 16.dp),
         pageSpacing = 16.dp,
-        userScrollEnabled = uiMode == EditDocumentMode.SCROLL,
+        userScrollEnabled = userScrollEnabled,
         modifier = modifier
     ) { page ->
         val key = imageItems.getOrNull(page)?.cacheKey ?: ""
@@ -382,6 +362,7 @@ private fun ImagePager(
                 onLoadBitmap(page)
             }
         }
+
         Crossfade(
             targetState = uiMode,
             label = "Image pager crossfade"
@@ -422,6 +403,39 @@ private fun ImagePager(
 }
 
 @Composable
+private fun PagerSyncEffect(
+    pagerState: PagerState,
+    selectedImageIndex: Int,
+    isPaused: Boolean,
+    onSelectImageIndex: (Int) -> Unit
+) {
+    var isSelectedImageIndexRecent by rememberSaveable { mutableStateOf(false) }
+    var isChangedFromCarouselRecent by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(selectedImageIndex, isPaused) {
+        if (isPaused) return@LaunchedEffect
+        if (isChangedFromCarouselRecent || pagerState.isScrollInProgress) return@LaunchedEffect
+        if (pagerState.currentPage == selectedImageIndex) return@LaunchedEffect
+
+        isSelectedImageIndexRecent = true
+        pagerState.animateScrollToPage(selectedImageIndex)
+        isSelectedImageIndexRecent = false
+    }
+
+    LaunchedEffect(pagerState, isPaused) {
+        snapshotFlow { pagerState.currentPage }
+            .distinctUntilChanged()
+            .collect { page ->
+                if (isPaused || isSelectedImageIndexRecent) return@collect
+
+                isChangedFromCarouselRecent = true
+                onSelectImageIndex(page)
+                isChangedFromCarouselRecent = false
+            }
+    }
+}
+
+@Composable
 private fun ThumbnailRow(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState,
@@ -430,8 +444,21 @@ private fun ThumbnailRow(
     onLoadBitmap: (pageNumber: Int) -> Unit,
     selectedImageIndex: Int,
     onSelectImage: (Int) -> Unit,
+    onDragStateChange: (Boolean) -> Unit,
+    onMoveImage: (Int, Int) -> Unit,
     onNewImage: () -> Unit
 ) {
+    val hapticFeedback = LocalHapticFeedback.current
+    val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        onMoveImage(from.index, to.index)
+        hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+    }
+
+    val isAnyItemDragging = reorderableLazyListState.isAnyItemDragging
+    LaunchedEffect(isAnyItemDragging) {
+        onDragStateChange(isAnyItemDragging)
+    }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -448,19 +475,26 @@ private fun ThumbnailRow(
             verticalAlignment = Alignment.CenterVertically,
             contentPadding = PaddingValues(start = 16.dp, end = 0.dp)
         ) {
-            items(
-                count = imageItems.size,
-                key = { index -> imageItems[index].image.id }
-            ) { index ->
-                ThumbnailItem(
-                    modifier = Modifier.animateItem(),
-                    index = index,
-                    isSelected = index == selectedImageIndex,
-                    cacheKey = imageItems[index].cacheKey,
-                    bitmapCache = bitmapCache,
-                    onLoadBitmap = onLoadBitmap,
-                    onSelect = onSelectImage
-                )
+            items(imageItems, key = { it.image.id }) { imageItem ->
+                val index = imageItems.indexOf(imageItem)
+                ReorderableItem(
+                    reorderableLazyListState,
+                    key = imageItem.image.id
+                ) { isDragging ->
+                    ThumbnailItem(
+                        modifier = Modifier.animateItem(),
+                        index = index,
+                        isSelected = index == selectedImageIndex,
+                        isLastItem = index == imageItems.lastIndex,
+                        isDragging = isDragging,
+                        isAnyItemDragging = isAnyItemDragging,
+                        cacheKey = imageItem.cacheKey,
+                        bitmapCache = bitmapCache,
+                        onLoadBitmap = onLoadBitmap,
+                        onMove = onMoveImage,
+                        onSelect = onSelectImage
+                    )
+                }
             }
         }
 
@@ -477,13 +511,17 @@ private fun ThumbnailRow(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ThumbnailItem(
+private fun ReorderableCollectionItemScope.ThumbnailItem(
     modifier: Modifier,
     index: Int,
     isSelected: Boolean,
+    isLastItem: Boolean,
+    isDragging: Boolean,
+    isAnyItemDragging: Boolean,
     cacheKey: String,
     bitmapCache: Map<String, Bitmap>,
     onLoadBitmap: (index: Int) -> Unit,
+    onMove: (from: Int, to: Int) -> Unit,
     onSelect: (Int) -> Unit
 ) {
     val cachedBitmap = bitmapCache[cacheKey]
@@ -498,8 +536,65 @@ private fun ThumbnailItem(
         label = "corner"
     )
 
+    val scale by animateFloatAsState(
+        targetValue = if (isDragging) 1.1f else 1.0f,
+        label = "scale"
+    )
+    val elevation by animateDpAsState(
+        targetValue = if (isDragging) 8.dp else 0.dp,
+        label = "elevation"
+    )
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val hapticFeedback = LocalHapticFeedback.current
+
+    val movePrevious = stringResource(R.string.move_previous)
+    val moveNext = stringResource(R.string.move_next)
+
     Box(
-        modifier = modifier,
+        modifier = modifier
+            .longPressDraggableHandle(
+                onDragStarted = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                },
+                onDragStopped = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
+                }
+            )
+            .clickable(
+                enabled = !isAnyItemDragging,
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = { onSelect(index) }
+            )
+            .semantics {
+                customActions = listOf(
+                    CustomAccessibilityAction(
+                        label = movePrevious,
+                        action = {
+                            if (index > 0) {
+                                onMove(index, index - 1)
+                                true
+                            } else false
+                        }
+                    ),
+                    CustomAccessibilityAction(
+                        label = moveNext,
+                        action = {
+                            if (!isLastItem) {
+                                onMove(index, index + 1)
+                                true
+                            } else false
+                        }
+                    )
+                )
+            }
+            .zIndex(if (isDragging) 1f else 0f)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+                shadowElevation = elevation.toPx()
+            },
         contentAlignment = Alignment.Center
     ) {
         if (cachedBitmap != null) {
@@ -511,7 +606,6 @@ private fun ThumbnailItem(
                     .width(84.dp)
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(animatedCornerRadius))
-                    .clickable { onSelect(index) }
                     .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             )
         } else {

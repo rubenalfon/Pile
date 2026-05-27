@@ -64,6 +64,8 @@
     <string name="detail_hint_value">Value</string>
     <string name="move_up_detail">Move up detail</string>
     <string name="move_down_detail">Move down detail</string>
+    <string name="move_previous">Move previous</string>
+    <string name="move_next">Move next</string>
     <string name="detail_deleted">Detail deleted</string>
     <string name="delete_detail">Delete detail</string>
     <string name="no_piles_saved">You haven\'t created any piles yet. Create your first one to start organizing your documents!</string>

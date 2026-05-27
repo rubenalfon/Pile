@@ -126,6 +126,7 @@ class EditDocumentViewModel(
             is EditDocumentEvent.OnThumbnailDisplayed -> requestThumbnailLoad(event.filterIndex)
             is EditDocumentEvent.OnCropDisplayed -> loadCropController(event.imageKey)
             is EditDocumentEvent.OnSelectImage -> selectImage(event.index)
+            is EditDocumentEvent.OnMoveImage -> moveImage(event.fromIndex, event.toIndex)
 
             is EditDocumentEvent.OnImportImages -> addImages(event.uris)
             is EditDocumentEvent.OnModeChange -> updateUIMode(event.mode)
@@ -194,6 +195,33 @@ class EditDocumentViewModel(
         updateImagesAndStatus(selectedIndex = index)
     }
 
+    private fun moveImage(fromIndex: Int, toIndex: Int) {
+        val currentState = state.value
+        val currentImages = currentState.imageItems.map { it.image }.toMutableList()
+
+        if (fromIndex !in currentImages.indices || toIndex !in currentImages.indices) return
+
+        val movedImage = currentImages.removeAt(fromIndex)
+        currentImages.add(toIndex, movedImage)
+
+        val updatedDocument = currentState.draftDocument?.copy(
+            imageIds = currentImages.map { it.id }
+        ) ?: return
+
+        val newSelectedIndex = when (currentState.selectedImageIndex) {
+            fromIndex -> toIndex
+            in (fromIndex + 1)..toIndex -> currentState.selectedImageIndex - 1
+            in toIndex..<fromIndex -> currentState.selectedImageIndex + 1
+            else -> currentState.selectedImageIndex
+        }
+
+        updateImagesAndStatus(
+            draft = updatedDocument,
+            images = currentImages,
+            selectedIndex = newSelectedIndex
+        )
+    }
+
     private fun updateUIMode(newUiMode: EditDocumentMode) {
         val currentUiMode = state.value.uiMode
 
@@ -210,7 +238,8 @@ class EditDocumentViewModel(
     private fun cleanSelectedCropController() {
         _state.update { state ->
             val cropControllers = state.cropControllers
-            val selectedImageKey = state.imageItems.getOrNull(state.selectedImageIndex)?.cacheKey ?: ""
+            val selectedImageKey =
+                state.imageItems.getOrNull(state.selectedImageIndex)?.cacheKey ?: ""
             state.copy(cropControllers = cropControllers.filter { it.key != selectedImageKey })
         }
     }
@@ -236,8 +265,9 @@ class EditDocumentViewModel(
     private fun loadCropController(key: String) {
         viewModelScope.launch {
             val currentState = state.value
-            val selectedImage = currentState.imageItems.getOrNull(currentState.selectedImageIndex)?.image
-                ?: return@launch
+            val selectedImage =
+                currentState.imageItems.getOrNull(currentState.selectedImageIndex)?.image
+                    ?: return@launch
 
             val cropControllers = currentState.cropControllers
             if (cropControllers.containsKey(key)) return@launch
@@ -325,7 +355,7 @@ class EditDocumentViewModel(
             val (updatedDocument, imageModels) = addPageToDocumentUseCase(document, uriList)
 
             val updatedImages = currentState.imageItems.map { it.image } + imageModels
-            
+
             _state.update { it.copy(isLoadingNewImage = false) }
             updateImagesAndStatus(draft = updatedDocument, images = updatedImages)
         }
@@ -375,7 +405,7 @@ class EditDocumentViewModel(
 
     private fun purgeRemovedImage() {
         val document = state.value.draftDocument ?: return
-        
+
         val imageToPurge = deletedDocumentImages.firstOrNull() ?: return
         deletedDocumentImages.removeAt(0)
 
