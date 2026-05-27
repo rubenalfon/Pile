@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -64,6 +65,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -79,6 +81,7 @@ import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pile.R
@@ -203,7 +206,7 @@ fun HomeScreen(
             SnackbarHost(hostState = snackbarHostState)
         },
     ) { innerPadding ->
-        val documentsColorSection = MaterialTheme.colorScheme.surface
+        val backgroundDocuments = MaterialTheme.colorScheme.surface
 
         var availableWidth by remember { mutableStateOf(0.dp) }
         val density = LocalDensity.current
@@ -220,7 +223,7 @@ fun HomeScreen(
                         end = innerPadding.calculateEndPadding(layoutDirection)
                     )
                     .fillMaxSize()
-                    .background(documentsColorSection)
+                    .background(backgroundDocuments)
             ) {
                 LazyColumn(
                     Modifier
@@ -302,6 +305,7 @@ fun HomeScreen(
                     )
 
                     item { Spacer(Modifier.height(30.dp)) }
+
                     item {
                         Column(
                             Modifier
@@ -311,7 +315,7 @@ fun HomeScreen(
                                         topEnd = 24.dp
                                     )
                                 )
-                                .background(documentsColorSection)
+                                .background(backgroundDocuments)
                                 .padding(top = 16.dp)
                         ) {
                             HomeScreenSectionTitle(
@@ -322,28 +326,40 @@ fun HomeScreen(
                             Spacer(Modifier.height(8.dp))
                         }
                     }
+                    val showEmptyDocuments = state.documentCoverItems.isEmpty()
 
-                    itemDocumentsCompleteList(
-                        availableWidth = availableWidth,
-                        backgroundColor = documentsColorSection,
-                        documents = state.documentCoverItems,
-                        onDocumentClick = navigateToDocumentDetail,
-                        bitmapCache = bitmapCache,
-                        onLoadBitmap = { viewModel.handleEvent(HomeEvent.OnImageDisplayed(it)) }
-                    )
+                    if (showEmptyDocuments) {
+                        item {
+                            HomeEmptyState(
+                                icon = painterResource(R.drawable.ic_clip),
+                                text = stringResource(R.string.no_documents_home),
+                                modifier = Modifier.background(backgroundDocuments)
+                            )
+                        }
+                    } else {
+                        itemDocumentsCompleteList(
+                            availableWidth = availableWidth,
+                            backgroundColor = backgroundDocuments,
+                            documents = state.documentCoverItems,
+                            onDocumentClick = navigateToDocumentDetail,
+                            bitmapCache = bitmapCache,
+                            onLoadBitmap = { viewModel.handleEvent(HomeEvent.OnImageDisplayed(it)) }
+                        )
+                    }
 
                     item {
                         Box(
                             Modifier
                                 .height(100.dp)
                                 .fillMaxWidth()
-                                .background(documentsColorSection)
+                                .background(backgroundDocuments)
                         )
                     }
                 }
             }
         }
     }
+
     if (isNewPileAlertExpanded) {
         AlertNewPile(
             onDismiss = { isNewPileAlertExpanded = false },
@@ -447,7 +463,40 @@ fun FabMenuWithController(
             )
         }
     }
+}
 
+@Composable
+private fun HomeEmptyState(
+    icon: Painter,
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .padding(horizontal = 32.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(top = 32.dp)
+        ) {
+            Icon(
+                painter = icon,
+                contentDescription = null,
+                modifier = Modifier.size(60.dp),
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+            )
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
 }
 
 @Composable

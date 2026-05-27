@@ -68,6 +68,7 @@
     <string name="delete_detail">Delete detail</string>
     <string name="no_piles_saved">It looks like there aren\'t any saved piles yet!</string>
     <string name="no_documents_in_pile">This pile is empty, start by adding some documents to it!</string>
+    <string name="no_documents_home">You haven\'t added any documents yet. Tap the button below to start!</string>
 
 
     <string name="document_no_name_error">add a name to your document.</string>

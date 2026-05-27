@@ -119,13 +119,13 @@ fun PileDetailScreen(
                             Icon(
                                 painter = painterResource(R.drawable.user_ic_category_24px),
                                 contentDescription = null,
-                                modifier = Modifier.size(120.dp),
+                                modifier = Modifier.size(60.dp),
                                 tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
                             )
                             Spacer(Modifier.height(16.dp))
                             Text(
                                 text = stringResource(R.string.no_documents_in_pile),
-                                style = MaterialTheme.typography.headlineSmall,
+                                style = MaterialTheme.typography.bodyLarge,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
