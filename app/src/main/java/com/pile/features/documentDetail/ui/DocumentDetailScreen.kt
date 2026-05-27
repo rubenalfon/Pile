@@ -12,6 +12,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -587,6 +588,7 @@ private fun LazyListScope.documentDetailsSection(
                     isFirstItem = index == 0,
                     isLastItem = index == documentDetails.size - 1,
                     isEditingMode = isEditingMode,
+                    onUpdateEditingMode = updateEditingMode,
                     onMove = { from, to ->
                         onEvent(
                             DetailsActionEvent.OnIndexMove(
@@ -648,6 +650,7 @@ private fun ReorderableCollectionItemScope.DocumentDetailItem(
     isFirstItem: Boolean,
     isLastItem: Boolean,
     isEditingMode: Boolean,
+    onUpdateEditingMode: (Boolean) -> Unit,
     onMove: (from: Int, to: Int) -> Unit,
     onTextChange: (newName: String, newValue: String) -> Unit,
     modifier: Modifier = Modifier
@@ -679,12 +682,23 @@ private fun ReorderableCollectionItemScope.DocumentDetailItem(
     )
 
     val interactionSource = remember { MutableInteractionSource() }
+    val hapticFeedback = LocalHapticFeedback.current
 
     val moveUpString = stringResource(R.string.move_up_detail)
     val moveDownString = stringResource(R.string.move_down_detail)
 
     Card(
         modifier = modifier
+            .combinedClickable(
+                enabled = !isEditingMode,
+                indication = null,
+                interactionSource = interactionSource,
+                onClick = {},
+                onLongClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onUpdateEditingMode(true)
+                }
+            )
             .semantics {
                 customActions = listOf(
                     CustomAccessibilityAction(
@@ -721,8 +735,6 @@ private fun ReorderableCollectionItemScope.DocumentDetailItem(
             bottomEnd = bottomCornersDp
         )
     ) {
-        val hapticFeedback = LocalHapticFeedback.current
-
         Row(
             modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 16.dp)
