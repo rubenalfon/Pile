@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -46,15 +47,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pile.R
@@ -62,8 +68,10 @@ import com.pile.core.ui.composables.AlertNewPile
 import com.pile.core.ui.composables.KeyboardAware
 import com.pile.core.ui.composables.LoadingWrapper
 import com.pile.core.ui.composables.itemPileGrid
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -84,6 +92,36 @@ fun AddDocumentScreen(
     }
 
     var isNewPileAlertExpanded by rememberSaveable { mutableStateOf(false) }
+
+    var hasRequestedFocus by rememberSaveable { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+
+    var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(
+            TextFieldValue(
+                text = state.documentName,
+                selection = TextRange(state.documentName.length)
+            )
+        )
+    }
+
+    LaunchedEffect(state.documentName) {
+        if (state.documentName != textFieldValue.text) {
+            textFieldValue = textFieldValue.copy(
+                text = state.documentName,
+                selection = TextRange(state.documentName.length)
+            )
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (!hasRequestedFocus) {
+            delay(100.milliseconds) // Prevents errors
+            focusRequester.requestFocus()
+            hasRequestedFocus = true
+        }
+    }
 
     KeyboardAware {
         Scaffold(
@@ -166,15 +204,19 @@ fun AddDocumentScreen(
 
                         item {
                             OutlinedTextField(
-                                value = state.documentName,
-                                onValueChange = { viewModel.handleEvent(AddDocumentEvent.OnNameChanged(it)) },
+                                value = textFieldValue,
+                                onValueChange = {
+                                    textFieldValue = it
+                                    viewModel.handleEvent(AddDocumentEvent.OnNameChanged(it.text))
+                                },
                                 label = { Text(stringResource(R.string.document_name)) },
                                 trailingIcon = {
-                                    if (state.documentName.isNotEmpty()) {
+                                    if (textFieldValue.text.isNotEmpty()) {
                                         Icon(
                                             imageVector = Icons.Default.Close,
                                             contentDescription = stringResource(R.string.delete_text),
                                             modifier = Modifier.clickable {
+                                                textFieldValue = textFieldValue.copy(text = "")
                                                 viewModel.handleEvent(AddDocumentEvent.OnNameChanged(""))
                                             })
                                     }
@@ -182,7 +224,8 @@ fun AddDocumentScreen(
                                 singleLine = true,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp),
+                                    .padding(horizontal = 16.dp)
+                                    .focusRequester(focusRequester),
                                 isError = state.noDocumentNameError,
                                 supportingText = {
                                     AnimatedVisibility(
@@ -195,6 +238,11 @@ fun AddDocumentScreen(
                                 },
                                 keyboardOptions = KeyboardOptions(
                                     capitalization = KeyboardCapitalization.Sentences
+                                ),
+                                keyboardActions = KeyboardActions(
+                                    onDone = {
+                                        focusManager.clearFocus()
+                                    }
                                 )
                             )
                         }

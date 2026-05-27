@@ -36,6 +36,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -77,6 +78,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -93,7 +96,9 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -355,7 +360,7 @@ fun DocumentDetailScreen(
     }
 
     if (showRenameDocumentAlert) {
-        AlertEditDocument(
+        AlertRenameDocument(
             documentName = state.documentModel?.title ?: "",
             onDismiss = { showRenameDocumentAlert = false },
             onConfirm = { newName ->
@@ -1028,41 +1033,70 @@ private fun ToolBar(
 
 
 @Composable
-private fun AlertEditDocument(
+private fun AlertRenameDocument(
     modifier: Modifier = Modifier,
     documentName: String,
     onDismiss: () -> Unit,
     onConfirm: (documentName: String) -> Unit
 ) {
-    var newDocumentName by rememberSaveable { mutableStateOf(documentName) }
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    var hasRequestedFocus by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (!hasRequestedFocus) {
+            delay(100.milliseconds) // Prevents errors
+            focusRequester.requestFocus()
+            hasRequestedFocus = true
+        }
+    }
+
+    var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(
+            TextFieldValue(
+                text = documentName,
+                selection = TextRange(documentName.length)
+            )
+        )
+    }
+
     AlertDialog(
         modifier = modifier,
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.edit_document)) },
         text = {
             OutlinedTextField(
-                value = newDocumentName,
-                onValueChange = { newDocumentName = it },
+                value = textFieldValue,
+                onValueChange = { textFieldValue = it },
                 label = { Text(stringResource(R.string.document_name)) },
                 trailingIcon = {
-                    if (newDocumentName.isNotEmpty()) {
+                    if (textFieldValue.text.isNotEmpty()) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(R.string.delete_text),
-                            modifier = Modifier.clickable { newDocumentName = "" })
+                            modifier = Modifier.clickable {
+                                textFieldValue = textFieldValue.copy(text = "")
+                            })
                     }
                 },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences
                 ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                        onConfirm.invoke(textFieldValue.text)
+                    }
+                ),
+                modifier = Modifier.focusRequester(focusRequester)
             )
         },
         confirmButton = {
             TextButton(
-                enabled = newDocumentName.isNotEmpty(),
+                enabled = textFieldValue.text.isNotEmpty(),
                 onClick = {
-                    onConfirm.invoke(newDocumentName)
+                    onConfirm.invoke(textFieldValue.text)
                 }
             ) {
                 Text(stringResource(R.string.edit))

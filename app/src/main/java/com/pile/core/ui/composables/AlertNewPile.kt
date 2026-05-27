@@ -51,7 +51,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pile.PileModel
@@ -116,7 +118,14 @@ private fun AlertNewEditPile(
     onDismiss: () -> Unit,
     onConfirm: (pileName: String, pileIconId: String, pileColorNumber: Long) -> Unit
 ) {
-    var pileName by rememberSaveable { mutableStateOf(pileModel?.name ?: "") }
+    var pileNameValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(
+            TextFieldValue(
+                text = pileModel?.name ?: "",
+                selection = TextRange(pileModel?.name?.length ?: 0)
+            )
+        )
+    }
     var pileIconId by rememberSaveable { mutableStateOf(pileModel?.iconId ?: "Add") }
     var pileColorNumber by rememberSaveable { mutableLongStateOf(pileModel?.colorNumber ?: 0) }
 
@@ -126,19 +135,19 @@ private fun AlertNewEditPile(
         title = { Text(stringResource(if (pileModel == null) R.string.add_pile else R.string.edit_pile)) },
         text = {
             BodyAlertNewPile(
-                pileName = pileName,
+                pileNameValue = pileNameValue,
                 pileColorNumber = pileColorNumber,
                 pileIconId = pileIconId,
-                onUpdatePileName = { pileName = it },
+                onUpdatePileName = { pileNameValue = it },
                 onUpdatePileIcon = { pileIconId = it },
                 onUpdatePileColor = { pileColorNumber = it }
             )
         },
         confirmButton = {
             TextButton(
-                enabled = pileName.isNotEmpty(),
+                enabled = pileNameValue.text.isNotEmpty(),
                 onClick = {
-                    onConfirm.invoke(pileName, pileIconId, pileColorNumber)
+                    onConfirm.invoke(pileNameValue.text, pileIconId, pileColorNumber)
                 }
             ) {
                 Text(stringResource(if (pileModel == null) R.string.new_ else R.string.edit))
@@ -157,10 +166,10 @@ private fun AlertNewEditPile(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun BodyAlertNewPile(
-    pileName: String,
+    pileNameValue: TextFieldValue,
     pileColorNumber: Long,
     pileIconId: String,
-    onUpdatePileName: (name: String) -> Unit,
+    onUpdatePileName: (TextFieldValue) -> Unit,
     onUpdatePileIcon: (iconId: String) -> Unit,
     onUpdatePileColor: (colorNumber: Long) -> Unit
 ) {
@@ -226,16 +235,16 @@ private fun BodyAlertNewPile(
             }
 
             OutlinedTextField(
-                value = pileName,
+                value = pileNameValue,
                 onValueChange = { onUpdatePileName(it) },
                 modifier = Modifier.focusRequester(focusRequester),
                 label = { Text(stringResource(R.string.pile_name)) },
                 trailingIcon = {
-                    if (pileName.isNotEmpty()) {
+                    if (pileNameValue.text.isNotEmpty()) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(R.string.delete_text),
-                            modifier = Modifier.clickable { onUpdatePileName("") })
+                            modifier = Modifier.clickable { onUpdatePileName(pileNameValue.copy(text = "")) })
                     }
                 },
                 singleLine = true,
