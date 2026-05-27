@@ -5,6 +5,7 @@ import com.pile.PileModel
 import java.time.LocalDate
 
 data class SearchBarState(
+    val isLoading: Boolean = true,
     val pileList: List<PileModel> = emptyList(),
     val documentList: List<DocumentModel> = emptyList(),
     val filteredDocumentList: List<DocumentSearchItem> = emptyList(),

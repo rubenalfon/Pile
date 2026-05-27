@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -40,6 +41,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults.InputField
 import androidx.compose.material3.Text
@@ -63,6 +65,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -144,31 +147,66 @@ fun SearchBarScreen(
             var availableWidth by remember { mutableStateOf(0.dp) }
             val density = LocalDensity.current
 
-            LoadingWrapper(state.pileList.isEmpty() || state.documentList.isEmpty()) {
-                LazyColumn(
-                    modifier = Modifier
-                        .imePadding()
-                        .fillMaxSize()
-                        .onGloballyPositioned { coordinates ->
-                            val widthPx = coordinates.size.width
-                            availableWidth = with(density) { widthPx.toDp() }.value.dp
+            LoadingWrapper(state.isLoading) {
+                val isSearchEmpty = state.searchQuery.isNotEmpty() && state.filteredDocumentList.isEmpty()
+                Crossfade(
+                    targetState = isSearchEmpty,
+                    label = "SearchEmptyStateCrossfade",
+                    animationSpec = tween(durationMillis = 300)
+                ) { empty ->
+                    if (empty) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(top = 64.dp),
+                            contentAlignment = Alignment.TopCenter
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.padding(32.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.search_24px),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(80.dp),
+                                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                                )
+                                Spacer(Modifier.height(16.dp))
+                                Text(
+                                    text = stringResource(R.string.no_search_results),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
-                ) {
-                    itemDocumentsCustomList(
-                        availableWidth = availableWidth,
-                        documents = state.filteredDocumentList,
-                        onDocumentClick = { documentId ->
-                            navigateToDocumentDetail(documentId)
-                        },
-                        bitmapCache = bitmapCache,
-                        onLoadBitmap = { document ->
-                            viewModel.handleEvent(
-                                SearchBarEvent.OnImageDisplayed(document)
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .imePadding()
+                                .fillMaxSize()
+                                .onGloballyPositioned { coordinates ->
+                                    val widthPx = coordinates.size.width
+                                    availableWidth = with(density) { widthPx.toDp() }.value.dp
+                                }
+                        ) {
+                            itemDocumentsCustomList(
+                                availableWidth = availableWidth,
+                                documents = state.filteredDocumentList,
+                                onDocumentClick = { documentId ->
+                                    navigateToDocumentDetail(documentId)
+                                },
+                                bitmapCache = bitmapCache,
+                                onLoadBitmap = { document ->
+                                    viewModel.handleEvent(
+                                        SearchBarEvent.OnImageDisplayed(document)
+                                    )
+                                }
                             )
+                            item {
+                                Spacer(Modifier.height(50.dp))
+                            }
                         }
-                    )
-                    item {
-                        Spacer(Modifier.height(50.dp))
                     }
                 }
             }

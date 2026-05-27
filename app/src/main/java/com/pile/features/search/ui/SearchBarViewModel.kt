@@ -35,7 +35,13 @@ class SearchBarViewModel(
             val documentsFlow = documentRepository.documentModels
 
             pilesFlow.combine(documentsFlow) { piles, documents ->
-                _state.update { it.copy(pileList = piles, documentList = documents) }
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        pileList = piles,
+                        documentList = documents
+                    )
+                }
             }.collect()
         }
     }
@@ -61,6 +67,8 @@ class SearchBarViewModel(
             _state.update { it.copy(filteredDocumentList = emptyList()) }
             return
         }
+
+        _state.update { it.copy(isLoading = true) }
 
         val pileFilteredDocumentList =
             if (currentState.selectedFilterPiles.isEmpty()) currentState.documentList
@@ -93,7 +101,8 @@ class SearchBarViewModel(
 
         _state.update {
             it.copy(
-                filteredDocumentList = filteredDocumentList
+                filteredDocumentList = filteredDocumentList,
+                isLoading = false
             )
         }
     }
