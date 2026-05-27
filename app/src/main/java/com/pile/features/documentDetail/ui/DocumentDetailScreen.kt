@@ -595,20 +595,11 @@ private fun LazyListScope.documentDetailsSection(
                     isEditingMode = isEditingMode,
                     onUpdateEditingMode = updateEditingMode,
                     onMove = { from, to ->
-                        onEvent(
-                            DetailsActionEvent.OnIndexMove(
-                                from,
-                                to
-                            )
-                        )
+                        onEvent(DetailsActionEvent.OnIndexMove(from, to))
                     },
                     onTextChange = { newName, newValue ->
                         onEvent(
-                            DetailsActionEvent.OnUpdateText(
-                                documentDetail.id,
-                                newName,
-                                newValue
-                            )
+                            DetailsActionEvent.OnUpdateText(documentDetail.id, newName, newValue)
                         )
                     },
                     modifier = Modifier
