@@ -11,7 +11,7 @@ import com.pile.features.documentDetail.di.documentDetailModule
 import com.pile.features.editDocument.di.editDocumentModule
 import com.pile.features.home.di.homeModule
 import com.pile.features.pileDetail.di.pileDetailModule
-import com.pile.features.search.di.searchBarModule
+import com.pile.features.search.di.searchModule
 import com.pile.features.settings.di.settingsModule
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
@@ -38,8 +38,8 @@ class App : Application() {
                 dataModule,
                 domainModule,
                 activitiesModule,
+                searchModule,
                 homeModule,
-                searchBarModule,
                 pileDetailModule,
                 documentDetailModule,
                 editDocumentModule,

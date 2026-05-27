@@ -1,5 +1,6 @@
 package com.pile.features.search.ui
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -42,6 +43,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults.InputField
 import androidx.compose.material3.Text
@@ -63,6 +65,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -79,6 +82,7 @@ import com.pile.core.ui.composables.adaptiveSizeItemsGrid
 import com.pile.core.ui.util.horizontalPaddingValues
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -86,15 +90,53 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import kotlin.time.Duration.Companion.milliseconds
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchScreen(
+    pileId: String? = null,
+    onBack: () -> Unit,
+    navigateToDocumentDetail: (documentId: String) -> Unit
+) {
+    val showKeyboard = remember { mutableStateOf(true) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        if (showKeyboard.value) {
+            delay(100.milliseconds) // Prevents errors
+            focusRequester.requestFocus()
+            keyboard?.show()
+        }
+    }
+
+    Scaffold(
+        contentWindowInsets = WindowInsets.displayCutout,
+        topBar = {
+            SearchContent(
+                pileId = pileId,
+                expanded = true,
+                onExpandedChange = { expanded ->
+                    if (!expanded) onBack()
+                },
+                onSettingsClick = {}, // Do not
+                navigateToDocumentDetail = navigateToDocumentDetail,
+                focusRequester = focusRequester
+            )
+        },
+        content = {}
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBarScreen(
+fun SearchContent(
     modifier: Modifier = Modifier,
+    pileId: String? = null,
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onSettingsClick: () -> Unit,
-    viewModel: SearchBarViewModel = koinViewModel(),
+    viewModel: SearchViewModel = koinViewModel { parametersOf(pileId) },
     navigateToDocumentDetail: (documentId: String) -> Unit,
     focusRequester: FocusRequester? = null
 ) {
@@ -104,7 +146,7 @@ fun SearchBarScreen(
     LaunchedEffect(expanded) {
         if (!expanded) {
             delay(300.milliseconds)
-            viewModel.handleEvent(SearchBarEvent.OnCloseSearch)
+            viewModel.handleEvent(SearchEvent.OnCloseSearch)
         }
     }
 
@@ -119,8 +161,8 @@ fun SearchBarScreen(
 
             SearchInputField(
                 searchQuery = state.searchQuery,
-                onQueryChange = { viewModel.handleEvent(SearchBarEvent.OnUpdateSearchQuery(it)) },
-                onSearch = { viewModel.handleEvent(SearchBarEvent.OnSearch) },
+                onQueryChange = { viewModel.handleEvent(SearchEvent.OnUpdateSearchQuery(it)) },
+                onSearch = { viewModel.handleEvent(SearchEvent.OnSearch) },
                 expanded = expanded,
                 onExpandedChange = { onExpandedChange(it) },
                 onSettingsClick = onSettingsClick,
@@ -199,7 +241,7 @@ fun SearchBarScreen(
                                 bitmapCache = bitmapCache,
                                 onLoadBitmap = { document ->
                                     viewModel.handleEvent(
-                                        SearchBarEvent.OnImageDisplayed(document)
+                                        SearchEvent.OnImageDisplayed(document)
                                     )
                                 }
                             )
@@ -219,14 +261,14 @@ fun SearchBarScreen(
             pileList = state.pileList,
             selectedFilterPiles = state.selectedFilterPiles,
             onDismissBottomSheet = { showFilterPilesBottomSheet = false },
-            onPileClick = { viewModel.handleEvent(SearchBarEvent.OnUpdateFilterPiles(it)) }
+            onPileClick = { viewModel.handleEvent(SearchEvent.OnUpdateFilterPiles(it)) }
         )
     }
 
 
     if (showFilterDateAlert) {
         FilterDateAlert(
-            onDateSelected = { viewModel.handleEvent(SearchBarEvent.OnUpdateFilterDate(it)) },
+            onDateSelected = { viewModel.handleEvent(SearchEvent.OnUpdateFilterDate(it)) },
             selectedFilterDate = state.selectedFilterDate,
             documentList = state.documentList,
             onDismiss = { showFilterDateAlert = false }
@@ -407,7 +449,7 @@ private fun FilterChipsRow(
 
 private fun LazyListScope.itemDocumentsCustomList(
     availableWidth: Dp,
-    documents: List<DocumentSearchItem>,
+    documents: List<SearchItem>,
     bitmapCache: Map<String, Bitmap>,
     onLoadBitmap: suspend (document: DocumentModel) -> Unit,
     onDocumentClick: (documentId: String) -> Unit = {}

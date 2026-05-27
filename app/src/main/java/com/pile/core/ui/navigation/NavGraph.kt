@@ -6,16 +6,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.displayCutout
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -27,10 +19,9 @@ import com.pile.features.documentDetail.ui.DocumentDetailScreen
 import com.pile.features.editDocument.ui.EditDocumentScreen
 import com.pile.features.home.ui.HomeScreen
 import com.pile.features.pileDetail.ui.PileDetailScreen
-import com.pile.features.search.ui.SearchBarScreen
+import com.pile.features.search.ui.SearchScreen
 import com.pile.features.settings.ui.overview.SettingsOverviewScreen
 import com.pile.features.settings.ui.resolution.SettingsResolutionScreen
-import kotlinx.coroutines.delay
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -85,7 +76,7 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                         backStack.add(Pane.DocumentDetail(documentId = id))
                     },
                     navigateToSearchScreen = {
-                        backStack.add(Pane.Search)
+                        backStack.add(Pane.Search(pileId = it))
                     },
 
                     popBackStack = {
@@ -152,39 +143,13 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                 )
             }
 
-            entry<Pane.Search> {
-                val showKeyboard = remember { mutableStateOf(true) }
-                val focusRequester = remember { FocusRequester() }
-                val keyboard = LocalSoftwareKeyboardController.current
-
-                LaunchedEffect(focusRequester) {
-                    if (showKeyboard.value) {
-                        focusRequester.requestFocus()
-                        delay(100)
-                        keyboard?.show()
+            entry<Pane.Search> { backStackKey ->
+                SearchScreen(
+                    pileId = backStackKey.pileId,
+                    onBack = { backStack.removeLastOrNull() },
+                    navigateToDocumentDetail = { id ->
+                        backStack.add(Pane.DocumentDetail(documentId = id))
                     }
-                }
-
-                Scaffold(
-                    contentWindowInsets = WindowInsets.displayCutout,
-                    topBar = {
-                        SearchBarScreen(
-                            expanded = true,
-                            onExpandedChange = {
-                                if (!it) backStack.removeLastOrNull()
-                            },
-                            onSettingsClick = {}, // Do not
-                            navigateToDocumentDetail = { id ->
-                                backStack.add(
-                                    Pane.DocumentDetail(
-                                        documentId = id
-                                    )
-                                )
-                            },
-                            focusRequester = focusRequester
-                        )
-                    },
-                    content = {}
                 )
             }
 

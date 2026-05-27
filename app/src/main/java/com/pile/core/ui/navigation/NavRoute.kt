@@ -49,7 +49,10 @@ sealed interface Pane : Parcelable, NavKey {
 
     @Parcelize
     @Serializable
-    data object Search : Pane
+    data class Search(
+        val pileId: String? = null
+    ) : Pane
+
 
     @Parcelize
     @Serializable

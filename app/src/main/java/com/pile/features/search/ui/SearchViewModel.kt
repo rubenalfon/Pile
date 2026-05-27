@@ -17,14 +17,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-class SearchBarViewModel(
+class SearchViewModel(
+    private val pileId: String?,
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
     private val pileRepository: PileModelRepository,
     private val documentRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository
 ) : ViewModel() {
-    private val _state = MutableStateFlow(SearchBarState())
-    val state: StateFlow<SearchBarState> = _state.asStateFlow()
+    private val _state = MutableStateFlow(SearchState())
+    val state: StateFlow<SearchState> = _state.asStateFlow()
 
     val bitmapCache = bitmapCacheRepository.bitmapCache
 
@@ -39,22 +40,23 @@ class SearchBarViewModel(
                     it.copy(
                         isLoading = false,
                         pileList = piles,
-                        documentList = documents
+                        documentList = documents,
+                        selectedFilterPiles = if (pileId != null) listOf(pileId) else emptyList()
                     )
                 }
             }.collect()
         }
     }
 
-    fun handleEvent(event: SearchBarEvent) {
+    fun handleEvent(event: SearchEvent) {
         when (event) {
-            SearchBarEvent.OnSearch -> filterResults()
-            SearchBarEvent.OnCloseSearch -> resetSearch()
-            is SearchBarEvent.OnImageDisplayed -> requestBitmapLoad(event.document)
+            SearchEvent.OnSearch -> filterResults()
+            SearchEvent.OnCloseSearch -> resetSearch()
+            is SearchEvent.OnImageDisplayed -> requestBitmapLoad(event.document)
 
-            is SearchBarEvent.OnUpdateSearchQuery -> updateSearchQuery(event.query)
-            is SearchBarEvent.OnUpdateFilterPiles -> addRemoveFilterPiles(event.pileId)
-            is SearchBarEvent.OnUpdateFilterDate -> updateFilterDate(event.date)
+            is SearchEvent.OnUpdateSearchQuery -> updateSearchQuery(event.query)
+            is SearchEvent.OnUpdateFilterPiles -> addRemoveFilterPiles(event.pileId)
+            is SearchEvent.OnUpdateFilterDate -> updateFilterDate(event.date)
         }
     }
 
@@ -94,7 +96,7 @@ class SearchBarViewModel(
                     ignoreCase = true
                 )
         }.map { document ->
-            DocumentSearchItem(
+            SearchItem(
                 document = document,
                 coverImageCacheKey = bitmapCacheRepository.getImageKey(document, 0)
             )

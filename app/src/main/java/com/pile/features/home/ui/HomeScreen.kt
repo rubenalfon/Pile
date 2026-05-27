@@ -94,7 +94,7 @@ import com.pile.core.ui.composables.itemPileGrid
 import com.pile.core.ui.controllers.ImportActions
 import com.pile.core.ui.controllers.rememberDocumentImportController
 import com.pile.features.home.ui.compostables.HomeScreenSectionTitle
-import com.pile.features.search.ui.SearchBarScreen
+import com.pile.features.search.ui.SearchContent
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -190,7 +190,7 @@ fun HomeScreen(
                     .calculateEndPadding(LocalLayoutDirection.current)
             )
 
-            SearchBarScreen(
+            SearchContent(
                 modifier = Modifier
                     .padding(horizontal = horizontalPaddingAnimated)
                     .padding(bottom = bottomPaddingAnimated)

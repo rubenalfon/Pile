@@ -61,7 +61,7 @@ fun PileDetailScreen(
     modifier: Modifier = Modifier,
     pileId: String,
     navigateToDocumentDetail: (documentId: String) -> Unit,
-    navigateToSearchScreen: () -> Unit,
+    navigateToSearchScreen: (pileId: String) -> Unit,
     popBackStack: () -> Unit,
     viewModel: PileDetailViewModel = koinViewModel { parametersOf(pileId) }
 ) {
@@ -86,7 +86,7 @@ fun PileDetailScreen(
             TopAppBar(
                 pileName = state.pile?.name ?: "",
                 popBackStack = popBackStack,
-                onSearchClick = navigateToSearchScreen,
+                onSearchClick = { navigateToSearchScreen(pileId) },
                 scrollBehavior = scrollBehavior
             )
         },
@@ -114,7 +114,9 @@ fun PileDetailScreen(
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(32.dp).padding(top = 100.dp)
+                            modifier = Modifier
+                                .padding(32.dp)
+                                .padding(top = 100.dp)
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.user_ic_category_24px),
