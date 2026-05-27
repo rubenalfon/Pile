@@ -77,6 +77,7 @@ import com.pile.DocumentModel
 import com.pile.PileModel
 import com.pile.R
 import com.pile.core.ui.composables.Document
+import com.pile.core.ui.composables.KeyboardAware
 import com.pile.core.ui.composables.LoadingWrapper
 import com.pile.core.ui.composables.SelectPilesBottomSheet
 import com.pile.core.ui.composables.adaptiveSizeItemsGrid
@@ -194,71 +195,73 @@ fun SearchContent(
                 val isSearchEmpty =
                     state.searchQuery.isNotEmpty() && state.filteredDocumentList.isEmpty()
 
-                AnimatedContent(
-                    targetState = isSearchEmpty,
-                    transitionSpec = {
-                        (fadeIn(animationSpec = tween(300, delayMillis = 90)) +
-                                slideInVertically(
-                                    initialOffsetY = { it / 12 },
-                                    animationSpec = spring(
-                                        dampingRatio = Spring.DampingRatioLowBouncy,
-                                        stiffness = Spring.StiffnessLow
-                                    )
-                                )).togetherWith(fadeOut(animationSpec = tween(150)))
-                    },
-                    label = "SearchContentAnimation"
-                ) { empty ->
-                    if (empty) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(top = 64.dp),
-                            contentAlignment = Alignment.TopCenter
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.padding(32.dp)
+                KeyboardAware {
+                    AnimatedContent(
+                        targetState = isSearchEmpty,
+                        transitionSpec = {
+                            (fadeIn(animationSpec = tween(300, delayMillis = 90)) +
+                                    slideInVertically(
+                                        initialOffsetY = { it / 12 },
+                                        animationSpec = spring(
+                                            dampingRatio = Spring.DampingRatioLowBouncy,
+                                            stiffness = Spring.StiffnessLow
+                                        )
+                                    )).togetherWith(fadeOut(animationSpec = tween(150)))
+                        },
+                        label = "SearchContentAnimation"
+                    ) { empty ->
+                        if (empty) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.search_24px),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(80.dp),
-                                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-                                )
-                                Spacer(Modifier.height(16.dp))
-                                Text(
-                                    text = stringResource(R.string.no_search_results),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier
-                                .imePadding()
-                                .fillMaxSize()
-                                .onGloballyPositioned { coordinates ->
-                                    val widthPx = coordinates.size.width
-                                    availableWidth = with(density) { widthPx.toDp() }.value.dp
-                                }
-                        ) {
-                            itemDocumentsCustomList(
-                                availableWidth = availableWidth,
-                                documents = state.filteredDocumentList,
-                                onDocumentClick = { documentId ->
-                                    navigateToDocumentDetail(documentId)
-                                },
-                                bitmapCache = bitmapCache,
-                                onLoadBitmap = { document ->
-                                    viewModel.handleEvent(
-                                        SearchEvent.OnImageDisplayed(document)
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.padding(32.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.search_24px),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(80.dp),
+                                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                                    )
+                                    Spacer(Modifier.height(16.dp))
+                                    Text(
+                                        text = stringResource(R.string.no_search_results),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        textAlign = TextAlign.Center,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                            )
-                            item {
-                                Spacer(Modifier.height(50.dp))
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .imePadding()
+                                    .fillMaxSize()
+                                    .onGloballyPositioned { coordinates ->
+                                        val widthPx = coordinates.size.width
+                                        availableWidth =
+                                            with(density) { widthPx.toDp() }.value.dp
+                                    }
+                            ) {
+                                itemDocumentsCustomList(
+                                    availableWidth = availableWidth,
+                                    documents = state.filteredDocumentList,
+                                    onDocumentClick = { documentId ->
+                                        navigateToDocumentDetail(documentId)
+                                    },
+                                    bitmapCache = bitmapCache,
+                                    onLoadBitmap = { document ->
+                                        viewModel.handleEvent(
+                                            SearchEvent.OnImageDisplayed(document)
+                                        )
+                                    }
+                                )
+                                item {
+                                    Spacer(Modifier.height(50.dp))
+                                }
                             }
                         }
                     }
