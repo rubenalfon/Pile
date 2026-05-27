@@ -12,6 +12,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -190,11 +191,22 @@ fun SearchContent(
             val density = LocalDensity.current
 
             LoadingWrapper(state.isLoading) {
-                val isSearchEmpty = state.searchQuery.isNotEmpty() && state.filteredDocumentList.isEmpty()
-                Crossfade(
+                val isSearchEmpty =
+                    state.searchQuery.isNotEmpty() && state.filteredDocumentList.isEmpty()
+
+                AnimatedContent(
                     targetState = isSearchEmpty,
-                    label = "SearchEmptyStateCrossfade",
-                    animationSpec = tween(durationMillis = 300)
+                    transitionSpec = {
+                        (fadeIn(animationSpec = tween(300, delayMillis = 90)) +
+                                slideInVertically(
+                                    initialOffsetY = { it / 12 },
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioLowBouncy,
+                                        stiffness = Spring.StiffnessLow
+                                    )
+                                )).togetherWith(fadeOut(animationSpec = tween(150)))
+                    },
+                    label = "SearchContentAnimation"
                 ) { empty ->
                     if (empty) {
                         Box(
