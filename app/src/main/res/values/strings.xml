@@ -66,7 +66,7 @@
     <string name="move_down_detail">Move down detail</string>
     <string name="detail_deleted">Detail deleted</string>
     <string name="delete_detail">Delete detail</string>
-    <string name="no_piles_saved">It looks like there aren\'t any saved piles yet!</string>
+    <string name="no_piles_saved">You haven\'t created any piles yet. Create your first one to start organizing your documents!</string>
     <string name="no_documents_in_pile">This pile is empty, start by adding some documents to it!</string>
     <string name="no_documents_home">You haven\'t added any documents yet. Tap the button below to start!</string>
     <string name="no_search_results">No results were found for your search. Please try adjusting your filters or query.</string>

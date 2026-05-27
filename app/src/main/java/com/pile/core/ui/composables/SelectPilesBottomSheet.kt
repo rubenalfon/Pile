@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -29,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -94,46 +96,45 @@ fun SelectPilesBottomSheet(
                         colorNumber = null
                     ),
                     isColored = false,
-                    onClick = { onNewPile.invoke() }
+                    onClick = { onNewPile() }
                 )
                 Spacer(Modifier.height(4.dp))
             }
             if (pileList?.isEmpty() == true && onNewPile != null) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
                         .padding(horizontal = 16.dp)
-                        .padding(top = 20.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
-                        .padding(16.dp),
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                        .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    Icon(
+                        painter = painterResource(R.drawable.user_ic_category_24px),
+                        contentDescription = null,
+                        modifier = Modifier.size(60.dp),
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                    )
+
                     Text(
                         stringResource(R.string.no_piles_saved),
-                        style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.Center
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Button(
                         onClick = onNewPile,
                         modifier = Modifier.heightIn(ButtonDefaults.MediumContainerHeight),
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = stringResource(R.string.add_a_detail),
-                                modifier = Modifier.size(32.dp)
-                            )
-                            Text(
-                                stringResource(R.string.add_a_detail),
-                                style = MaterialTheme.typography.headlineSmall
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null,
+                        )
+                        Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                        Text(stringResource(R.string.new_pile))
                     }
                 }
             }
