@@ -30,6 +30,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -73,6 +75,8 @@ fun SelectPilesBottomSheet(
                 }
             }
 
+            val hapticFeedback = LocalHapticFeedback.current
+
             pileList?.forEach { pileModel ->
                 Pile(
                     modifier = Modifier
@@ -80,7 +84,10 @@ fun SelectPilesBottomSheet(
                         .padding(horizontal = 16.dp),
                     pileModel = pileModel,
                     isColored = selectedFilterPiles.contains(pileModel.id),
-                    onClick = onPileClick
+                    onClick = {
+                        hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                        onPileClick(it)
+                    }
                 )
                 Spacer(Modifier.height(4.dp))
             }

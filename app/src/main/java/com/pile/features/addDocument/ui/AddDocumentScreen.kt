@@ -51,10 +51,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -92,6 +94,8 @@ fun AddDocumentScreen(
     }
 
     var isNewPileAlertExpanded by rememberSaveable { mutableStateOf(false) }
+
+    val hapticFeedback = LocalHapticFeedback.current
 
     var hasRequestedFocus by rememberSaveable { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
@@ -265,6 +269,7 @@ fun AddDocumentScreen(
                             availableWidth = availableWidth,
                             piles = state.allPileModels!!,
                             onPileClick = { pileId ->
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentTick)
                                 viewModel.handleEvent(AddDocumentEvent.OnAddPile(pileId))
                             },
                             onNewPileClick = { isNewPileAlertExpanded = true },
