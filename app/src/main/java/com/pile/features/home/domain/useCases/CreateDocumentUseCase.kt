@@ -155,6 +155,7 @@ class CreateDocumentUseCase(
             documentModelRepository.deleteDocumentModel(documentId)
         } catch (e: Exception) {
             Napier.e("Error during rollback", e)
+            throw e
         }
     }
 }
