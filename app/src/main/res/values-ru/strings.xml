@@ -1,0 +1,161 @@
+<resources>
+    <string name="app_name">Pile</string>
+
+    <string name="your_piles">Ваши стопки</string>
+    <string name="all_documents">Все документы</string>
+    <string name="search_your_documents">Поиск в документах</string>
+    <string name="user_document_unsaved_changes">У вас есть документ с несохраненными изменениями.</string>
+    <string name="document_unsaved_changes_deleted">Документ удален</string>
+    <string name="navigate_to_edit_unsaved_document">Перейти к редактированию несохраненного документа</string>
+    <string name="see_more">Показать больше</string>
+
+    <string name="new_">Новый</string>
+    <string name="edit">Изменить</string>
+    <string name="cancel">Отмена</string>
+    <string name="done">Готово</string>
+    <string name="undo">Отменить</string>
+    <string name="rename">Переименовать</string>
+    <string name="delete">Удалить</string>
+    <string name="search">Поиск</string>
+    <string name="add">Добавить</string>
+    <string name="delete_text">Удалить текст</string>
+    <string name="color">Цвет</string>
+    <string name="icon">Иконка</string>
+    <string name="return_">Вернуться</string>
+    <string name="reset">Сбросить</string>
+    <string name="rotate">Повернуть</string>
+    <string name="settings">Настройки</string>
+    <string name="date">Дата</string>
+    <string name="ok">ОК</string>
+    <string name="clear">Очистить</string>
+    <string name="select">Выбрать</string>
+    <string name="selected_">Выбрано</string>
+    <string name="keep_editing">Продолжить редактирование</string>
+    <string name="discard">Отклонить</string>
+
+
+    <string name="new_pile">Новая стопка</string>
+    <string name="add_pile">Добавить стопку</string>
+    <string name="pile_name">Название стопки</string>
+    <string name="loading_new_document">Загрузка нового документа</string>
+
+    <string name="add_document">Добавить документ</string>
+    <string name="add_to_piles">Добавить в стопки</string>
+    <string name="change_document_title">Изменить заголовок документа</string>
+    <string name="delete_document">Удалить документ</string>
+    <string name="save_document">Сохранить документ</string>
+    <string name="share_document">Поделиться документом</string>
+    <string name="edit_document">Редактировать документ</string>
+
+    <string name="delete_document_alert_title">Удалить документ?</string>
+    <string name="delete_document_alert_body">Вы уверены, что хотите удалить этот документ? Это действие нельзя отменить.</string>
+
+    <string name="added_date">Добавлено %1$s</string>
+    <string name="modified_date">Изменено %1$s</string>
+
+    <string name="edit_document_section_name">Редактировать раздел документа %1$s</string>
+    <string name="save_changes_in_document_section_name">Сохранить изменения в разделе документа %1$s</string>
+
+    <string name="add_a_note">Добавить заметку…</string>
+    <string name="no_piles_in_document">Стопки не выбраны</string>
+    <string name="no_document_details">Нет данных о документе</string>
+    <string name="add_a_detail">Добавить деталь</string>
+    <string name="detail_hint_title">Параметр</string>
+    <string name="detail_hint_value">Значение</string>
+    <string name="move_up_detail">Переместить выше</string>
+    <string name="move_down_detail">Переместить ниже</string>
+    <string name="move_previous">Переместить к предыдущему</string>
+    <string name="move_next">Переместить к следующему</string>
+    <string name="detail_deleted">Деталь удалена</string>
+    <string name="delete_detail">Удалить деталь</string>
+    <string name="no_piles_saved">Вы еще не создали ни одной стопки. Создайте свою первую стопку, чтобы начать организовывать документы!</string>
+    <string name="no_documents_in_pile">Эта стопка пуста, добавьте в нее документы!</string>
+    <string name="no_documents_home">Вы еще не добавили ни одного документа. Нажмите кнопку ниже, чтобы начать!</string>
+    <string name="no_search_results">По вашему запросу ничего не найдено. Попробуйте изменить фильтры или запрос.</string>
+
+
+    <string name="document_no_name_error">добавьте название вашему документу.</string>
+    <string name="error_saving_document">Ошибка при сохранении документа</string>
+    <string name="error_opening_files_explorer">Ошибка при открытии проводника</string>
+    <string name="error_importing_images">Ошибка при импорте изображений</string>
+    <string name="error_importing_pdf">Ошибка при импорте PDF</string>
+    <string name="error_restoring_draft_document">Ошибка при восстановлении черновика документа</string>
+    <string name="error_exporting_pdf">Ошибка при экспорте PDF</string>
+
+    <string name="exporting_document">Экспорт документа</string>
+    <string name="pdf_exported_successfully">PDF успешно экспортирован</string>
+
+    <string name="piles">Стопки</string>
+    <string name="note">Заметка</string>
+    <string name="details">Детали</string>
+
+
+    <string name="import_pdf">Импортировать PDF</string>
+    <string name="import_pdf_file">Импортировать PDF-файл</string>
+    <string name="import_from_gallery">Импортировать из галереи</string>
+    <string name="take_a_photo">Сделать фото</string>
+
+
+    <string name="preview">Предпросмотр</string>
+    <string name="edit_image_colors">Изменить цвета изображения</string>
+    <string name="resize_image">Изменить размер изображения</string>
+    <string name="delete_image">Удалить изображение</string>
+    <string name="image_deleted">Изображение удалено</string>
+    <string name="add_image">Добавить изображение</string>
+    <string name="image_number">Изображение №%1$d</string>
+    <string name="delete_image_body">Вы уверены, что хотите удалить это изображение?</string>
+    <string name="save_changes">Сохранить изменения</string>
+    <string name="adding_images">Добавление новых изображений</string>
+
+    <string name="document_first_image">Первое изображение документа</string>
+    <string name="document_name">Название документа</string>
+
+    <string name="rotate_image_counterclockwise">Повернуть против часовой стрелки</string>
+    <string name="reset_image_crop">Сбросить обрезку изображения</string>
+    <string name="error_loading_crop_controller">Ошибка при загрузке редактора обрезки</string>
+
+    <string name="close_pile_selection_bottom_sheet">Закрыть выбор стопок</string>
+
+    <string name="discard_changes">Отменить изменения?</string>
+    <string name="discard_changes_body">Ваши изменения не сохранены</string>
+
+
+    <string name="expanded">Развернуто</string>
+    <string name="collapsed">Свернуто</string>
+    <string name="toggle_menu">Переключить меню</string>
+    <string name="close_menu">Закрыть меню</string>
+
+    <string name="edit_pile">Редактировать стопку</string>
+    <string name="delete_pile">Удалить стопку</string>
+    <string name="delete_pile_alert_title">Удалить стопку?</string>
+    <string name="delete_pile_alert_body">Документы останутся, но эта стопка будет из них удалена.</string>
+
+
+    <string name="no_images_found">Изображения не найдены.</string>
+    <string name="no_pdf_found">PDF не найден.</string>
+    <string name="error_creating_pdf">Ошибка при создании PDF</string>
+
+
+    <string name="appearance">Внешний вид</string>
+    <string name="artificial_intelligence">Искусственный интеллект</string>
+    <string name="resolution">Разрешение</string>
+
+    <string name="theme">Тема</string>
+    <string name="select_theme">Выберите тему</string>
+    <string name="light">Светлая</string>
+    <string name="dark">Темная</string>
+    <string name="system_default">Системная тема</string>
+
+    <string name="use_system_theme_color">Использовать системный цвет темы</string>
+
+    <string name="activate_local_ai_tittle">Активировать локальные функции ИИ</string>
+    <string name="activate_local_ai_body">Использовать ИИ на устройстве для извлечения данных из ваших документов.</string>
+    <string name="select_language_model">Выберите языковую модель</string>
+    <string name="no_model_selected">Модель не выбрана</string>
+
+    <string name="document_resolution">Разрешение документа</string>
+    <string name="original_quality_tittle">Оригинальное качество</string>
+    <string name="original_quality_body">Сохранять исходные изображения в документах.</string>
+    <string name="storage_saver_tittle">Экономия памяти</string>
+    <string name="storage_saver_body">Сохранять дополнительные файлы в чуть меньшем качестве. Импортированные PDF сохранят оригинальное качество.</string>
+</resources>

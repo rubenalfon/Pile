@@ -1,0 +1,161 @@
+<resources>
+    <string name="app_name">Pile</string>
+
+    <string name="your_piles">あなたのパイル（積み重ね）</string>
+    <string name="all_documents">すべてのドキュメント</string>
+    <string name="search_your_documents">ドキュメントを検索</string>
+    <string name="user_document_unsaved_changes">保存されていない変更があるドキュメントがあります。</string>
+    <string name="document_unsaved_changes_deleted">ドキュメントが削除されました</string>
+    <string name="navigate_to_edit_unsaved_document">未保存のドキュメントを編集</string>
+    <string name="see_more">もっと見る</string>
+
+    <string name="new_">新規</string>
+    <string name="edit">編集</string>
+    <string name="cancel">キャンセル</string>
+    <string name="done">完了</string>
+    <string name="undo">元に戻す</string>
+    <string name="rename">名前を変更</string>
+    <string name="delete">削除</string>
+    <string name="search">検索</string>
+    <string name="add">追加</string>
+    <string name="delete_text">テキストを削除</string>
+    <string name="color">カラー</string>
+    <string name="icon">アイコン</string>
+    <string name="return_">戻る</string>
+    <string name="reset">リセット</string>
+    <string name="rotate">回転</string>
+    <string name="settings">設定</string>
+    <string name="date">日付</string>
+    <string name="ok">OK</string>
+    <string name="clear">クリア</string>
+    <string name="select">選択</string>
+    <string name="selected_">選択済み</string>
+    <string name="keep_editing">編集を続ける</string>
+    <string name="discard">破棄</string>
+
+
+    <string name="new_pile">新規パイル</string>
+    <string name="add_pile">パイルを追加</string>
+    <string name="pile_name">パイル名</string>
+    <string name="loading_new_document">新しいドキュメントを読み込み中</string>
+
+    <string name="add_document">ドキュメントを追加</string>
+    <string name="add_to_piles">パイルに追加</string>
+    <string name="change_document_title">ドキュメントのタイトルを変更</string>
+    <string name="delete_document">ドキュメントを削除</string>
+    <string name="save_document">ドキュメントを保存</string>
+    <string name="share_document">ドキュメントを共有</string>
+    <string name="edit_document">ドキュメントを編集</string>
+
+    <string name="delete_document_alert_title">ドキュメントを削除しますか？</string>
+    <string name="delete_document_alert_body">このドキュメントを削除してもよろしいですか？この操作は取り消せません。</string>
+
+    <string name="added_date">追加日 %1$s</string>
+    <string name="modified_date">更新日 %1$s</string>
+
+    <string name="edit_document_section_name">ドキュメントセクション %1$s を編集</string>
+    <string name="save_changes_in_document_section_name">ドキュメントセクション %1$s の変更を保存</string>
+
+    <string name="add_a_note">メモを追加…</string>
+    <string name="no_piles_in_document">パイルが選択されていません</string>
+    <string name="no_document_details">ドキュメントの詳細なし</string>
+    <string name="add_a_detail">詳細を追加</string>
+    <string name="detail_hint_title">項目</string>
+    <string name="detail_hint_value">値</string>
+    <string name="move_up_detail">詳細を上に移動</string>
+    <string name="move_down_detail">詳細を下に移動</string>
+    <string name="move_previous">前に移動</string>
+    <string name="move_next">次に移動</string>
+    <string name="detail_deleted">詳細が削除されました</string>
+    <string name="delete_detail">詳細を削除</string>
+    <string name="no_piles_saved">パイルがまだ作成されていません。最初のパイルを作成して、ドキュメントの整理を始めましょう！</string>
+    <string name="no_documents_in_pile">このパイルは空です。ドキュメントを追加しましょう！</string>
+    <string name="no_documents_home">ドキュメントがまだ追加されていません。下のボタンをタップして開始しましょう！</string>
+    <string name="no_search_results">検索結果が見つかりませんでした。フィルターやクエリを調整してみてください。</string>
+
+
+    <string name="document_no_name_error">ドキュメントに名前を付けてください。</string>
+    <string name="error_saving_document">ドキュメントの保存中にエラーが発生しました</string>
+    <string name="error_opening_files_explorer">ファイルエクスプローラーを開く際にエラーが発生しました</string>
+    <string name="error_importing_images">画像のインポート中にエラーが発生しました</string>
+    <string name="error_importing_pdf">PDFのインポート中にエラーが発生しました</string>
+    <string name="error_restoring_draft_document">下書きドキュメントの復元中にエラーが発生しました</string>
+    <string name="error_exporting_pdf">PDFのエクスポート中にエラーが発生しました</string>
+
+    <string name="exporting_document">ドキュメントをエクスポート中</string>
+    <string name="pdf_exported_successfully">PDFが正常にエクスポートされました</string>
+
+    <string name="piles">パイル</string>
+    <string name="note">メモ</string>
+    <string name="details">詳細</string>
+
+
+    <string name="import_pdf">PDFをインポート</string>
+    <string name="import_pdf_file">PDFファイルをインポート</string>
+    <string name="import_from_gallery">ギャラリーからインポート</string>
+    <string name="take_a_photo">写真を撮る</string>
+
+
+    <string name="preview">プレビュー</string>
+    <string name="edit_image_colors">画像のカラーを編集</string>
+    <string name="resize_image">画像のサイズを変更</string>
+    <string name="delete_image">画像を削除</string>
+    <string name="image_deleted">画像が削除されました</string>
+    <string name="add_image">画像を追加</string>
+    <string name="image_number">画像番号 %1$d</string>
+    <string name="delete_image_body">この画像を削除してもよろしいですか？</string>
+    <string name="save_changes">変更を保存</string>
+    <string name="adding_images">新しい画像を追加中</string>
+
+    <string name="document_first_image">ドキュメントの最初の画像</string>
+    <string name="document_name">ドキュメント名</string>
+
+    <string name="rotate_image_counterclockwise">画像を反時計回りに回転</string>
+    <string name="reset_image_crop">画像の切り抜きをリセット</string>
+    <string name="error_loading_crop_controller">切り抜きエディターの読み込み中にエラーが発生しました</string>
+
+    <string name="close_pile_selection_bottom_sheet">パイル選択シートを閉じる</string>
+
+    <string name="discard_changes">変更を破棄しますか？</string>
+    <string name="discard_changes_body">変更は保存されていません</string>
+
+
+    <string name="expanded">展開済み</string>
+    <string name="collapsed">折りたたみ済み</string>
+    <string name="toggle_menu">メニューを切り替え</string>
+    <string name="close_menu">メニューを閉じる</string>
+
+    <string name="edit_pile">パイルを編集</string>
+    <string name="delete_pile">パイルを削除</string>
+    <string name="delete_pile_alert_title">パイルを削除しますか？</string>
+    <string name="delete_pile_alert_body">ドキュメントは残りますが、このパイルからは解除されます。</string>
+
+
+    <string name="no_images_found">画像が見つかりませんでした。</string>
+    <string name="no_pdf_found">PDFが見つかりませんでした。</string>
+    <string name="error_creating_pdf">PDFの作成中にエラーが発生しました</string>
+
+
+    <string name="appearance">外観</string>
+    <string name="artificial_intelligence">人工知能</string>
+    <string name="resolution">解像度</string>
+
+    <string name="theme">テーマ</string>
+    <string name="select_theme">テーマを選択</string>
+    <string name="light">ライト</string>
+    <string name="dark">ダーク</string>
+    <string name="system_default">システムデフォルト</string>
+
+    <string name="use_system_theme_color">システムテーマカラーを使用</string>
+
+    <string name="activate_local_ai_tittle">ローカルAI機能を有効にする</string>
+    <string name="activate_local_ai_body">デバイス上のAIを使用して、ドキュメントからデータを抽出します。</string>
+    <string name="select_language_model">言語モデルを選択</string>
+    <string name="no_model_selected">モデルが選択されていません</string>
+
+    <string name="document_resolution">ドキュメントの解像度</string>
+    <string name="original_quality_tittle">オリジナル品質</string>
+    <string name="original_quality_body">ドキュメントに元の画像を保存します。</string>
+    <string name="storage_saver_tittle">ストレージ節約</string>
+    <string name="storage_saver_body">追加ファイルを少し低画質で保存します。インポートされたPDFは元の品質を維持します。</string>
+</resources>

@@ -1,0 +1,161 @@
+<resources>
+    <string name="app_name">Pile</string>
+
+    <string name="your_piles">Zure pilak</string>
+    <string name="all_documents">Dokumentu guztiak</string>
+    <string name="search_your_documents">Bilatu zure dokumentuetan</string>
+    <string name="user_document_unsaved_changes">Gorde gabeko aldaketak dituen dokumentu bat duzu.</string>
+    <string name="document_unsaved_changes_deleted">Dokumentua ezabatuta</string>
+    <string name="navigate_to_edit_unsaved_document">Nabigatu gorde gabeko dokumentua editatzeko</string>
+    <string name="see_more">Ikusi gehiago</string>
+
+    <string name="new_">Berria</string>
+    <string name="edit">Editatu</string>
+    <string name="cancel">Utzi</string>
+    <string name="done">Eginda</string>
+    <string name="undo">Desegin</string>
+    <string name="rename">Izena aldatu</string>
+    <string name="delete">Ezabatu</string>
+    <string name="search">Bilatu</string>
+    <string name="add">Gehitu</string>
+    <string name="delete_text">Ezabatu testua</string>
+    <string name="color">Kolorea</string>
+    <string name="icon">Ikonoa</string>
+    <string name="return_">Itzuli</string>
+    <string name="reset">Berrezarri</string>
+    <string name="rotate">Biratu</string>
+    <string name="settings">Ezarpenak</string>
+    <string name="date">Data</string>
+    <string name="ok">Ados</string>
+    <string name="clear">Garbitu</string>
+    <string name="select">Hautatu</string>
+    <string name="selected_">Hautatuta</string>
+    <string name="keep_editing">Jarraitu editatzen</string>
+    <string name="discard">Baztertu</string>
+
+
+    <string name="new_pile">Pila berria</string>
+    <string name="add_pile">Gehitu pila</string>
+    <string name="pile_name">Pilaren izena</string>
+    <string name="loading_new_document">Dokumentu berria kargatzen</string>
+
+    <string name="add_document">Gehitu dokumentua</string>
+    <string name="add_to_piles">Gehitu piletara</string>
+    <string name="change_document_title">Aldatu dokumentuaren titulua</string>
+    <string name="delete_document">Ezabatu dokumentua</string>
+    <string name="save_document">Gorde dokumentua</string>
+    <string name="share_document">Partekatu dokumentua</string>
+    <string name="edit_document">Editatu dokumentua</string>
+
+    <string name="delete_document_alert_title">Dokumentua ezabatu?</string>
+    <string name="delete_document_alert_body">Ziur zaude dokumentu hau ezabatu nahi duzula? Ekintza hau ezin da desegin.</string>
+
+    <string name="added_date">%1$s gehitua</string>
+    <string name="modified_date">%1$s aldatua</string>
+
+    <string name="edit_document_section_name">Editatu %1$s dokumentu-atala</string>
+    <string name="save_changes_in_document_section_name">Gorde aldaketak %1$s dokumentu-atalean</string>
+
+    <string name="add_a_note">Gehitu ohar bat…</string>
+    <string name="no_piles_in_document">Ez dago pilarik hautatuta</string>
+    <string name="no_document_details">Dokumentuaren xehetasunik gabe</string>
+    <string name="add_a_detail">Gehitu xehetasun bat</string>
+    <string name="detail_hint_title">Xehetasuna</string>
+    <string name="detail_hint_value">Balioa</string>
+    <string name="move_up_detail">Mugitu xehetasuna gora</string>
+    <string name="move_down_detail">Mugitu xehetasuna behera</string>
+    <string name="move_previous">Mugitu aurrekoera</string>
+    <string name="move_next">Mugitu hurrengora</string>
+    <string name="detail_deleted">Xehetasuna ezabatuta</string>
+    <string name="delete_detail">Ezabatu xehetasuna</string>
+    <string name="no_piles_saved">Oraindik ez duzu pilarik sortu. Sortu zure lehenengoa dokumentuak antolatzen hasteko!</string>
+    <string name="no_documents_in_pile">Pila hau hutsik dago, hasi dokumentu batzuk gehitzen!</string>
+    <string name="no_documents_home">Oraindik ez duzu dokumenturik gehitu. Sakatu beheko botoia hasteko!</string>
+    <string name="no_search_results">Ez da emaitzarik aurkitu zure bilaketarako. Saiatu iragazkiak edo kontsulta doitzen.</string>
+
+
+    <string name="document_no_name_error">gehitu izen bat zure dokumentuari.</string>
+    <string name="error_saving_document">Errorea dokumentua gordetzean</string>
+    <string name="error_opening_files_explorer">Errorea fitxategi-esploratzailea irekitzean</string>
+    <string name="error_importing_images">Errorea irudiak inportatzean</string>
+    <string name="error_importing_pdf">Errorea PDFa inportatzean</string>
+    <string name="error_restoring_draft_document">Errorea dokumentuaren zirriborroa berreskuratzean</string>
+    <string name="error_exporting_pdf">Errorea PDFa esportatzean</string>
+
+    <string name="exporting_document">Dokumentua esportatzen</string>
+    <string name="pdf_exported_successfully">PDFa ondo esportatu da</string>
+
+    <string name="piles">Pilak</string>
+    <string name="note">Oharra</string>
+    <string name="details">Xehetasunak</string>
+
+
+    <string name="import_pdf">Inportatu PDFa</string>
+    <string name="import_pdf_file">Inportatu PDF fitxategia</string>
+    <string name="import_from_gallery">Inportatu galeriatik</string>
+    <string name="take_a_photo">Atera argazki bat</string>
+
+
+    <string name="preview">Aurrebista</string>
+    <string name="edit_image_colors">Editatu irudi-koloreak</string>
+    <string name="resize_image">Aldatu irudiaren tamaina</string>
+    <string name="delete_image">Ezabatu irudia</string>
+    <string name="image_deleted">Irudia ezabatuta</string>
+    <string name="add_image">Gehitu irudia</string>
+    <string name="image_number">%1$d. irudia</string>
+    <string name="delete_image_body">Ziur zaude irudi hau ezabatu nahi duzula?</string>
+    <string name="save_changes">Gorde aldaketak</string>
+    <string name="adding_images">Irudi berriak gehitzen</string>
+
+    <string name="document_first_image">Dokumentuaren lehen irudia</string>
+    <string name="document_name">Dokumentuaren izena</string>
+
+    <string name="rotate_image_counterclockwise">Biratu irudia ezkerrera</string>
+    <string name="reset_image_crop">Berrezarri irudi-moztea</string>
+    <string name="error_loading_crop_controller">Errorea moztea editatzeko kargatzean</string>
+
+    <string name="close_pile_selection_bottom_sheet">Itxi pilak hautatzeko orria</string>
+
+    <string name="discard_changes">Baztertu aldaketak?</string>
+    <string name="discard_changes_body">Zure aldaketak ez dira gorde</string>
+
+
+    <string name="expanded">Zabalduta</string>
+    <string name="collapsed">Tolestuta</string>
+    <string name="toggle_menu">Aldatu menua</string>
+    <string name="close_menu">Itxi menua</string>
+
+    <string name="edit_pile">Editatu pila</string>
+    <string name="delete_pile">Ezabatu pila</string>
+    <string name="delete_pile_alert_title">Ezabatu pila?</string>
+    <string name="delete_pile_alert_body">Dokumentuak mantendu egingo dira, baina pila hau kendu egingo zaie.</string>
+
+
+    <string name="no_images_found">Ez da irudirik aurkitu.</string>
+    <string name="no_pdf_found">Ez da PDFrik aurkitu.</string>
+    <string name="error_creating_pdf">Errorea PDFa sortzean</string>
+
+
+    <string name="appearance">Itxura</string>
+    <string name="artificial_intelligence">Adimen artifiziala</string>
+    <string name="resolution">Rezoluzioa</string>
+
+    <string name="theme">Gaia</string>
+    <string name="select_theme">Hautatu gaia</string>
+    <string name="light">Argia</string>
+    <string name="dark">Iluna</string>
+    <string name="system_default">Sistemaren lehenetsia</string>
+
+    <string name="use_system_theme_color">Erabili sistemako gaiaren kolorea</string>
+
+    <string name="activate_local_ai_tittle">Aktibatu tokiko AI funtzioak</string>
+    <string name="activate_local_ai_body">Erabili gailuko AIa zure dokumentuetatik datuak ateratzeko.</string>
+    <string name="select_language_model">Hautatu hizkuntza-eredua</string>
+    <string name="no_model_selected">Ez da eredurik hautatu</string>
+
+    <string name="document_resolution">Dokumentuaren rezoluzioa</string>
+    <string name="original_quality_tittle">Jatorrizko kalitatea</string>
+    <string name="original_quality_body">Gorde jatorrizko irudiak zure dokumentuetan.</string>
+    <string name="storage_saver_tittle">Memoria aurreztea</string>
+    <string name="storage_saver_body">Gorde fitxategi gehigarriak kalitate pixka bat txikiagoan. Inportatutako PDFek jatorrizko kalitatea mantenduko dute</string>
+</resources>

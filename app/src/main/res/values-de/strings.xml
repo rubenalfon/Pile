@@ -1,0 +1,161 @@
+<resources>
+    <string name="app_name">Pile</string>
+
+    <string name="your_piles">Deine Piles</string>
+    <string name="all_documents">Alle Dokumente</string>
+    <string name="search_your_documents">Dokumente durchsuchen</string>
+    <string name="user_document_unsaved_changes">Sie haben ein Dokument mit ungespeicherten Änderungen.</string>
+    <string name="document_unsaved_changes_deleted">Dokument gelöscht</string>
+    <string name="navigate_to_edit_unsaved_document">Ungespeichertes Dokument bearbeiten</string>
+    <string name="see_more">Mehr anzeigen</string>
+
+    <string name="new_">Neu</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="done">Fertig</string>
+    <string name="undo">Rückgängig</string>
+    <string name="rename">Umbenennen</string>
+    <string name="delete">Löschen</string>
+    <string name="search">Suchen</string>
+    <string name="add">Hinzufügen</string>
+    <string name="delete_text">Text löschen</string>
+    <string name="color">Farbe</string>
+    <string name="icon">Symbol</string>
+    <string name="return_">Zurück</string>
+    <string name="reset">Zurücksetzen</string>
+    <string name="rotate">Drehen</string>
+    <string name="settings">Einstellungen</string>
+    <string name="date">Datum</string>
+    <string name="ok">OK</string>
+    <string name="clear">Löschen</string>
+    <string name="select">Auswählen</string>
+    <string name="selected_">Ausgewählt</string>
+    <string name="keep_editing">Weiter bearbeiten</string>
+    <string name="discard">Verwerfen</string>
+
+
+    <string name="new_pile">Neuer Pile</string>
+    <string name="add_pile">Pile hinzufügen</string>
+    <string name="pile_name">Pile-Name</string>
+    <string name="loading_new_document">Neues Dokument wird geladen</string>
+
+    <string name="add_document">Dokument hinzufügen</string>
+    <string name="add_to_piles">Zu Piles hinzufügen</string>
+    <string name="change_document_title">Dokumenttitel ändern</string>
+    <string name="delete_document">Dokument löschen</string>
+    <string name="save_document">Dokument speichern</string>
+    <string name="share_document">Dokument teilen</string>
+    <string name="edit_document">Dokument bearbeiten</string>
+
+    <string name="delete_document_alert_title">Dokument löschen?</string>
+    <string name="delete_document_alert_body">Sind Sie sicher, dass Sie dieses Dokument löschen möchten? Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
+
+    <string name="added_date">Hinzugefügt am %1$s</string>
+    <string name="modified_date">Geändert am %1$s</string>
+
+    <string name="edit_document_section_name">Dokumentabschnitt %1$s bearbeiten</string>
+    <string name="save_changes_in_document_section_name">Änderungen in Abschnitt %1$s speichern</string>
+
+    <string name="add_a_note">Notiz hinzufügen…</string>
+    <string name="no_piles_in_document">Keine Piles ausgewählt</string>
+    <string name="no_document_details">Keine Dokumentdetails</string>
+    <string name="add_a_detail">Detail hinzufügen</string>
+    <string name="detail_hint_title">Detail</string>
+    <string name="detail_hint_value">Wert</string>
+    <string name="move_up_detail">Nach oben verschieben</string>
+    <string name="move_down_detail">Nach unten verschieben</string>
+    <string name="move_previous">Vorheriges</string>
+    <string name="move_next">Nächstes</string>
+    <string name="detail_deleted">Detail gelöscht</string>
+    <string name="delete_detail">Detail löschen</string>
+    <string name="no_piles_saved">Sie haben noch keine Piles erstellt. Erstellen Sie Ihren ersten Pile, um Ihre Dokumente zu organisieren!</string>
+    <string name="no_documents_in_pile">Dieser Pile ist leer. Fügen Sie Dokumente hinzu!</string>
+    <string name="no_documents_home">Sie haben noch keine Dokumente hinzugefügt. Tippen Sie auf die Schaltfläche unten!</string>
+    <string name="no_search_results">Keine Ergebnisse für Ihre Suche gefunden. Bitte passen Sie Ihre Filter oder Suchanfrage an.</string>
+
+
+    <string name="document_no_name_error">Fügen Sie Ihrem Dokument einen Namen hinzu.</string>
+    <string name="error_saving_document">Fehler beim Speichern des Dokuments</string>
+    <string name="error_opening_files_explorer">Fehler beim Öffnen des Datei-Explorers</string>
+    <string name="error_importing_images">Fehler beim Importieren von Bildern</string>
+    <string name="error_importing_pdf">Fehler beim Importieren der PDF</string>
+    <string name="error_restoring_draft_document">Fehler beim Wiederherstellen des Dokumententwurfs</string>
+    <string name="error_exporting_pdf">Fehler beim Exportieren der PDF</string>
+
+    <string name="exporting_document">Dokument wird exportiert</string>
+    <string name="pdf_exported_successfully">PDF erfolgreich exportiert</string>
+
+    <string name="piles">Piles</string>
+    <string name="note">Notiz</string>
+    <string name="details">Details</string>
+
+
+    <string name="import_pdf">PDF importieren</string>
+    <string name="import_pdf_file">PDF-Datei importieren</string>
+    <string name="import_from_gallery">Aus Galerie importieren</string>
+    <string name="take_a_photo">Foto machen</string>
+
+
+    <string name="preview">Vorschau</string>
+    <string name="edit_image_colors">Bildfarben bearbeiten</string>
+    <string name="resize_image">Bildgröße ändern</string>
+    <string name="delete_image">Bild löschen</string>
+    <string name="image_deleted">Bild gelöscht</string>
+    <string name="add_image">Bild hinzufügen</string>
+    <string name="image_number">Bild Nummer %1$d</string>
+    <string name="delete_image_body">Sind Sie sicher, dass Sie dieses Bild löschen möchten?</string>
+    <string name="save_changes">Änderungen speichern</string>
+    <string name="adding_images">Neue Bilder werden hinzugefügt</string>
+
+    <string name="document_first_image">Erstes Bild des Dokuments</string>
+    <string name="document_name">Dokumentname</string>
+
+    <string name="rotate_image_counterclockwise">Gegen den Uhrzeigersinn drehen</string>
+    <string name="reset_image_crop">Zuschneiden zurücksetzen</string>
+    <string name="error_loading_crop_controller">Fehler beim Laden des Zuschneide-Editors</string>
+
+    <string name="close_pile_selection_bottom_sheet">Pile-Auswahl schließen</string>
+
+    <string name="discard_changes">Änderungen verwerfen?</string>
+    <string name="discard_changes_body">Ihre Änderungen wurden nicht gespeichert</string>
+
+
+    <string name="expanded">Erweitert</string>
+    <string name="collapsed">Eingeklappt</string>
+    <string name="toggle_menu">Menü umschalten</string>
+    <string name="close_menu">Menü schließen</string>
+
+    <string name="edit_pile">Pile bearbeiten</string>
+    <string name="delete_pile">Pile löschen</string>
+    <string name="delete_pile_alert_title">Pile löschen?</string>
+    <string name="delete_pile_alert_body">Dokumente bleiben erhalten, aber dieser Pile wird von ihnen entfernt.</string>
+
+
+    <string name="no_images_found">Keine Bilder gefunden.</string>
+    <string name="no_pdf_found">Keine PDF gefunden.</string>
+    <string name="error_creating_pdf">Fehler beim Erstellen der PDF</string>
+
+
+    <string name="appearance">Erscheinungsbild</string>
+    <string name="artificial_intelligence">Künstliche Intelligenz</string>
+    <string name="resolution">Auflösung</string>
+
+    <string name="theme">Design</string>
+    <string name="select_theme">Design auswählen</string>
+    <string name="light">Hell</string>
+    <string name="dark">Dunkel</string>
+    <string name="system_default">Systemstandard</string>
+
+    <string name="use_system_theme_color">Systemfarbe verwenden</string>
+
+    <string name="activate_local_ai_tittle">Lokale KI-Funktionen aktivieren</string>
+    <string name="activate_local_ai_body">Verwenden Sie KI auf dem Gerät, um Daten aus Ihren Dokumenten zu extrahieren.</string>
+    <string name="select_language_model">Sprachmodell auswählen</string>
+    <string name="no_model_selected">Kein Modell ausgewählt</string>
+
+    <string name="document_resolution">Dokumentauflösung</string>
+    <string name="original_quality_tittle">Originalqualität</string>
+    <string name="original_quality_body">Originalbilder in Dokumenten speichern.</string>
+    <string name="storage_saver_tittle">Speicherplatz sparen</string>
+    <string name="storage_saver_body">Zusätzliche Dateien in etwas geringerer Qualität speichern. Importierte PDFs behalten ihre Originalqualität.</string>
+</resources>

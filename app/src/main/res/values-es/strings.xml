@@ -1,0 +1,161 @@
+<resources>
+    <string name="app_name">Pile</string>
+
+    <string name="your_piles">Tus pilas</string>
+    <string name="all_documents">Todos los documentos</string>
+    <string name="search_your_documents">Busca en tus documentos</string>
+    <string name="user_document_unsaved_changes">Tienes un documento con cambios sin guardar.</string>
+    <string name="document_unsaved_changes_deleted">Documento eliminado</string>
+    <string name="navigate_to_edit_unsaved_document">Navegar para editar documento sin guardar</string>
+    <string name="see_more">Ver más</string>
+
+    <string name="new_">Nuevo</string>
+    <string name="edit">Editar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="done">Hecho</string>
+    <string name="undo">Deshacer</string>
+    <string name="rename">Renombrar</string>
+    <string name="delete">Eliminar</string>
+    <string name="search">Buscar</string>
+    <string name="add">Añadir</string>
+    <string name="delete_text">Eliminar texto</string>
+    <string name="color">Color</string>
+    <string name="icon">Icono</string>
+    <string name="return_">Volver</string>
+    <string name="reset">Restablecer</string>
+    <string name="rotate">Rotar</string>
+    <string name="settings">Ajustes</string>
+    <string name="date">Fecha</string>
+    <string name="ok">Aceptar</string>
+    <string name="clear">Limpiar</string>
+    <string name="select">Seleccionar</string>
+    <string name="selected_">Seleccionado</string>
+    <string name="keep_editing">Seguir editando</string>
+    <string name="discard">Descartar</string>
+
+
+    <string name="new_pile">Nueva pila</string>
+    <string name="add_pile">Añadir pila</string>
+    <string name="pile_name">Nombre de la pila</string>
+    <string name="loading_new_document">Cargando nuevo documento</string>
+
+    <string name="add_document">Añadir documento</string>
+    <string name="add_to_piles">Añadir a pilas</string>
+    <string name="change_document_title">Cambiar título del documento</string>
+    <string name="delete_document">Eliminar documento</string>
+    <string name="save_document">Guardar documento</string>
+    <string name="share_document">Compartir documento</string>
+    <string name="edit_document">Editar documento</string>
+
+    <string name="delete_document_alert_title">¿Eliminar documento?</string>
+    <string name="delete_document_alert_body">¿Estás seguro de que quieres eliminar este documento? Esta acción no se puede deshacer.</string>
+
+    <string name="added_date">Añadido %1$s</string>
+    <string name="modified_date">Modificado %1$s</string>
+
+    <string name="edit_document_section_name">Editar sección del documento %1$s</string>
+    <string name="save_changes_in_document_section_name">Guardar cambios en la sección del documento %1$s</string>
+
+    <string name="add_a_note">Añadir una nota…</string>
+    <string name="no_piles_in_document">No hay pilas seleccionadas</string>
+    <string name="no_document_details">Sin detalles del documento</string>
+    <string name="add_a_detail">Añadir un detalle</string>
+    <string name="detail_hint_title">Detalle</string>
+    <string name="detail_hint_value">Valor</string>
+    <string name="move_up_detail">Mover detalle arriba</string>
+    <string name="move_down_detail">Mover detalle abajo</string>
+    <string name="move_previous">Mover al anterior</string>
+    <string name="move_next">Mover al siguiente</string>
+    <string name="detail_deleted">Detalle eliminado</string>
+    <string name="delete_detail">Eliminar detalle</string>
+    <string name="no_piles_saved">¡Aún no has creado ninguna pila. Crea la primera para empezar a organizar tus documentos!</string>
+    <string name="no_documents_in_pile">Esta pila está vacía, ¡empieza añadiendo algunos documentos!</string>
+    <string name="no_documents_home">Aún no has añadido ningún documento. ¡Pulsa el botón de abajo para empezar!</string>
+    <string name="no_search_results">No se encontraron resultados para tu búsqueda. Intenta ajustar tus filtros o consulta.</string>
+
+
+    <string name="document_no_name_error">añade un nombre a tu documento.</string>
+    <string name="error_saving_document">Error al guardar el documento</string>
+    <string name="error_opening_files_explorer">Error al abrir el explorador de archivos</string>
+    <string name="error_importing_images">Error al importar imágenes</string>
+    <string name="error_importing_pdf">Error al importar el PDF</string>
+    <string name="error_restoring_draft_document">Error al restaurar el borrador del documento</string>
+    <string name="error_exporting_pdf">Error al exportar el PDF</string>
+
+    <string name="exporting_document">Exportando documento</string>
+    <string name="pdf_exported_successfully">PDF exportado correctamente</string>
+
+    <string name="piles">Pilas</string>
+    <string name="note">Nota</string>
+    <string name="details">Detalles</string>
+
+
+    <string name="import_pdf">Importar PDF</string>
+    <string name="import_pdf_file">Importar archivo PDF</string>
+    <string name="import_from_gallery">Importar de la galería</string>
+    <string name="take_a_photo">Hacer una foto</string>
+
+
+    <string name="preview">Previsualización</string>
+    <string name="edit_image_colors">Editar colores de imagen</string>
+    <string name="resize_image">Redimensionar imagen</string>
+    <string name="delete_image">Eliminar imagen</string>
+    <string name="image_deleted">Imagen eliminada</string>
+    <string name="add_image">Añadir imagen</string>
+    <string name="image_number">Imagen número %1$d</string>
+    <string name="delete_image_body">¿Estás seguro de que quieres eliminar esta imagen?</string>
+    <string name="save_changes">Guardar cambios</string>
+    <string name="adding_images">Añadiendo nuevas imágenes</string>
+
+    <string name="document_first_image">Primera imagen del documento</string>
+    <string name="document_name">Nombre del documento</string>
+
+    <string name="rotate_image_counterclockwise">Girar imagen a la izquierda</string>
+    <string name="reset_image_crop">Restablecer recorte de imagen</string>
+    <string name="error_loading_crop_controller">Error al cargar el editor de recorte</string>
+
+    <string name="close_pile_selection_bottom_sheet">Cerrar selección de pilas</string>
+
+    <string name="discard_changes">¿Descartar cambios?</string>
+    <string name="discard_changes_body">Tus cambios no se han guardado</string>
+
+
+    <string name="expanded">Expandido</string>
+    <string name="collapsed">Contraído</string>
+    <string name="toggle_menu">Alternar menú</string>
+    <string name="close_menu">Cerrar menú</string>
+
+    <string name="edit_pile">Editar pila</string>
+    <string name="delete_pile">Eliminar pila</string>
+    <string name="delete_pile_alert_title">¿Eliminar pila?</string>
+    <string name="delete_pile_alert_body">Los documentos se mantendrán, pero esta pila se eliminará de ellos.</string>
+
+
+    <string name="no_images_found">No se encontraron imágenes.</string>
+    <string name="no_pdf_found">No se encontró ningún PDF.</string>
+    <string name="error_creating_pdf">Error al crear el PDF</string>
+
+
+    <string name="appearance">Apariencia</string>
+    <string name="artificial_intelligence">Inteligencia artificial</string>
+    <string name="resolution">Resolución</string>
+
+    <string name="theme">Tema</string>
+    <string name="select_theme">Seleccionar tema</string>
+    <string name="light">Claro</string>
+    <string name="dark">Oscuro</string>
+    <string name="system_default">Predeterminado del sistema</string>
+
+    <string name="use_system_theme_color">Usar color del tema del sistema</string>
+
+    <string name="activate_local_ai_tittle">Activar funciones de IA local</string>
+    <string name="activate_local_ai_body">Usa la IA del dispositivo para extraer datos de tus documentos.</string>
+    <string name="select_language_model">Seleccionar modelo de lenguaje</string>
+    <string name="no_model_selected">Ningún modelo seleccionado</string>
+
+    <string name="document_resolution">Resolución del documento</string>
+    <string name="original_quality_tittle">Calidad original</string>
+    <string name="original_quality_body">Guarda las imágenes originales en tus documentos.</string>
+    <string name="storage_saver_tittle">Ahorro de almacenamiento</string>
+    <string name="storage_saver_body">Guarda archivos adicionales con una calidad ligeramente inferior. Los PDF importados mantendrán su calidad original</string>
+</resources>

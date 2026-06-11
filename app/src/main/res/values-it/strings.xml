@@ -1,0 +1,161 @@
+<resources>
+    <string name="app_name">Pile</string>
+
+    <string name="your_piles">I tuoi mucchi</string>
+    <string name="all_documents">Tutti i documenti</string>
+    <string name="search_your_documents">Cerca nei tuoi documenti</string>
+    <string name="user_document_unsaved_changes">Hai un documento con modifiche non salvate.</string>
+    <string name="document_unsaved_changes_deleted">Documento eliminato</string>
+    <string name="navigate_to_edit_unsaved_document">Modifica documento non salvato</string>
+    <string name="see_more">Vedi altro</string>
+
+    <string name="new_">Nuovo</string>
+    <string name="edit">Modifica</string>
+    <string name="cancel">Annulla</string>
+    <string name="done">Fatto</string>
+    <string name="undo">Annulla</string>
+    <string name="rename">Rinomina</string>
+    <string name="delete">Elimina</string>
+    <string name="search">Cerca</string>
+    <string name="add">Aggiungi</string>
+    <string name="delete_text">Elimina testo</string>
+    <string name="color">Colore</string>
+    <string name="icon">Icona</string>
+    <string name="return_">Torna</string>
+    <string name="reset">Ripristina</string>
+    <string name="rotate">Ruota</string>
+    <string name="settings">Impostazioni</string>
+    <string name="date">Data</string>
+    <string name="ok">OK</string>
+    <string name="clear">Cancella</string>
+    <string name="select">Seleziona</string>
+    <string name="selected_">Selezionato</string>
+    <string name="keep_editing">Continua a modificare</string>
+    <string name="discard">Scarta</string>
+
+
+    <string name="new_pile">Nuovo mucchio</string>
+    <string name="add_pile">Aggiungi mucchio</string>
+    <string name="pile_name">Nome mucchio</string>
+    <string name="loading_new_document">Caricamento nuovo documento</string>
+
+    <string name="add_document">Aggiungi documento</string>
+    <string name="add_to_piles">Aggiungi ai mucchi</string>
+    <string name="change_document_title">Cambia titolo documento</string>
+    <string name="delete_document">Elimina documento</string>
+    <string name="save_document">Salva documento</string>
+    <string name="share_document">Condividi documento</string>
+    <string name="edit_document">Modifica documento</string>
+
+    <string name="delete_document_alert_title">Eliminare il documento?</string>
+    <string name="delete_document_alert_body">Sei sicuro di voler eliminare questo documento? L\'azione è irreversibile.</string>
+
+    <string name="added_date">Aggiunto il %1$s</string>
+    <string name="modified_date">Modificato il %1$s</string>
+
+    <string name="edit_document_section_name">Modifica sezione documento %1$s</string>
+    <string name="save_changes_in_document_section_name">Salva modifiche sezione %1$s</string>
+
+    <string name="add_a_note">Aggiungi una nota…</string>
+    <string name="no_piles_in_document">Nessun mucchio selezionato</string>
+    <string name="no_document_details">Nessun dettaglio documento</string>
+    <string name="add_a_detail">Aggiungi un dettaglio</string>
+    <string name="detail_hint_title">Dettaglio</string>
+    <string name="detail_hint_value">Valore</string>
+    <string name="move_up_detail">Sposta su</string>
+    <string name="move_down_detail">Sposta giù</string>
+    <string name="move_previous">Precedente</string>
+    <string name="move_next">Successivo</string>
+    <string name="detail_deleted">Dettaglio eliminato</string>
+    <string name="delete_detail">Elimina dettaglio</string>
+    <string name="no_piles_saved">Non hai ancora creato mucchi. Crea il tuo primo mucchio per organizzare i tuoi documenti!</string>
+    <string name="no_documents_in_pile">Questo mucchio è vuoto, aggiungi dei documenti!</string>
+    <string name="no_documents_home">Non hai ancora aggiunto documenti. Premi il pulsante qui sotto per iniziare!</string>
+    <string name="no_search_results">Nessun risultato trovato. Prova a modificare i filtri o la ricerca.</string>
+
+
+    <string name="document_no_name_error">aggiungi un nombre al tuo documento.</string>
+    <string name="error_saving_document">Errore nel salvataggio del documento</string>
+    <string name="error_opening_files_explorer">Errore nell\'apertura di Esplora file</string>
+    <string name="error_importing_images">Errore nell\'importazione delle immagini</string>
+    <string name="error_importing_pdf">Errore nell\'importazione del PDF</string>
+    <string name="error_restoring_draft_document">Errore nel ripristino della bozza</string>
+    <string name="error_exporting_pdf">Errore nell\'esportazione del PDF</string>
+
+    <string name="exporting_document">Esportazione documento in corso</string>
+    <string name="pdf_exported_successfully">PDF esportato con successo</string>
+
+    <string name="piles">Mucchi</string>
+    <string name="note">Nota</string>
+    <string name="details">Dettagli</string>
+
+
+    <string name="import_pdf">Importa PDF</string>
+    <string name="import_pdf_file">Importa file PDF</string>
+    <string name="import_from_gallery">Importa dalla galleria</string>
+    <string name="take_a_photo">Scatta una foto</string>
+
+
+    <string name="preview">Anteprima</string>
+    <string name="edit_image_colors">Modifica colori immagine</string>
+    <string name="resize_image">Ridimensiona immagine</string>
+    <string name="delete_image">Elimina immagine</string>
+    <string name="image_deleted">Immagine eliminata</string>
+    <string name="add_image">Aggiungi immagine</string>
+    <string name="image_number">Immagine numero %1$d</string>
+    <string name="delete_image_body">Sei sicuro di voler eliminare questa immagine?</string>
+    <string name="save_changes">Salva modifiche</string>
+    <string name="adding_images">Aggiunta di nuove immagini</string>
+
+    <string name="document_first_image">Prima immagine del documento</string>
+    <string name="document_name">Nome del documento</string>
+
+    <string name="rotate_image_counterclockwise">Ruota a sinistra</string>
+    <string name="reset_image_crop">Ripristina ritaglio</string>
+    <string name="error_loading_crop_controller">Errore nel caricamento dell\'editor di ritaglio</string>
+
+    <string name="close_pile_selection_bottom_sheet">Chiudi selezione mucchi</string>
+
+    <string name="discard_changes">Scartare le modifiche?</string>
+    <string name="discard_changes_body">Le modifiche non sono state salvate</string>
+
+
+    <string name="expanded">Espanso</string>
+    <string name="collapsed">Contratto</string>
+    <string name="toggle_menu">Attiva/disattiva menu</string>
+    <string name="close_menu">Chiudi menu</string>
+
+    <string name="edit_pile">Modifica mucchio</string>
+    <string name="delete_pile">Elimina mucchio</string>
+    <string name="delete_pile_alert_title">Eliminare il mucchio?</string>
+    <string name="delete_pile_alert_body">I documenti rimarranno, ma questo mucchio verrà rimosso da essi.</string>
+
+
+    <string name="no_images_found">Nessuna immagine trovata.</string>
+    <string name="no_pdf_found">Nessun PDF trovato.</string>
+    <string name="error_creating_pdf">Errore nella creazione del PDF</string>
+
+
+    <string name="appearance">Aspetto</string>
+    <string name="artificial_intelligence">Intelligenza artificiale</string>
+    <string name="resolution">Risoluzione</string>
+
+    <string name="theme">Tema</string>
+    <string name="select_theme">Seleziona tema</string>
+    <string name="light">Chiaro</string>
+    <string name="dark">Oscuro</string>
+    <string name="system_default">Predefinito di sistema</string>
+
+    <string name="use_system_theme_color">Usa colore del tema di sistema</string>
+
+    <string name="activate_local_ai_tittle">Attiva funzioni AI locale</string>
+    <string name="activate_local_ai_body">Usa l\'IA del dispositivo per estrarre i dati dai tuoi documenti.</string>
+    <string name="select_language_model">Seleziona modello linguistico</string>
+    <string name="no_model_selected">Nessun modello selezionato</string>
+
+    <string name="document_resolution">Risoluzione documento</string>
+    <string name="original_quality_tittle">Qualità originale</string>
+    <string name="original_quality_body">Salva le immagini originali nei tuoi documenti.</string>
+    <string name="storage_saver_tittle">Risparmio memoria</string>
+    <string name="storage_saver_body">Salva i file aggiuntivi a una qualità leggermente inferiore. I PDF importati manterranno la qualità originale.</string>
+</resources>

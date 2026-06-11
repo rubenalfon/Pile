@@ -1,0 +1,161 @@
+<resources>
+    <string name="app_name">Pile</string>
+
+    <string name="your_piles">Les teves piles</string>
+    <string name="all_documents">Tots els documents</string>
+    <string name="search_your_documents">Cerca en els teus documents</string>
+    <string name="user_document_unsaved_changes">Tens un document amb canvis sense desar.</string>
+    <string name="document_unsaved_changes_deleted">Document eliminat</string>
+    <string name="navigate_to_edit_unsaved_document">Navega per editar el document sense desar</string>
+    <string name="see_more">Veure més</string>
+
+    <string name="new_">Nou</string>
+    <string name="edit">Editar</string>
+    <string name="cancel">Cancel·lar</string>
+    <string name="done">Fet</string>
+    <string name="undo">Desfer</string>
+    <string name="rename">Reanomenar</string>
+    <string name="delete">Eliminar</string>
+    <string name="search">Cercar</string>
+    <string name="add">Afegir</string>
+    <string name="delete_text">Eliminar text</string>
+    <string name="color">Color</string>
+    <string name="icon">Icona</string>
+    <string name="return_">Tornar</string>
+    <string name="reset">Restablir</string>
+    <string name="rotate">Girar</string>
+    <string name="settings">Ajustos</string>
+    <string name="date">Data</string>
+    <string name="ok">D’acord</string>
+    <string name="clear">Netejar</string>
+    <string name="select">Seleccionar</string>
+    <string name="selected_">Seleccionat</string>
+    <string name="keep_editing">Continua editant</string>
+    <string name="discard">Descartar</string>
+
+
+    <string name="new_pile">Nova pila</string>
+    <string name="add_pile">Afegir pila</string>
+    <string name="pile_name">Nom de la pila</string>
+    <string name="loading_new_document">S’està carregant el nou document</string>
+
+    <string name="add_document">Afegir document</string>
+    <string name="add_to_piles">Afegir a piles</string>
+    <string name="change_document_title">Canviar el títol del document</string>
+    <string name="delete_document">Eliminar document</string>
+    <string name="save_document">Desar document</string>
+    <string name="share_document">Compartir document</string>
+    <string name="edit_document">Editar document</string>
+
+    <string name="delete_document_alert_title">Vols eliminar el document?</string>
+    <string name="delete_document_alert_body">Estàs segur que vols eliminar aquest document? Aquesta acció no es pot desfer.</string>
+
+    <string name="added_date">Afegit %1$s</string>
+    <string name="modified_date">Modificat %1$s</string>
+
+    <string name="edit_document_section_name">Editar secció del document %1$s</string>
+    <string name="save_changes_in_document_section_name">Desar canvis a la secció del document %1$s</string>
+
+    <string name="add_a_note">Afegeix una nota…</string>
+    <string name="no_piles_in_document">No hi ha piles seleccionades</string>
+    <string name="no_document_details">Sense detalls del document</string>
+    <string name="add_a_detail">Afegir un detall</string>
+    <string name="detail_hint_title">Detall</string>
+    <string name="detail_hint_value">Valor</string>
+    <string name="move_up_detail">Moure detall amunt</string>
+    <string name="move_down_detail">Moure detall avall</string>
+    <string name="move_previous">Moure a l’anterior</string>
+    <string name="move_next">Moure al següent</string>
+    <string name="detail_deleted">Detall eliminat</string>
+    <string name="delete_detail">Eliminar detall</string>
+    <string name="no_piles_saved">Encara no has creat cap pila. Crea la teva primera per començar a organitzar els teus documents!</string>
+    <string name="no_documents_in_pile">Aquesta pila està buida, comença afegint-hi alguns documents!</string>
+    <string name="no_documents_home">Encara no has afegit cap document. Prem el botó de sota per començar!</string>
+    <string name="no_search_results">No s’han trobat resultats per a la teva cerca. Prova d’ajustar els filtres o la consulta.</string>
+
+
+    <string name="document_no_name_error">afegeix un nom al teu document.</string>
+    <string name="error_saving_document">Error en desar el document</string>
+    <string name="error_opening_files_explorer">Error en obrir l’explorador de fitxers</string>
+    <string name="error_importing_images">Error en importar imatges</string>
+    <string name="error_importing_pdf">Error en importar el PDF</string>
+    <string name="error_restoring_draft_document">Error en restaurar l’esborrany del document</string>
+    <string name="error_exporting_pdf">Error en exportar el PDF</string>
+
+    <string name="exporting_document">S’està exportant el document</string>
+    <string name="pdf_exported_successfully">PDF exportat correctament</string>
+
+    <string name="piles">Piles</string>
+    <string name="note">Nota</string>
+    <string name="details">Detalls</string>
+
+
+    <string name="import_pdf">Importar PDF</string>
+    <string name="import_pdf_file">Importar fitxer PDF</string>
+    <string name="import_from_gallery">Importar de la galeria</string>
+    <string name="take_a_photo">Fer una foto</string>
+
+
+    <string name="preview">Previsualització</string>
+    <string name="edit_image_colors">Editar colors d’imatge</string>
+    <string name="resize_image">Redimensionar imatge</string>
+    <string name="delete_image">Eliminar imatge</string>
+    <string name="image_deleted">Imatge eliminada</string>
+    <string name="add_image">Afegir imatge</string>
+    <string name="image_number">Imatge número %1$d</string>
+    <string name="delete_image_body">Estàs segur que vols eliminar aquesta imatge?</string>
+    <string name="save_changes">Desar canvis</string>
+    <string name="adding_images">S’estan afegint noves imatges</string>
+
+    <string name="document_first_image">Primera imatge del document</string>
+    <string name="document_name">Nom del document</string>
+
+    <string name="rotate_image_counterclockwise">Girar imatge a l’esquerra</string>
+    <string name="reset_image_crop">Restablir retall d’imatge</string>
+    <string name="error_loading_crop_controller">Error en carregar l’editor de retall</string>
+
+    <string name="close_pile_selection_bottom_sheet">Tancar selecció de piles</string>
+
+    <string name="discard_changes">Vols descartar els canvis?</string>
+    <string name="discard_changes_body">Els teus canvis no s’han desat</string>
+
+
+    <string name="expanded">Expandit</string>
+    <string name="collapsed">Contret</string>
+    <string name="toggle_menu">Alternar menú</string>
+    <string name="close_menu">Tancar menú</string>
+
+    <string name="edit_pile">Editar pila</string>
+    <string name="delete_pile">Eliminar pila</string>
+    <string name="delete_pile_alert_title">Vols eliminar la pila?</string>
+    <string name="delete_pile_alert_body">Els documents es mantindran, però aquesta pila s’eliminarà d’ells.</string>
+
+
+    <string name="no_images_found">No s’han trobat imatges.</string>
+    <string name="no_pdf_found">No s’ha trobat cap PDF.</string>
+    <string name="error_creating_pdf">Error en crear el PDF</string>
+
+
+    <string name="appearance">Aparença</string>
+    <string name="artificial_intelligence">Intel·ligència artificial</string>
+    <string name="resolution">Resolució</string>
+
+    <string name="theme">Tema</string>
+    <string name="select_theme">Seleccionar tema</string>
+    <string name="light">Clar</string>
+    <string name="dark">Fosc</string>
+    <string name="system_default">Predeterminat del sistema</string>
+
+    <string name="use_system_theme_color">Utilitzar color del tema del sistema</string>
+
+    <string name="activate_local_ai_tittle">Activar funcions d’IA local</string>
+    <string name="activate_local_ai_body">Utilitza la IA del dispositiu per extreure dades dels teus documents.</string>
+    <string name="select_language_model">Seleccionar model de llenguatge</string>
+    <string name="no_model_selected">Cap model seleccionat</string>
+
+    <string name="document_resolution">Resolució del document</string>
+    <string name="original_quality_tittle">Qualitat original</string>
+    <string name="original_quality_body">Desa les imatges originals en els teus documents.</string>
+    <string name="storage_saver_tittle">Estalvi d’emmagatzematge</string>
+    <string name="storage_saver_body">Desa fitxers addicionals amb una qualitat lleugerament inferior. Els PDF importats mantindran la seva qualitat original</string>
+</resources>

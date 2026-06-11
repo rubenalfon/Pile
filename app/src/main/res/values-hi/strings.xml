@@ -1,0 +1,161 @@
+<resources>
+    <string name="app_name">Pile</string>
+
+    <string name="your_piles">आपके ढेर</string>
+    <string name="all_documents">सभी दस्तावेज़</string>
+    <string name="search_your_documents">दस्तावेज़ खोजें</string>
+    <string name="user_document_unsaved_changes">आपके पास एक दस्तावेज़ है जिसमें बिना सहेजे गए बदलाव हैं।</string>
+    <string name="document_unsaved_changes_deleted">दस्तावेज़ हटा दिया गया</string>
+    <string name="navigate_to_edit_unsaved_document">बिना सहेजे गए दस्तावेज़ को संपादित करने के लिए नेविगेट करें</string>
+    <string name="see_more">और देखें</string>
+
+    <string name="new_">नया</string>
+    <string name="edit">संपादित करें</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="done">हो गया</string>
+    <string name="undo">पूर्ववत करें</string>
+    <string name="rename">नाम बदलें</string>
+    <string name="delete">हटाएं</string>
+    <string name="search">खोजें</string>
+    <string name="add">जोड़ें</string>
+    <string name="delete_text">टेक्स्ट हटाएं</string>
+    <string name="color">रंग</string>
+    <string name="icon">आइकन</string>
+    <string name="return_">वापस जाएं</string>
+    <string name="reset">रीसेट करें</string>
+    <string name="rotate">घुमाएं</string>
+    <string name="settings">सेटिंग्स</string>
+    <string name="date">तारीख</string>
+    <string name="ok">ठीक है</string>
+    <string name="clear">साफ़ करें</string>
+    <string name="select">चुनें</string>
+    <string name="selected_">चुना गया</string>
+    <string name="keep_editing">संपादन जारी रखें</string>
+    <string name="discard">खारिज करें</string>
+
+
+    <string name="new_pile">नया ढेर</string>
+    <string name="add_pile">ढेर जोड़ें</string>
+    <string name="pile_name">ढेर का नाम</string>
+    <string name="loading_new_document">नया दस्तावेज़ लोड हो रहा है</string>
+
+    <string name="add_document">दस्तावेज़ जोड़ें</string>
+    <string name="add_to_piles">ढेर में जोड़ें</string>
+    <string name="change_document_title">दस्तावेज़ का शीर्षक बदलें</string>
+    <string name="delete_document">दस्तावेज़ हटाएं</string>
+    <string name="save_document">दस्तावेज़ सहेजें</string>
+    <string name="share_document">दस्तावेज़ साझा करें</string>
+    <string name="edit_document">दस्तावेज़ संपादित करें</string>
+
+    <string name="delete_document_alert_title">दस्तावेज़ हटाएं?</string>
+    <string name="delete_document_alert_body">क्या आप वाकई इस दस्तावेज़ को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।</string>
+
+    <string name="added_date">जोड़ा गया %1$s</string>
+    <string name="modified_date">संशोधित %1$s</string>
+
+    <string name="edit_document_section_name">दस्तावेज़ अनुभाग %1$s संपादित करें</string>
+    <string name="save_changes_in_document_section_name">दस्तावेज़ अनुभाग %1$s में बदलाव सहेजें</string>
+
+    <string name="add_a_note">एक नोट जोड़ें…</string>
+    <string name="no_piles_in_document">कोई ढेर नहीं चुना गया</string>
+    <string name="no_document_details">कोई दस्तावेज़ विवरण नहीं</string>
+    <string name="add_a_detail">एक विवरण जोड़ें</string>
+    <string name="detail_hint_title">विवरण</string>
+    <string name="detail_hint_value">मान</string>
+    <string name="move_up_detail">विवरण ऊपर ले जाएं</string>
+    <string name="move_down_detail">विवरण नीचे ले जाएं</string>
+    <string name="move_previous">पिछला ले जाएं</string>
+    <string name="move_next">अगला ले जाएं</string>
+    <string name="detail_deleted">विवरण हटा दिया गया</string>
+    <string name="delete_detail">विवरण हटाएं</string>
+    <string name="no_piles_saved">आपने अभी तक कोई ढेर नहीं बनाया है। अपने दस्तावेज़ों को व्यवस्थित करना शुरू करने के लिए अपना पहला ढेर बनाएं!</string>
+    <string name="no_documents_in_pile">यह ढेर खाली है, इसमें दस्तावेज़ जोड़ना शुरू करें!</string>
+    <string name="no_documents_home">आपने अभी तक कोई दस्तावेज़ नहीं जोड़ा है। शुरू करने के लिए नीचे दिए गए बटन पर टैप करें!</string>
+    <string name="no_search_results">आपकी खोज के लिए कोई परिणाम नहीं मिले। कृपया अपने फ़िल्टर या क्वेरी को समायोजित करने का प्रयास करें।</string>
+
+
+    <string name="document_no_name_error">अपने दस्तावेज़ में एक नाम जोड़ें।</string>
+    <string name="error_saving_document">दस्तावेज़ सहेजने में त्रुटि</string>
+    <string name="error_opening_files_explorer">फ़ाइल एक्सप्लोरर खोलने में त्रुटि</string>
+    <string name="error_importing_images">छवियां आयात करने में त्रुटि</string>
+    <string name="error_importing_pdf">पीडीएफ आयात करने में त्रुटि</string>
+    <string name="error_restoring_draft_document">ड्राफ्ट दस्तावेज़ पुनर्स्थापित करने में त्रुटि</string>
+    <string name="error_exporting_pdf">पीडीएफ निर्यात करने में त्रुटि</string>
+
+    <string name="exporting_document">दस्तावेज़ निर्यात किया जा रहा है</string>
+    <string name="pdf_exported_successfully">पीडीएफ सफलतापूर्वक निर्यात किया गया</string>
+
+    <string name="piles">ढेर</string>
+    <string name="note">नोट</string>
+    <string name="details">विवरण</string>
+
+
+    <string name="import_pdf">पीडीएफ आयात करें</string>
+    <string name="import_pdf_file">पीडीएफ फ़ाइल आयात करें</string>
+    <string name="import_from_gallery">गैलरी से आयात करें</string>
+    <string name="take_a_photo">एक फोटो लें</string>
+
+
+    <string name="preview">पूर्वावलोकन</string>
+    <string name="edit_image_colors">छवि रंग संपादित करें</string>
+    <string name="resize_image">छवि का आकार बदलें</string>
+    <string name="delete_image">छवि हटाएं</string>
+    <string name="image_deleted">छवि हटा दी गई</string>
+    <string name="add_image">छवि जोड़ें</string>
+    <string name="image_number">छवि संख्या %1$d</string>
+    <string name="delete_image_body">क्या आप वाकई इस छवि को हटाना चाहते हैं?</string>
+    <string name="save_changes">बदलाव सहेजें</string>
+    <string name="adding_images">नई छवियां जोड़ी जा रही हैं</string>
+
+    <string name="document_first_image">दस्तावेज़ की पहली छवि</string>
+    <string name="document_name">दस्तावेज़ का नाम</string>
+
+    <string name="rotate_image_counterclockwise">छवि को वामावर्त घुमाएं</string>
+    <string name="reset_image_crop">छवि क्रॉप रीसेट करें</string>
+    <string name="error_loading_crop_controller">क्रॉप एडिटर लोड करने में त्रुटि</string>
+
+    <string name="close_pile_selection_bottom_sheet">ढेर चयन बॉटम शीट बंद करें</string>
+
+    <string name="discard_changes">बदलाव खारिज करें?</string>
+    <string name="discard_changes_body">आपके बदलाव सहेजे नहीं गए हैं</string>
+
+
+    <string name="expanded">विस्तारित</string>
+    <string name="collapsed">संक्षिप्त</string>
+    <string name="toggle_menu">मेनू टॉगल करें</string>
+    <string name="close_menu">मेनू बंद करें</string>
+
+    <string name="edit_pile">ढेर संपादित करें</string>
+    <string name="delete_pile">ढेर हटाएं</string>
+    <string name="delete_pile_alert_title">ढेर हटाएं?</string>
+    <string name="delete_pile_alert_body">दस्तावेज़ बने रहेंगे, लेकिन यह ढेर उनसे हटा दिया जाएगा।</string>
+
+
+    <string name="no_images_found">कोई छवि नहीं मिली।</string>
+    <string name="no_pdf_found">कोई पीडीएफ नहीं मिली।</string>
+    <string name="error_creating_pdf">पीडीएफ बनाने में त्रुटि</string>
+
+
+    <string name="appearance">दिखावट</string>
+    <string name="artificial_intelligence">कृत्रिम बुद्धिमत्ता</string>
+    <string name="resolution">रिज़ॉल्यूशन</string>
+
+    <string name="theme">थीम</string>
+    <string name="select_theme">थीम चुनें</string>
+    <string name="light">लाइट</string>
+    <string name="dark">डार्क</string>
+    <string name="system_default">सिस्टम डिफॉल्ट</string>
+
+    <string name="use_system_theme_color">सिस्टम थीम रंग का प्रयोग करें</string>
+
+    <string name="activate_local_ai_tittle">स्थानीय एआई सुविधाएं सक्रिय करें</string>
+    <string name="activate_local_ai_body">अपने दस्तावेज़ों से डेटा निकालने के लिए डिवाइस में एआई का उपयोग करें।</string>
+    <string name="select_language_model">भाषा मॉडल चुनें</string>
+    <string name="no_model_selected">कोई मॉडल नहीं चुना गया</string>
+
+    <string name="document_resolution">दस्तावेज़ रिज़ॉल्यूशन</string>
+    <string name="original_quality_tittle">मूल गुणवत्ता</string>
+    <string name="original_quality_body">अपने दस्तावेज़ों में मूल छवियां सहेजें।</string>
+    <string name="storage_saver_tittle">स्टोरेज सेवर</string>
+    <string name="storage_saver_body">अतिरिक्त फ़ाइलों को थोड़े कम गुणवत्ता पर सहेजें। आयातित पीडीएफ अपनी मूल गुणवत्ता बनाए रखेंगे</string>
+</resources>
