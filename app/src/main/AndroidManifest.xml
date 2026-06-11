@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="es.pile.core.activities.ImageReceiverActivity"
+            android:name="es.pile.features.externalImport.ui.ImageReceiverActivity"
             android:exported="true"
             android:label="@string/add_document">
 
@@ -40,7 +40,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="es.pile.core.activities.PDFImportActivity"
+            android:name="es.pile.features.externalImport.ui.PDFImportActivity"
             android:exported="true"
             android:label="@string/import_pdf">
 

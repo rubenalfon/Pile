@@ -68,6 +68,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    companion object {
+        const val EXTRA_NEW_DOCUMENT_ID = "NEW_DOCUMENT_ID"
+        const val EXTRA_IS_PDF = "IS_PDF"
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         recreate()
@@ -77,17 +82,18 @@ class MainActivity : ComponentActivity() {
      * Una función de ayuda para procesar el intent y evitar duplicar código.
      */
     private fun handleIntent(intent: Intent?, backStack: NavBackStack<NavKey>) {
-        if (intent?.hasExtra("NEW_PDF_ID") == true) {
-            val tempFile = intent.getStringExtra("NEW_PDF_ID")
+        if (intent?.hasExtra(EXTRA_NEW_DOCUMENT_ID) == true) {
+            val documentId = intent.getStringExtra(EXTRA_NEW_DOCUMENT_ID)
+            val isPdf = intent.getBooleanExtra(EXTRA_IS_PDF, false)
 
-            if (!tempFile.isNullOrBlank()) {
-                backStack.add(
-                    Pane.EditNewDocument(
-                        documentId = tempFile
-                    )
-                )
-
-                intent.removeExtra("NEW_PDF_ID")
+            if (!documentId.isNullOrBlank()) {
+                if (isPdf) {
+                    backStack.add(Pane.AddDocument(documentId = documentId))
+                } else {
+                    backStack.add(Pane.EditNewDocument(documentId = documentId))
+                }
+                intent.removeExtra(EXTRA_NEW_DOCUMENT_ID)
+                intent.removeExtra(EXTRA_IS_PDF)
             }
         }
     }

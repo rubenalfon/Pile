@@ -9,6 +9,7 @@ import es.pile.core.di.domainModule
 import es.pile.features.addDocument.di.addDocumentModule
 import es.pile.features.documentDetail.di.documentDetailModule
 import es.pile.features.editDocument.di.editDocumentModule
+import es.pile.features.externalImport.di.externalImportModule
 import es.pile.features.home.di.homeModule
 import es.pile.features.pileDetail.di.pileDetailModule
 import es.pile.features.search.di.searchModule
@@ -44,6 +45,7 @@ class App : Application() {
                 documentDetailModule,
                 editDocumentModule,
                 addDocumentModule,
+                externalImportModule,
                 settingsModule
             )
         }
