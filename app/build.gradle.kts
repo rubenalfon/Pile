@@ -11,11 +11,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.pile"
+    namespace = "es.pile"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.pile"
+        applicationId = "es.pile"
         minSdk = 29
         targetSdk = 37
         versionCode = 1
@@ -126,7 +126,7 @@ dependencies {
 sqldelight {
     databases {
         create("Database") {
-            packageName.set("com.pile")
+            packageName.set("es.pile")
         }
     }
 }
