@@ -25,3 +25,4 @@ local.properties
 /.idea/emulatorDisplays.xml
 /.idea/markdown.xml
 /.idea/studiobot.xml
+/app/release/app-release.aab
