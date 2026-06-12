@@ -58,7 +58,9 @@ class AddDocumentViewModel(
                     documentImageRepository.getDocumentImageById(imageId)
                 }
 
-            combine(documentFlow, documentFirstImageFlow) { document, image ->
+            val allPilesFlow = pileModelRepository.pileModels
+
+            combine(documentFlow, documentFirstImageFlow, allPilesFlow ) { document, image, allPiles ->
                 if (document == null) return@combine
 
                 val coverImageCacheKey = bitmapCacheRepository.getImageKey(document, 0)
@@ -69,7 +71,7 @@ class AddDocumentViewModel(
                         coverDocumentImage = image,
                         coverImageCacheKey = coverImageCacheKey,
                         documentName = document.title,
-                        allPileModels = pileModelRepository.getAllPileModels(),
+                        allPileModels = allPiles,
                     )
                 }
             }.collect()

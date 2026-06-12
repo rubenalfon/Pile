@@ -16,11 +16,11 @@ import es.pile.core.domain.repositories.FileRepository
 import es.pile.core.domain.repositories.FileRepository.StorageType
 import es.pile.core.ui.util.UiText
 import es.pile.features.editDocument.domain.useCases.AddPageToDocumentUseCase
+import es.pile.features.editDocument.domain.useCases.FinalizeDocumentUpdateUseCase
 import es.pile.features.editDocument.domain.useCases.GetCropControllerUseCase
 import es.pile.features.editDocument.domain.useCases.RemoveBitmapFromCacheUseCase
 import es.pile.features.editDocument.domain.useCases.RequestDraftBitmapLoadUseCase
 import es.pile.features.editDocument.domain.useCases.RequestThumbnailLoadUseCase
-import es.pile.features.editDocument.domain.useCases.UpdateDocumentUseCase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -40,7 +40,7 @@ class EditDocumentViewModel(
     private val requestThumbnailLoadUseCase: RequestThumbnailLoadUseCase,
     private val addPageToDocumentUseCase: AddPageToDocumentUseCase,
     private val removeBitmapFromCacheUseCase: RemoveBitmapFromCacheUseCase,
-    private val updateDocumentUseCase: UpdateDocumentUseCase,
+    private val finalizeDocumentUpdateUseCase: FinalizeDocumentUpdateUseCase,
     private val getCropControllerUseCase: GetCropControllerUseCase,
     private val documentModelRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository,
@@ -163,7 +163,7 @@ class EditDocumentViewModel(
         if (state.isLoadingNewImage) return
 
         viewModelScope.launch {
-            updateDocumentUseCase(document, state.imageItems.map { it.image })
+            finalizeDocumentUpdateUseCase(document, state.imageItems.map { it.image })
 
             _navigationEvent.send(NavigationType.NEXT)
         }

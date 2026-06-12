@@ -6,25 +6,21 @@ import androidx.lifecycle.viewModelScope
 import es.pile.DocumentModel
 import es.pile.R
 import es.pile.core.domain.models.DocumentCoverItem
-import es.pile.core.domain.models.DocumentStatusConstants.TEMPORARY
 import es.pile.core.domain.repositories.BitmapCacheRepository
-import es.pile.core.domain.repositories.DocumentModelRepository
 import es.pile.core.domain.repositories.FileRepository
-import es.pile.core.domain.repositories.PileModelRepository
 import es.pile.core.domain.useCases.CreatePileUseCase
 import es.pile.core.domain.useCases.RequestBitmapLoadUseCase
 import es.pile.core.ui.util.UiText
 import es.pile.features.home.domain.models.TemporaryDocumentBackup
 import es.pile.features.home.domain.schedulers.CleanupScheduler
 import es.pile.features.home.domain.useCases.CreateDocumentUseCase
+import es.pile.features.home.domain.useCases.GetHomeDataUseCase
 import es.pile.features.home.domain.useCases.ManageTemporaryDocumentUseCase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -32,11 +28,10 @@ import kotlinx.coroutines.launch
 class HomeViewModel(
     private val createDocumentUseCase: CreateDocumentUseCase,
     private val manageTemporaryDocumentUseCase: ManageTemporaryDocumentUseCase,
+    private val getHomeDataUseCase: GetHomeDataUseCase,
     private val createPileUseCase: CreatePileUseCase,
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
     private val cleanupScheduler: CleanupScheduler,
-    private val pileModelRepository: PileModelRepository,
-    private val documentModelRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository,
     private val fileRepository: FileRepository
 ) : ViewModel() {
@@ -52,30 +47,24 @@ class HomeViewModel(
 
     init {
         viewModelScope.launch {
-            val pileModelsFlow = pileModelRepository.pileModels
-
-            pileModelsFlow.combine(documentModelRepository.documentModels) { piles, documents ->
-                val temporaryDocument = documents.find { it.documentStatus == TEMPORARY }
-                val coloredPileIds = documents.flatMap { it.documentPileIds }.distinct()
-
-                val documentCoverItems = documents.filter { it.documentStatus != TEMPORARY }
-                    .map { documentModel ->
-                        DocumentCoverItem(
-                            document = documentModel,
-                            coverImageCacheKey = bitmapCacheRepository.getImageKey(documentModel, 0)
-                        )
-                    }
+            getHomeDataUseCase().collect { homeData ->
+                val documentCoverItems = homeData.documents.map { documentModel ->
+                    DocumentCoverItem(
+                        document = documentModel,
+                        coverImageCacheKey = bitmapCacheRepository.getImageKey(documentModel, 0)
+                    )
+                }
 
                 _state.update {
                     it.copy(
-                        pileModels = piles,
+                        pileModels = homeData.piles,
                         documentCoverItems = documentCoverItems,
-                        temporaryDocument = temporaryDocument,
-                        coloredPileIds = coloredPileIds,
+                        temporaryDocument = homeData.temporaryDocument,
+                        coloredPileIds = homeData.coloredPileIds,
                         isInitialLoading = false
                     )
                 }
-            }.collect()
+            }
         }
     }
 

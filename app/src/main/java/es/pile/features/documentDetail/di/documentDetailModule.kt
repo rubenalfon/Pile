@@ -3,6 +3,7 @@ package es.pile.features.documentDetail.di
 import es.pile.features.documentDetail.data.helper.DocumentOpenerImpl
 import es.pile.features.documentDetail.domain.helper.DocumentOpener
 import es.pile.features.documentDetail.domain.useCases.DeleteDocumentUseCase
+import es.pile.features.documentDetail.domain.useCases.GetDocumentDetailDataUseCase
 import es.pile.features.documentDetail.domain.useCases.ManageDocumentPileUseCase
 import es.pile.features.documentDetail.domain.useCases.UpdateDocumentDetailsUseCase
 import es.pile.features.documentDetail.domain.useCases.export.ExportDocumentUseCase
@@ -19,6 +20,7 @@ val documentDetailModule = module {
 
     factoryOf(::UpdateDocumentDetailsUseCase)
     factoryOf(::DeleteDocumentUseCase)
+    factoryOf(::GetDocumentDetailDataUseCase)
     factoryOf(::GeneratePdfUseCase)
     factoryOf(::GetPdfUriUseCase)
     factoryOf(::GetUpToDatePdfUseCase)

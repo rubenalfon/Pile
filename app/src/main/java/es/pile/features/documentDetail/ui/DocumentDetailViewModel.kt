@@ -2,35 +2,25 @@ package es.pile.features.documentDetail.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import es.pile.DocumentModel
 import es.pile.R
 import es.pile.core.domain.models.DocumentDetail
 import es.pile.core.domain.repositories.BitmapCacheRepository
 import es.pile.core.domain.repositories.DocumentModelRepository
-import es.pile.core.domain.repositories.FileRepository
-import es.pile.core.domain.repositories.PileModelRepository
 import es.pile.core.domain.useCases.CreatePileUseCase
 import es.pile.core.domain.useCases.RequestBitmapLoadUseCase
 import es.pile.core.ui.util.UiText
 import es.pile.features.documentDetail.domain.helper.DocumentOpener
 import es.pile.features.documentDetail.domain.useCases.DeleteDocumentUseCase
+import es.pile.features.documentDetail.domain.useCases.GetDocumentDetailDataUseCase
 import es.pile.features.documentDetail.domain.useCases.ManageDocumentPileUseCase
 import es.pile.features.documentDetail.domain.useCases.UpdateDocumentDetailsUseCase
 import es.pile.features.documentDetail.domain.useCases.export.ExportDocumentUseCase
 import es.pile.features.documentDetail.domain.useCases.export.GetPdfUriUseCase
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -41,15 +31,14 @@ class DocumentDetailViewModel(
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
     private val deleteDocumentUseCase: DeleteDocumentUseCase,
     private val updateDocumentDetailsUseCase: UpdateDocumentDetailsUseCase,
+    private val getDocumentDetailDataUseCase: GetDocumentDetailDataUseCase,
     private val createPileUseCase: CreatePileUseCase,
     private val manageDocumentPileUseCase: ManageDocumentPileUseCase,
     private val getPdfUriUseCase: GetPdfUriUseCase,
     private val documentOpener: DocumentOpener,
     private val exportDocumentUseCase: ExportDocumentUseCase,
     private val documentModelRepository: DocumentModelRepository,
-    private val pileModelRepository: PileModelRepository,
-    private val bitmapCacheRepository: BitmapCacheRepository,
-    private val fileRepository: FileRepository
+    private val bitmapCacheRepository: BitmapCacheRepository
 ) : ViewModel() {
     private var _state = MutableStateFlow(DocumentDetailState())
     var state: StateFlow<DocumentDetailState> = _state.asStateFlow()
@@ -60,33 +49,11 @@ class DocumentDetailViewModel(
 
     init {
         viewModelScope.launch {
-            val documentFlow =
-                documentModelRepository.getDocumentModelById(documentId).distinctUntilChanged()
+            getDocumentDetailDataUseCase(documentId).collect { data ->
+                if (data == null) return@collect
 
-            val documentPilesFlow = documentFlow
-                .map { it?.documentPileIds ?: emptyList() }
-                .distinctUntilChanged()
-                .flatMapLatest { ids ->
-                    if (ids.isEmpty()) flowOf(emptyList())
-                    else pileModelRepository.getPileModelsByIds(ids)
-                }
-
-            val pdfPagesFlow = documentFlow
-                .distinctUntilChanged()
-                .mapLatest { document ->
-                    if (document != null && document.isIncomingPdf) {
-                        getPdfPageCount(document)
-                    } else {
-                        null
-                    }
-                }
-
-            combine(
-                documentFlow,
-                documentPilesFlow,
-                pdfPagesFlow
-            ) { document, piles, pdfPages ->
-                if (document == null) return@combine
+                val document = data.document
+                val pdfPages = data.pdfPageCount
 
                 val pageCacheKeys = if (document.isIncomingPdf) {
                     (0 until (pdfPages ?: 0)).map { index ->
@@ -101,23 +68,14 @@ class DocumentDetailViewModel(
                 _state.update { currentState ->
                     currentState.copy(
                         documentModel = document,
-                        documentPileModels = piles,
+                        documentPileModels = data.documentPiles,
                         pageCacheKeys = pageCacheKeys,
-                        pdfPageCount = currentState.pdfPageCount
-                            ?: if (document.isIncomingPdf) pdfPages else null,
+                        pdfPageCount = currentState.pdfPageCount ?: pdfPages,
                         localDocumentDetails = currentState.localDocumentDetails,
-                        allPiles = pileModelRepository.getAllPileModels()
+                        allPiles = data.allPiles
                     )
                 }
-            }.collect()
-        }
-    }
-
-    private suspend fun getPdfPageCount(document: DocumentModel): Int {
-        val result = fileRepository.getPageCount(document.id)
-        return result.getOrElse { error ->
-            Napier.e("Error PDF", error)
-            0
+            }
         }
     }
 

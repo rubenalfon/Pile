@@ -3,11 +3,11 @@ package es.pile.features.search.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.pile.DocumentModel
-import es.pile.core.domain.models.StringDetail
 import es.pile.core.domain.repositories.BitmapCacheRepository
 import es.pile.core.domain.repositories.DocumentModelRepository
 import es.pile.core.domain.repositories.PileModelRepository
 import es.pile.core.domain.useCases.RequestBitmapLoadUseCase
+import es.pile.features.search.domain.useCases.SearchDocumentsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,6 +20,7 @@ import java.time.LocalDate
 class SearchViewModel(
     private val pileId: String?,
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
+    private val searchDocumentsUseCase: SearchDocumentsUseCase,
     private val pileRepository: PileModelRepository,
     private val documentRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository
@@ -65,37 +66,16 @@ class SearchViewModel(
 
         if (currentState.pileList.isEmpty() || currentState.documentList.isEmpty()) return
 
-        if (currentState.searchQuery == "") {
-            _state.update { it.copy(filteredDocumentList = emptyList()) }
-            return
-        }
-
         _state.update { it.copy(isLoading = true) }
 
-        val pileFilteredDocumentList =
-            if (currentState.selectedFilterPiles.isEmpty()) currentState.documentList
-            else currentState.documentList.filter { document ->
-                document.documentPileIds.any { it in currentState.selectedFilterPiles }
-            }
+        val filteredDocuments = searchDocumentsUseCase.execute(
+            documentList = currentState.documentList,
+            searchQuery = currentState.searchQuery,
+            selectedFilterPiles = currentState.selectedFilterPiles,
+            selectedFilterDate = currentState.selectedFilterDate
+        )
 
-        val pileDateFilteredDocumentList =
-            if (currentState.selectedFilterDate == null) pileFilteredDocumentList
-            else pileFilteredDocumentList.filter { document ->
-                document.creationDateTime.toLocalDate() == currentState.selectedFilterDate ||
-                        document.modificationDateTime.toLocalDate() == currentState.selectedFilterDate
-            }
-
-        val filteredDocumentList = pileDateFilteredDocumentList.filter { document ->
-            document.title
-                .plus(" ").plus(document.documentNote)
-                .plus(" ").plus(document.documentDetails.map {
-                    Pair(it.name, (it as? StringDetail)?.value ?: "")
-                })
-                .contains(
-                    other = currentState.searchQuery,
-                    ignoreCase = true
-                )
-        }.map { document ->
+        val filteredItems = filteredDocuments.map { document ->
             SearchItem(
                 document = document,
                 coverImageCacheKey = bitmapCacheRepository.getImageKey(document, 0)
@@ -104,7 +84,7 @@ class SearchViewModel(
 
         _state.update {
             it.copy(
-                filteredDocumentList = filteredDocumentList,
+                filteredDocumentList = filteredItems,
                 isLoading = false
             )
         }

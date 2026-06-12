@@ -11,27 +11,29 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 
 /**
- * Use case responsible for finalizing and persisting changes to a document and its images.
+ * Use case responsible for finalizing and persisting changes made to a document during an edit session.
  *
- * This class orchestrates the process of a document's lifecycle by:
- * 1. Moving newly added images from temporary (CACHE) to permanent (PERSISTENT) storage.
- * 2. Deleting images from storage that were removed by the user.
- * 3. Updating the database records for both the [es.pile.DocumentModel] and its [es.pile.DocumentImage].
- * 4. Ensuring all images lose their "draft" status upon successful persistence.
+ * This use case handles the transition of images from a temporary state to a permanent one.
+ * It performs the following sequential operations:
+ * 1. **File Persistence**: Moves newly added images (marked as [DocumentImage.isDraft]) from CACHE
+ *    to PERSISTENT storage within the [FileRepository].
+ * 2. **File Cleanup**: Deletes images from PERSISTENT storage that were removed by the user
+ *    during the current edit session.
+ * 3. **Metadata Update**: Updates the [DocumentModel] in the database, refreshing the [DocumentModel.modificationDateTime].
+ * 4. **Image Record Sync**: Inserts new image records (removing the draft flag) or updates existing ones.
  */
-class UpdateDocumentUseCase(
+class FinalizeDocumentUpdateUseCase(
     private val ioDispatcher: CoroutineDispatcher,
     private val fileRepository: FileRepository,
     private val documentModelRepository: DocumentModelRepository,
     private val documentImageRepository: DocumentImageRepository
 ) {
     /**
-     * Updates an existing document and synchronizes its associated image files.
+     * Executes the finalization process.
      *
-     * @param documentModel The updated document metadata to be saved.
-     * @param imageList The current list of images that should be associated with the document.
-     *
-     * @throws Exception If any file operation (move/delete) or database update fails.
+     * @param documentModel The updated document metadata to persist.
+     * @param imageList The final list of [DocumentImage] associated with the document.
+     * @throws Exception If any file operation or database update fails.
      */
     suspend operator fun invoke(
         documentModel: DocumentModel,
@@ -52,28 +54,30 @@ class UpdateDocumentUseCase(
             )
         }
 
-        // Delete from persistent storage deleted document images
-        val deletedImageIds = originalDocumentModel?.imageIds?.filter { imageId ->
-            imageId !in imageList.map { it.id }
-        }
+        // Cleanup deleted images from persistent storage
+        val currentImageIds = imageList.map { it.id }
+        val deletedImageIds = originalDocumentModel?.imageIds?.filter { it !in currentImageIds }
 
-        deletedImageIds?.forEach {
+        deletedImageIds?.forEach { imageId ->
             fileRepository.deleteDocumentImage(
                 FileRepository.StorageType.PERSISTENT,
                 documentModel.id,
-                it
+                imageId
             )
         }
 
-        // Update documentModel
+        // Update document metadata
         documentModelRepository.updateDocumentModel(
             documentModel.copy(modificationDateTime = LocalDateTime.now())
         )
 
-        // update documentImages
+        // Update image records
         imageList.forEach { image ->
-            if (image.isDraft) documentImageRepository.insertDocumentImage(image.copy(isDraft = false))
-            else documentImageRepository.updateDocumentImage(image)
+            if (image.isDraft) {
+                documentImageRepository.insertDocumentImage(image.copy(isDraft = false))
+            } else {
+                documentImageRepository.updateDocumentImage(image)
+            }
         }
     }
 }
