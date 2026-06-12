@@ -9,6 +9,7 @@ import es.pile.core.data.util.ImageTransformationHelper
 import es.pile.core.domain.models.ImageFilterType
 import es.pile.core.domain.models.ResizedBitmap
 import es.pile.core.domain.repositories.FileRepository
+import es.pile.features.editDocument.domain.helper.CropControllerFactory
 import es.pile.features.editDocument.domain.models.ExtendedCropController
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -19,7 +20,8 @@ import kotlinx.coroutines.withContext
 class GetCropControllerUseCase(
     private val ioDispatcher: CoroutineDispatcher,
     private val fileRepository: FileRepository,
-    private val imageTransformationHelper: ImageTransformationHelper
+    private val imageTransformationHelper: ImageTransformationHelper,
+    private val cropControllerFactory: CropControllerFactory
 ) {
     /**
      * Loads a crop controller for the given document image.
@@ -42,7 +44,7 @@ class GetCropControllerUseCase(
 
         val resizedCropData = resizedImageCropData?.toCropData()
 
-        val cropController = CropController(
+        val cropController = cropControllerFactory.create(
             bitmap = resizedBitmap.bitmap,
             cropColors = CropDefaults.cropColors(),
             cropOptions = CropDefaults.cropOptions(

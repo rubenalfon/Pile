@@ -1,5 +1,7 @@
 package es.pile.features.editDocument.di
 
+import es.pile.features.editDocument.data.helper.CropControllerFactoryImpl
+import es.pile.features.editDocument.domain.helper.CropControllerFactory
 import es.pile.features.editDocument.domain.useCases.AddPageToDocumentUseCase
 import es.pile.features.editDocument.domain.useCases.FinalizeDocumentUpdateUseCase
 import es.pile.features.editDocument.domain.useCases.GetCropControllerUseCase
@@ -18,6 +20,8 @@ val editDocumentModule = module {
     factoryOf(::AddPageToDocumentUseCase)
     factoryOf(::FinalizeDocumentUpdateUseCase)
     factoryOf(::GetCropControllerUseCase)
+
+    factory<CropControllerFactory> { CropControllerFactoryImpl() }
 
     viewModelOf(::EditDocumentViewModel)
 }
