@@ -5,6 +5,7 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import es.pile.DatabaseQueries
 import es.pile.DocumentModel
+import es.pile.core.domain.models.DocumentDetail
 import es.pile.core.domain.models.DocumentStatus
 import es.pile.core.domain.repositories.DocumentModelRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -68,6 +69,33 @@ class DocumentModelRepositoryImpl(
                 documentOrganizationIds = documentModel.documentOrganizationIds,
                 isIncomingPdf = documentModel.isIncomingPdf,
                 id = documentModel.id
+            )
+        }
+    }
+
+    override suspend fun updateTitle(id: String, title: String) {
+        withContext(ioDispatcher) {
+            databaseQueries.updateDocumentTitle(
+                title = title,
+                id = id
+            )
+        }
+    }
+
+    override suspend fun updateNote(id: String, note: String) {
+        withContext(ioDispatcher) {
+            databaseQueries.updateDocumentNote(
+                documentNote = note,
+                id = id
+            )
+        }
+    }
+
+    override suspend fun updateDetails(id: String, details: List<DocumentDetail>) {
+        withContext(ioDispatcher) {
+            databaseQueries.updateDocumentDetails(
+                documentDetails = details,
+                id = id
             )
         }
     }

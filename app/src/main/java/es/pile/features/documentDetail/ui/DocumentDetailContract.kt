@@ -8,7 +8,7 @@ import es.pile.core.ui.util.UiText
 
 data class DocumentDetailState(
     val documentModel: DocumentModel? = null,
-    val localDocumentDetails: List<DocumentDetail> = emptyList(),
+    val localDocumentDetails: List<DocumentDetail>? = null,
     val documentPileModels: List<PileModel>? = null,
     val pageCacheKeys: List<String> = emptyList(),
     val pdfPageCount: Int? = null,

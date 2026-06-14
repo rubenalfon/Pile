@@ -173,6 +173,7 @@ updateDocumentDetails:
 UPDATE DocumentModel
 SET documentDetails = ?
 WHERE id = ?;
+
 updateDocumentNote:
 UPDATE DocumentModel
 SET documentNote = ?

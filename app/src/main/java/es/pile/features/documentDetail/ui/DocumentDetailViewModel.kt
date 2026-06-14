@@ -71,7 +71,7 @@ class DocumentDetailViewModel(
                         documentPileModels = data.documentPiles,
                         pageCacheKeys = pageCacheKeys,
                         pdfPageCount = currentState.pdfPageCount ?: pdfPages,
-                        localDocumentDetails = currentState.localDocumentDetails,
+                        localDocumentDetails = currentState.localDocumentDetails ?: document.documentDetails,
                         allPiles = data.allPiles
                     )
                 }
@@ -108,18 +108,13 @@ class DocumentDetailViewModel(
 
     private fun renameDocument(newName: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val documentModel = state.value.documentModel ?: return@launch
-            val updatedDocumentModel = documentModel.copy(title = newName)
-
-            documentModelRepository.updateDocumentModel(updatedDocumentModel)
+            documentModelRepository.updateTitle(documentId, newName)
         }
     }
 
     private fun updateNote(newNote: String) {
         viewModelScope.launch {
-            val document = state.value.documentModel ?: return@launch
-            val updatedDocumentModel = document.copy(documentNote = newNote)
-            documentModelRepository.updateDocumentModel(updatedDocumentModel)
+            documentModelRepository.updateNote(documentId, newNote)
         }
     }
 
@@ -127,7 +122,7 @@ class DocumentDetailViewModel(
         val currentState = state.value
 
         val updatedCollectionDetails = updateDocumentDetailsUseCase(
-            currentDetails = currentState.localDocumentDetails,
+            currentDetails = currentState.localDocumentDetails ?: emptyList(),
             deletedStack = recentlyDeletedDetails,
             event = event
         )
@@ -135,12 +130,11 @@ class DocumentDetailViewModel(
         _state.update { it.copy(localDocumentDetails = updatedCollectionDetails.updatedDetails) }
         recentlyDeletedDetails = updatedCollectionDetails.updatedDeletedStack
 
-        val document = currentState.documentModel ?: return
-        val updatedDocumentModel =
-            document.copy(documentDetails = updatedCollectionDetails.updatedDetails)
-
         viewModelScope.launch {
-            documentModelRepository.updateDocumentModel(updatedDocumentModel)
+            documentModelRepository.updateDetails(
+                id = documentId,
+                details = updatedCollectionDetails.updatedDetails
+            )
         }
     }
 

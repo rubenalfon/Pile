@@ -1,6 +1,7 @@
 package es.pile.core.domain.repositories
 
 import es.pile.DocumentModel
+import es.pile.core.domain.models.DocumentDetail
 import es.pile.core.domain.models.DocumentStatus
 import kotlinx.coroutines.flow.Flow
 
@@ -59,6 +60,21 @@ interface DocumentModelRepository {
      * @param documentModel The updated document metadata.
      */
     suspend fun updateDocumentModel(documentModel: DocumentModel)
+
+    /**
+     * Updates the title of a document.
+     */
+    suspend fun updateTitle(id: String, title: String)
+
+    /**
+     * Updates the note of a document.
+     */
+    suspend fun updateNote(id: String, note: String)
+
+    /**
+     * Updates the details of a document.
+     */
+    suspend fun updateDetails(id: String, details: List<DocumentDetail>)
 
     /**
      * Removes a document model record from the database.

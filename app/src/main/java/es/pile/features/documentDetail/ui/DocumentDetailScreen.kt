@@ -548,7 +548,7 @@ private fun ImagePager(
 
 private fun LazyListScope.documentDetailsSection(
     reorderableLazyListState: ReorderableLazyListState,
-    documentDetails: List<DocumentDetail>,
+    documentDetails: List<DocumentDetail>?,
     isEditingMode: Boolean,
     updateEditingMode: (state: Boolean) -> Unit,
     onEvent: (event: DetailsActionEvent) -> Unit
@@ -564,7 +564,7 @@ private fun LazyListScope.documentDetailsSection(
         )
     }
 
-    if (documentDetails.isEmpty()) {
+    if (documentDetails.isNullOrEmpty()) {
         item {
             Card(
                 modifier = Modifier
@@ -587,40 +587,44 @@ private fun LazyListScope.documentDetailsSection(
                 )
             }
         }
-    }
-
-    items(documentDetails, key = { it.id }) { documentDetail ->
-        val index = documentDetails.indexOf(documentDetail)
-        ReorderableItem(
-            reorderableLazyListState,
-            key = documentDetail.id
-        ) { isDragging ->
-            SwipeBox(
-                onDelete = { onEvent(DetailsActionEvent.OnRemove(index)) },
-                contentPaddingValues = PaddingValues(horizontal = 16.dp),
-                enabled = isEditingMode,
-                modifier = Modifier.padding(bottom = if (index != documentDetails.size - 1) 3.dp else 0.dp)
-            ) {
-                if (documentDetail !is StringDetail) return@SwipeBox
-                DocumentDetailItem(
-                    documentDetail = documentDetail,
-                    index = index,
-                    isDragging = isDragging,
-                    isFirstItem = index == 0,
-                    isLastItem = index == documentDetails.size - 1,
-                    isEditingMode = isEditingMode,
-                    onUpdateEditingMode = updateEditingMode,
-                    onMove = { from, to ->
-                        onEvent(DetailsActionEvent.OnIndexMove(from, to))
-                    },
-                    onTextChange = { newName, newValue ->
-                        onEvent(
-                            DetailsActionEvent.OnUpdateText(documentDetail.id, newName, newValue)
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
+    } else {
+        items(documentDetails, key = { it.id }) { documentDetail ->
+            val index = documentDetails.indexOf(documentDetail)
+            ReorderableItem(
+                reorderableLazyListState,
+                key = documentDetail.id
+            ) { isDragging ->
+                SwipeBox(
+                    onDelete = { onEvent(DetailsActionEvent.OnRemove(index)) },
+                    contentPaddingValues = PaddingValues(horizontal = 16.dp),
+                    enabled = isEditingMode,
+                    modifier = Modifier.padding(bottom = if (index != documentDetails.size - 1) 3.dp else 0.dp)
+                ) {
+                    if (documentDetail !is StringDetail) return@SwipeBox
+                    DocumentDetailItem(
+                        documentDetail = documentDetail,
+                        index = index,
+                        isDragging = isDragging,
+                        isFirstItem = index == 0,
+                        isLastItem = index == documentDetails.size - 1,
+                        isEditingMode = isEditingMode,
+                        onUpdateEditingMode = updateEditingMode,
+                        onMove = { from, to ->
+                            onEvent(DetailsActionEvent.OnIndexMove(from, to))
+                        },
+                        onTextChange = { newName, newValue ->
+                            onEvent(
+                                DetailsActionEvent.OnUpdateText(
+                                    documentDetail.id,
+                                    newName,
+                                    newValue
+                                )
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
             }
         }
     }
@@ -818,7 +822,7 @@ private fun DocumentNoteSection(
     }
 
     LaunchedEffect(unsavedDocumentNoteDetail) {
-        delay(5.seconds)
+        delay(200.milliseconds)
 
         if (unsavedDocumentNoteDetail == documentModel?.documentNote) return@LaunchedEffect
 
@@ -854,7 +858,11 @@ private fun DocumentNoteSection(
                     .fillMaxWidth()
                     .onFocusChanged { focusState ->
                         isFocused = focusState.isFocused
-                        if (isFocused) onFocused()
+                        if (isFocused) {
+                            onFocused()
+                        } else {
+                            onUpdateDocumentNote.invoke(unsavedDocumentNoteDetail)
+                        }
                     },
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface
