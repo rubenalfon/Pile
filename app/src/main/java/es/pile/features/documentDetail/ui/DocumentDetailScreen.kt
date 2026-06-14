@@ -1,6 +1,9 @@
 package es.pile.features.documentDetail.ui
 
 import android.graphics.Bitmap
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -169,6 +172,14 @@ fun DocumentDetailScreen(
 
     val context = LocalContext.current
 
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            viewModel.handleEvent(DocumentDetailEvent.OnDownload)
+        }
+    }
+
     LaunchedEffect(state.userMessage) {
         state.userMessage?.let { uiText ->
             snackbarHostState.showSnackbar(
@@ -219,7 +230,12 @@ fun DocumentDetailScreen(
                     onDownloadDocument = {
                         viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                         focusManager.clearFocus()
-                        viewModel.handleEvent(DocumentDetailEvent.OnDownload)
+
+                        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                            permissionLauncher.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        } else {
+                            viewModel.handleEvent(DocumentDetailEvent.OnDownload)
+                        }
                     },
                     onShareDocument = {
                         viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))

@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.provider.OpenableColumns
@@ -268,23 +269,43 @@ class FileRepositoryImpl(
             runCatching {
                 val safeName = sanitizeFileName(publicName)
 
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.MediaColumns.DISPLAY_NAME, safeName)
-                    put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                }
-
-                val uri = contentResolver.insert(
-                    MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-                    contentValues
-                ) ?: throw IOException("Failed to create new MediaStore record.")
-
-                contentResolver.openOutputStream(uri)?.use { outputStream ->
-                    file.inputStream().use { inputStream ->
-                        inputStream.copyTo(outputStream)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val contentValues = ContentValues().apply {
+                        put(MediaStore.MediaColumns.DISPLAY_NAME, safeName)
+                        put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                     }
-                } ?: throw IOException("The output stream for URI $uri could not be opened")
-                uri.toString()
+
+                    val uri = contentResolver.insert(
+                        MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                        contentValues
+                    ) ?: throw IOException("Failed to create new MediaStore record.")
+
+                    contentResolver.openOutputStream(uri)?.use { outputStream ->
+                        file.inputStream().use { inputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
+                    } ?: throw IOException("The output stream for URI $uri could not be opened")
+                    uri.toString()
+                } else {
+                    val downloadsDir =
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    if (!downloadsDir.exists()) downloadsDir.mkdirs()
+
+                    val destinationFile = File(downloadsDir, safeName)
+
+                    file.copyTo(destinationFile, overwrite = true)
+
+                    // Notify MediaScanner so the file shows up in Downloads/File Manager immediately
+                    val contentValues = ContentValues().apply {
+                        put(MediaStore.MediaColumns.DISPLAY_NAME, safeName)
+                        put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                        put(MediaStore.MediaColumns.DATA, destinationFile.absolutePath)
+                    }
+                    contentResolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
+
+                    Uri.fromFile(destinationFile).toString()
+                }
             }
         }
 

@@ -16,7 +16,7 @@ android {
 
     defaultConfig {
         applicationId = "es.pile"
-        minSdk = 29
+        minSdk = 28
         targetSdk = 37
         versionCode = 3
         versionName = "1.0.2"
