@@ -1,5 +1,8 @@
 package es.pile.features.pileDetail.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,12 +22,14 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FabPosition
-import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -41,7 +46,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -50,8 +57,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.pile.R
 import es.pile.core.ui.composables.AlertEditPile
+import es.pile.core.ui.composables.LoadingAlert
 import es.pile.core.ui.composables.LoadingWrapper
 import es.pile.core.ui.composables.itemDocumentsCompleteList
+import es.pile.core.ui.controllers.rememberDocumentImportController
+import es.pile.features.home.ui.FabMenuWithController
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -62,11 +73,16 @@ fun PileDetailScreen(
     pileId: String,
     navigateToDocumentDetail: (documentId: String) -> Unit,
     navigateToSearchScreen: (pileId: String) -> Unit,
+    navigateToEditDocument: (documentId: String) -> Unit,
+    navigateToAddDocument: (documentId: String) -> Unit,
     popBackStack: () -> Unit,
     viewModel: PileDetailViewModel = koinViewModel { parametersOf(pileId) }
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(state.isLoading, state.pile) {
         if (!state.isLoading && state.pile == null) {
@@ -74,10 +90,39 @@ fun PileDetailScreen(
         }
     }
 
+    var isNavigating by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collectLatest { document ->
+            isNavigating = true
+            if (document.isIncomingPdf) navigateToAddDocument(document.id)
+            else navigateToEditDocument(document.id)
+        }
+    }
+
+    LaunchedEffect(state.errorMessage) {
+        state.errorMessage?.let {
+            snackbarHostState.showSnackbar(
+                message = it.asString(context),
+                duration = SnackbarDuration.Short
+            )
+            viewModel.handleEvent(PileDetailEvent.OnErrorDismissed)
+        }
+    }
+
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     var isUpdatePileExpanded by rememberSaveable { mutableStateOf(false) }
     var isDeletePileExpanded by rememberSaveable { mutableStateOf(false) }
+    var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
+
+    val importActions = rememberDocumentImportController(
+        cameraUri = state.cameraUri,
+        onUriConsumed = { viewModel.handleEvent(PileDetailEvent.OnCameraUriConsumed) },
+        onPdfSelected = { viewModel.handleEvent(PileDetailEvent.OnPdfImported(it)) },
+        onImagesSelected = { viewModel.handleEvent(PileDetailEvent.OnImagesImported(it)) },
+        onCameraClick = { viewModel.handleEvent(PileDetailEvent.OnCameraClick) }
+    )
 
     Scaffold(
         contentWindowInsets = WindowInsets.displayCutout,
@@ -87,17 +132,28 @@ fun PileDetailScreen(
                 pileName = state.pile?.name ?: "",
                 popBackStack = popBackStack,
                 onSearchClick = { navigateToSearchScreen(pileId) },
+                onEditClick = { isUpdatePileExpanded = true },
+                onDeleteClick = { isDeletePileExpanded = true },
                 scrollBehavior = scrollBehavior
             )
         },
-        floatingActionButtonPosition = FabPosition.Center,
+        floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
-            ToolBar(
-                modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
-                onPileUpdateClicked = { isUpdatePileExpanded = true },
-                onPileDeleteClicked = { isDeletePileExpanded = true }
-            )
-        }) { innerPadding ->
+            AnimatedVisibility(
+                visible = !state.isLoading,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                FabMenuWithController(
+                    modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
+                    fabMenuExpanded = fabMenuExpanded,
+                    updateFabMenuExpanded = { fabMenuExpanded = it },
+                    importActions = importActions
+                )
+            }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    ) { innerPadding ->
         Box(
             Modifier
                 .padding(innerPadding)
@@ -106,7 +162,17 @@ fun PileDetailScreen(
             var availableWidth by remember { mutableStateOf(0.dp) }
             val density = LocalDensity.current
 
-            LoadingWrapper(state.isLoading) {
+            LoadingWrapper(
+                isLoading = state.isLoading,
+                modifier = Modifier.pointerInteropFilter {
+                    when (it.action) {
+                        android.view.MotionEvent.ACTION_DOWN -> {
+                            fabMenuExpanded = false
+                        }
+                    }
+                    false
+                }
+            ) {
                 if (state.documentCoverItems.isEmpty()) {
                     Box(
                         Modifier.fillMaxSize(),
@@ -160,6 +226,10 @@ fun PileDetailScreen(
                     }
                 }
             }
+
+            if (state.isLoadingNewDocument || isNavigating) {
+                LoadingAlert(title = stringResource(R.string.loading_new_document))
+            }
         }
 
         if (isUpdatePileExpanded) {
@@ -195,39 +265,14 @@ fun PileDetailScreen(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-private fun ToolBar(
-    modifier: Modifier = Modifier,
-    onPileUpdateClicked: () -> Unit,
-    onPileDeleteClicked: () -> Unit
-) {
-    HorizontalFloatingToolbar(
-        modifier = modifier,
-        expanded = true,
-        content = {
-            IconButton(onClick = onPileUpdateClicked) {
-                Icon(
-                    painter = painterResource(R.drawable.edit_24px),
-                    contentDescription = stringResource(R.string.edit_pile)
-                )
-            }
-            IconButton(onClick = onPileDeleteClicked) {
-                Icon(
-                    painter = painterResource(R.drawable.delete_24px),
-                    contentDescription = stringResource(R.string.delete_pile)
-                )
-            }
-        }
-    )
-}
-
-@Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 private fun TopAppBar(
     modifier: Modifier = Modifier,
     pileName: String,
     popBackStack: () -> Unit,
     onSearchClick: () -> Unit,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     LargeFlexibleTopAppBar(
@@ -253,6 +298,18 @@ private fun TopAppBar(
                 Icon(
                     imageVector = Icons.Filled.Search,
                     contentDescription = stringResource(R.string.search)
+                )
+            }
+            IconButton(onClick = onEditClick) {
+                Icon(
+                    painter = painterResource(R.drawable.edit_24px),
+                    contentDescription = stringResource(R.string.edit_pile)
+                )
+            }
+            IconButton(onClick = onDeleteClick) {
+                Icon(
+                    painter = painterResource(R.drawable.delete_24px),
+                    contentDescription = stringResource(R.string.delete_pile)
                 )
             }
         },

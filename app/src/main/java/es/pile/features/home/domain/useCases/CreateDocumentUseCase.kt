@@ -37,13 +37,14 @@ class CreateDocumentUseCase(
      * internal storage, and persisting the document metadata in the database.
      *
      * @param uri The source [android.net.Uri] of the PDF file.
+     * @param initialPileIds Optional list of Pile IDs to associate with the new document.
      * @return The newly created [es.pile.DocumentModel] in a [DocumentStatusConstants.TEMPORARY] state.
      * @throws Exception if file copying or database insertion fails.
      */
-    suspend fun createFromPdf(uri: Uri): DocumentModel = withContext(ioDispatcher) {
+    suspend fun createFromPdf(uri: Uri, initialPileIds: List<String> = emptyList()): DocumentModel = withContext(ioDispatcher) {
         cleanupExistingTemporaryDocument()
 
-        val newDocument = createBaseDocument(isPdf = true)
+        val newDocument = createBaseDocument(isPdf = true, initialPileIds = initialPileIds)
 
         try {
             val fileName = fileRepository.getFileNameFromUri(uri) ?: ""
@@ -68,13 +69,14 @@ class CreateDocumentUseCase(
      * the main document metadata.
      *
      * @param uris A list of source [Uri]s for the images to be included in the document.
+     * @param initialPileIds Optional list of Pile IDs to associate with the new document.
      * @return The newly created [DocumentModel] containing the image IDs.
      * @throws Exception if image processing or database operations fail.
      */
-    suspend fun createFromImages(uris: List<Uri>): DocumentModel = withContext(ioDispatcher) {
+    suspend fun createFromImages(uris: List<Uri>, initialPileIds: List<String> = emptyList()): DocumentModel = withContext(ioDispatcher) {
         cleanupExistingTemporaryDocument()
 
-        val newDocument = createBaseDocument(isPdf = false)
+        val newDocument = createBaseDocument(isPdf = false, initialPileIds = initialPileIds)
 
         try {
             val imageFiles =
@@ -107,9 +109,10 @@ class CreateDocumentUseCase(
      * Creates and inserts the initial [DocumentModel] record with default values.
      *
      * @param isPdf Boolean flag indicating if the document source is a PDF.
+     * @param initialPileIds List of Pile IDs to associate with the new document.
      * @return The persisted base [DocumentModel].
      */
-    private suspend fun createBaseDocument(isPdf: Boolean): DocumentModel {
+    private suspend fun createBaseDocument(isPdf: Boolean, initialPileIds: List<String>): DocumentModel {
         val document = DocumentModel(
             id = UUID.randomUUID().toString(),
             title = "",
@@ -120,7 +123,7 @@ class CreateDocumentUseCase(
             documentDetails = emptyList(),
             documentOrganizationIds = emptyList(),
             documentNote = "",
-            documentPileIds = emptyList(),
+            documentPileIds = initialPileIds,
             isIncomingPdf = isPdf
         )
         documentModelRepository.insertDocumentModel(document)

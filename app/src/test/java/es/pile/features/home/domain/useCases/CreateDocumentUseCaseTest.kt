@@ -105,32 +105,44 @@ class CreateDocumentUseCaseTest {
     }
 
     @Test
-    fun `createFromImages cleans up, saves images, and updates document`() = runTest {
+    fun `createFromPdf with initialPileIds should include them in the document`() = runTest {
         // Given
-        val mockUris = listOf(mockk<Uri>(), mockk<Uri>())
-        val mockFiles = listOf(File("img1.jpg"), File("img2.jpg"))
+        val mockUri = mockk<Uri>()
+        val fileName = "test.pdf"
+        val pileIds = listOf("pile1", "pile2")
 
-        coEvery { documentModelRepository.getDocumentModelsByStatus(DocumentStatusConstants.TEMPORARY) } returns flowOf(
-            emptyList()
-        )
+        coEvery { documentModelRepository.getDocumentModelsByStatus(DocumentStatusConstants.TEMPORARY) } returns flowOf(emptyList())
         coEvery { documentModelRepository.insertDocumentModel(any()) } returns Unit
+        coEvery { fileRepository.getFileNameFromUri(mockUri) } returns fileName
+        coEvery { fileRepository.copyPdfToInternalStorage(mockUri, "new-doc-id") } returns File("path")
+        coEvery { documentModelRepository.updateDocumentModel(any()) } returns Unit
 
-        coEvery {
-            saveImagesUseCase(
-                FileRepository.StorageType.PERSISTENT, mockUris, "new-doc-id"
-            )
-        } returns mockFiles
+        // When
+        val result = createDocumentUseCase.createFromPdf(mockUri, initialPileIds = pileIds)
+
+        // Then
+        assertEquals(pileIds, result.documentPileIds)
+        coVerify { documentModelRepository.insertDocumentModel(match { it.documentPileIds == pileIds }) }
+    }
+
+    @Test
+    fun `createFromImages with initialPileIds should include them in the document`() = runTest {
+        // Given
+        val mockUris = listOf(mockk<Uri>())
+        val mockFiles = listOf(File("img1.jpg"))
+        val pileIds = listOf("pileA")
+
+        coEvery { documentModelRepository.getDocumentModelsByStatus(DocumentStatusConstants.TEMPORARY) } returns flowOf(emptyList())
+        coEvery { documentModelRepository.insertDocumentModel(any()) } returns Unit
+        coEvery { saveImagesUseCase(FileRepository.StorageType.PERSISTENT, mockUris, "new-doc-id") } returns mockFiles
         coEvery { documentImageRepository.insertDocumentImage(any()) } returns Unit
         coEvery { documentModelRepository.updateDocumentModel(any()) } returns Unit
 
         // When
-        val result = createDocumentUseCase.createFromImages(mockUris)
+        val result = createDocumentUseCase.createFromImages(mockUris, initialPileIds = pileIds)
 
         // Then
-        assertEquals("new-doc-id", result.id)
-        assertEquals(listOf("img1.jpg", "img2.jpg"), result.imageIds)
-        coVerify { documentImageRepository.insertDocumentImage(match { it.id == "img1.jpg" }) }
-        coVerify { documentImageRepository.insertDocumentImage(match { it.id == "img2.jpg" }) }
-        coVerify { documentModelRepository.updateDocumentModel(match { it.id == "new-doc-id" && it.imageIds.size == 2 }) }
+        assertEquals(pileIds, result.documentPileIds)
+        coVerify { documentModelRepository.insertDocumentModel(match { it.documentPileIds == pileIds }) }
     }
 }
