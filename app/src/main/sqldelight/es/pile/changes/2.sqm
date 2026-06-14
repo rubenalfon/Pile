@@ -1,0 +1,2 @@
+UPDATE PileModel
+SET colorNumber = colorNumber % 10;
