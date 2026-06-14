@@ -104,7 +104,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     navigateToPileDetail: (pileId: String) -> Unit,
     navigateToDocumentDetail: (documentId: String) -> Unit,
-    navigateToEditPDF: (documentId: String) -> Unit,
+    navigateToEditDocument: (documentId: String) -> Unit,
     navigateToAddDocument: (documentId: String) -> Unit,
     navigateToSettings: () -> Unit,
     viewModel: HomeViewModel = koinViewModel()
@@ -118,7 +118,7 @@ fun HomeScreen(
         viewModel.navigationEvent.collect { document ->
             isNavigating = true
             if (document.isIncomingPdf) navigateToAddDocument(document.id)
-            else navigateToEditPDF(document.id)
+            else navigateToEditDocument(document.id)
         }
     }
 
@@ -224,6 +224,14 @@ fun HomeScreen(
                     )
                     .fillMaxSize()
                     .background(backgroundDocuments)
+                    .pointerInteropFilter {
+                        when (it.action) {
+                            MotionEvent.ACTION_DOWN -> {
+                                fabMenuExpanded = false
+                            }
+                        }
+                        false
+                    }
             ) {
                 LazyColumn(
                     Modifier
@@ -259,7 +267,7 @@ fun HomeScreen(
                                     if (tempDocument.isIncomingPdf)
                                         navigateToAddDocument(tempDocument.id)
                                     else
-                                        navigateToEditPDF(tempDocument.id)
+                                        navigateToEditDocument(tempDocument.id)
                                 },
                                 onDismiss = {
                                     viewModel.handleEvent(HomeEvent.OnRemoveDraftDocument)
