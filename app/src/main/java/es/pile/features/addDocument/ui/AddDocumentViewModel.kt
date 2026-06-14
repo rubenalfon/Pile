@@ -60,14 +60,18 @@ class AddDocumentViewModel(
 
             val allPilesFlow = pileModelRepository.pileModels
 
-            combine(documentFlow, documentFirstImageFlow, allPilesFlow ) { document, image, allPiles ->
+            combine(
+                documentFlow,
+                documentFirstImageFlow,
+                allPilesFlow
+            ) { document, image, allPiles ->
                 if (document == null) return@combine
 
                 val coverImageCacheKey = bitmapCacheRepository.getImageKey(document, 0)
 
                 _state.update {
                     it.copy(
-                        documentModel = document,
+                        documentModel = it.documentModel ?: document,
                         coverDocumentImage = image,
                         coverImageCacheKey = coverImageCacheKey,
                         documentName = document.title,
@@ -119,11 +123,7 @@ class AddDocumentViewModel(
             else add(pileId)
         }
 
-        _state.update {
-            it.copy(
-                documentModel = document.copy(documentPileIds = updatedDocumentPiles)
-            )
-        }
+        _state.update { it.copy(documentModel = document.copy(documentPileIds = updatedDocumentPiles)) }
     }
 
     private fun createAddPile(pileName: String, iconId: String, color: Long) {
