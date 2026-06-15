@@ -85,6 +85,11 @@
     <string name="exporting_document">Экспорт документа</string>
     <string name="pdf_exported_successfully">PDF успешно экспортирован</string>
 
+    <string name="draft_warning_title">Несохраненный документ</string>
+    <string name="draft_warning_body">У вас есть несохраненный документ. Создание нового приведет к удалению текущего черновика. Хотите продолжить или вернуться к редактированию черновика?</string>
+    <string name="draft_warning_navigate">Редактировать черновик</string>
+    <string name="draft_warning_discard">Удалить и продолжить</string>
+
     <string name="piles">Стопки</string>
     <string name="note">Заметка</string>
     <string name="details">Детали</string>

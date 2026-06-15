@@ -43,6 +43,8 @@ class HomeViewModel(
     private val _navigationEvent = Channel<DocumentModel>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
+    private var pendingImportAction: (() -> Unit)? = null
+
     private var backupUnsavedDocument: TemporaryDocumentBackup? = null
 
     init {
@@ -83,10 +85,45 @@ class HomeViewModel(
 
             is HomeEvent.OnCreatePile -> addPile(event.pileName, event.iconId, event.color)
 
-            is HomeEvent.OnPdfImported -> importPDFIntent(event.uri)
-            is HomeEvent.OnImagesImported -> importImagesIntent(event.uris)
-            HomeEvent.OnCameraClick -> createCameraUri()
+            is HomeEvent.OnPdfImported -> {
+                if (state.value.temporaryDocument != null) {
+                    pendingImportAction = { importPDFIntent(event.uri) }
+                    _state.update { it.copy(showDraftWarning = true) }
+                } else {
+                    importPDFIntent(event.uri)
+                }
+            }
+
+            is HomeEvent.OnImagesImported -> {
+                if (state.value.temporaryDocument != null) {
+                    pendingImportAction = { importImagesIntent(event.uris) }
+                    _state.update { it.copy(showDraftWarning = true) }
+                } else {
+                    importImagesIntent(event.uris)
+                }
+            }
+
+            HomeEvent.OnCameraClick -> {
+                if (state.value.temporaryDocument != null) {
+                    pendingImportAction = { createCameraUri() }
+                    _state.update { it.copy(showDraftWarning = true) }
+                } else {
+                    createCameraUri()
+                }
+            }
+
             HomeEvent.OnCameraUriConsumed -> dismissCameraUri()
+
+            HomeEvent.OnConfirmImport -> {
+                _state.update { it.copy(showDraftWarning = false) }
+                pendingImportAction?.invoke()
+                pendingImportAction = null
+            }
+
+            HomeEvent.OnDismissDraftWarning -> {
+                _state.update { it.copy(showDraftWarning = false) }
+                pendingImportAction = null
+            }
 
             HomeEvent.OnErrorDismissed -> _state.update { it.copy(errorMessage = null) }
         }

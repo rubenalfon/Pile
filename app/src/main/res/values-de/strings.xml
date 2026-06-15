@@ -85,6 +85,11 @@
     <string name="exporting_document">Dokument wird exportiert</string>
     <string name="pdf_exported_successfully">PDF erfolgreich exportiert</string>
 
+    <string name="draft_warning_title">Nicht gespeichertes Dokument</string>
+    <string name="draft_warning_body">Sie haben ein nicht gespeichertes Dokument. Wenn Sie ein neues erstellen, wird der aktuelle Entwurf verworfen. Möchten Sie fortfahren oder zum Bearbeiten des Entwurfs zurückkehren?</string>
+    <string name="draft_warning_navigate">Entwurf bearbeiten</string>
+    <string name="draft_warning_discard">Verwerfen und fortfahren</string>
+
     <string name="piles">Piles</string>
     <string name="note">Notiz</string>
     <string name="details">Details</string>

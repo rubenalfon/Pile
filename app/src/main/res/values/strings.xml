@@ -85,6 +85,11 @@
     <string name="exporting_document">Exporting document</string>
     <string name="pdf_exported_successfully">PDF exported successfully</string>
 
+    <string name="draft_warning_title">Unsaved Document</string>
+    <string name="draft_warning_body">You have an unsaved document. Creating a new one will discard the current draft. Do you want to continue or go back to editing the draft?</string>
+    <string name="draft_warning_navigate">Edit Draft</string>
+    <string name="draft_warning_discard">Discard and Continue</string>
+
     <string name="piles">Piles</string>
     <string name="note">Note</string>
     <string name="details">Details</string>

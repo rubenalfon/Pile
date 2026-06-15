@@ -10,8 +10,10 @@ import es.pile.core.ui.util.UiText
 data class PileDetailState(
     val pile: PileModel? = null,
     val documentCoverItems: List<DocumentCoverItem> = emptyList(),
+    val temporaryDocument: DocumentModel? = null,
     val cameraUri: Uri? = null,
     val isLoading: Boolean = true,
+    val showDraftWarning: Boolean = false,
     val isLoadingNewDocument: Boolean = false,
     val errorMessage: UiText? = null
 )
@@ -27,6 +29,9 @@ sealed interface PileDetailEvent {
     data class OnImagesImported(val uris: List<Uri>) : PileDetailEvent
     data object OnCameraClick : PileDetailEvent
     data object OnCameraUriConsumed : PileDetailEvent
+
+    data object OnConfirmImport : PileDetailEvent
+    data object OnDismissDraftWarning : PileDetailEvent
 
     data object OnErrorDismissed : PileDetailEvent
 }

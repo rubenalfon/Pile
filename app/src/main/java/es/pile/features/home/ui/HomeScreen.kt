@@ -85,6 +85,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.pile.R
+import es.pile.core.ui.composables.AlertDraftDocumentWarning
 import es.pile.core.ui.composables.AlertNewPile
 import es.pile.core.ui.composables.LoadingAlert
 import es.pile.core.ui.composables.LoadingWrapper
@@ -374,6 +375,25 @@ fun HomeScreen(
             onConfirm = { pileName, pileIconId, pileColorNumber ->
                 isNewPileAlertExpanded = false
                 viewModel.handleEvent(HomeEvent.OnCreatePile(pileName, pileIconId, pileColorNumber))
+            }
+        )
+    }
+
+    if (state.showDraftWarning) {
+        val tempDocument = state.temporaryDocument
+        AlertDraftDocumentWarning(
+            onDismiss = { viewModel.handleEvent(HomeEvent.OnDismissDraftWarning) },
+            onDiscardAndContinue = {
+                viewModel.handleEvent(HomeEvent.OnConfirmImport)
+            },
+            onNavigateToDraft = {
+                viewModel.handleEvent(HomeEvent.OnDismissDraftWarning)
+                if (tempDocument != null) {
+                    if (tempDocument.isIncomingPdf)
+                        navigateToAddDocument(tempDocument.id)
+                    else
+                        navigateToEditDocument(tempDocument.id)
+                }
             }
         )
     }

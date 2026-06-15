@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import es.pile.DocumentModel
 import es.pile.R
 import es.pile.core.domain.models.DocumentCoverItem
+import es.pile.core.domain.models.DocumentStatusConstants.TEMPORARY
 import es.pile.core.domain.repositories.BitmapCacheRepository
 import es.pile.core.domain.repositories.DocumentModelRepository
 import es.pile.core.domain.repositories.FileRepository
@@ -45,14 +46,22 @@ class PileDetailViewModel(
     private val _navigationEvent = Channel<DocumentModel>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
+    private var pendingImportAction: (() -> Unit)? = null
+
     init {
         viewModelScope.launch {
             val pileFlow = pileModelRepository.getPileModelById(pileId)
-            val documentFlow = documentModelRepository.getDocumentModelsByPileId(pileId)
+            val allDocumentsFlow = documentModelRepository.documentModels
 
-            pileFlow.combine(documentFlow) { pile, documents ->
+            combine(
+                pileFlow,
+                allDocumentsFlow
+            ) { pile, allDocuments ->
 
-                val documentCoverItems = documents.map { documentModel ->
+                val pileDocuments = allDocuments.filter { it.documentPileIds.contains(pileId) && it.documentStatus != TEMPORARY }
+                val temporaryDocument = allDocuments.find { it.documentStatus == TEMPORARY }
+
+                val documentCoverItems = pileDocuments.map { documentModel ->
                     DocumentCoverItem(
                         document = documentModel,
                         coverImageCacheKey = bitmapCacheRepository.getImageKey(documentModel, 0)
@@ -63,7 +72,8 @@ class PileDetailViewModel(
                     it.copy(
                         isLoading = false,
                         pile = pile,
-                        documentCoverItems = documentCoverItems
+                        documentCoverItems = documentCoverItems,
+                        temporaryDocument = temporaryDocument
                     )
                 }
             }.collect()
@@ -76,10 +86,45 @@ class PileDetailViewModel(
             PileDetailEvent.OnDeletePile -> deletePile()
             is PileDetailEvent.OnPileChange -> updatePile(event.name, event.iconId, event.color)
 
-            is PileDetailEvent.OnPdfImported -> importPDF(event.uri)
-            is PileDetailEvent.OnImagesImported -> importImages(event.uris)
-            PileDetailEvent.OnCameraClick -> createCameraUri()
+            is PileDetailEvent.OnPdfImported -> {
+                if (state.value.temporaryDocument != null) {
+                    pendingImportAction = { importPDF(event.uri) }
+                    _state.update { it.copy(showDraftWarning = true) }
+                } else {
+                    importPDF(event.uri)
+                }
+            }
+
+            is PileDetailEvent.OnImagesImported -> {
+                if (state.value.temporaryDocument != null) {
+                    pendingImportAction = { importImages(event.uris) }
+                    _state.update { it.copy(showDraftWarning = true) }
+                } else {
+                    importImages(event.uris)
+                }
+            }
+
+            PileDetailEvent.OnCameraClick -> {
+                if (state.value.temporaryDocument != null) {
+                    pendingImportAction = { createCameraUri() }
+                    _state.update { it.copy(showDraftWarning = true) }
+                } else {
+                    createCameraUri()
+                }
+            }
+
             PileDetailEvent.OnCameraUriConsumed -> dismissCameraUri()
+
+            PileDetailEvent.OnConfirmImport -> {
+                _state.update { it.copy(showDraftWarning = false) }
+                pendingImportAction?.invoke()
+                pendingImportAction = null
+            }
+
+            PileDetailEvent.OnDismissDraftWarning -> {
+                _state.update { it.copy(showDraftWarning = false) }
+                pendingImportAction = null
+            }
 
             PileDetailEvent.OnErrorDismissed -> _state.update { it.copy(errorMessage = null) }
         }

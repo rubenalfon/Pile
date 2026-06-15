@@ -85,6 +85,11 @@
     <string name="exporting_document">ドキュメントをエクスポート中</string>
     <string name="pdf_exported_successfully">PDFが正常にエクスポートされました</string>
 
+    <string name="draft_warning_title">未保存のドキュメント</string>
+    <string name="draft_warning_body">保存されていないドキュメントがあります。新しく作成すると、現在のドラフトが破棄されます。続行しますか、それともドラフトの編集に戻りますか？</string>
+    <string name="draft_warning_navigate">下書きを編集</string>
+    <string name="draft_warning_discard">破棄して続行</string>
+
     <string name="piles">パイル</string>
     <string name="note">メモ</string>
     <string name="details">詳細</string>

@@ -85,6 +85,11 @@
     <string name="exporting_document">दस्तावेज़ निर्यात किया जा रहा है</string>
     <string name="pdf_exported_successfully">पीडीएफ सफलतापूर्वक निर्यात किया गया</string>
 
+    <string name="draft_warning_title">बिना सहेजा गया दस्तावेज़</string>
+    <string name="draft_warning_body">आपके पास एक बिना सहेजा गया दस्तावेज़ है। नया बनाने पर वर्तमान ड्राफ्ट हट जाएगा। क्या आप जारी रखना चाहते हैं या ड्राफ्ट को संपादित करना चाहते हैं?</string>
+    <string name="draft_warning_navigate">ड्राफ्ट संपादित करें</string>
+    <string name="draft_warning_discard">हटाएं और जारी रखें</string>
+
     <string name="piles">ढेर</string>
     <string name="note">नोट</string>
     <string name="details">विवरण</string>

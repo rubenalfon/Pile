@@ -85,6 +85,11 @@
     <string name="exporting_document">A exportar documento</string>
     <string name="pdf_exported_successfully">PDF exportado com sucesso</string>
 
+    <string name="draft_warning_title">Documento não salvo</string>
+    <string name="draft_warning_body">Você tem um documento não salvo. Criar um nuevo descartará o rascunho atual. Deseja continuar ou voltar a editar o rascunho?</string>
+    <string name="draft_warning_navigate">Editar rascunho</string>
+    <string name="draft_warning_discard">Descartar e continuar</string>
+
     <string name="piles">Pilhas</string>
     <string name="note">Nota</string>
     <string name="details">Detalhes</string>

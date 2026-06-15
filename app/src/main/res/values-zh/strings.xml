@@ -85,6 +85,11 @@
     <string name="exporting_document">正在导出文档</string>
     <string name="pdf_exported_successfully">PDF 导出成功</string>
 
+    <string name="draft_warning_title">未保存的文档</string>
+    <string name="draft_warning_body">您有一个未保存的文档。创建新文档将放弃当前草稿。您要继续还是返回编辑草稿？</string>
+    <string name="draft_warning_navigate">编辑草稿</string>
+    <string name="draft_warning_discard">放弃并继续</string>
+
     <string name="piles">堆叠</string>
     <string name="note">备注</string>
     <string name="details">详情</string>

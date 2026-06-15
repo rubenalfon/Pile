@@ -85,6 +85,11 @@
     <string name="exporting_document">S’està exportant el document</string>
     <string name="pdf_exported_successfully">PDF exportat correctament</string>
 
+    <string name="draft_warning_title">Document no desat</string>
+    <string name="draft_warning_body">Tens un document no desat. Si en crees un de nou, es descartarà l\'esborrany actual. Vols continuar o tornar a editar l\'esborrany?</string>
+    <string name="draft_warning_navigate">Edita l\'esborrany</string>
+    <string name="draft_warning_discard">Descarta i continua</string>
+
     <string name="piles">Piles</string>
     <string name="note">Nota</string>
     <string name="details">Detalls</string>

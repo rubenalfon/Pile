@@ -78,6 +78,7 @@ fun Pile(
     modifier: Modifier = Modifier,
     pileModel: PileModel,
     isColored: Boolean,
+    enabled: Boolean = true,
     customShape: Shape? = null,
     onClick: (String) -> Unit = {}
 ) {
@@ -126,7 +127,7 @@ fun Pile(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
             .clip(smartShape)
-            .clickable { onClick(pileModel.id) }
+            .clickable(enabled) { onClick(pileModel.id) }
             .background(backgroundColor)
             .padding(12.dp)
             .animateContentSize()

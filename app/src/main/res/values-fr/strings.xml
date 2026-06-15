@@ -85,6 +85,11 @@
     <string name="exporting_document">Exportation du document en cours</string>
     <string name="pdf_exported_successfully">PDF exporté avec succès</string>
 
+    <string name="draft_warning_title">Document non enregistré</string>
+    <string name="draft_warning_body">Vous avez un document non enregistré. En créer un nouveau supprimera le brouillon actuel. Voulez-vous continuer ou revenir à l\'édition du brouillon ?</string>
+    <string name="draft_warning_navigate">Modifier le brouillon</string>
+    <string name="draft_warning_discard">Supprimer et continuer</string>
+
     <string name="piles">Piles</string>
     <string name="note">Note</string>
     <string name="details">Détails</string>

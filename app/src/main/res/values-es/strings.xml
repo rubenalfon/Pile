@@ -85,6 +85,11 @@
     <string name="exporting_document">Exportando documento</string>
     <string name="pdf_exported_successfully">PDF exportado correctamente</string>
 
+    <string name="draft_warning_title">Documento sin guardar</string>
+    <string name="draft_warning_body">Tienes un documento sin guardar. Crear uno nuevo descartará el borrador actual. ¿Quieres continuar o volver a editar el borrador?</string>
+    <string name="draft_warning_navigate">Editar borrador</string>
+    <string name="draft_warning_discard">Descartar y continuar</string>
+
     <string name="piles">Pilas</string>
     <string name="note">Nota</string>
     <string name="details">Detalles</string>

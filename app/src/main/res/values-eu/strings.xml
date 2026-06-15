@@ -85,6 +85,11 @@
     <string name="exporting_document">Dokumentua esportatzen</string>
     <string name="pdf_exported_successfully">PDFa ondo esportatu da</string>
 
+    <string name="draft_warning_title">Gorde gabeko dokumentua</string>
+    <string name="draft_warning_body">Gorde gabeko dokumentu bat duzu. Berri bat sortzeak uneko zirriborroa baztertuko du. Jarraitu nahi duzu ala zirriborroa editatzera itzuli?</string>
+    <string name="draft_warning_navigate">Editatu zirriborroa</string>
+    <string name="draft_warning_discard">Baztertu eta jarraitu</string>
+
     <string name="piles">Pilak</string>
     <string name="note">Oharra</string>
     <string name="details">Xehetasunak</string>

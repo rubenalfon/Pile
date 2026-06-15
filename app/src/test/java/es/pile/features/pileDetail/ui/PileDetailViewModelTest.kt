@@ -47,7 +47,7 @@ class PileDetailViewModelTest {
         Dispatchers.setMain(testDispatcher)
         
         every { pileModelRepository.getPileModelById(pileId) } returns flowOf(PileModel(pileId, "Pile", "icon", 0))
-        every { documentModelRepository.getDocumentModelsByPileId(pileId) } returns flowOf(emptyList())
+        every { documentModelRepository.documentModels } returns flowOf(emptyList())
     }
 
     @After

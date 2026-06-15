@@ -61,6 +61,7 @@ import es.pile.DocumentModel
 import es.pile.PileModel
 import es.pile.R
 import es.pile.core.domain.models.DocumentCoverItem
+import es.pile.core.ui.composables.AlertDraftDocumentWarning
 import es.pile.core.ui.composables.AlertEditPile
 import es.pile.core.ui.composables.LoadingAlert
 import es.pile.core.ui.composables.LoadingWrapper
@@ -114,6 +115,8 @@ fun PileDetailScreen(
         popBackStack = popBackStack,
         navigateToDocumentDetail = navigateToDocumentDetail,
         navigateToSearchScreen = { navigateToSearchScreen(pileId) },
+        navigateToAddDocument = navigateToAddDocument,
+        navigateToEditDocument = navigateToEditDocument
     )
 }
 
@@ -169,6 +172,8 @@ fun PileDetailContent(
     popBackStack: () -> Unit,
     navigateToDocumentDetail: (documentId: String) -> Unit,
     navigateToSearchScreen: () -> Unit,
+    navigateToAddDocument: (documentId: String) -> Unit = {},
+    navigateToEditDocument: (documentId: String) -> Unit = {},
 ) {
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -336,6 +341,23 @@ fun PileDetailContent(
                 }
             )
         }
+
+        if (state.showDraftWarning) {
+            val tempDocument = state.temporaryDocument
+            AlertDraftDocumentWarning(
+                onDismiss = { onEvent(PileDetailEvent.OnDismissDraftWarning) },
+                onDiscardAndContinue = {
+                    onEvent(PileDetailEvent.OnConfirmImport)
+                },
+                onNavigateToDraft = {
+                    onEvent(PileDetailEvent.OnDismissDraftWarning)
+                    if (tempDocument != null) {
+                        if (tempDocument.isIncomingPdf) navigateToAddDocument(tempDocument.id)
+                        else navigateToEditDocument(tempDocument.id)
+                    }
+                }
+            )
+        }
     }
 }
 
@@ -357,6 +379,7 @@ private fun TopAppBar(
             Pile(
                 pileModel = pileModel,
                 isColored = true,
+                enabled = false,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(end = 8.dp) // Visual bug

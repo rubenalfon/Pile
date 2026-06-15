@@ -13,6 +13,7 @@ data class HomeState(
     val temporaryDocument: DocumentModel? = null,
     val coloredPileIds: List<String> = emptyList(),
     val cameraUri: Uri? = null,
+    val showDraftWarning: Boolean = false,
     val isLoadingNewDocument: Boolean = false,
     val isInitialLoading: Boolean = true,
     val errorMessage: UiText? = null
@@ -31,6 +32,9 @@ sealed interface HomeEvent {
     data class OnImagesImported(val uris: List<Uri>) : HomeEvent
     data object OnCameraClick : HomeEvent
     data object OnCameraUriConsumed : HomeEvent
+
+    data object OnConfirmImport : HomeEvent
+    data object OnDismissDraftWarning : HomeEvent
 
     data object OnErrorDismissed : HomeEvent
 }

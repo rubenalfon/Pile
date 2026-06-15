@@ -85,6 +85,11 @@
     <string name="exporting_document">Esportazione documento in corso</string>
     <string name="pdf_exported_successfully">PDF esportato con successo</string>
 
+    <string name="draft_warning_title">Documento non salvato</string>
+    <string name="draft_warning_body">Hai un documento non salvato. Creandone uno nuovo, la bozza corrente verrà eliminata. Vuoi continuare o tornare a modificare la bozza?</string>
+    <string name="draft_warning_navigate">Modifica bozza</string>
+    <string name="draft_warning_discard">Elimina e continua</string>
+
     <string name="piles">Mucchi</string>
     <string name="note">Nota</string>
     <string name="details">Dettagli</string>
