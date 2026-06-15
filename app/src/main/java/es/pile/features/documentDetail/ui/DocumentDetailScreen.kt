@@ -103,6 +103,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -117,6 +118,7 @@ import es.pile.core.ui.composables.LoadingWrapper
 import es.pile.core.ui.composables.Pile
 import es.pile.core.ui.composables.SelectPilesBottomSheet
 import es.pile.core.ui.composables.SwipeBox
+import es.pile.core.ui.theme.PileTheme
 import es.pile.features.documentDetail.ui.composables.SectionTitleBar
 import es.pile.features.documentDetail.ui.composables.SimpleTextField
 import kotlinx.coroutines.delay
@@ -134,7 +136,6 @@ import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DocumentDetailScreen(
     modifier: Modifier = Modifier,
@@ -147,6 +148,66 @@ fun DocumentDetailScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
+    DocumentDetailContent(
+        modifier = modifier,
+        state = state,
+        bitmapCache = bitmapCache,
+        onEvent = { viewModel.handleEvent(it) },
+        navigateToPileDetail = navigateToPileDetail,
+        navigateToEditDocument = navigateToEditDocument,
+        popBackStack = popBackStack
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DocumentDetailPreview() {
+    val document = DocumentModel(
+        id = "1",
+        title = "Documento de ejemplo",
+        imageIds = emptyList(),
+        creationDateTime = LocalDateTime.now(),
+        modificationDateTime = LocalDateTime.now(),
+        documentStatus = 0,
+        documentPileIds = listOf("1"),
+        documentDetails = emptyList(),
+        documentNote = "Esta es una nota de prueba para el documento.",
+        documentOrganizationIds = emptyList(),
+        isIncomingPdf = false
+    )
+
+    val state = DocumentDetailState(
+        documentModel = document,
+        documentPileModels = listOf(
+            PileModel("1", "Pilas", "icon", 0xFF0000L)
+        ),
+        localDocumentDetails = emptyList(),
+        pageCacheKeys = listOf("key1")
+    )
+
+    PileTheme {
+        DocumentDetailContent(
+            state = state,
+            bitmapCache = emptyMap(),
+            onEvent = {},
+            navigateToPileDetail = {},
+            navigateToEditDocument = {},
+            popBackStack = {}
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun DocumentDetailContent(
+    modifier: Modifier = Modifier,
+    state: DocumentDetailState,
+    bitmapCache: Map<String, Bitmap>,
+    onEvent: (DocumentDetailEvent) -> Unit,
+    navigateToPileDetail: (pileId: String) -> Unit,
+    navigateToEditDocument: (documentId: String) -> Unit,
+    popBackStack: () -> Unit,
+) {
     var showRenameDocumentAlert by rememberSaveable { mutableStateOf(false) }
     var showDeleteDocumentAlert by rememberSaveable { mutableStateOf(false) }
     var showDocumentPilesBottomSheet by rememberSaveable { mutableStateOf(false) }
@@ -158,7 +219,7 @@ fun DocumentDetailScreen(
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
         val detailsActionEvent = DetailsActionEvent.OnIdMove(from.key as String, to.key as String)
-        viewModel.handleEvent(DocumentDetailEvent.OnUpdateDetails(detailsActionEvent))
+        onEvent(DocumentDetailEvent.OnUpdateDetails(detailsActionEvent))
 
         hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
     }
@@ -176,7 +237,7 @@ fun DocumentDetailScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            viewModel.handleEvent(DocumentDetailEvent.OnDownload)
+            onEvent(DocumentDetailEvent.OnDownload)
         }
     }
 
@@ -186,7 +247,7 @@ fun DocumentDetailScreen(
                 message = uiText.asString(context),
                 duration = SnackbarDuration.Short
             )
-            viewModel.handleEvent(DocumentDetailEvent.OnMessageDismissed)
+            onEvent(DocumentDetailEvent.OnMessageDismissed)
         }
     }
 
@@ -198,7 +259,7 @@ fun DocumentDetailScreen(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
             ) {
-                viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
+                onEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                 focusManager.clearFocus()
             },
         containerColor = MaterialTheme.colorScheme.surface,
@@ -218,34 +279,34 @@ fun DocumentDetailScreen(
                     modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
                     showEditDocument = !(state.documentModel?.isIncomingPdf ?: true),
                     onRenameDocument = {
-                        viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
+                        onEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                         focusManager.clearFocus()
                         showRenameDocumentAlert = true
                     },
                     onDeleteDocument = {
-                        viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
+                        onEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                         focusManager.clearFocus()
                         showDeleteDocumentAlert = true
                     },
                     onDownloadDocument = {
-                        viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
+                        onEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                         focusManager.clearFocus()
 
                         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
                             permissionLauncher.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         } else {
-                            viewModel.handleEvent(DocumentDetailEvent.OnDownload)
+                            onEvent(DocumentDetailEvent.OnDownload)
                         }
                     },
                     onShareDocument = {
-                        viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
+                        onEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                         focusManager.clearFocus()
-                        viewModel.handleEvent(DocumentDetailEvent.OnShare)
+                        onEvent(DocumentDetailEvent.OnShare)
                     },
                     onEditDocument = {
-                        viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
+                        onEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                         focusManager.clearFocus()
-                        navigateToEditDocument(documentId)
+                        navigateToEditDocument(state.documentModel?.id ?: "")
                     },
                 )
             }
@@ -254,13 +315,8 @@ fun DocumentDetailScreen(
             SnackbarHost(hostState = snackbarHostState)
         },
     ) { innerPadding ->
-        Box(
-            Modifier
-                .padding(innerPadding)
-        ) {
-            LoadingWrapper(
-                state.documentModel == null || state.documentPileModels == null
-            ) {
+        Box(Modifier.padding(innerPadding)) {
+            LoadingWrapper(state.documentModel == null || state.documentPileModels == null) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     state = lazyListState,
@@ -271,16 +327,12 @@ fun DocumentDetailScreen(
                             bitmapCache = bitmapCache,
                             pageCacheKeys = state.pageCacheKeys,
                             onLoadBitmap = {
-                                viewModel.handleEvent(
-                                    DocumentDetailEvent.OnImageDisplayed(
-                                        it
-                                    )
-                                )
+                                onEvent(DocumentDetailEvent.OnImageDisplayed(it))
                             },
                             onClick = {
-                                viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
+                                onEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                                 focusManager.clearFocus()
-                                viewModel.handleEvent(DocumentDetailEvent.OnOpenDocument)
+                                onEvent(DocumentDetailEvent.OnOpenDocument)
                             }
                         )
                     }
@@ -292,10 +344,10 @@ fun DocumentDetailScreen(
                         isEditingMode = state.isDetailsEditing,
                         updateEditingMode = {
                             focusManager.clearFocus()
-                            viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(it))
+                            onEvent(DocumentDetailEvent.OnUpdateEditingMode(it))
                         },
                         onEvent = {
-                            viewModel.handleEvent(DocumentDetailEvent.OnUpdateDetails(it))
+                            onEvent(DocumentDetailEvent.OnUpdateDetails(it))
                             if (it !is DetailsActionEvent.OnRemove) return@documentDetailsSection
 
                             scope.launch {
@@ -308,7 +360,7 @@ fun DocumentDetailScreen(
                                 when (result) {
                                     SnackbarResult.ActionPerformed -> { // Undo
                                         val action = DetailsActionEvent.OnRestore
-                                        viewModel.handleEvent(
+                                        onEvent(
                                             DocumentDetailEvent.OnUpdateDetails(
                                                 action
                                             )
@@ -317,7 +369,7 @@ fun DocumentDetailScreen(
 
                                     SnackbarResult.Dismissed -> {
                                         val action = DetailsActionEvent.OnPurge
-                                        viewModel.handleEvent(
+                                        onEvent(
                                             DocumentDetailEvent.OnUpdateDetails(
                                                 action
                                             )
@@ -334,12 +386,10 @@ fun DocumentDetailScreen(
                         DocumentNoteSection(
                             documentModel = state.documentModel,
                             onUpdateDocumentNote = {
-                                viewModel.handleEvent(
-                                    DocumentDetailEvent.OnUpdateNote(it)
-                                )
+                                onEvent(DocumentDetailEvent.OnUpdateNote(it))
                             },
                             onFocused = {
-                                viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
+                                onEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                             }
                         )
                     }
@@ -349,12 +399,12 @@ fun DocumentDetailScreen(
                     documentPilesSection(
                         documentPileModels = state.documentPileModels ?: emptyList(),
                         onPileClick = {
-                            viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
+                            onEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                             focusManager.clearFocus()
                             navigateToPileDetail(it)
                         },
                         onEditDocumentPiles = {
-                            viewModel.handleEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
+                            onEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                             focusManager.clearFocus()
                             showDocumentPilesBottomSheet = true
                         }
@@ -363,13 +413,15 @@ fun DocumentDetailScreen(
                     item { Spacer(Modifier.height(16.dp)) }
 
                     item {
-                        AddedSection(
-                            creationDate = state.documentModel!!.creationDateTime,
-                            modificationDate = state.documentModel!!.modificationDateTime
-                        )
+                        if (state.documentModel != null) {
+                            AddedSection(
+                                creationDate = state.documentModel.creationDateTime,
+                                modificationDate = state.documentModel.modificationDateTime
+                            )
+                        }
                     }
 
-                    item { Spacer(Modifier.height(330.dp)) }
+                    item { Spacer(Modifier.height(140.dp)) }
                 }
             }
         }
@@ -381,7 +433,7 @@ fun DocumentDetailScreen(
             onDismiss = { showRenameDocumentAlert = false },
             onConfirm = { newName ->
                 showRenameDocumentAlert = false
-                viewModel.handleEvent(DocumentDetailEvent.OnRenameDocument(newName))
+                onEvent(DocumentDetailEvent.OnRenameDocument(newName))
             }
         )
     }
@@ -391,7 +443,7 @@ fun DocumentDetailScreen(
             onDismiss = { showDeleteDocumentAlert = false },
             onConfirm = {
                 showDeleteDocumentAlert = false
-                viewModel.handleEvent(DocumentDetailEvent.OnDeleteDocument)
+                onEvent(DocumentDetailEvent.OnDeleteDocument)
                 popBackStack()
             }
         )
@@ -403,7 +455,7 @@ fun DocumentDetailScreen(
             pileList = state.allPiles,
             selectedFilterPiles = state.documentModel?.documentPileIds ?: emptyList(),
             onDismissBottomSheet = { showDocumentPilesBottomSheet = false },
-            onPileClick = { viewModel.handleEvent(DocumentDetailEvent.OnUpdatePileSelection(it)) },
+            onPileClick = { onEvent(DocumentDetailEvent.OnUpdatePileSelection(it)) },
             onNewPile = { showNewPileAlert = true }
         )
     }
@@ -413,7 +465,7 @@ fun DocumentDetailScreen(
             onDismiss = { showNewPileAlert = false },
             onConfirm = { pileName, pileIconId, pileColorNumber ->
                 showNewPileAlert = false
-                viewModel.handleEvent(
+                onEvent(
                     DocumentDetailEvent.OnNewPile(
                         pileName = pileName, iconId = pileIconId, color = pileColorNumber
                     )
@@ -961,7 +1013,7 @@ private fun AddedSection(
 
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        modifier = modifier.padding(horizontal = 16.dp)
+        modifier = modifier.padding(horizontal = 16.dp).padding(start = 8.dp)
     ) {
         Text(
             text = stringResource(

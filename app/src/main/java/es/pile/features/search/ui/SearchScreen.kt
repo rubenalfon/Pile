@@ -70,6 +70,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -81,12 +82,14 @@ import es.pile.core.ui.composables.KeyboardAware
 import es.pile.core.ui.composables.LoadingWrapper
 import es.pile.core.ui.composables.SelectPilesBottomSheet
 import es.pile.core.ui.composables.adaptiveSizeItemsGrid
+import es.pile.core.ui.theme.PileTheme
 import es.pile.core.ui.util.horizontalPaddingValues
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -130,6 +133,41 @@ fun SearchScreen(
     )
 }
 
+@Preview(showBackground = true)
+@Composable
+fun SearchScreenPreview() {
+    val document = DocumentModel(
+        id = "1",
+        title = "Factura de la luz",
+        imageIds = emptyList(),
+        creationDateTime = LocalDateTime.now(),
+        modificationDateTime = LocalDateTime.now(),
+        documentStatus = 0,
+        documentPileIds = emptyList(),
+        documentDetails = emptyList(),
+        documentNote = "Nota de prueba",
+        documentOrganizationIds = emptyList(),
+        isIncomingPdf = false
+    )
+
+    PileTheme {
+        SearchContent(
+            state = SearchState(
+                isLoading = false,
+                searchQuery = "",
+                filteredDocumentList = listOf(SearchItem(document, "")),
+                pileList = listOf(PileModel("1", "Pilas", "icon", 0xFF0000L))
+            ),
+            bitmapCache = emptyMap(),
+            expanded = true,
+            onExpandedChange = {},
+            onSettingsClick = {},
+            onEvent = {},
+            navigateToDocumentDetail = {}
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchContent(
@@ -145,10 +183,36 @@ fun SearchContent(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
+    SearchContent(
+        modifier = modifier,
+        state = state,
+        bitmapCache = bitmapCache,
+        expanded = expanded,
+        onExpandedChange = onExpandedChange,
+        onSettingsClick = onSettingsClick,
+        onEvent = { viewModel.handleEvent(it) },
+        navigateToDocumentDetail = navigateToDocumentDetail,
+        focusRequester = focusRequester
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchContent(
+    modifier: Modifier = Modifier,
+    state: SearchState,
+    bitmapCache: Map<String, Bitmap>,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onSettingsClick: () -> Unit,
+    onEvent: (SearchEvent) -> Unit,
+    navigateToDocumentDetail: (documentId: String) -> Unit,
+    focusRequester: FocusRequester? = null
+) {
     LaunchedEffect(expanded) {
         if (!expanded) {
             delay(300.milliseconds)
-            viewModel.handleEvent(SearchEvent.OnCloseSearch)
+            onEvent(SearchEvent.OnCloseSearch)
         }
     }
 
@@ -163,8 +227,8 @@ fun SearchContent(
 
             SearchInputField(
                 searchQuery = state.searchQuery,
-                onQueryChange = { viewModel.handleEvent(SearchEvent.OnUpdateSearchQuery(it)) },
-                onSearch = { viewModel.handleEvent(SearchEvent.OnSearch) },
+                onQueryChange = { onEvent(SearchEvent.OnUpdateSearchQuery(it)) },
+                onSearch = { onEvent(SearchEvent.OnSearch) },
                 expanded = expanded,
                 onExpandedChange = { onExpandedChange(it) },
                 onSettingsClick = onSettingsClick,
@@ -254,9 +318,7 @@ fun SearchContent(
                                     },
                                     bitmapCache = bitmapCache,
                                     onLoadBitmap = { document ->
-                                        viewModel.handleEvent(
-                                            SearchEvent.OnImageDisplayed(document)
-                                        )
+                                        onEvent(SearchEvent.OnImageDisplayed(document))
                                     }
                                 )
                                 item {
@@ -276,14 +338,14 @@ fun SearchContent(
             pileList = state.pileList,
             selectedFilterPiles = state.selectedFilterPiles,
             onDismissBottomSheet = { showFilterPilesBottomSheet = false },
-            onPileClick = { viewModel.handleEvent(SearchEvent.OnUpdateFilterPiles(it)) }
+            onPileClick = { onEvent(SearchEvent.OnUpdateFilterPiles(it)) }
         )
     }
 
 
     if (showFilterDateAlert) {
         FilterDateAlert(
-            onDateSelected = { viewModel.handleEvent(SearchEvent.OnUpdateFilterDate(it)) },
+            onDateSelected = { onEvent(SearchEvent.OnUpdateFilterDate(it)) },
             selectedFilterDate = state.selectedFilterDate,
             documentList = state.documentList,
             onDismiss = { showFilterDateAlert = false }
@@ -389,7 +451,7 @@ private fun FilterChipsRow(
     Row(
         modifier
             .horizontalScroll(rememberScrollState())
-            .padding(bottom = 4.dp),
+            .padding(bottom = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Spacer(Modifier.width(8.dp))
