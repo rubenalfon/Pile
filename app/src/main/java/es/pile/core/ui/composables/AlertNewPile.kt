@@ -205,7 +205,7 @@ private fun BodyAlertNewPile(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(14.dp))
                 .background(backgroundColor)
                 .padding(12.dp)
         ) {
