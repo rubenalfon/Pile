@@ -1,5 +1,6 @@
 package es.pile.features.pileDetail.ui
 
+import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -52,19 +54,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import es.pile.DocumentModel
+import es.pile.PileModel
 import es.pile.R
+import es.pile.core.domain.models.DocumentCoverItem
 import es.pile.core.ui.composables.AlertEditPile
 import es.pile.core.ui.composables.LoadingAlert
 import es.pile.core.ui.composables.LoadingWrapper
+import es.pile.core.ui.composables.Pile
 import es.pile.core.ui.composables.itemDocumentsCompleteList
 import es.pile.core.ui.controllers.rememberDocumentImportController
+import es.pile.core.ui.theme.PileTheme
 import es.pile.features.home.ui.FabMenuWithController
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -80,9 +88,6 @@ fun PileDetailScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
-
-    val context = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(state.isLoading, state.pile) {
         if (!state.isLoading && state.pile == null) {
@@ -100,17 +105,85 @@ fun PileDetailScreen(
         }
     }
 
+    PileDetailContent(
+        modifier = modifier,
+        state = state,
+        bitmapCache = bitmapCache,
+        isNavigating = isNavigating,
+        onEvent = { viewModel.handleEvent(it) },
+        popBackStack = popBackStack,
+        navigateToDocumentDetail = navigateToDocumentDetail,
+        navigateToSearchScreen = { navigateToSearchScreen(pileId) },
+    )
+}
+
+@Preview
+@Composable
+private fun PileDetailPrev() {
+    PileTheme {
+        PileDetailContent(
+            state = PileDetailState(
+                pile = PileModel(
+                    id = "1",
+                    name = "Sample Pile",
+                    iconId = "Bank",
+                    colorNumber = 1L
+                ),
+                isLoading = false,
+                documentCoverItems = listOf(
+                    DocumentCoverItem(
+                        document = DocumentModel(
+                            id = "doc1",
+                            title = "Document 1",
+                            imageIds = emptyList(),
+                            creationDateTime = LocalDateTime.now(),
+                            modificationDateTime = LocalDateTime.now(),
+                            documentStatus = 1,
+                            documentPileIds = listOf("1"),
+                            documentDetails = emptyList(),
+                            documentNote = "",
+                            documentOrganizationIds = emptyList(),
+                            isIncomingPdf = false
+                        ),
+                        coverImageCacheKey = "key1"
+                    )
+                )
+            ),
+            bitmapCache = emptyMap(),
+            onEvent = {},
+            popBackStack = {},
+            navigateToDocumentDetail = {},
+            navigateToSearchScreen = {},
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun PileDetailContent(
+    modifier: Modifier = Modifier,
+    state: PileDetailState,
+    bitmapCache: Map<String, Bitmap>,
+    isNavigating: Boolean = false,
+    onEvent: (PileDetailEvent) -> Unit,
+    popBackStack: () -> Unit,
+    navigateToDocumentDetail: (documentId: String) -> Unit,
+    navigateToSearchScreen: () -> Unit,
+) {
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.let {
             snackbarHostState.showSnackbar(
                 message = it.asString(context),
                 duration = SnackbarDuration.Short
             )
-            viewModel.handleEvent(PileDetailEvent.OnErrorDismissed)
+            onEvent(PileDetailEvent.OnErrorDismissed)
         }
     }
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     var isUpdatePileExpanded by rememberSaveable { mutableStateOf(false) }
     var isDeletePileExpanded by rememberSaveable { mutableStateOf(false) }
@@ -118,24 +191,26 @@ fun PileDetailScreen(
 
     val importActions = rememberDocumentImportController(
         cameraUri = state.cameraUri,
-        onUriConsumed = { viewModel.handleEvent(PileDetailEvent.OnCameraUriConsumed) },
-        onPdfSelected = { viewModel.handleEvent(PileDetailEvent.OnPdfImported(it)) },
-        onImagesSelected = { viewModel.handleEvent(PileDetailEvent.OnImagesImported(it)) },
-        onCameraClick = { viewModel.handleEvent(PileDetailEvent.OnCameraClick) }
+        onUriConsumed = { onEvent(PileDetailEvent.OnCameraUriConsumed) },
+        onPdfSelected = { onEvent(PileDetailEvent.OnPdfImported(it)) },
+        onImagesSelected = { onEvent(PileDetailEvent.OnImagesImported(it)) },
+        onCameraClick = { onEvent(PileDetailEvent.OnCameraClick) }
     )
 
     Scaffold(
         contentWindowInsets = WindowInsets.displayCutout,
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
-                pileName = state.pile?.name ?: "",
-                popBackStack = popBackStack,
-                onSearchClick = { navigateToSearchScreen(pileId) },
-                onEditClick = { isUpdatePileExpanded = true },
-                onDeleteClick = { isDeletePileExpanded = true },
-                scrollBehavior = scrollBehavior
-            )
+            state.pile?.let { pileModel ->
+                TopAppBar(
+                    pileModel = pileModel,
+                    popBackStack = popBackStack,
+                    onSearchClick = navigateToSearchScreen,
+                    onEditClick = { isUpdatePileExpanded = true },
+                    onDeleteClick = { isDeletePileExpanded = true },
+                    scrollBehavior = scrollBehavior
+                )
+            }
         },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
@@ -217,7 +292,7 @@ fun PileDetailScreen(
                             },
                             bitmapCache = bitmapCache,
                             onLoadBitmap = { document ->
-                                viewModel.handleEvent(PileDetailEvent.OnImageDisplayed(document))
+                                onEvent(PileDetailEvent.OnImageDisplayed(document))
                             },
                         )
                         item {
@@ -239,7 +314,7 @@ fun PileDetailScreen(
                     onDismiss = { isUpdatePileExpanded = false },
                     onConfirm = { pileName, pileIconId, colorNumber ->
                         isUpdatePileExpanded = false
-                        viewModel.handleEvent(
+                        onEvent(
                             PileDetailEvent.OnPileChange(
                                 pileName,
                                 pileIconId,
@@ -256,7 +331,7 @@ fun PileDetailScreen(
                 onDismiss = { isDeletePileExpanded = false },
                 onConfirm = {
                     isDeletePileExpanded = false
-                    viewModel.handleEvent(PileDetailEvent.OnDeletePile)
+                    onEvent(PileDetailEvent.OnDeletePile)
                     popBackStack()
                 }
             )
@@ -268,7 +343,7 @@ fun PileDetailScreen(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 private fun TopAppBar(
     modifier: Modifier = Modifier,
-    pileName: String,
+    pileModel: PileModel,
     popBackStack: () -> Unit,
     onSearchClick: () -> Unit,
     onEditClick: () -> Unit,
@@ -276,12 +351,16 @@ private fun TopAppBar(
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     LargeFlexibleTopAppBar(
-        modifier = modifier,
+        modifier = modifier
+            .padding(bottom = 12.dp),
         title = {
-            Text(
-                pileName,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+            Pile(
+                pileModel = pileModel,
+                isColored = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 8.dp) // Visual bug
+                    .padding(top = 8.dp)
             )
         },
         titleHorizontalAlignment = Alignment.Start,
