@@ -52,10 +52,10 @@ class PileDetailViewModel(
 
             pileFlow.combine(documentFlow) { pile, documents ->
 
-                val documentCoverItems = documents.mapIndexed { index, documentModel ->
+                val documentCoverItems = documents.map { documentModel ->
                     DocumentCoverItem(
                         document = documentModel,
-                        coverImageCacheKey = bitmapCacheRepository.getImageKey(documentModel, index)
+                        coverImageCacheKey = bitmapCacheRepository.getImageKey(documentModel, 0)
                     )
                 }
 
