@@ -252,6 +252,8 @@ class EditDocumentViewModel(
         val imageItem = currentState.imageItems.getOrNull(currentState.selectedImageIndex) ?: return
         val documentImage = imageItem.image
 
+        if (documentImage.filter == index.toLong()) return
+
         val updatedDocumentImage = documentImage.copy(filter = index.toLong())
 
         val updatedImages = currentState.imageItems.map {
@@ -308,6 +310,8 @@ class EditDocumentViewModel(
         val scaleFactor = selectedExtendedCropController.scaleFactor
 
         val scaledCropData = cropData.scale(1 / scaleFactor)
+
+        if (documentImage.crop == scaledCropData) return
 
         val updatedDocumentImage = documentImage.copy(crop = scaledCropData)
 
