@@ -1,5 +1,6 @@
 package es.pile.core.ui.composables
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.ui.graphics.Color
@@ -10,9 +11,10 @@ import es.pile.PileModel
 import es.pile.R
 
 
+@OptIn(ExperimentalLayoutApi::class)
 fun LazyListScope.itemPileGrid(
-    availableWidth: Dp,
     piles: List<PileModel>,
+    availableWidth: Dp,
     coloredPileIds: List<String>,
     onPileClick: (id: String) -> Unit = {},
     onNewPileClick: (() -> Unit)? = null,

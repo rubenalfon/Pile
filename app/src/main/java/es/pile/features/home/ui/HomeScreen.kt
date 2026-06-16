@@ -12,6 +12,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -68,9 +69,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInteropFilter
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -209,14 +208,11 @@ fun HomeScreen(
     ) { innerPadding ->
         val backgroundDocuments = MaterialTheme.colorScheme.surface
 
-        var availableWidth by remember { mutableStateOf(0.dp) }
-        val density = LocalDensity.current
-
         val layoutDirection = LocalLayoutDirection.current
 
 
         LoadingWrapper(state.isInitialLoading) {
-            Box(
+            BoxWithConstraints(
                 Modifier
                     .padding(
                         top = innerPadding.calculateTopPadding(),
@@ -234,14 +230,12 @@ fun HomeScreen(
                         false
                     }
             ) {
+                val availableWidth = maxWidth
+
                 LazyColumn(
                     Modifier
                         .padding(bottom = innerPadding.calculateBottomPadding())
                         .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .onGloballyPositioned { coordinates ->
-                            val widthPx = coordinates.size.width
-                            availableWidth = with(density) { widthPx.toDp() }.value.dp
-                        }
                         .pointerInteropFilter {
                             when (it.action) {
                                 MotionEvent.ACTION_DOWN -> {

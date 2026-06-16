@@ -17,6 +17,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -63,8 +64,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -252,9 +251,6 @@ fun SearchContent(
                 onSHowFilterDateAlert = { showFilterDateAlert = true }
             )
 
-            var availableWidth by remember { mutableStateOf(0.dp) }
-            val density = LocalDensity.current
-
             LoadingWrapper(state.isLoading) {
                 val isSearchEmpty =
                     state.searchQuery.isNotEmpty() && state.filteredDocumentList.isEmpty()
@@ -300,29 +296,28 @@ fun SearchContent(
                                 }
                             }
                         } else {
-                            LazyColumn(
-                                modifier = Modifier
-                                    .imePadding()
-                                    .fillMaxSize()
-                                    .onGloballyPositioned { coordinates ->
-                                        val widthPx = coordinates.size.width
-                                        availableWidth =
-                                            with(density) { widthPx.toDp() }.value.dp
+                            BoxWithConstraints {
+                                val availableWidth = maxWidth
+
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .imePadding()
+                                        .fillMaxSize()
+                                ) {
+                                    itemDocumentsCustomList(
+                                        availableWidth = availableWidth,
+                                        documents = state.filteredDocumentList,
+                                        onDocumentClick = { documentId ->
+                                            navigateToDocumentDetail(documentId)
+                                        },
+                                        bitmapCache = bitmapCache,
+                                        onLoadBitmap = { document ->
+                                            onEvent(SearchEvent.OnImageDisplayed(document))
+                                        }
+                                    )
+                                    item {
+                                        Spacer(Modifier.height(50.dp))
                                     }
-                            ) {
-                                itemDocumentsCustomList(
-                                    availableWidth = availableWidth,
-                                    documents = state.filteredDocumentList,
-                                    onDocumentClick = { documentId ->
-                                        navigateToDocumentDetail(documentId)
-                                    },
-                                    bitmapCache = bitmapCache,
-                                    onLoadBitmap = { document ->
-                                        onEvent(SearchEvent.OnImageDisplayed(document))
-                                    }
-                                )
-                                item {
-                                    Spacer(Modifier.height(50.dp))
                                 }
                             }
                         }

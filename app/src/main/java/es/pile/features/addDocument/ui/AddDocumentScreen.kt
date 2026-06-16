@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -53,8 +54,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -150,13 +149,10 @@ fun AddDocumentScreen(
             LoadingWrapper(
                 state.documentModel == null || state.allPileModels == null
             ) {
-                var availableWidth by remember { mutableStateOf(0.dp) }
-                val density = LocalDensity.current
-
                 val colorScheme = MaterialTheme.colorScheme
                 val layoutDirection = LocalLayoutDirection.current
 
-                Box(
+                BoxWithConstraints(
                     Modifier
                         .padding(
                             top = innerPadding.calculateTopPadding(),
@@ -166,14 +162,12 @@ fun AddDocumentScreen(
                         .fillMaxSize()
                         .background(colorScheme.surfaceContainer)
                 ) {
+                    val availableWidth = maxWidth
+
                     LazyColumn(
                         modifier = Modifier
                             .padding(bottom = innerPadding.calculateBottomPadding())
-                            .background(colorScheme.surface)
-                            .onGloballyPositioned { coordinates ->
-                                val widthPx = coordinates.size.width
-                                availableWidth = with(density) { widthPx.toDp() }.value.dp
-                            },
+                            .background(colorScheme.surface),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         item {
