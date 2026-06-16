@@ -1,19 +1,27 @@
 package es.pile.core.ui.composables
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -44,6 +52,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -178,6 +188,9 @@ private fun BodyAlertNewPile(
 
     val customColorList = ExtendedTheme.colors.customColorList
     val icons = AppIcons.entries
+    val density = LocalDensity.current
+
+    val colorLazyListState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
         if (!hasRequestedFocus) {
@@ -186,6 +199,20 @@ private fun BodyAlertNewPile(
             hasRequestedFocus = true
         }
     }
+
+    val targetForegroundColor = customColorList.getOrNull(pileColorNumber.toInt())?.onColorContainer
+        ?: MaterialTheme.colorScheme.onSurfaceVariant
+    val targetBackgroundColor = customColorList.getOrNull(pileColorNumber.toInt())?.colorContainer
+        ?: MaterialTheme.colorScheme.surfaceContainerHighest
+
+    val animatedForegroundColor by animateColorAsState(
+        targetValue = targetForegroundColor,
+        label = "foregroundColor"
+    )
+    val animatedBackgroundColor by animateColorAsState(
+        targetValue = targetBackgroundColor,
+        label = "backgroundColor"
+    )
 
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -196,26 +223,27 @@ private fun BodyAlertNewPile(
             focusManager.clearFocus()
         }
     ) {
-        val foregroundColor = customColorList.getOrNull(pileColorNumber.toInt())?.onColorContainer
-            ?: MaterialTheme.colorScheme.onSurfaceVariant
-        val backgroundColor = customColorList.getOrNull(pileColorNumber.toInt())?.colorContainer
-            ?: MaterialTheme.colorScheme.surfaceContainerHighest
-
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
                 .clip(RoundedCornerShape(14.dp))
-                .background(backgroundColor)
+                .background(animatedBackgroundColor)
                 .padding(12.dp)
         ) {
-            Icon(
-                painter = painterResource(AppIcons.getById(pileIconId)),
-                contentDescription = null,
-                tint = foregroundColor,
-                modifier = Modifier
-                    .size(32.dp)
-            )
+            Crossfade(
+                targetState = pileIconId,
+                label = "iconPreview",
+                modifier = Modifier.size(32.dp),
+                animationSpec = tween(durationMillis = 150)
+            ) { id ->
+                Icon(
+                    painter = painterResource(AppIcons.getById(id)),
+                    contentDescription = null,
+                    tint = animatedForegroundColor,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
 
             OutlinedTextField(
                 value = pileNameValue,
@@ -229,7 +257,7 @@ private fun BodyAlertNewPile(
                             modifier = Modifier.clickable {
                                 onUpdatePileName(pileNameValue.copy(text = ""))
                             },
-                            tint = foregroundColor
+                            tint = animatedForegroundColor
                         )
                     }
                 },
@@ -238,11 +266,11 @@ private fun BodyAlertNewPile(
                     capitalization = KeyboardCapitalization.Sentences
                 ),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = foregroundColor,
-                    unfocusedTextColor = foregroundColor,
-                    focusedBorderColor = foregroundColor,
-                    unfocusedBorderColor = foregroundColor,
-                    cursorColor = foregroundColor
+                    focusedTextColor = targetForegroundColor,
+                    unfocusedTextColor = targetForegroundColor,
+                    focusedBorderColor = targetForegroundColor,
+                    unfocusedBorderColor = targetForegroundColor,
+                    cursorColor = targetForegroundColor
                 )
             )
         }
@@ -250,71 +278,111 @@ private fun BodyAlertNewPile(
         Column(
             verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            BoxWithConstraints(
                 modifier = Modifier
                     .clip(RoundedCornerShape(14.dp, 14.dp, 4.dp, 4.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainerHighest),
-                contentPadding = PaddingValues(14.dp)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                    .fillMaxWidth()
             ) {
-                items(customColorList.size) { index ->
-                    FilledIconButton(
-                        onClick = {
-                            onUpdatePileColor(index.toLong())
-                            focusManager.clearFocus()
-                        },
-                        colors = IconButtonColors(
-                            containerColor = customColorList[index].onColorContainer,
-                            contentColor = Color.Red,
-                            disabledContainerColor = Color.Red,
-                            disabledContentColor = Color.Red
-                        ),
-                        modifier = Modifier
-                            .size(42.dp)
-                            .aspectRatio(1f)
-                            .alpha(0.8f)
-                    ) {
-                        if (pileColorNumber.toInt() == index)
+                val maxWidthPx = constraints.maxWidth
+                val itemWidthPx = with(density) { 42.dp.toPx() }
+
+                LaunchedEffect(Unit) {
+                    val centerOffset = (maxWidthPx - itemWidthPx) / 2
+                    colorLazyListState.scrollToItem(pileColorNumber.toInt(), -centerOffset.toInt())
+                }
+
+                LazyRow(
+                    state = colorLazyListState,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(14.dp)
+                ) {
+                    items(customColorList.size) { index ->
+                        val isSelected = pileColorNumber.toInt() == index
+                        val colorScale by animateFloatAsState(
+                            targetValue = if (isSelected) 1.15f else 1f,
+                            label = "colorScale"
+                        )
+                        val checkAlpha by animateFloatAsState(
+                            targetValue = if (isSelected) 1f else 0f,
+                            label = "checkAlpha"
+                        )
+                        val checkScale by animateFloatAsState(
+                            targetValue = if (isSelected) 1f else 0.5f,
+                            label = "checkScale"
+                        )
+
+                        FilledIconButton(
+                            onClick = {
+                                onUpdatePileColor(index.toLong())
+                            },
+                            colors = IconButtonColors(
+                                containerColor = customColorList[index].onColorContainer,
+                                contentColor = Color.Transparent,
+                                disabledContainerColor = Color.Transparent,
+                                disabledContentColor = Color.Transparent
+                            ),
+                            modifier = Modifier
+                                .size(42.dp)
+                                .aspectRatio(1f)
+                                .alpha(if (isSelected) 1f else 0.8f)
+                                .graphicsLayer(scaleX = colorScale, scaleY = colorScale)
+                        ) {
                             Icon(
                                 painter = painterResource(R.drawable.check_24px),
                                 contentDescription = null,
-                                tint = customColorList[index].colorContainer
+                                tint = customColorList[index].colorContainer,
+                                modifier = Modifier.graphicsLayer(
+                                    alpha = checkAlpha,
+                                    scaleX = checkScale,
+                                    scaleY = checkScale
+                                )
                             )
+                        }
                     }
                 }
             }
 
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(5),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(4.dp, 4.dp, 14.dp, 14.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                    .padding(12.dp)
             ) {
-                items(icons.size) { index ->
-                    val isColorful = pileIconId == icons[index].id
-
-                    FilledIconButton(
-                        onClick = {
-                            onUpdatePileIcon(icons[index].id)
-                            focusManager.clearFocus()
-                        },
-                        colors = IconButtonColors(
-                            containerColor = if (isColorful) customColorList[pileColorNumber.toInt()].onColorContainer else Color.Transparent,
-                            contentColor = Color.Red,
-                            disabledContainerColor = Color.Red,
-                            disabledContentColor = Color.Red
-                        ),
-                        modifier = Modifier.aspectRatio(1f)
-                    ) {
-                        Icon(
-                            painter = painterResource(icons[index].resourceId),
-                            contentDescription = null,
-                            tint = if (isColorful) customColorList[pileColorNumber.toInt()].colorContainer else MaterialTheme.colorScheme.onSurface
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(5),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(icons.size) { index ->
+                        val isSelected = pileIconId == icons[index].id
+                        val iconScale by animateFloatAsState(
+                            targetValue = if (isSelected) 1.15f else 1f,
+                            label = "iconScale"
                         )
+
+                        FilledIconButton(
+                            onClick = {
+                                onUpdatePileIcon(icons[index].id)
+                            },
+                            colors = IconButtonColors(
+                                containerColor = if (isSelected) animatedForegroundColor else Color.Transparent,
+                                contentColor = Color.Transparent,
+                                disabledContainerColor = Color.Red,
+                                disabledContentColor = Color.Red
+                            ),
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .graphicsLayer(scaleX = iconScale, scaleY = iconScale)
+                        ) {
+                            Icon(
+                                painter = painterResource(icons[index].resourceId),
+                                contentDescription = null,
+                                tint = if (isSelected) animatedBackgroundColor else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
                 }
             }
