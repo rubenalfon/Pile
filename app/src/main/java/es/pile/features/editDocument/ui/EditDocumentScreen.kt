@@ -77,16 +77,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tanishranjan.cropkit.ImageCropper
+import es.pile.DocumentImage
+import es.pile.DocumentModel
 import es.pile.R
+import es.pile.core.domain.models.ImageCropData
 import es.pile.core.domain.models.ImageFilterType
 import es.pile.core.domain.models.ImageItem
 import es.pile.core.ui.composables.LoadingAlert
 import es.pile.core.ui.composables.LoadingWrapper
 import es.pile.core.ui.controllers.rememberDocumentImportController
+import es.pile.core.ui.theme.PileTheme
 import es.pile.features.editDocument.domain.models.ExtendedCropController
 import es.pile.features.editDocument.ui.composables.ActiveIndicator
 import es.pile.features.editDocument.ui.composables.AddItemCarousel
@@ -97,9 +102,9 @@ import org.koin.core.parameter.parametersOf
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
+import java.time.LocalDateTime
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun EditDocumentScreen(
     modifier: Modifier = Modifier,
@@ -120,9 +125,70 @@ fun EditDocumentScreen(
         }
     }
 
+    EditDocumentContent(
+        modifier = modifier,
+        state = state,
+        bitmapCache = bitmapCache,
+        onEvent = { viewModel.handleEvent(it) }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EditDocumentPreview() {
+    val mockImage = DocumentImage(
+        id = "img1",
+        isDraft = true,
+        crop = ImageCropData(0, 0, 100, 100),
+        filter = 0L,
+        rotation = 0L
+    )
+
+    val mockDocument = DocumentModel(
+        id = "1",
+        title = "Mock Document",
+        imageIds = listOf("img1"),
+        creationDateTime = LocalDateTime.now(),
+        modificationDateTime = LocalDateTime.now(),
+        documentStatus = 0,
+        documentPileIds = emptyList(),
+        documentDetails = emptyList(),
+        documentNote = "",
+        documentOrganizationIds = emptyList(),
+        isIncomingPdf = false
+    )
+
+    val mockState = EditDocumentState(
+        draftDocument = mockDocument,
+        imageItems = listOf(
+            ImageItem(mockImage, "cache_key_1")
+        ),
+        thumbnailKeys = emptyList(),
+        imageFilters = emptyList(),
+        selectedImageIndex = 0,
+        uiMode = EditDocumentMode.SCROLL
+    )
+
+    PileTheme {
+        EditDocumentContent(
+            state = mockState,
+            bitmapCache = emptyMap(),
+            onEvent = {}
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun EditDocumentContent(
+    modifier: Modifier = Modifier,
+    state: EditDocumentState,
+    bitmapCache: Map<String, Bitmap>,
+    onEvent: (EditDocumentEvent) -> Unit
+) {
     // Only intended for selecting images on the gallery.
     val importActions = rememberDocumentImportController(
-        onImagesSelected = { viewModel.handleEvent(EditDocumentEvent.OnImportImages(it)) }
+        onImagesSelected = { onEvent(EditDocumentEvent.OnImportImages(it)) }
     )
 
     val scope = rememberCoroutineScope()
@@ -133,7 +199,7 @@ fun EditDocumentScreen(
     )
 
     BackHandler(state.isDocumentModified) {
-        viewModel.handleEvent(EditDocumentEvent.OnBackClicked())
+        onEvent(EditDocumentEvent.OnBackClicked())
     }
 
     val context = LocalContext.current
@@ -144,7 +210,7 @@ fun EditDocumentScreen(
                 message = uiText.asString(context),
                 duration = SnackbarDuration.Short
             )
-            viewModel.handleEvent(EditDocumentEvent.OnErrorDismissed)
+            onEvent(EditDocumentEvent.OnErrorDismissed)
         }
     }
 
@@ -153,7 +219,7 @@ fun EditDocumentScreen(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             ScreenTopAppBar(popBackStack = {
-                viewModel.handleEvent(EditDocumentEvent.OnBackClicked())
+                onEvent(EditDocumentEvent.OnBackClicked())
             })
         },
         snackbarHost = {
@@ -166,9 +232,9 @@ fun EditDocumentScreen(
                     .padding(bottom = ScreenOffset),
                 uiMode = state.uiMode,
                 isSinglePage = state.imageItems.count() == 1,
-                onUpdateUiMode = { viewModel.handleEvent(EditDocumentEvent.OnModeChange(it)) },
+                onUpdateUiMode = { onEvent(EditDocumentEvent.OnModeChange(it)) },
                 onDeleteImage = {
-                    viewModel.handleEvent(EditDocumentEvent.OnRemoveSelectedImage)
+                    onEvent(EditDocumentEvent.OnRemoveSelectedImage)
 
                     scope.launch {
                         val result = snackbarHostState
@@ -179,16 +245,16 @@ fun EditDocumentScreen(
                             )
                         when (result) {
                             SnackbarResult.ActionPerformed -> { // restore
-                                viewModel.handleEvent(EditDocumentEvent.OnRestoreRemovedImage)
+                                onEvent(EditDocumentEvent.OnRestoreRemovedImage)
                             }
 
                             SnackbarResult.Dismissed -> {
-                                viewModel.handleEvent(EditDocumentEvent.OnPurgeRemovedImage)
+                                onEvent(EditDocumentEvent.OnPurgeRemovedImage)
                             }
                         }
                     }
                 },
-                onSave = { viewModel.handleEvent(EditDocumentEvent.OnSave) }
+                onSave = { onEvent(EditDocumentEvent.OnSave) }
             )
         }
     ) { innerPadding ->
@@ -208,7 +274,7 @@ fun EditDocumentScreen(
                     pagerState = pagerState,
                     selectedImageIndex = state.selectedImageIndex,
                     isPaused = isCarouselDragging,
-                    onSelectImageIndex = { viewModel.handleEvent(EditDocumentEvent.OnSelectImage(it)) }
+                    onSelectImageIndex = { onEvent(EditDocumentEvent.OnSelectImage(it)) }
                 )
 
                 ImagePager(
@@ -221,9 +287,9 @@ fun EditDocumentScreen(
                     userScrollEnabled = state.uiMode == EditDocumentMode.SCROLL && !isCarouselDragging,
                     bitmapCache = bitmapCache,
                     cropControllers = state.cropControllers,
-                    onLoadBitmap = { viewModel.handleEvent(EditDocumentEvent.OnImageDisplayed(it)) },
+                    onLoadBitmap = { onEvent(EditDocumentEvent.OnImageDisplayed(it)) },
                     onLoadCropController = {
-                        viewModel.handleEvent(EditDocumentEvent.OnCropDisplayed(it))
+                        onEvent(EditDocumentEvent.OnCropDisplayed(it))
                     }
                 )
 
@@ -247,14 +313,14 @@ fun EditDocumentScreen(
                         lazyListState = lazyListState,
                         imageItems = state.imageItems,
                         bitmapCache = bitmapCache,
-                        onLoadBitmap = { viewModel.handleEvent(EditDocumentEvent.OnImageDisplayed(it)) },
+                        onLoadBitmap = { onEvent(EditDocumentEvent.OnImageDisplayed(it)) },
                         selectedImageIndex = selectedImageIndex,
                         onDragStateChange = { isCarouselDragging = it },
                         onSelectImage = {
-                            viewModel.handleEvent(EditDocumentEvent.OnSelectImage(it))
+                            onEvent(EditDocumentEvent.OnSelectImage(it))
                         },
                         onMoveImage = { from, to ->
-                            viewModel.handleEvent(EditDocumentEvent.OnMoveImage(from, to))
+                            onEvent(EditDocumentEvent.OnMoveImage(from, to))
                         },
                         onNewImage = importActions.launchGallery
                     )
@@ -267,13 +333,11 @@ fun EditDocumentScreen(
                         activeFilterIndex = state.imageItems.getOrNull(state.selectedImageIndex)?.image?.filter?.toInt()
                             ?: 0,
                         onSelectColorIndex = {
-                            viewModel.handleEvent(EditDocumentEvent.OnUpdateFilter(it))
+                            onEvent(EditDocumentEvent.OnUpdateFilter(it))
                         },
                         thumbnailKeys = state.thumbnailKeys,
                         onLoadThumbnail = {
-                            viewModel.handleEvent(
-                                EditDocumentEvent.OnThumbnailDisplayed(it)
-                            )
+                            onEvent(EditDocumentEvent.OnThumbnailDisplayed(it))
                         },
                         bitmapCache = bitmapCache
                     )
@@ -281,7 +345,7 @@ fun EditDocumentScreen(
 
                 AnimatedVisibility(visible = state.uiMode == EditDocumentMode.CROP_ROTATE) {
                     CropRotateButtons(
-                        onRotate = { viewModel.handleEvent(EditDocumentEvent.OnRotate) }
+                        onRotate = { onEvent(EditDocumentEvent.OnRotate) }
                     )
                 }
             }
@@ -295,10 +359,10 @@ fun EditDocumentScreen(
     if (state.showUnsavedChangesAlert) {
         AlertUnsavedChanges(
             onKeepEditing = {
-                viewModel.handleEvent(EditDocumentEvent.OnExitCanceled)
+                onEvent(EditDocumentEvent.OnExitCanceled)
             },
             onDiscard = {
-                viewModel.handleEvent(EditDocumentEvent.OnBackClicked(force = true))
+                onEvent(EditDocumentEvent.OnBackClicked(force = true))
             }
         )
     }
