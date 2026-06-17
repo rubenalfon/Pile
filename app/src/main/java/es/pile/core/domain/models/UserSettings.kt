@@ -8,5 +8,5 @@ data class UserSettings(
     val isMaterialColor: Boolean = true,
     val isLocalAiEnabled: Boolean = false,
     val selectedModel: String? = null,
-    val imageResolution: ImageResolution = ImageResolution.LOW
+    val imageResolution: ImageResolution = ImageResolution.ORIGINAL
 )

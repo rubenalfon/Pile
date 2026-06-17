@@ -11,6 +11,7 @@ import es.pile.features.documentDetail.di.documentDetailModule
 import es.pile.features.editDocument.di.editDocumentModule
 import es.pile.features.externalImport.di.externalImportModule
 import es.pile.features.home.di.homeModule
+import es.pile.features.onboarding.di.onboardingModule
 import es.pile.features.pileDetail.di.pileDetailModule
 import es.pile.features.search.di.searchModule
 import es.pile.features.settings.di.settingsModule
@@ -39,6 +40,7 @@ class App : Application() {
                 dataModule,
                 domainModule,
                 activitiesModule,
+                onboardingModule,
                 searchModule,
                 homeModule,
                 pileDetailModule,

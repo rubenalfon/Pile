@@ -163,4 +163,16 @@
     <string name="original_quality_body">Desa les imatges originals en els teus documents.</string>
     <string name="storage_saver_tittle">Estalvi d’emmagatzematge</string>
     <string name="storage_saver_body">Desa fitxers addicionals amb una qualitat lleugerament inferior. Els PDF importats mantindran la seva qualitat original</string>
+
+    <string name="onboarding_welcome_title">Benvingut a Pile</string>
+    <string name="onboarding_welcome_description">Gestió centralitzada de documents, dissenyada per fer que els teus fitxers personals siguin més fàcils d’organitzar.</string>
+    <string name="onboarding_piles_title">Organitza amb Piles</string>
+    <string name="onboarding_piles_description">Amb un sistema únic basat en etiquetes anomenat Piles! Agrupa els teus documents de la manera que vulguis.</string>
+    <string name="onboarding_pdf_title">Suport complet per a PDF</string>
+    <string name="onboarding_pdf_description">Importa, visualitza i gestiona els teus fitxers PDF sense problemes dins de l’aplicació.</string>
+    <string name="onboarding_privacy_title">Privadesa primer</string>
+    <string name="onboarding_privacy_description">Totes les dades dels teus documents s’emmagatzemen localment al teu dispositiu. Els teus fitxers es queden amb tu.</string>
+    <string name="onboarding_skip">Omet</string>
+    <string name="onboarding_next">Següent</string>
+    <string name="onboarding_get_started">Comença</string>
 </resources>

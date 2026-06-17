@@ -163,4 +163,16 @@
     <string name="original_quality_body">Gorde jatorrizko irudiak zure dokumentuetan.</string>
     <string name="storage_saver_tittle">Memoria aurreztea</string>
     <string name="storage_saver_body">Gorde fitxategi gehigarriak kalitate pixka bat txikiagoan. Inportatutako PDFek jatorrizko kalitatea mantenduko dute</string>
+
+    <string name="onboarding_welcome_title">Ongi etorri Pile-ra</string>
+    <string name="onboarding_welcome_description">Dokumentu-kudeaketa zentralizatua, zure fitxategi pertsonalak errazago antolatzeko diseinatua.</string>
+    <string name="onboarding_piles_title">Antolatu Piles-ekin</string>
+    <string name="onboarding_piles_description">Piles izeneko etiketa bidezko sistema berezi batekin! Taldekatu zure dokumentuak zentzu handiena duen moduan.</string>
+    <string name="onboarding_pdf_title">PDF euskarri osoa</string>
+    <string name="onboarding_pdf_description">Inportatu, ikusi eta kudeatu zure PDF fitxategiak arazorik gabe aplikazioaren barruan.</string>
+    <string name="onboarding_privacy_title">Pribatutasuna lehenik</string>
+    <string name="onboarding_privacy_description">Zure dokumentuen datu guztiak lokalean gordetzen dira zure gailuan. Zure fitxategiak zurekin geratzen dira.</string>
+    <string name="onboarding_skip">Saltatu</string>
+    <string name="onboarding_next">Hurrengoa</string>
+    <string name="onboarding_get_started">Hasi</string>
 </resources>

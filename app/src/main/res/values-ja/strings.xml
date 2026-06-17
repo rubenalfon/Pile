@@ -163,4 +163,16 @@
     <string name="original_quality_body">ドキュメントに元の画像を保存します。</string>
     <string name="storage_saver_tittle">ストレージ節約</string>
     <string name="storage_saver_body">追加ファイルを少し低画質で保存します。インポートされたPDFは元の品質を維持します。</string>
+
+    <string name="onboarding_welcome_title">Pileへようこそ</string>
+    <string name="onboarding_welcome_description">個人ファイルの整理を簡単にするために設計された、集中型のドキュメント管理ツールです。</string>
+    <string name="onboarding_piles_title">Pilesで整理</string>
+    <string name="onboarding_piles_description">Pilesと呼ばれる独自のタグベースのシステムが特徴です！自分に合った方法でドキュメントをグループ化しましょう。</string>
+    <string name="onboarding_pdf_title">PDFを完全サポート</string>
+    <string name="onboarding_pdf_description">アプリ内でPDFファイルのインポート、閲覧、管理をシームレスに行えます。</string>
+    <string name="onboarding_privacy_title">プライバシー第一</string>
+    <string name="onboarding_privacy_description">すべてのドキュメントデータはデバイス内にローカル保存されます。ファイルが外部に出ることはありません。</string>
+    <string name="onboarding_skip">スキップ</string>
+    <string name="onboarding_next">次へ</string>
+    <string name="onboarding_get_started">始める</string>
 </resources>

@@ -163,4 +163,16 @@
     <string name="original_quality_body">Guarda las imágenes originales en tus documentos.</string>
     <string name="storage_saver_tittle">Ahorro de almacenamiento</string>
     <string name="storage_saver_body">Guarda archivos adicionales con una calidad ligeramente inferior. Los PDF importados mantendrán su calidad original</string>
+
+    <string name="onboarding_welcome_title">Bienvenido a Pile</string>
+    <string name="onboarding_welcome_description">Gestión centralizada de documentos, diseñada para que tus archivos personales sean fáciles de organizar.</string>
+    <string name="onboarding_piles_title">Organiza con Pilas</string>
+    <string name="onboarding_piles_description">¡Incluye un sistema único basado en etiquetas llamado Pilas! Agrupa tus documentos como prefieras.</string>
+    <string name="onboarding_pdf_title">Soporte completo para PDF</string>
+    <string name="onboarding_pdf_description">Importa, visualiza y gestiona tus archivos PDF sin problemas dentro de la aplicación.</string>
+    <string name="onboarding_privacy_title">Privacidad primero</string>
+    <string name="onboarding_privacy_description">Todos tus documentos se guardan localmente en tu dispositivo. Tus archivos se quedan contigo.</string>
+    <string name="onboarding_skip">Saltar</string>
+    <string name="onboarding_next">Siguiente</string>
+    <string name="onboarding_get_started">Empezar</string>
 </resources>

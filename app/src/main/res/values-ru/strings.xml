@@ -163,4 +163,16 @@
     <string name="original_quality_body">Сохранять исходные изображения в документах.</string>
     <string name="storage_saver_tittle">Экономия памяти</string>
     <string name="storage_saver_body">Сохранять дополнительные файлы в чуть меньшем качестве. Импортированные PDF сохранят оригинальное качество.</string>
+
+    <string name="onboarding_welcome_title">Добро пожаловать в Pile</string>
+    <string name="onboarding_welcome_description">Централизованное управление документами, созданное для того, чтобы ваши личные файлы было проще упорядочить.</string>
+    <string name="onboarding_piles_title">Организуйте с помощью Piles</string>
+    <string name="onboarding_piles_description">Уникальная система тегов под названием Piles! Группируйте документы так, как вам удобно.</string>
+    <string name="onboarding_pdf_title">Полная поддержка PDF</string>
+    <string name="onboarding_pdf_description">Импортируйте, просматривайте и управляйте PDF-файлами прямо в приложении.</string>
+    <string name="onboarding_privacy_title">Конфиденциальность прежде всего</string>
+    <string name="onboarding_privacy_description">Все данные ваших документов хранятся локально на вашем устройстве. Ваши файлы остаются у вас.</string>
+    <string name="onboarding_skip">Пропустить</string>
+    <string name="onboarding_next">Далее</string>
+    <string name="onboarding_get_started">Начать</string>
 </resources>

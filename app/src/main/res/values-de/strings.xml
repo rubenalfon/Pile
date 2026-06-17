@@ -163,4 +163,16 @@
     <string name="original_quality_body">Originalbilder in Dokumenten speichern.</string>
     <string name="storage_saver_tittle">Speicherplatz sparen</string>
     <string name="storage_saver_body">Zusätzliche Dateien in etwas geringerer Qualität speichern. Importierte PDFs behalten ihre Originalqualität.</string>
+
+    <string name="onboarding_welcome_title">Willkommen bei Pile</string>
+    <string name="onboarding_welcome_description">Zentrale Dokumentenverwaltung, die Ihre persönlichen Dateien einfacher organisiert.</string>
+    <string name="onboarding_piles_title">Mit Piles organisieren</string>
+    <string name="onboarding_piles_description">Mit einem einzigartigen tag-basierten System namens Piles! Gruppieren Sie Ihre Dokumente so, wie es für Sie Sinn ergibt.</string>
+    <string name="onboarding_pdf_title">Volle PDF-Unterstützung</string>
+    <string name="onboarding_pdf_description">Importieren, betrachten und verwalten Sie Ihre PDF-Dateien nahtlos in der App.</string>
+    <string name="onboarding_privacy_title">Datenschutz an erster Stelle</string>
+    <string name="onboarding_privacy_description">Alle Ihre Dokumentendaten werden lokal auf Ihrem Gerät gespeichert. Ihre Dateien bleiben bei Ihnen.</string>
+    <string name="onboarding_skip">Überspringen</string>
+    <string name="onboarding_next">Weiter</string>
+    <string name="onboarding_get_started">Loslegen</string>
 </resources>

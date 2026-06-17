@@ -163,4 +163,16 @@
     <string name="original_quality_body">अपने दस्तावेज़ों में मूल छवियां सहेजें।</string>
     <string name="storage_saver_tittle">स्टोरेज सेवर</string>
     <string name="storage_saver_body">अतिरिक्त फ़ाइलों को थोड़े कम गुणवत्ता पर सहेजें। आयातित पीडीएफ अपनी मूल गुणवत्ता बनाए रखेंगे</string>
+
+    <string name="onboarding_welcome_title">Pile में आपका स्वागत है</string>
+    <string name="onboarding_welcome_description">केंद्रीकृत दस्तावेज़ प्रबंधन, आपकी व्यक्तिगत फ़ाइलों को व्यवस्थित करना आसान बनाने के लिए डिज़ाइन किया गया।</string>
+    <string name="onboarding_piles_title">Piles के साथ व्यवस्थित करें</string>
+    <string name="onboarding_piles_description">Piles नामक एक अद्वितीय टैग-आधारित सिस्टम की विशेषता! अपने दस्तावेज़ों को उस तरीके से समूहित करें जो आपके लिए समझ में आता है।</string>
+    <string name="onboarding_pdf_title">पूर्ण पीडीएफ समर्थन</string>
+    <string name="onboarding_pdf_description">ऐप के भीतर अपनी पीडीएफ फाइलों को सहजता से आयात करें, देखें और प्रबंधित करें।</string>
+    <string name="onboarding_privacy_title">गोपनीयता पहले</string>
+    <string name="onboarding_privacy_description">आपका सारा दस्तावेज़ डेटा आपके डिवाइस पर स्थानीय रूप से संग्रहीत है। आपकी फ़ाइलें आपके पास ही रहती हैं।</string>
+    <string name="onboarding_skip">छोड़ें</string>
+    <string name="onboarding_next">आगे</string>
+    <string name="onboarding_get_started">शुरू करें</string>
 </resources>

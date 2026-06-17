@@ -163,4 +163,16 @@
     <string name="original_quality_body">在文档中保存原始图像。</string>
     <string name="storage_saver_tittle">节省存储空间</string>
     <string name="storage_saver_body">以略低的质量保存额外文件。导入的 PDF 将保持原始质量。</string>
+
+    <string name="onboarding_welcome_title">欢迎使用 Pile</string>
+    <string name="onboarding_welcome_description">集中式文档管理，旨在让您的个人文件更易于整理。</string>
+    <string name="onboarding_piles_title">使用 Piles 进行整理</string>
+    <string name="onboarding_piles_description">采用独特的基于标签的系统，称为 Piles！以您认为合理的方式对文档进行分组。</string>
+    <string name="onboarding_pdf_title">完整的 PDF 支持</string>
+    <string name="onboarding_pdf_description">在应用程序内无缝导入、查看和管理您的 PDF 文件。</string>
+    <string name="onboarding_privacy_title">隐私至上</string>
+    <string name="onboarding_privacy_description">您所有的文档数据都存储在设备本地。您的文件始终由您掌控。</string>
+    <string name="onboarding_skip">跳过</string>
+    <string name="onboarding_next">下一步</string>
+    <string name="onboarding_get_started">开始使用</string>
 </resources>

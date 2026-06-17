@@ -164,6 +164,17 @@
     <string name="storage_saver_tittle">Storage saver</string>
     <string name="storage_saver_body">Save additional files at a slightly lower quality. Imported PDFs will retain their original quality</string>
 
+    <string name="onboarding_welcome_title">Welcome to Pile</string>
+    <string name="onboarding_welcome_description">Centralized document management, designed to make your personal files easier to organize.</string>
+    <string name="onboarding_piles_title">Organize with Piles</string>
+    <string name="onboarding_piles_description">Featuring a unique tag-based system called Piles! Group your documents in a way that makes sense to you.</string>
+    <string name="onboarding_pdf_title">Full PDF Support</string>
+    <string name="onboarding_pdf_description">Import, view and manage your PDF files seamlessly within the app.</string>
+    <string name="onboarding_privacy_title">Privacy First</string>
+    <string name="onboarding_privacy_description">All your document data is stored locally on your device. Your files stay with you.</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
 
     <!--    <string name=""></string>-->
 </resources>

@@ -1,8 +1,6 @@
 package es.pile.core.data.local
 
 import androidx.datastore.core.Serializer
-import es.pile.core.domain.models.AppTheme
-import es.pile.core.domain.models.ImageResolution
 import es.pile.core.domain.models.UserSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,13 +15,7 @@ object UserSettingsSerializer : Serializer<UserSettings> {
     /**
      * The default [UserSettings] value when no data is available.
      */
-    override val defaultValue: UserSettings = UserSettings(
-        theme = AppTheme.SYSTEM,
-        isMaterialColor = true,
-        isLocalAiEnabled = false,
-        selectedModel = null,
-        imageResolution = ImageResolution.ORIGINAL
-    )
+    override val defaultValue: UserSettings = UserSettings()
 
     /**
      * Reads [UserSettings] from the provided [InputStream].
