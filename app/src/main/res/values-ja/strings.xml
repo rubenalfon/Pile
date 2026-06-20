@@ -175,4 +175,6 @@
     <string name="onboarding_skip">スキップ</string>
     <string name="onboarding_next">次へ</string>
     <string name="onboarding_get_started">始める</string>
+    <string name="onboarding_invoices">請求書</string>
+    <string name="onboarding_mail">メール</string>
 </resources>

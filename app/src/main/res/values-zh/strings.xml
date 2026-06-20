@@ -175,4 +175,6 @@
     <string name="onboarding_skip">跳过</string>
     <string name="onboarding_next">下一步</string>
     <string name="onboarding_get_started">开始使用</string>
+    <string name="onboarding_invoices">发票</string>
+    <string name="onboarding_mail">邮件</string>
 </resources>

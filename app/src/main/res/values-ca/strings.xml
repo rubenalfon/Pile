@@ -175,4 +175,6 @@
     <string name="onboarding_skip">Omet</string>
     <string name="onboarding_next">Següent</string>
     <string name="onboarding_get_started">Comença</string>
+    <string name="onboarding_invoices">Factures</string>
+    <string name="onboarding_mail">Correu</string>
 </resources>

@@ -175,4 +175,6 @@
     <string name="onboarding_skip">Salta</string>
     <string name="onboarding_next">Avanti</string>
     <string name="onboarding_get_started">Inizia</string>
+    <string name="onboarding_invoices">Fatture</string>
+    <string name="onboarding_mail">Posta</string>
 </resources>

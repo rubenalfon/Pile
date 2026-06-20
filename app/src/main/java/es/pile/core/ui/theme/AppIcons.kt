@@ -25,6 +25,7 @@ enum class AppIcons(
     Bills("Bills", R.drawable.user_ic_request_page_24px),
     Legal("Legal", R.drawable.user_ic_things_to_do_24px),
     Insurance("Insurance", R.drawable.user_ic_umbrella_24px),
+    Mail("Mail", R.drawable.mail_24px),
     Unknow("Unknow", R.drawable.warning_24px);
 
     companion object {

@@ -175,4 +175,6 @@
     <string name="onboarding_skip">Saltatu</string>
     <string name="onboarding_next">Hurrengoa</string>
     <string name="onboarding_get_started">Hasi</string>
+    <string name="onboarding_invoices">Fakturak</string>
+    <string name="onboarding_mail">Posta</string>
 </resources>

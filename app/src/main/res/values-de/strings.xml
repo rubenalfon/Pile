@@ -175,4 +175,6 @@
     <string name="onboarding_skip">Überspringen</string>
     <string name="onboarding_next">Weiter</string>
     <string name="onboarding_get_started">Loslegen</string>
+    <string name="onboarding_invoices">Rechnungen</string>
+    <string name="onboarding_mail">Post</string>
 </resources>

@@ -175,4 +175,6 @@
     <string name="onboarding_skip">Passer</string>
     <string name="onboarding_next">Suivant</string>
     <string name="onboarding_get_started">Commencer</string>
+    <string name="onboarding_invoices">Factures</string>
+    <string name="onboarding_mail">Courrier</string>
 </resources>

@@ -175,4 +175,6 @@
     <string name="onboarding_skip">छोड़ें</string>
     <string name="onboarding_next">आगे</string>
     <string name="onboarding_get_started">शुरू करें</string>
+    <string name="onboarding_invoices">चालान</string>
+    <string name="onboarding_mail">मेल</string>
 </resources>

@@ -175,4 +175,6 @@
     <string name="onboarding_skip">Пропустить</string>
     <string name="onboarding_next">Далее</string>
     <string name="onboarding_get_started">Начать</string>
+    <string name="onboarding_invoices">Счета</string>
+    <string name="onboarding_mail">Почта</string>
 </resources>
