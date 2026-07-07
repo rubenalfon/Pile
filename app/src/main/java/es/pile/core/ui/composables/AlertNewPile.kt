@@ -317,7 +317,7 @@ private fun BodyAlertNewPile(
                                 onUpdatePileColor(index.toLong())
                             },
                             colors = IconButtonColors(
-                                containerColor = customColorList[index].onColorContainer,
+                                containerColor = customColorList[index].onColorContainer.copy(),
                                 contentColor = Color.Transparent,
                                 disabledContainerColor = Color.Transparent,
                                 disabledContentColor = Color.Transparent
