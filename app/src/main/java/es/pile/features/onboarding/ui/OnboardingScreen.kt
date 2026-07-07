@@ -16,17 +16,20 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
@@ -53,6 +56,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -142,6 +147,7 @@ fun OnboardingContent(
 
     Scaffold(
         modifier = modifier,
+        contentWindowInsets = WindowInsets.safeDrawing,
         bottomBar = {
             OnboardingBottomBar(
                 pagerState = pagerState,
@@ -503,6 +509,18 @@ private fun ThirdPage() {
         if (isVisible) 1f else 0.8f
     }
 
+    val contrast = 1.5f
+    val brightness = 15f
+    val colorFilter = if (isSystemInDarkTheme()) {
+        val colorMatrix = floatArrayOf(
+            contrast, 0f, 0f, 0f, brightness,
+            0f, contrast, 0f, 0f, brightness,
+            0f, 0f, contrast, 0f, brightness,
+            0f, 0f, 0f, 1f, 0f
+        )
+        ColorFilter.colorMatrix(ColorMatrix(colorMatrix))
+    } else null
+
     Image(
         painter = painterResource(R.drawable.pdf_icon),
         contentDescription = null,
@@ -519,6 +537,7 @@ private fun ThirdPage() {
                 this.scaleX = scale
                 this.scaleY = scale
             },
+        colorFilter = colorFilter,
         contentScale = ContentScale.Fit
     )
 }
@@ -568,6 +587,18 @@ private fun FourthPage() {
 
     val tickVOffset = 0
 
+    val contrast = 1.5f
+    val brightness = 15f
+    val colorFilter = if (isSystemInDarkTheme()) {
+        val colorMatrix = floatArrayOf(
+            contrast, 0f, 0f, 0f, brightness,
+            0f, contrast, 0f, 0f, brightness,
+            0f, 0f, contrast, 0f, brightness,
+            0f, 0f, 0f, 1f, 0f
+        )
+        ColorFilter.colorMatrix(ColorMatrix(colorMatrix))
+    } else null
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -595,9 +626,15 @@ private fun FourthPage() {
             val radiusPx = cutRadius.toPx()
             if (radiusPx > 0f) {
                 val leftCenter =
-                    Offset(size.width * 0.5f - 65.dp.toPx(), size.height * 0.5f + tickVOffset.dp.toPx())
+                    Offset(
+                        size.width * 0.5f - 65.dp.toPx(),
+                        size.height * 0.5f + tickVOffset.dp.toPx()
+                    )
                 val rightCenter =
-                    Offset(size.width * 0.5f + 65.dp.toPx(), size.height * 0.5f + tickVOffset.dp.toPx())
+                    Offset(
+                        size.width * 0.5f + 65.dp.toPx(),
+                        size.height * 0.5f + tickVOffset.dp.toPx()
+                    )
 
                 drawCircle(
                     color = Color.Transparent,
@@ -625,7 +662,8 @@ private fun FourthPage() {
                     scaleX = checksScale
                     scaleY = checksScale
                 }
-                .size(45.dp)
+                .size(45.dp),
+            colorFilter = colorFilter
         )
 
         // Right Tick
@@ -639,7 +677,8 @@ private fun FourthPage() {
                     scaleX = checksScale
                     scaleY = checksScale
                 }
-                .size(45.dp)
+                .size(45.dp),
+            colorFilter = colorFilter
         )
 
         // Central Lock
@@ -652,7 +691,8 @@ private fun FourthPage() {
                     scaleX = lockScale
                     scaleY = lockScale
                 }
-                .size(85.dp)
+                .size(85.dp),
+            colorFilter = colorFilter
         )
     }
 }
