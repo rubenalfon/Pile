@@ -43,6 +43,11 @@ android {
     buildFeatures {
         compose = true
     }
+
+    dependenciesInfo { // For kdroid key
+        includeInApk = false
+        includeInBundle = false
+    }
 }
 
 dependencies {
