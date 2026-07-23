@@ -1,0 +1,41 @@
+Pile is a simple and powerful document management app designed to help you organize, access, and share your personal files — all in one place.
+
+Built around a flexible tag system called "piles", the app lets you categorize your documents the way you think, not the way folders force you to.
+
+✦ KEY FEATURES
+
+• Centralized document management — keep all your files in one place
+• Smart tag system (piles) — organize documents your way
+• Full PDF support — view and share documents seamlessly
+• Built-in search — find any document in seconds
+• Modern Material Design — clean, intuitive interface
+• 100% offline — no internet connection required
+• Privacy-first — your documents never leave your device
+
+✦ DESIGNED FOR PRIVACY
+
+Pile does not collect any personal data. No analytics. No tracking. No cloud uploads. Everything stays on your device, under your control.
+
+✦ PERFECT FOR
+
+• Students managing notes, assignments, and study materials
+• Professionals organizing contracts, invoices, and reports
+• Anyone who wants a clean, private way to keep documents organized
+
+✦ BUILT WITH MODERN TECHNOLOGY
+
+Pile is built using the latest Android development standards, including Jetpack Compose and Material Design, ensuring a smooth and reliable experience.
+
+✦ ROADMAP
+
+We're actively working on new features, including:
+- Local AI-powered document information extraction
+- Backup options
+- Improved sharing flows
+- Multiplatform support
+
+Have feedback or suggestions? We'd love to hear from you.
+
+---
+
+Pile — Your documents. Your way. Your device.
