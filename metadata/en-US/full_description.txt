@@ -1,41 +1,42 @@
-Pile is a simple and powerful document management app designed to help you organize, access, and share your personal files — all in one place.
+<p>Pile is a simple and powerful document management app designed to help you organize, access, and share your personal files &mdash; all in one place.</p>
 
-Built around a flexible tag system called "piles", the app lets you categorize your documents the way you think, not the way folders force you to.
+<p>Built around a flexible tag system called "piles", the app lets you categorize your documents the way you think, not the way folders force you to.</p>
 
-✦ KEY FEATURES
+<h2>✦ KEY FEATURES</h2>
+<ul>
+  <li>Centralized document management &mdash; keep all your files in one place</li>
+  <li>Smart tag system (piles) &mdash; organize documents your way</li>
+  <li>Full PDF support &mdash; view and share documents seamlessly</li>
+  <li>Built-in search &mdash; find any document in seconds</li>
+  <li>Modern Material Design &mdash; clean, intuitive interface</li>
+  <li>100% offline &mdash; no internet connection required</li>
+  <li>Privacy-first &mdash; your documents never leave your device</li>
+</ul>
 
-• Centralized document management — keep all your files in one place
-• Smart tag system (piles) — organize documents your way
-• Full PDF support — view and share documents seamlessly
-• Built-in search — find any document in seconds
-• Modern Material Design — clean, intuitive interface
-• 100% offline — no internet connection required
-• Privacy-first — your documents never leave your device
+<h2>✦ DESIGNED FOR PRIVACY</h2>
+<p>Pile does not collect any personal data. No analytics. No tracking. No cloud uploads. Everything stays on your device, under your control.</p>
 
-✦ DESIGNED FOR PRIVACY
+<h2>✦ PERFECT FOR</h2>
+<ul>
+  <li>Students managing notes, assignments, and study materials</li>
+  <li>Professionals organizing contracts, invoices, and reports</li>
+  <li>Anyone who wants a clean, private way to keep documents organized</li>
+</ul>
 
-Pile does not collect any personal data. No analytics. No tracking. No cloud uploads. Everything stays on your device, under your control.
+<h2>✦ BUILT WITH MODERN TECHNOLOGY</h2>
+<p>Pile is built using the latest Android development standards, including Jetpack Compose and Material Design, ensuring a smooth and reliable experience.</p>
 
-✦ PERFECT FOR
+<h2>✦ ROADMAP</h2>
+<p>We're actively working on new features, including:</p>
+<ul>
+  <li>Local AI-powered document information extraction</li>
+  <li>Backup options</li>
+  <li>Improved sharing flows</li>
+  <li>Multiplatform support</li>
+</ul>
 
-• Students managing notes, assignments, and study materials
-• Professionals organizing contracts, invoices, and reports
-• Anyone who wants a clean, private way to keep documents organized
+<p>Have feedback or suggestions? We'd love to hear from you.</p>
 
-✦ BUILT WITH MODERN TECHNOLOGY
+<hr>
 
-Pile is built using the latest Android development standards, including Jetpack Compose and Material Design, ensuring a smooth and reliable experience.
-
-✦ ROADMAP
-
-We're actively working on new features, including:
-- Local AI-powered document information extraction
-- Backup options
-- Improved sharing flows
-- Multiplatform support
-
-Have feedback or suggestions? We'd love to hear from you.
-
----
-
-Pile — Your documents. Your way. Your device.
+<p><strong>Pile &mdash; Your documents. Your way. Your device.</strong></p>
