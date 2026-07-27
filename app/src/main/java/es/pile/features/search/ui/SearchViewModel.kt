@@ -64,7 +64,7 @@ class SearchViewModel(
     private fun filterResults() {
         val currentState = state.value
 
-        if (currentState.pileList.isEmpty() || currentState.documentList.isEmpty()) return
+        if (currentState.documentList.isEmpty()) return
 
         _state.update { it.copy(isLoading = true) }
 
