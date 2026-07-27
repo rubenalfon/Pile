@@ -25,4 +25,6 @@ local.properties
 /.idea/emulatorDisplays.xml
 /.idea/markdown.xml
 /.idea/studiobot.xml
+/.idea/planningMode.xml
+/.idea/appInsightsSettings.xml
 /app/release/app-release.aab
