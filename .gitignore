@@ -28,3 +28,4 @@ local.properties
 /.idea/planningMode.xml
 /.idea/appInsightsSettings.xml
 /app/release/app-release.aab
+/.idea/androidTestResultsUserPreferences.xml
