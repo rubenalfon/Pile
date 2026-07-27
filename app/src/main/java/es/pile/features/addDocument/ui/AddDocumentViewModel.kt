@@ -74,7 +74,7 @@ class AddDocumentViewModel(
                         documentModel = it.documentModel ?: document,
                         coverDocumentImage = image,
                         coverImageCacheKey = coverImageCacheKey,
-                        documentName = document.title,
+                        documentName = it.documentName ?: document.title,
                         allPileModels = allPiles,
                     )
                 }
@@ -138,7 +138,7 @@ class AddDocumentViewModel(
         val documentModel = currentState.documentModel ?: return
 
         viewModelScope.launch {
-            saveDocumentUseCase(documentModel, currentState.documentName).onSuccess {
+            saveDocumentUseCase(documentModel, currentState.documentName ?: "").onSuccess {
                 _state.update { it.copy(noDocumentNameError = false) }
                 _navigationEvent.send(Unit)
             }.onFailure { exception ->

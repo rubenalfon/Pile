@@ -100,11 +100,13 @@ fun AddDocumentScreen(
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
+    val documentName = state.documentName ?: ""
+
     var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(
             TextFieldValue(
-                text = state.documentName,
-                selection = TextRange(state.documentName.length)
+                text = documentName,
+                selection = TextRange(documentName.length)
             )
         )
     }
@@ -112,8 +114,8 @@ fun AddDocumentScreen(
     LaunchedEffect(state.documentName) {
         if (state.documentName != textFieldValue.text) {
             textFieldValue = textFieldValue.copy(
-                text = state.documentName,
-                selection = TextRange(state.documentName.length)
+                text = documentName,
+                selection = TextRange(documentName.length)
             )
         }
     }
