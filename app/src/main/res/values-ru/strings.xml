@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Pile</string>
 
     <string name="your_piles">Ваши стопки</string>
     <string name="all_documents">Все документы</string>
@@ -177,4 +176,49 @@
     <string name="onboarding_get_started">Начать</string>
     <string name="onboarding_invoices">Счета</string>
     <string name="onboarding_mail">Почта</string>
+
+    <string name="backup_and_sync">Резервное копирование и синхр.</string>
+    <string name="sync_now">Синхронизировать сейчас</string>
+    <string name="sync_successful">Синхронизация завершена</string>
+    <string name="sync_failed">Ошибка синхронизации</string>
+    <string name="google_account">Аккаунт Google</string>
+    <string name="manage_google_storage">Управление хранилищем Google</string>
+    <string name="storage_usage_format">Использовано %1$s из %2$s (%3$s — Pile)</string>
+    <string name="login_error_format">Ошибка входа: %1$s</string>
+    <string name="sync_using_cellular">Синхронизация через мобильную сеть</string>
+    <string name="sync_disabled_description">Синхронизация отключена. Выберите поставщика, чтобы обеспечить сохранность документов и их синхронизацию между устройствами.</string>
+    <string name="trailing_button_content_description">Выберите поставщика резервного копирования</string>
+    <string name="encryption">Шифрование</string>
+    <string name="end_to_end_encrypted_backup">Сквозное шифрование резервной копии</string>
+    <string name="on">Вкл.</string>
+    <string name="off">Выкл.</string>
+    <string name="no_backup">Без резервного копирования</string>
+    <string name="disable_backup_confirmation_title">Отключить резервное копирование?</string>
+    <string name="disable_backup_confirmation_message">Ваши документы и данные больше не будут синхронизироваться с облаком. Локальные данные останутся на вашем устройстве.</string>
+    <string name="disable">Отключить</string>
+    <string name="own_hosting">Собственный хостинг</string>
+
+    <string name="authentication_failed">Ошибка аутентификации</string>
+    <string name="authentication_failed_message">Не удалось выполнить аутентификацию у выбранного поставщика. Хотите попробовать еще раз или отключить резервное копирование?</string>
+    <string name="retry">Повторить</string>
+    <string name="disable_backup">Отключить резервное копирование</string>
+    <string name="recovery_key_title">Ключ восстановления</string>
+    <string name="recovery_key_message">Этот ключ необходим для расшифровки вашей резервной копии при переустановке приложения. Пожалуйста, сохраните его в надежном месте. Если вы его потеряете, данные восстановить не удастся.</string>
+    <string name="copy_key">Копировать ключ</string>
+    <string name="confirm_saved">Я сохранил ключ</string>
+    <string name="enter_recovery_key_title">Введите ключ восстановления</string>
+    <string name="enter_recovery_key_message">Ваша резервная копия в облаке зашифрована. Пожалуйста, введите свой 64-символьный ключ восстановления, чтобы продолжить.</string>
+    <string name="recovery_key_hint">Введите 64-символьный ключ</string>
+    <string name="show_recovery_key">Показать ключ восстановления</string>
+    <string name="show_recovery_key_subtitle">Просмотр ключа, необходимого для восстановления резервной копии на других устройствах.</string>
+    <string name="invalid_key_length">Ключ должен состоять из 64 символов</string>
+    <string name="invalid_recovery_key">Неверный ключ восстановления. Проверьте ключ и попробуйте еще раз.</string>
+    <string name="never">Никогда</string>
+    <string name="biometric_auth_title">Требуется аутентификация</string>
+    <string name="biometric_auth_subtitle">Пожалуйста, подтвердите личность, чтобы продолжить</string>
+    <string name="encryption_settings">Настройки шифрования</string>
+    <string name="encryption_description">Сквозное шифрование гарантирует, что только вы имеете доступ к своим данным. Ваши файлы шифруются на вашем устройстве перед загрузкой в облако с использованием ключа восстановления.</string>
+    <string name="disable_encryption_confirmation_title">Отключить шифрование?</string>
+    <string name="disable_encryption_confirmation_message">Если вы отключите шифрование, ваши будущие резервные копии не будут защищены ключом восстановления. Существующие зашифрованные данные в облаке останутся зашифрованными.</string>
+    <string name="disable_encryption">Отключить шифрование</string>
 </resources>

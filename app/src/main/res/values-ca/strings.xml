@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Pile</string>
 
     <string name="your_piles">Les teves piles</string>
     <string name="all_documents">Tots els documents</string>
@@ -177,4 +176,49 @@
     <string name="onboarding_get_started">Comença</string>
     <string name="onboarding_invoices">Factures</string>
     <string name="onboarding_mail">Correu</string>
+
+    <string name="backup_and_sync">Còpia de seguretat i sincr.</string>
+    <string name="sync_now">Sincronitza ara</string>
+    <string name="sync_successful">Sincronització correcta</string>
+    <string name="sync_failed">Sincronització fallida</string>
+    <string name="google_account">Compte de Google</string>
+    <string name="manage_google_storage">Gestiona l’emmagatzematge de Google</string>
+    <string name="storage_usage_format">%1$s de %2$s fets servir (%3$s de Pile)</string>
+    <string name="login_error_format">Error d’inici de sessió: %1$s</string>
+    <string name="sync_using_cellular">Sincronitza amb dades mòbils</string>
+    <string name="sync_disabled_description">La sincronización està desactivada. Selecciona un proveïdor per mantenir els teus documents segurs i sincronitzats entre dispositius.</string>
+    <string name="trailing_button_content_description">Selecciona un proveïdor de còpia de seguretat</string>
+    <string name="encryption">Xifratge</string>
+    <string name="end_to_end_encrypted_backup">Còpia de seguretat xifrada d’extrem a extrem</string>
+    <string name="on">Activat</string>
+    <string name="off">Desactivat</string>
+    <string name="no_backup">Sense còpia de seguretat</string>
+    <string name="disable_backup_confirmation_title">Vols desactivar la còpia de seguretat?</string>
+    <string name="disable_backup_confirmation_message">Els teus documents i dades ja no es sincronitzaran amb el núvol. Les dades locals romandran al teu dispositiu.</string>
+    <string name="disable">Desactiva</string>
+    <string name="own_hosting">Hosting propi</string>
+
+    <string name="authentication_failed">Error d’autenticació</string>
+    <string name="authentication_failed_message">No hem pogut fer l’autenticació amb el proveïdor seleccionat. Vols tornar-ho a provar o desactivar la còpia de seguretat?</string>
+    <string name="retry">Torna-ho a provar</string>
+    <string name="disable_backup">Desactiva la còpia de seguretat</string>
+    <string name="recovery_key_title">Clau de recuperació</string>
+    <string name="recovery_key_message">Aquesta clau és necessària per desxifrar la teva còpia de seguretat si reinstal·les l\'aplicació. Desa-la en un lloc segur. Si la perds, no podràs recuperar les teves dades.</string>
+    <string name="copy_key">Copia la clau</string>
+    <string name="confirm_saved">He desat la clau</string>
+    <string name="enter_recovery_key_title">Introdueix la clau de recuperació</string>
+    <string name="enter_recovery_key_message">La teva còpia de seguretat al núvol està xifrada. Introdueix la teva clau de recuperació de 64 caràcters per continuar.</string>
+    <string name="recovery_key_hint">Introdueix la clau de 64 caràcters</string>
+    <string name="show_recovery_key">Mostra la clau de recuperació</string>
+    <string name="show_recovery_key_subtitle">Mostra la clau necessària per restaurar la teva còpia en altres dispositius.</string>
+    <string name="invalid_key_length">La clau ha de tenir 64 caràcters</string>
+    <string name="invalid_recovery_key">Clau de recuperació no vàlida. Comprova la clau i torna-ho a provar.</string>
+    <string name="never">Mai</string>
+    <string name="biometric_auth_title">Autenticació requerida</string>
+    <string name="biometric_auth_subtitle">Si us plau, autentiqueu-vos per continuar</string>
+    <string name="encryption_settings">Ajustos de xifratge</string>
+    <string name="encryption_description">El xifratge d\'extrem a extrem garanteix que només tu puguis accedir a les teves dades. Els teus fitxers es xifren al teu dispositiu abans de pujar-se al núvol mitjançant la teva clau de recuperació.</string>
+    <string name="disable_encryption_confirmation_title">Desactivar el xifratge?</string>
+    <string name="disable_encryption_confirmation_message">Si desactives el xifratge, les teves futures còpies de seguretat no estaran protegides per la teva clau de recuperació. Les dades xifrades existents al núvol romandran xifrades.</string>
+    <string name="disable_encryption">Desactivar xifratge</string>
 </resources>

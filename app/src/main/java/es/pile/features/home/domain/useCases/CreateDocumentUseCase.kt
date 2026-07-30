@@ -88,7 +88,8 @@ class CreateDocumentUseCase(
                     isDraft = false,
                     crop = null,
                     filter = 0,
-                    rotation = 0
+                    rotation = 0,
+                    modificationDateTime = LocalDateTime.now()
                 )
             }
 

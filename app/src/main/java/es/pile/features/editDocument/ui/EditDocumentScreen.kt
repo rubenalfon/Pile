@@ -140,8 +140,9 @@ fun EditDocumentPreview() {
         id = "img1",
         isDraft = true,
         crop = ImageCropData(0, 0, 100, 100),
-        filter = 0L,
-        rotation = 0L
+        filter = 0,
+        rotation = 0,
+        modificationDateTime = LocalDateTime.now()
     )
 
     val mockDocument = DocumentModel(

@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Pile</string>
 
     <string name="your_piles">Tus pilas</string>
     <string name="all_documents">Todos los documentos</string>
@@ -177,4 +176,49 @@
     <string name="onboarding_get_started">Empezar</string>
     <string name="onboarding_invoices">Facturas</string>
     <string name="onboarding_mail">Correo</string>
+
+    <string name="backup_and_sync">Copia de seguridad y sincro.</string>
+    <string name="sync_now">Sincronizar ahora</string>
+    <string name="sync_successful">Sincronización completada</string>
+    <string name="sync_failed">Error en la sincronización</string>
+    <string name="google_account">Cuenta de Google</string>
+    <string name="manage_google_storage">Administrar almacenamiento de Google</string>
+    <string name="storage_usage_format">%1$s de %2$s usados (%3$s de Pile)</string>
+    <string name="login_error_format">Error de inicio de sesión: %1$s</string>
+    <string name="sync_using_cellular">Sincronizar con datos móviles</string>
+    <string name="sync_disabled_description">La sincronización está desactivada. Selecciona un proveedor para mantener tus documentos seguros y sincronizados entre dispositivos.</string>
+    <string name="trailing_button_content_description">Selecciona un proveedor de copia de seguridad</string>
+    <string name="encryption">Cifrado</string>
+    <string name="end_to_end_encrypted_backup">Copia cifrada de extremo a extremo</string>
+    <string name="on">Activado</string>
+    <string name="off">Desactivado</string>
+    <string name="no_backup">Sin copia de seguridad</string>
+    <string name="disable_backup_confirmation_title">¿Desactivar copia de seguridad?</string>
+    <string name="disable_backup_confirmation_message">Tus documentos y datos dejarán de sincronizarse en la nube. Los datos locales permanecerán en tu dispositivo.</string>
+    <string name="disable">Desactivar</string>
+    <string name="own_hosting">Hosting propio</string>
+
+    <string name="authentication_failed">Error de autenticación</string>
+    <string name="authentication_failed_message">No hemos podido autenticar con el proveedor seleccionado. ¿Quieres volver a intentarlo o desactivar la copia de seguridad?</string>
+    <string name="retry">Reintentar</string>
+    <string name="disable_backup">Desactivar copia</string>
+    <string name="recovery_key_title">Clave de recuperación</string>
+    <string name="recovery_key_message">Esta clave es necesaria para descifrar tu copia de seguridad si reinstalas la aplicación. Guárdala en un lugar seguro. Si la pierdes, no podrás recuperar tus datos.</string>
+    <string name="copy_key">Copiar clave</string>
+    <string name="confirm_saved">He guardado la clave</string>
+    <string name="enter_recovery_key_title">Introduce la clave de recuperación</string>
+    <string name="enter_recovery_key_message">Tu copia de seguridad en la nube está cifrada. Introduce tu clave de recuperación de 64 caracteres para continuar.</string>
+    <string name="recovery_key_hint">Introduce la clave de 64 caracteres</string>
+    <string name="show_recovery_key">Mostrar clave de recuperación</string>
+    <string name="show_recovery_key_subtitle">Ver la clave necesaria para restaurar tu copia en otros dispositivos.</string>
+    <string name="invalid_key_length">La clave debe tener 64 caracteres</string>
+    <string name="invalid_recovery_key">Clave de recuperación incorrecta. Compruébala e inténtalo de nuevo.</string>
+    <string name="never">Nunca</string>
+    <string name="biometric_auth_title">Autenticación requerida</string>
+    <string name="biometric_auth_subtitle">Por favor, autentícate para continuar</string>
+    <string name="encryption_settings">Ajustes de cifrado</string>
+    <string name="encryption_description">El cifrado de extremo a extremo garantiza que solo tú puedas acceder a tus datos. Tus archivos se cifran en tu dispositivo antes de subirse a la nube utilizando tu clave de recuperación.</string>
+    <string name="disable_encryption_confirmation_title">¿Desactivar cifrado?</string>
+    <string name="disable_encryption_confirmation_message">Si desactivas el cifrado, tus futuras copias de seguridad no estarán protegidas por tu clave de recuperación. Los datos cifrados existentes en la nube permanecerán cifrados.</string>
+    <string name="disable_encryption">Desactivar cifrado</string>
 </resources>

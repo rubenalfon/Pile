@@ -7,6 +7,7 @@ import es.pile.Database
 import es.pile.DatabaseQueries
 import es.pile.DocumentImage
 import es.pile.DocumentModel
+import es.pile.PileModel
 import es.pile.core.domain.models.DocumentDetail
 import es.pile.core.domain.models.DocumentStatus
 import es.pile.core.domain.models.ImageCropData
@@ -30,7 +31,11 @@ val databaseModule = module {
                 documentOrganizationIdsAdapter = get(named("StringListAdapter"))
             ),
             DocumentImageAdapter = DocumentImage.Adapter(
-                cropAdapter = get(named("ImageCropDataAdapter"))
+                cropAdapter = get(named("ImageCropDataAdapter")),
+                modificationDateTimeAdapter = get(named("LocalDateTimeStringAdapter"))
+            ),
+            PileModelAdapter = PileModel.Adapter(
+                modificationDateTimeAdapter = get(named("LocalDateTimeStringAdapter"))
             )
         )
     }

@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Pile</string>
 
     <string name="your_piles">Zure pilak</string>
     <string name="all_documents">Dokumentu guztiak</string>
@@ -177,4 +176,49 @@
     <string name="onboarding_get_started">Hasi</string>
     <string name="onboarding_invoices">Fakturak</string>
     <string name="onboarding_mail">Posta</string>
+
+    <string name="backup_and_sync">Babeskopia eta sinkronizazioa</string>
+    <string name="sync_now">Sinkronizatu orain</string>
+    <string name="sync_successful">Sinkronizazio arrakastatsua</string>
+    <string name="sync_failed">Sinkronizazioak huts egin du</string>
+    <string name="google_account">Google kontua</string>
+    <string name="manage_google_storage">Kudeatu Google biltegiratzea</string>
+    <string name="storage_usage_format">%2$s-(e)tik %1$s erabilita (%3$s Pile-k)</string>
+    <string name="login_error_format">Saio-hasiera errorea: %1$s</string>
+    <string name="sync_using_cellular">Sinkronizatu datu mugikorrekin</string>
+    <string name="sync_disabled_description">Sinkronizazioa desgaituta dago orain. Hautatu hornitzaile bat zure dokumentuak seguru eta gailu guztien artean sinkronizatuta mantentzeko.</string>
+    <string name="trailing_button_content_description">Hautatu babeskopia-hornitzaile bat</string>
+    <string name="encryption">Zifratzea</string>
+    <string name="end_to_end_encrypted_backup">Puntuz puntuko babeskopia zifratua</string>
+    <string name="on">Aktibatuta</string>
+    <string name="off">Desaktibatuta</string>
+    <string name="no_backup">Babeskopiarik ez</string>
+    <string name="disable_backup_confirmation_title">Desgaitu babeskopia?</string>
+    <string name="disable_backup_confirmation_message">Zure dokumentuak eta datuak ez dira gehiago hodeian sinkronizatuko. Tokiko datuak zure gailuan geratuko dira.</string>
+    <string name="disable">Desgaitu</string>
+    <string name="own_hosting">Hosting propioa</string>
+
+    <string name="authentication_failed">Autentifikazioak huts egin du</string>
+    <string name="authentication_failed_message">Ezin izan dugu autentifikatu hautatutako hornitzailearekin. Berriro saiatu nahi duzu ala babeskopia desgaitu?</string>
+    <string name="retry">Saiatu berriro</string>
+    <string name="disable_backup">Desgaitu babeskopia</string>
+    <string name="recovery_key_title">Berreskuratze-gakoa</string>
+    <string name="recovery_key_message">Gako hau beharrezkoa da babeskopia deszifratzeko aplikazioa berriro instalatzen baduzu. Gorde ezazu leku seguru batean. Galtzen baduzu, ezingo dituzu zure datuak berreskuratu.</string>
+    <string name="copy_key">Kopiatu gakoa</string>
+    <string name="confirm_saved">Gakoa gorde dut</string>
+    <string name="enter_recovery_key_title">Sartu berreskuratze-gakoa</string>
+    <string name="enter_recovery_key_message">Hodeian duzun babeskopia zifratuta dago. Mesedez, sartu zure 64 karaktereetako berreskuratze-gakoa jarraitzeko.</string>
+    <string name="recovery_key_hint">Sartu 64 karaktereko gakoa</string>
+    <string name="show_recovery_key">Erakutsi berreskuratze-gakoa</string>
+    <string name="show_recovery_key_subtitle">Ikusi zure kopia beste gailu batzuetan leheneratzeko beharrezko gakoa.</string>
+    <string name="invalid_key_length">Gakoak 64 karaktere izan behar ditu</string>
+    <string name="invalid_recovery_key">Berreskuratze-gako baliogabea. Egiaztatu gakoa eta saiatu berriro.</string>
+    <string name="never">Inoiz ez</string>
+    <string name="biometric_auth_title">Autentifikazioa beharrezkoa da</string>
+    <string name="biometric_auth_subtitle">Mesedez, autentifikatu aurrera jarraitzeko</string>
+    <string name="encryption_settings">Zifratze-ezarpenak</string>
+    <string name="encryption_description">Puntuz puntuko enkriptatzeak zure datuak zuk soilik atzi ditzakezula ziurtatzen du. Fitxategiak zure gailuan enkriptatzen dira hodeira kargatu aurretik, zure berreskuratze-gakoa erabiliz.</string>
+    <string name="disable_encryption_confirmation_title">Enkriptatzea desgaitu?</string>
+    <string name="disable_encryption_confirmation_message">Enkriptatzea desgaitzen baduzu, zure hurrengo babeskopiak ez dira zure berreskuratze-gakoarekin babestuko. Hodeian dauden enkriptatutako datuek enkriptatuta jarraituko dute.</string>
+    <string name="disable_encryption">Enkriptatzea desgaitu</string>
 </resources>

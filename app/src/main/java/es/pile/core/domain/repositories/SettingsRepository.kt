@@ -59,4 +59,44 @@ interface SettingsRepository {
      * @param resolution The new [ImageResolution] to be applied.
      */
     suspend fun updateImageResolution(resolution: ImageResolution)
+
+    /**
+     * Updates the selected backup provider.
+     *
+     * @param name The name of the provider, or null to disable backup.
+     */
+    suspend fun updateSelectedBackupProvider(name: String?)
+
+    /**
+     * Updates the configuration for backup over cellular data.
+     *
+     * @param enable Whether backup over cellular should be enabled or disabled.
+     */
+    suspend fun updateBackupOverCellular(enable: Boolean)
+
+    /**
+     * Updates the configuration for end-to-end encryption for backup.
+     *
+     * @param enable Whether encryption should be enabled or disabled.
+     */
+    suspend fun updateBackupEncryption(enable: Boolean)
+
+    /**
+     * Retrieves the master key used for backup encryption.
+     *
+     * @return The master key string if configured, null otherwise.
+     */
+    suspend fun getBackupMasterKey(): String?
+
+    /**
+     * Persists the master key used for backup encryption.
+     *
+     * @param key The master key to save.
+     */
+    suspend fun saveBackupMasterKey(key: String)
+
+    /**
+     * Removes the master key used for backup encryption from local storage.
+     */
+    suspend fun removeBackupMasterKey()
 }

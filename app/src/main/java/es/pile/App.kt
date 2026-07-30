@@ -7,6 +7,8 @@ import es.pile.core.di.dataModule
 import es.pile.core.di.databaseModule
 import es.pile.core.di.domainModule
 import es.pile.features.addDocument.di.addDocumentModule
+import es.pile.features.backup.di.backupFlavorModule
+import es.pile.features.backup.di.backupModule
 import es.pile.features.documentDetail.di.documentDetailModule
 import es.pile.features.editDocument.di.editDocumentModule
 import es.pile.features.externalImport.di.externalImportModule
@@ -48,7 +50,9 @@ class App : Application() {
                 editDocumentModule,
                 addDocumentModule,
                 externalImportModule,
-                settingsModule
+                settingsModule,
+                backupModule,
+                backupFlavorModule
             )
         }
     }

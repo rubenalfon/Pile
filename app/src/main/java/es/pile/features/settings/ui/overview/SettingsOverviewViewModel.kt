@@ -34,6 +34,7 @@ class SettingsOverviewViewModel(
         when (event) {
             SettingsOverviewEvent.OnBackClicked -> {}
             SettingsOverviewEvent.OnResolutionClicked -> {}
+            SettingsOverviewEvent.OnBackupClicked -> {}
 
             is SettingsOverviewEvent.OnThemeChanged -> updateTheme(event.newTheme)
 

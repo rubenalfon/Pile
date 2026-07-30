@@ -10,15 +10,16 @@ import kotlin.collections.List;
 -- PileModel
 
 CREATE TABLE IF NOT EXISTS PileModel(
-    id              TEXT        PRIMARY KEY,
-    name            TEXT        NOT NULL,
-    iconId          TEXT        NOT NULL,
-    colorNumber     INTEGER
+    id                      TEXT                    PRIMARY KEY,
+    name                    TEXT                    NOT NULL,
+    iconId                  TEXT                    NOT NULL,
+    colorNumber             INTEGER,
+    modificationDateTime    TEXT AS LocalDateTime   NOT NULL
 );
 
 insertPileModel:
-INSERT INTO PileModel(id, name, iconId, colorNumber)
-VALUES(?,?,?,?);
+INSERT OR REPLACE INTO PileModel(id, name, iconId, colorNumber, modificationDateTime)
+VALUES(?,?,?,?,?);
 
 selectAllPileModels:
 SELECT PileModel.*
@@ -40,22 +41,26 @@ updatePileModel:
 UPDATE PileModel
 SET name = ?,
     iconId = ?,
-    colorNumber = ?
+    colorNumber = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 updatePileModelName:
 UPDATE PileModel
-SET name = ?
+SET name = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 updatePileModelIcon:
 UPDATE PileModel
-SET iconId = ?
+SET iconId = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 updatePileModelColor:
 UPDATE PileModel
-SET colorNumber = ?
+SET colorNumber = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 removePileModel:
@@ -71,7 +76,7 @@ CREATE TABLE IF NOT EXISTS DocumentOrganization(
 );
 
 insertDocumentOrganization:
-INSERT INTO DocumentOrganization(id, name)
+INSERT OR REPLACE INTO DocumentOrganization(id, name)
 VALUES(?, ?);
 
 selectAllDocumentOrganizations:
@@ -105,7 +110,7 @@ CREATE TABLE IF NOT EXISTS DocumentModel(
 );
 
 insertDocumentModel:
-INSERT INTO DocumentModel(id, title, imageIds, creationDateTime, modificationDateTime, documentStatus, documentPileIds, documentDetails, documentNote, documentOrganizationIds, isIncomingPdf)
+INSERT OR REPLACE INTO DocumentModel(id, title, imageIds, creationDateTime, modificationDateTime, documentStatus, documentPileIds, documentDetails, documentNote, documentOrganizationIds, isIncomingPdf)
 VALUES(?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?);
 
 selectAllDocumentModels:
@@ -192,16 +197,17 @@ WHERE id = ?;
 -- DocumentImage
 
 CREATE TABLE IF NOT EXISTS DocumentImage(
-    id          TEXT                    PRIMARY KEY,
-    isDraft     INTEGER AS Boolean      NOT NULL,
-    crop        TEXT AS ImageCropData,
-    filter      INTEGER                 NOT NULL,
-    rotation    INTEGER                 NOT NULL
+    id                      TEXT                    PRIMARY KEY,
+    isDraft                 INTEGER AS Boolean      NOT NULL,
+    crop                    TEXT AS ImageCropData,
+    filter                  INTEGER                 NOT NULL,
+    rotation                INTEGER                 NOT NULL,
+    modificationDateTime    TEXT AS LocalDateTime   NOT NULL
 );
 
 insertDocumentImage:
-INSERT INTO DocumentImage(id, isDraft, crop, filter, rotation)
-VALUES(?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO DocumentImage(id, isDraft, crop, filter, rotation, modificationDateTime)
+VALUES(?, ?, ?, ?, ?, ?);
 
 selectAllDocumentImages:
 SELECT *
@@ -221,25 +227,30 @@ UPDATE DocumentImage
 SET isDraft = ?,
     crop = ?,
     filter = ?,
-    rotation = ?
+    rotation = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 updateDraft:
 UPDATE DocumentImage
-SET isDraft = ?
+SET isDraft = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 updateCrop:
 UPDATE DocumentImage
-SET crop = ?
+SET crop = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 updateFilter:
 UPDATE DocumentImage
-SET filter = ?
+SET filter = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 updateRotation:
 UPDATE DocumentImage
-SET rotation = ?
+SET rotation = ?,
+    modificationDateTime = ?
 WHERE id = ?;

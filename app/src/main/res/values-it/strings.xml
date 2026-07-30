@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Pile</string>
 
     <string name="your_piles">I tuoi mucchi</string>
     <string name="all_documents">Tutti i documenti</string>
@@ -177,4 +176,49 @@
     <string name="onboarding_get_started">Inizia</string>
     <string name="onboarding_invoices">Fatture</string>
     <string name="onboarding_mail">Posta</string>
+
+    <string name="backup_and_sync">Backup e sincronizzazione</string>
+    <string name="sync_now">Sincronizza ora</string>
+    <string name="sync_successful">Sincronizzazione riuscita</string>
+    <string name="sync_failed">Sincronizzazione non riuscita</string>
+    <string name="google_account">Account Google</string>
+    <string name="manage_google_storage">Gestisci spazio Google</string>
+    <string name="storage_usage_format">%1$s di %2$s utilizzati (%3$s da Pile)</string>
+    <string name="login_error_format">Errore di accesso: %1$s</string>
+    <string name="sync_using_cellular">Sincronizza con rete cellulare</string>
+    <string name="sync_disabled_description">La sincronizzazione è attualmente disabilitata. Seleziona un fornitore per mantenere i tuoi documenti al sicuro e sincronizzati su tutti i dispositivi.</string>
+    <string name="trailing_button_content_description">Seleziona un fornitore di backup</string>
+    <string name="encryption">Crittografia</string>
+    <string name="end_to_end_encrypted_backup">Backup crittografato end-to-end</string>
+    <string name="on">Attivo</string>
+    <string name="off">Disattivo</string>
+    <string name="no_backup">Nessun backup</string>
+    <string name="disable_backup_confirmation_title">Disattivare il backup?</string>
+    <string name="disable_backup_confirmation_message">I tuoi documenti e dati non verranno più sincronizzati sul cloud. I dati locali rimarranno sul tuo dispositivo.</string>
+    <string name="disable">Disattiva</string>
+    <string name="own_hosting">Hosting proprio</string>
+
+    <string name="authentication_failed">Autenticazione non riuscita</string>
+    <string name="authentication_failed_message">Impossibile autenticarsi con il fornitore selezionato. Vuoi riprovare o disattivare il backup?</string>
+    <string name="retry">Riprova</string>
+    <string name="disable_backup">Disattiva backup</string>
+    <string name="recovery_key_title">Chiave di recupero</string>
+    <string name="recovery_key_message">Questa chiave è necessaria per decrittografare il backup se reinstalli l\'app. Salvala in un luogo sicuro. Se la perdi, i tuoi dati non potranno essere recuperati.</string>
+    <string name="copy_key">Copia chiave</string>
+    <string name="confirm_saved">Ho salvato la chiave</string>
+    <string name="enter_recovery_key_title">Inserisci chiave di recupero</string>
+    <string name="enter_recovery_key_message">Il tuo backup nel cloud è crittografato. Inserisci la tua chiave di recupero a 64 caratteri per continuare.</string>
+    <string name="recovery_key_hint">Inserisci chiave a 64 caratteri</string>
+    <string name="show_recovery_key">Mostra chiave di recupero</string>
+    <string name="show_recovery_key_subtitle">Visualizza la chiave necessaria per ripristinare il backup su altri dispositivi.</string>
+    <string name="invalid_key_length">La chiave deve essere lunga 64 caratteri</string>
+    <string name="invalid_recovery_key">Chiave di recupero non valida. Controlla la chiave e riprova.</string>
+    <string name="never">Mai</string>
+    <string name="biometric_auth_title">Autenticazione richiesta</string>
+    <string name="biometric_auth_subtitle">Si prega di autenticarsi per continuare</string>
+    <string name="encryption_settings">Impostazioni di crittografia</string>
+    <string name="encryption_description">La crittografia end-to-end garantisce che solo tu possa accedere ai tuoi dati. I tuoi file vengono crittografati sul tuo dispositivo prima di essere caricati sul cloud utilizzando la tua chiave di ripristino.</string>
+    <string name="disable_encryption_confirmation_title">Disattivare la crittografia?</string>
+    <string name="disable_encryption_confirmation_message">Se disattivi la crittografia, i tuoi futuri backup non saranno protetti dalla tua chiave di ripristino. I dati crittografati esistenti nel cloud rimarranno crittografati.</string>
+    <string name="disable_encryption">Disattiva crittografia</string>
 </resources>

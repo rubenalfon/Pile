@@ -8,6 +8,7 @@ import es.pile.core.domain.repositories.DocumentImageRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
 
 class DocumentImageRepositoryImpl(
@@ -30,7 +31,8 @@ class DocumentImageRepositoryImpl(
                 documentImage.isDraft,
                 documentImage.crop,
                 documentImage.filter,
-                documentImage.rotation
+                documentImage.rotation,
+                documentImage.modificationDateTime
             )
         }
     }
@@ -42,6 +44,7 @@ class DocumentImageRepositoryImpl(
                 documentImage.crop,
                 documentImage.filter,
                 documentImage.rotation,
+                modificationDateTime = LocalDateTime.now(),
                 documentImage.id
             )
         }

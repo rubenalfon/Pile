@@ -46,6 +46,12 @@ private fun SettingsItemPrev() {
                             contentDescription = null
                         )
                     },
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.check_24px),
+                            contentDescription = null
+                        )
+                    },
                     onAction = {}
                 )
                 SettingsItem(
@@ -72,7 +78,13 @@ private fun SettingsItemPrev() {
                             contentDescription = null
                         )
                     },
-                    onAction = {}
+                    onAction = {},
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.check_24px),
+                            contentDescription = null
+                        )
+                    },
                 )
                 SettingsItem(
                     enabled = false,
@@ -121,6 +133,7 @@ fun SettingsItem(
     title: String,
     subtitle: String? = null,
     leadingIcon: (@Composable () -> Unit)? = null,
+    trailingIcon: (@Composable () -> Unit)? = null,
     checked: Boolean? = null,
     onAction: () -> Unit
 ) {
@@ -176,6 +189,14 @@ fun SettingsItem(
                     checked = it,
                     onCheckedChange = { onAction() }
                 )
+            }
+
+            trailingIcon?.let {
+                CompositionLocalProvider(
+                    LocalContentColor provides LocalContentColor.current.copy(alpha = contentAlpha)
+                ) {
+                    it()
+                }
             }
         }
     }

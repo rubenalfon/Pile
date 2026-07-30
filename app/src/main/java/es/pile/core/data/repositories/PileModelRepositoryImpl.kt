@@ -9,6 +9,7 @@ import es.pile.core.domain.repositories.PileModelRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
 
 class PileModelRepositoryImpl(
@@ -38,7 +39,8 @@ class PileModelRepositoryImpl(
                 id = pileModel.id,
                 name = pileModel.name,
                 iconId = pileModel.iconId,
-                colorNumber = pileModel.colorNumber
+                colorNumber = pileModel.colorNumber,
+                modificationDateTime = pileModel.modificationDateTime
             )
         }
     }
@@ -49,7 +51,8 @@ class PileModelRepositoryImpl(
                 pileModel.name,
                 pileModel.iconId,
                 pileModel.colorNumber,
-                pileModel.id
+                modificationDateTime = LocalDateTime.now(),
+                id = pileModel.id
             )
         }
     }

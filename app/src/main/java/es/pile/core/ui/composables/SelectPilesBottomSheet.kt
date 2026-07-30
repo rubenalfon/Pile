@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import es.pile.PileModel
 import es.pile.R
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -100,7 +101,8 @@ fun SelectPilesBottomSheet(
                         id = "0",
                         name = stringResource(R.string.new_pile),
                         iconId = "Add",
-                        colorNumber = null
+                        colorNumber = null,
+                        modificationDateTime = LocalDateTime.now()
                     ),
                     isColored = false,
                     onClick = { onNewPile() }

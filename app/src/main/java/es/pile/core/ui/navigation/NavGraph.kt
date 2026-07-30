@@ -15,6 +15,8 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import es.pile.features.addDocument.ui.AddDocumentScreen
+import es.pile.features.backup.ui.BackupScreen
+import es.pile.features.backup.ui.encryption.EncryptionScreen
 import es.pile.features.documentDetail.ui.DocumentDetailScreen
 import es.pile.features.editDocument.ui.EditDocumentScreen
 import es.pile.features.home.ui.HomeScreen
@@ -163,6 +165,9 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                     popBackStack = backStack::removeLastOrNull,
                     navigateToSettingsResolution = {
                         backStack.add(Pane.SettingsResolution)
+                    },
+                    navigateToBackup = {
+                        backStack.add(Pane.Backup)
                     }
                 )
             }
@@ -170,6 +175,21 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
             entry<Pane.SettingsResolution> {
                 SettingsResolutionScreen(
                     popBackStack = backStack::removeLastOrNull
+                )
+            }
+
+            entry<Pane.Backup> {
+                BackupScreen(
+                    onBack = { backStack.removeLastOrNull() },
+                    navigateToEncryptionSettings = {
+                        backStack.add(Pane.EncryptionSettings)
+                    }
+                )
+            }
+
+            entry<Pane.EncryptionSettings> {
+                EncryptionScreen(
+                    popBackStack = { backStack.removeLastOrNull() }
                 )
             }
         }

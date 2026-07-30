@@ -74,7 +74,12 @@ class FinalizeDocumentUpdateUseCase(
         // Update image records
         imageList.forEach { image ->
             if (image.isDraft) {
-                documentImageRepository.insertDocumentImage(image.copy(isDraft = false))
+                documentImageRepository.insertDocumentImage(
+                    image.copy(
+                        isDraft = false,
+                        modificationDateTime = LocalDateTime.now()
+                    )
+                )
             } else {
                 documentImageRepository.updateDocumentImage(image)
             }

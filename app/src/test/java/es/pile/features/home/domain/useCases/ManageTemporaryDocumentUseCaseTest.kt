@@ -50,8 +50,8 @@ class ManageTemporaryDocumentUseCaseTest {
     )
 
     private val mockImages = listOf(
-        DocumentImage("img1", false, null, 0, 0),
-        DocumentImage("img2", false, null, 0, 0)
+        DocumentImage("img1", false, null, 0, 0, LocalDateTime.now()),
+        DocumentImage("img2", false, null, 0, 0, LocalDateTime.now())
     )
 
     @Test

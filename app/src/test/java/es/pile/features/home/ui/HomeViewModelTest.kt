@@ -22,6 +22,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
@@ -53,7 +54,7 @@ class HomeViewModelTest {
     fun `init should load home data`() = runTest {
         // Given
         val homeData = GetHomeDataUseCase.HomeData(
-            piles = listOf(PileModel("p1", "Pile 1", "icon1", 1)),
+            piles = listOf(PileModel("p1", "Pile 1", "icon1", 1, LocalDateTime.now())),
             documents = listOf(mockk<DocumentModel>(relaxed = true) {
                 every { id } returns "d1"
             }),

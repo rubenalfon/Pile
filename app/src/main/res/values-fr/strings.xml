@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Pile</string>
 
     <string name="your_piles">Vos Piles</string>
     <string name="all_documents">Tous les documents</string>
@@ -177,4 +176,49 @@
     <string name="onboarding_get_started">Commencer</string>
     <string name="onboarding_invoices">Factures</string>
     <string name="onboarding_mail">Courrier</string>
+
+    <string name="backup_and_sync">Sauvegarde &amp; Synchro</string>
+    <string name="sync_now">Synchroniser maintenant</string>
+    <string name="sync_successful">Synchronisation réussie</string>
+    <string name="sync_failed">Échec de la synchronisation</string>
+    <string name="google_account">Compte Google</string>
+    <string name="manage_google_storage">Gérer le stockage Google</string>
+    <string name="storage_usage_format">%1$s sur %2$s utilisés (%3$s par Pile)</string>
+    <string name="login_error_format">Erreur de connexion : %1$s</string>
+    <string name="sync_using_cellular">Synchroniser via données mobiles</string>
+    <string name="sync_disabled_description">La synchronisation est actuellement désactivée. Sélectionnez un fournisseur pour garder vos documents en sécurité et synchronisés sur tous vos appareils.</string>
+    <string name="trailing_button_content_description">Sélectionnez un fournisseur de sauvegarde</string>
+    <string name="encryption">Chiffrement</string>
+    <string name="end_to_end_encrypted_backup">Sauvegarde chiffrée de bout en bout</string>
+    <string name="on">Activé</string>
+    <string name="off">Désactivé</string>
+    <string name="no_backup">Pas de sauvegarde</string>
+    <string name="disable_backup_confirmation_title">Désactiver la sauvegarde ?</string>
+    <string name="disable_backup_confirmation_message">Vos documents et données ne seront plus synchronisés sur le cloud. Les données locales resteront sur votre appareil.</string>
+    <string name="disable">Désactiver</string>
+    <string name="own_hosting">Hébergement propre</string>
+
+    <string name="authentication_failed">Authentification échouée</string>
+    <string name="authentication_failed_message">Nous n\'avons pas pu nous authentifier auprès du fournisseur sélectionné. Souhaitez-vous réessayer ou désactiver la sauvegarde ?</string>
+    <string name="retry">Réessayer</string>
+    <string name="disable_backup">Désactiver la sauvegarde</string>
+    <string name="recovery_key_title">Clé de récupération</string>
+    <string name="recovery_key_message">Cette clé est nécessaire pour déchiffrer votre sauvegarde si vous réinstallez l\'application. Veuillez la conserver en lieu sûr. Si vous la perdez, vos données ne pourront pas être récupérées.</string>
+    <string name="copy_key">Copier la clé</string>
+    <string name="confirm_saved">J\'ai enregistré la clé</string>
+    <string name="enter_recovery_key_title">Saisir la clé de récupération</string>
+    <string name="enter_recovery_key_message">Votre sauvegarde dans le cloud est chiffrée. Veuillez saisir votre clé de récupération à 64 caractères pour continuer.</string>
+    <string name="recovery_key_hint">Saisir la clé à 64 caractères</string>
+    <string name="show_recovery_key">Afficher la clé de récupération</string>
+    <string name="show_recovery_key_subtitle">Voir la clé nécessaire pour restaurer votre sauvegarde sur d\'autres appareils.</string>
+    <string name="invalid_key_length">La clé doit comporter 64 caractères</string>
+    <string name="invalid_recovery_key">Clé de récupération non valide. Veuillez vérifier la clé et réessayer.</string>
+    <string name="never">Jamais</string>
+    <string name="biometric_auth_title">Authentification requise</string>
+    <string name="biometric_auth_subtitle">Veuillez vous authentifier pour continuer</string>
+    <string name="encryption_settings">Paramètres de chiffrement</string>
+    <string name="encryption_description">Le chiffrement de bout en bout garantit que vous seul pouvez accéder à vos données. Vos fichiers sont chiffrés sur votre appareil avant d\'être téléchargés sur le cloud à l\'aide de votre clé de récupération.</string>
+    <string name="disable_encryption_confirmation_title">Désactiver le chiffrement ?</string>
+    <string name="disable_encryption_confirmation_message">Si vous désactivez le chiffrement, vos futures sauvegardes ne seront pas protégées par votre clé de récupération. Les données chiffrées existantes dans le cloud resteront chiffrées.</string>
+    <string name="disable_encryption">Désactiver le chiffrement</string>
 </resources>

@@ -1,6 +1,5 @@
 package es.pile.features.pileDetail.domain.usecases
 
-import es.pile.PileModel
 import es.pile.core.domain.repositories.PileModelRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -28,7 +27,6 @@ class UpdatePileUseCaseTest {
         val name = "Test Pile"
         val iconId = "icon_1"
         val color = 0xFF0000L
-        val expectedPileModel = PileModel(id, name, iconId, color)
         
         coEvery { pileModelRepository.updatePileModel(any()) } returns Unit
 
@@ -36,6 +34,10 @@ class UpdatePileUseCaseTest {
         updatePileUseCase(id, name, iconId, color)
 
         // Then
-        coVerify { pileModelRepository.updatePileModel(expectedPileModel) }
+        coVerify { 
+            pileModelRepository.updatePileModel(match { 
+                it.id == id && it.name == name && it.iconId == iconId && it.colorNumber == color 
+            }) 
+        }
     }
 }

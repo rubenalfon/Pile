@@ -179,7 +179,7 @@ fun DocumentDetailPreview() {
     val state = DocumentDetailState(
         documentModel = document,
         documentPileModels = listOf(
-            PileModel("1", "Pilas", "icon", 0xFF0000L)
+            PileModel("1", "Pilas", "icon", 0xFF0000L, LocalDateTime.now())
         ),
         localDocumentDetails = emptyList(),
         pageCacheKeys = listOf("key1")

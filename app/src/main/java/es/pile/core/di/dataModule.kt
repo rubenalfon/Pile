@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import es.pile.core.data.local.AppPreferencesSerializer
 import es.pile.core.data.local.UserSettingsSerializer
+import es.pile.core.data.repositories.AndroidSecureStorageRepository
 import es.pile.core.data.repositories.BitmapCacheRepositoryImpl
 import es.pile.core.data.repositories.DataStoreAppPreferencesRepository
 import es.pile.core.data.repositories.DataStoreSettingsRepository
@@ -12,6 +13,8 @@ import es.pile.core.data.repositories.DocumentImageRepositoryImpl
 import es.pile.core.data.repositories.DocumentModelRepositoryImpl
 import es.pile.core.data.repositories.FileRepositoryImpl
 import es.pile.core.data.repositories.PileModelRepositoryImpl
+import es.pile.core.data.util.CryptographyManager
+import es.pile.core.data.util.CryptographyManagerImpl
 import es.pile.core.data.util.ImageTransformationHelper
 import es.pile.core.data.util.PdfRenderHelper
 import es.pile.core.domain.models.AppPreferences
@@ -22,6 +25,7 @@ import es.pile.core.domain.repositories.DocumentImageRepository
 import es.pile.core.domain.repositories.DocumentModelRepository
 import es.pile.core.domain.repositories.FileRepository
 import es.pile.core.domain.repositories.PileModelRepository
+import es.pile.core.domain.repositories.SecureStorageRepository
 import es.pile.core.domain.repositories.SettingsRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
@@ -38,8 +42,22 @@ val Context.appPrefsDataStore: DataStore<AppPreferences> by dataStore(
 )
 
 val dataModule = module {
+    single<CryptographyManager> { CryptographyManagerImpl() }
+
+    single<SecureStorageRepository> {
+        AndroidSecureStorageRepository(
+            context = androidContext(),
+            cryptographyManager = get(),
+            ioDispatcher = get()
+        )
+    }
+
     single<SettingsRepository> {
-        DataStoreSettingsRepository(dataStore = androidContext().dataStore, ioDispatcher = get())
+        DataStoreSettingsRepository(
+            dataStore = androidContext().dataStore,
+            secureStorageRepository = get(),
+            ioDispatcher = get()
+        )
     }
 
     single<AppPreferencesRepository> {

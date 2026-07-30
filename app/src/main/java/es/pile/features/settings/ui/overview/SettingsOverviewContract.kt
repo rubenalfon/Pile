@@ -18,4 +18,5 @@ sealed interface SettingsOverviewEvent {
     data class OnThemeChanged(val newTheme: AppTheme) : SettingsOverviewEvent
     data object OnMaterialColorToggled : SettingsOverviewEvent
     data object OnLocalAiToggled : SettingsOverviewEvent
+    data object OnBackupClicked : SettingsOverviewEvent
 }

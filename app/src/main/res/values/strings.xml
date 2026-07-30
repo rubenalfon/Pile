@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">Pile</string>
+    <string name="app_name" translatable="false">Pile</string>
+    <string name="google_drive" translatable="false">Google Drive</string>
 
     <string name="your_piles">Your Piles</string>
     <string name="all_documents">All Documents</string>
@@ -177,6 +178,55 @@
     <string name="onboarding_get_started">Get Started</string>
     <string name="onboarding_invoices">Invoices</string>
     <string name="onboarding_mail">Mail</string>
+
+    <string name="backup_and_sync">Backup &amp; Sync</string>
+    <string name="sync_now">Sync now</string>
+    <string name="sync_successful">Sync successful</string>
+    <string name="sync_failed">Sync failed</string>
+    <string name="google_account">Google account</string>
+    <string name="manage_google_storage">Manage Google storage</string>
+    <string name="google_manage_storage_url" translatable="false">https://one.google.com/storage?utm_source=pile&amp;utm_medium=android</string>
+    <string name="storage_usage_format">%1$s of %2$s used (%3$s by Pile)</string>
+    <string name="login_error_format">Login Error: %1$s</string>
+    <string name="sync_using_cellular">Sync using cellular</string>
+    <string name="sync_disabled_description">Synchronization is currently disabled. Select a provider to keep your documents safe and synced across devices.</string>
+    <string name="trailing_button_content_description">Select a backup provider</string>
+    <string name="encryption">Encryption</string>
+    <string name="end_to_end_encrypted_backup">End-to-end encrypted backup</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="no_backup">No backup</string>
+    <string name="disable_backup_confirmation_title">Disable Backup?</string>
+    <string name="disable_backup_confirmation_message">Your documents and data will no longer be synced to the cloud. Local data will remain on your device.</string>
+    <string name="disable">Disable</string>
+    <string name="own_hosting">Own hosting</string>
+
+    <string name="authentication_failed">Authentication failed</string>
+    <string name="authentication_failed_message">We couldn\'t authenticate with the selected provider. Would you like to try again or disable backup?</string>
+    <string name="retry">Retry</string>
+    <string name="disable_backup">Disable Backup</string>
+
+    <string name="recovery_key_title">Recovery Key</string>
+    <string name="recovery_key_message">This key is required to decrypt your backup if you reinstall the app. Please save it in a safe place. If you lose it, your data cannot be recovered.</string>
+    <string name="copy_key">Copy Key</string>
+    <string name="confirm_saved">I have saved the key</string>
+    <string name="enter_recovery_key_title">Enter Recovery Key</string>
+    <string name="enter_recovery_key_message">Your backup in the cloud is encrypted. Please enter your 64-character recovery key to continue.</string>
+    <string name="recovery_key_hint">Enter 64-character key</string>
+    <string name="show_recovery_key">Show recovery key</string>
+    <string name="show_recovery_key_subtitle">View the key needed to restore your backup on other devices.</string>
+    <string name="invalid_key_length">Key must be 64 characters long</string>
+    <string name="invalid_recovery_key">Invalid recovery key. Please check the key and try again.</string>
+    <string name="never">Never</string>
+
+    <string name="biometric_auth_title">Authentication required</string>
+    <string name="biometric_auth_subtitle">Please authenticate to continue</string>
+    <string name="encryption_settings">Encryption Settings</string>
+
+    <string name="encryption_description">End-to-end encryption ensures that only you can access your data. Your files are encrypted on your device before being uploaded to the cloud using your recovery key.</string>
+    <string name="disable_encryption_confirmation_title">Disable Encryption?</string>
+    <string name="disable_encryption_confirmation_message">If you disable encryption, your future backups will not be protected by your recovery key. Existing encrypted data in the cloud will remain encrypted.</string>
+    <string name="disable_encryption">Disable Encryption</string>
 
     <!--    <string name=""></string>-->
 </resources>

@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Pile</string>
 
     <string name="your_piles">あなたのパイル（積み重ね）</string>
     <string name="all_documents">すべてのドキュメント</string>
@@ -177,4 +176,49 @@
     <string name="onboarding_get_started">始める</string>
     <string name="onboarding_invoices">請求書</string>
     <string name="onboarding_mail">メール</string>
+
+    <string name="backup_and_sync">バックアップと同期</string>
+    <string name="sync_now">今すぐ同期</string>
+    <string name="sync_successful">同期に成功しました</string>
+    <string name="sync_failed">同期に失敗しました</string>
+    <string name="google_account">Google アカウント</string>
+    <string name="manage_google_storage">Google ストレージを管理</string>
+    <string name="storage_usage_format">%2$s 中 %1$s を使用中（Pile が %3$s）</string>
+    <string name="login_error_format">ログインエラー: %1$s</string>
+    <string name="sync_using_cellular">モバイルデータ通信を使用して同期</string>
+    <string name="sync_disabled_description">同期は現在無効です。プロバイダーを選択して、ドキュメントを安全に保ち、デバイス間で同期してください。</string>
+    <string name="trailing_button_content_description">バックアッププロバイダーを選択</string>
+    <string name="encryption">暗号化</string>
+    <string name="end_to_end_encrypted_backup">エンドツーエンド暗号化バックアップ</string>
+    <string name="on">オン</string>
+    <string name="off">オフ</string>
+    <string name="no_backup">バックアップなし</string>
+    <string name="disable_backup_confirmation_title">バックアップを無効にしますか？</string>
+    <string name="disable_backup_confirmation_message">ドキュメントとデータはクラウドに同期されなくなります。ローカルデータはデバイスに残ります。</string>
+    <string name="disable">無効にする</string>
+    <string name="own_hosting">独自のホスティング</string>
+
+    <string name="authentication_failed">認証に失敗しました</string>
+    <string name="authentication_failed_message">選択したプロバイダーで認証できませんでした。再試行しますか？それともバックアップを無効にしますか？</string>
+    <string name="retry">再試行</string>
+    <string name="disable_backup">バックアップを無効にする</string>
+    <string name="recovery_key_title">リカバリーキー</string>
+    <string name="recovery_key_message">このキーは、アプリを再インストールした際にバックアップを復号するために必要です。安全な場所に保存してください。紛失した場合、データを復元することはできません。</string>
+    <string name="copy_key">キーをコピー</string>
+    <string name="confirm_saved">キーを保存しました</string>
+    <string name="enter_recovery_key_title">リカバリーキーを入力</string>
+    <string name="enter_recovery_key_message">クラウド上のバックアップは暗号化されています。続行するには64文字のリカバリーキーを入力してください。</string>
+    <string name="recovery_key_hint">64文字のキーを入力</string>
+    <string name="show_recovery_key">リカバリーキーを表示</string>
+    <string name="show_recovery_key_subtitle">他のデバイスでバックアップを復元するために必要なキーを表示します。</string>
+    <string name="invalid_key_length">キーは64文字である必要があります</string>
+    <string name="invalid_recovery_key">無効なリカバリーキーです。キーを確認してもう一度お試しください。</string>
+    <string name="never">なし</string>
+    <string name="biometric_auth_title">認証が必要です</string>
+    <string name="biometric_auth_subtitle">続行するには認証してください</string>
+    <string name="encryption_settings">暗号化設定</string>
+    <string name="encryption_description">エンドツーエンドの暗号化により、あなただけがデータにアクセスできるようになります。ファイルはリカバリキーを使用してクラウドにアップロードされる前に、デバイス上で暗号化されます。</string>
+    <string name="disable_encryption_confirmation_title">暗号化を無効にしますか？</string>
+    <string name="disable_encryption_confirmation_message">暗号化を無効にすると、今後のバックアップはリカバリキーで保護されなくなります。クラウド内の既存の暗号化データは暗号化されたままになります。</string>
+    <string name="disable_encryption">暗号化を無効にする</string>
 </resources>

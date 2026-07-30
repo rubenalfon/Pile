@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import java.time.LocalDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
@@ -35,8 +36,11 @@ class GetDocumentDetailDataUseCaseTest {
             every { isIncomingPdf } returns true
             every { imageIds } returns emptyList()
         }
-        val mockPiles = listOf(PileModel("p1", "Pile 1", "icon1", 1))
-        val allPiles = listOf(PileModel("p1", "Pile 1", "icon1", 1), PileModel("p2", "Pile 2", "icon2", 2))
+        val mockPiles = listOf(PileModel("p1", "Pile 1", "icon1", 1, LocalDateTime.now()))
+        val allPiles = listOf(
+            PileModel("p1", "Pile 1", "icon1", 1, LocalDateTime.now()),
+            PileModel("p2", "Pile 2", "icon2", 2, LocalDateTime.now())
+        )
 
         every { documentModelRepository.getDocumentModelById(docId) } returns flowOf(mockDocument)
         every { pileModelRepository.getPileModelsByIds(listOf("p1")) } returns flowOf(mockPiles)

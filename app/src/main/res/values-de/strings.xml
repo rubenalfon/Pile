@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Pile</string>
 
     <string name="your_piles">Deine Piles</string>
     <string name="all_documents">Alle Dokumente</string>
@@ -177,4 +176,49 @@
     <string name="onboarding_get_started">Loslegen</string>
     <string name="onboarding_invoices">Rechnungen</string>
     <string name="onboarding_mail">Post</string>
+
+    <string name="backup_and_sync">Backup &amp; Sync</string>
+    <string name="sync_now">Jetzt synchronisieren</string>
+    <string name="sync_successful">Synchronisierung erfolgreich</string>
+    <string name="sync_failed">Synchronisierung fehlgeschlagen</string>
+    <string name="google_account">Google-Konto</string>
+    <string name="manage_google_storage">Google-Speicher verwalten</string>
+    <string name="storage_usage_format">%1$s von %2$s verwendet (%3$s von Pile)</string>
+    <string name="login_error_format">Login-Fehler: %1$s</string>
+    <string name="sync_using_cellular">Über Mobilfunk synchronisieren</string>
+    <string name="sync_disabled_description">Die Synchronisierung ist derzeit deaktiviert. Wählen Sie einen Anbieter aus, um Ihre Dokumente sicher und auf allen Geräten synchronisiert zu halten.</string>
+    <string name="trailing_button_content_description">Backup-Anbieter auswählen</string>
+    <string name="encryption">Verschlüsselung</string>
+    <string name="end_to_end_encrypted_backup">Ende-zu-Ende verschlüsseltes Backup</string>
+    <string name="on">Ein</string>
+    <string name="off">Aus</string>
+    <string name="no_backup">Kein Backup</string>
+    <string name="disable_backup_confirmation_title">Backup deaktivieren?</string>
+    <string name="disable_backup_confirmation_message">Ihre Dokumente und Daten werden nicht mehr mit der Cloud synchronisiert. Lokale Daten bleiben auf Ihrem Gerät erhalten.</string>
+    <string name="disable">Deaktivieren</string>
+    <string name="own_hosting">Eigenes Hosting</string>
+
+    <string name="authentication_failed">Authentifizierung fehlgeschlagen</string>
+    <string name="authentication_failed_message">Wir konnten uns nicht beim ausgewählten Anbieter authentifizieren. Möchten Sie es erneut versuchen oder das Backup deaktivieren?</string>
+    <string name="retry">Wiederholen</string>
+    <string name="disable_backup">Backup deaktivieren</string>
+    <string name="recovery_key_title">Wiederherstellungsschlüssel</string>
+    <string name="recovery_key_message">Dieser Schlüssel ist erforderlich, um Ihr Backup zu entschlüsseln, wenn Sie die App neu installieren. Bitte bewahren Sie ihn an einem sicheren Ort auf. Wenn Sie ihn verlieren, können Ihre Daten nicht wiederhergestellt werden.</string>
+    <string name="copy_key">Schlüssel kopieren</string>
+    <string name="confirm_saved">Ich habe den Schlüssel gespeichert</string>
+    <string name="enter_recovery_key_title">Wiederherstellungsschlüssel eingeben</string>
+    <string name="enter_recovery_key_message">Ihr Backup in der Cloud ist verschlüsselt. Bitte geben Sie Ihren 64-stelligen Wiederherstellungsschlüssel ein, um fortzufahren.</string>
+    <string name="recovery_key_hint">64-stelligen Schlüssel eingeben</string>
+    <string name="show_recovery_key">Wiederherstellungsschlüssel anzeigen</string>
+    <string name="show_recovery_key_subtitle">Den Schlüssel zum Wiederherstellen deines Backups auf anderen Geräten anzeigen.</string>
+    <string name="invalid_key_length">Der Schlüssel muss 64 Zeichen lang sein</string>
+    <string name="invalid_recovery_key">Ungültiger Wiederherstellungsschlüssel. Bitte überprüfen Sie den Schlüssel und versuchen Sie es erneut.</string>
+    <string name="never">Nie</string>
+    <string name="biometric_auth_title">Authentifizierung erforderlich</string>
+    <string name="biometric_auth_subtitle">Bitte authentifizieren Sie sich, um fortzufahren</string>
+    <string name="encryption_settings">Verschlüsselungseinstellungen</string>
+    <string name="encryption_description">Die Ende-zu-Ende-Verschlüsselung stellt sicher, dass nur Sie auf Ihre Daten zugreifen können. Ihre Dateien werden auf Ihrem Gerät verschlüsselt, bevor sie mit Ihrem Wiederherstellungsschlüssel in die Cloud hochgeladen werden.</string>
+    <string name="disable_encryption_confirmation_title">Verschlüsselung deaktivieren?</string>
+    <string name="disable_encryption_confirmation_message">Wenn Sie die Verschlüsselung deaktivieren, werden Ihre zukünftigen Backups nicht mehr durch Ihren Wiederherstellungsschlüssel geschützt. Vorhandene verschlüsselte Daten in der Cloud bleiben verschlüsselt.</string>
+    <string name="disable_encryption">Verschlüsselung deaktivieren</string>
 </resources>

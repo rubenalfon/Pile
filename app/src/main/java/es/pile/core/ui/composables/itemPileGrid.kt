@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import es.pile.PileModel
 import es.pile.R
+import java.time.LocalDateTime
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -24,7 +25,8 @@ fun LazyListScope.itemPileGrid(
         id = "0",
         name = "",
         iconId = "",
-        colorNumber = null
+        colorNumber = null,
+        modificationDateTime = LocalDateTime.now()
     )
 
     val pilesAddPile = if (onNewPileClick == null) piles else piles + addPile
@@ -51,7 +53,8 @@ fun LazyListScope.itemPileGrid(
                         id = "0",
                         name = stringResource(R.string.new_pile),
                         iconId = "Add",
-                        colorNumber = null
+                        colorNumber = null,
+                        modificationDateTime = LocalDateTime.now()
                     ),
                     modifier = modifier.fillMaxHeight(),
                     onClick = { onNewPileClick?.invoke() },

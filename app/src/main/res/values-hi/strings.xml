@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Pile</string>
 
     <string name="your_piles">आपके ढेर</string>
     <string name="all_documents">सभी दस्तावेज़</string>
@@ -177,4 +176,49 @@
     <string name="onboarding_get_started">शुरू करें</string>
     <string name="onboarding_invoices">चालान</string>
     <string name="onboarding_mail">मेल</string>
+
+    <string name="backup_and_sync">बैकअप और सिंक</string>
+    <string name="sync_now">अभी सिंक करें</string>
+    <string name="sync_successful">सिंक सफल रहा</string>
+    <string name="sync_failed">सिंक विफल रहा</string>
+    <string name="google_account">Google खाता</string>
+    <string name="manage_google_storage">Google स्टोरेज प्रबंधित करें</string>
+    <string name="storage_usage_format">%2$s में से %1$s उपयोग किया गया (Pile द्वारा %3$s)</string>
+    <string name="login_error_format">लॉगिन त्रुटि: %1$s</string>
+    <string name="sync_using_cellular">सेलुलर डेटा का उपयोग करके सिंक करें</string>
+    <string name="sync_disabled_description">सिंक्रोनाइज़ेशन वर्तमान में अक्षम है। अपने दस्तावेज़ों को सुरक्षित रखने और सभी डिवाइसों में सिंक करने के लिए एक प्रदाता चुनें।</string>
+    <string name="trailing_button_content_description">बैकअप प्रदाता चुनें</string>
+    <string name="encryption">एन्क्रिप्शन</string>
+    <string name="end_to_end_encrypted_backup">एंड-टू-एंड एन्क्रिप्टेड बैकअप</string>
+    <string name="on">चालू</string>
+    <string name="off">बंद</string>
+    <string name="no_backup">कोई बैकअप नहीं</string>
+    <string name="disable_backup_confirmation_title">बैकअप अक्षम करें?</string>
+    <string name="disable_backup_confirmation_message">आपके दस्तावेज़ और डेटा अब क्लाउड पर सिंक नहीं होंगे। स्थानीय डेटा आपके डिवाइस पर ही रहेगा।</string>
+    <string name="disable">अक्षम करें</string>
+    <string name="own_hosting">स्वयं की होस्टिंग</string>
+
+    <string name="authentication_failed">प्रमाणीकरण विफल रहा</string>
+    <string name="authentication_failed_message">हम चयनित प्रदाता के साथ प्रमाणित नहीं कर सके। क्या आप पुन: प्रयास करना चाहेंगे या बैकअप अक्षम करना चाहेंगे?</string>
+    <string name="retry">पुन: प्रयास करें</string>
+    <string name="disable_backup">बैकअप अक्षम करें</string>
+    <string name="recovery_key_title">रिकवरी कुंजी</string>
+    <string name="recovery_key_message">यदि आप ऐप को फिर से इंस्टॉल करते हैं तो आपके बैकअप को डिक्रिप्ट करने के लिए इस कुंजी की आवश्यकता होती है। कृपया इसे सुरक्षित स्थान पर सहेजें। यदि आप इसे खो देते हैं, तो आपका डेटा रिकवर नहीं किया जा सकता है।</string>
+    <string name="copy_key">कुंजी कॉपी करें</string>
+    <string name="confirm_saved">मैंने कुंजी सहेज ली है</string>
+    <string name="enter_recovery_key_title">रिकवरी कुंजी दर्ज करें</string>
+    <string name="enter_recovery_key_message">क्लाउड में आपका बैकअप एन्क्रिप्टेड है। जारी रखने के लिए कृपया अपनी 64-अक्षरों वाली रिकवरी कुंजी दर्ज करें।</string>
+    <string name="recovery_key_hint">64-अक्षरों वाली कुंजी दर्ज करें</string>
+    <string name="show_recovery_key">रिकवरी कुंजी दिखाएं</string>
+    <string name="show_recovery_key_subtitle">अन्य उपकरणों पर अपना बैकअप पुनर्स्थापित करने के लिए आवश्यक कुंजी देखें।</string>
+    <string name="invalid_key_length">कुंजी 64 अक्षर लंबी होनी चाहिए</string>
+    <string name="invalid_recovery_key">अमान्य रिकवरी कुंजी। कृपया कुंजी की जांच करें और पुन: प्रयास करें।</string>
+    <string name="never">कभी नहीं</string>
+    <string name="biometric_auth_title">प्रमाणीकरण आवश्यक है</string>
+    <string name="biometric_auth_subtitle">जारी रखने के लिए कृपया प्रमाणित करें</string>
+    <string name="encryption_settings">एन्क्रिप्शन सेटिंग्स</string>
+    <string name="encryption_description">एंड-टू-एंड एन्क्रिप्शन यह सुनिश्चित करता है कि केवल आप ही अपने डेटा तक पहुँच सकें। आपकी फ़ाइलें आपकी रिकवरी कुंजी का उपयोग करके क्लाउड पर अपलोड होने से पहले आपके डिवाइस पर एन्क्रिप्ट की जाती हैं।</string>
+    <string name="disable_encryption_confirmation_title">एन्क्रिप्शन अक्षम करें?</string>
+    <string name="disable_encryption_confirmation_message">यदि आप एन्क्रिप्शन अक्षम करते हैं, तो आपके भविष्य के बैकअप आपकी रिकवरी कुंजी द्वारा सुरक्षित नहीं होंगे। क्लाउड में मौजूद एन्क्रिप्टेड डेटा एन्क्रिप्टेड ही रहेगा।</string>
+    <string name="disable_encryption">एन्क्रिप्शन अक्षम करें</string>
 </resources>

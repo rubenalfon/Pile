@@ -1,9 +1,18 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.sqlDelight)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.parcelize)
+}
+
+val localProperties = Properties().apply {
+    val propertiesFile = rootProject.file("local.properties")
+    if (propertiesFile.exists()) {
+        propertiesFile.inputStream().use { load(it) }
+    }
 }
 
 kotlin {
@@ -21,6 +30,20 @@ android {
         versionCode = 8
         versionName = "1.1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val googleDriveClientId = localProperties.getProperty("google.drive.client.id") ?: ""
+        resValue("string", "google_drive_client_id", googleDriveClientId)
+    }
+
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("foss") {
+            dimension = "distribution"
+            applicationIdSuffix = ".foss"
+        }
+        create("full") {
+            dimension = "distribution"
+        }
     }
 
     buildTypes {
@@ -44,6 +67,14 @@ android {
         compose = true
     }
 
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/INDEX.LIST"
+            excludes += "META-INF/DEPENDENCIES"
+        }
+    }
+
     dependenciesInfo { // For kdroid key
         includeInApk = false
         includeInBundle = false
@@ -53,6 +84,9 @@ android {
 dependencies {
     // DataStore
     implementation(libs.androidx.datastore)
+
+    // Security
+    implementation(libs.androidx.biometric)
 
     //Work manager
     implementation(libs.androidx.work.runtime.ktx)
@@ -123,6 +157,16 @@ dependencies {
 
     // Logging
     implementation(libs.napier)
+
+    // Google Drive & Auth (Full flavor only)
+    "fullImplementation"(libs.google.play.services.auth)
+    "fullImplementation"(libs.androidx.credentials)
+    "fullImplementation"(libs.androidx.credentials.play.services.auth)
+    "fullImplementation"(libs.googleid)
+    "fullImplementation"(libs.google.api.services.drive) {
+        exclude(group = "org.apache.httpcomponents")
+    }
+    "fullImplementation"(libs.google.api.client.android)
 
     // Core
     implementation(libs.androidx.core.ktx)

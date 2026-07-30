@@ -155,7 +155,7 @@ fun SearchScreenPreview() {
                 isLoading = false,
                 searchQuery = "",
                 filteredDocumentList = listOf(SearchItem(document, "")),
-                pileList = listOf(PileModel("1", "Pilas", "icon", 0xFF0000L))
+                pileList = listOf(PileModel("1", "Pilas", "icon", 0xFF0000L, LocalDateTime.now()))
             ),
             bitmapCache = emptyMap(),
             expanded = true,

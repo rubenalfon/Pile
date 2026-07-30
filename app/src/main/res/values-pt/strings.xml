@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Pile</string>
 
     <string name="your_piles">As suas pilhas</string>
     <string name="all_documents">Todos os documentos</string>
@@ -177,4 +176,49 @@
     <string name="onboarding_get_started">Começar</string>
     <string name="onboarding_invoices">Faturas</string>
     <string name="onboarding_mail">Correio</string>
+
+    <string name="backup_and_sync">Cópia de segurança e sincr.</string>
+    <string name="sync_now">Sincronizar ahora</string>
+    <string name="sync_successful">Sincronização bem-sucedida</string>
+    <string name="sync_failed">Falha na sincronização</string>
+    <string name="google_account">Conta Google</string>
+    <string name="manage_google_storage">Gerir armazenamento Google</string>
+    <string name="storage_usage_format">%1$s de %2$s usados (%3$s pelo Pile)</string>
+    <string name="login_error_format">Erro de login: %1$s</string>
+    <string name="sync_using_cellular">Sincronizar via dados móveis</string>
+    <string name="sync_disabled_description">A sincronização está atualmente desativada. Selecione um fornecedor para manter os seus documentos seguros e sincronizados em todos os dispositivos.</string>
+    <string name="trailing_button_content_description">Selecione um fornecedor de cópia de segurança</string>
+    <string name="encryption">Encriptação</string>
+    <string name="end_to_end_encrypted_backup">Cópia de segurança encriptada de ponta a ponta</string>
+    <string name="on">Ligado</string>
+    <string name="off">Desligado</string>
+    <string name="no_backup">Sem cópia de segurança</string>
+    <string name="disable_backup_confirmation_title">Desativar cópia de segurança?</string>
+    <string name="disable_backup_confirmation_message">Os seus documentos e dados deixarão de ser sincronizados na nuvem. Os dados locais permanecerão no seu dispositivo.</string>
+    <string name="disable">Desativar</string>
+    <string name="own_hosting">Alojamento próprio</string>
+
+    <string name="authentication_failed">Falha na autenticação</string>
+    <string name="authentication_failed_message">Não foi possível autenticar com o fornecedor selecionado. Gostaria de tentar novamente ou desativar a cópia de segurança?</string>
+    <string name="retry">Repetir</string>
+    <string name="disable_backup">Desativar cópia de segurança</string>
+    <string name="recovery_key_title">Chave de recuperação</string>
+    <string name="recovery_key_message">Esta chave é necessária para decifrar a sua cópia de segurança se reinstalar a aplicação. Guarde-a num lugar seguro. Se a perder, os seus dados não poderão ser recuperados.</string>
+    <string name="copy_key">Copiar chave</string>
+    <string name="confirm_saved">Guardei a chave</string>
+    <string name="enter_recovery_key_title">Introduzir chave de recuperação</string>
+    <string name="enter_recovery_key_message">A sua cópia de segurança na nuvem está encriptada. Introduza a sua chave de recuperação de 64 caracteres para continuar.</string>
+    <string name="recovery_key_hint">Introduzir chave de 64 caracteres</string>
+    <string name="show_recovery_key">Mostrar chave de recuperação</string>
+    <string name="show_recovery_key_subtitle">Ver a chave necessária para restaurar a sua cópia em outros dispositivos.</string>
+    <string name="invalid_key_length">A chave deve ter 64 caracteres</string>
+    <string name="invalid_recovery_key">Chave de recuperação inválida. Verifique a chave e tente novamente.</string>
+    <string name="never">Nunca</string>
+    <string name="biometric_auth_title">Autenticação necessária</string>
+    <string name="biometric_auth_subtitle">Por favor, autentique-se para continuar</string>
+    <string name="encryption_settings">Configurações de criptografia</string>
+    <string name="encryption_description">A criptografia de ponta a ponta garante que apenas você possa acessar seus dados. Seus arquivos são criptografados no seu dispositivo antes de serem enviados para a nuvem usando sua chave de recuperação.</string>
+    <string name="disable_encryption_confirmation_title">Desativar criptografia?</string>
+    <string name="disable_encryption_confirmation_message">Se você desativar a criptografia, seus backups futuros não serão protegidos pela sua chave de recuperação. Os datos criptografados existentes na nuvem permanecerão criptografados.</string>
+    <string name="disable_encryption">Desativar criptografia</string>
 </resources>

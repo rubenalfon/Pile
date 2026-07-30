@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Pile</string>
 
     <string name="your_piles">您的堆叠</string>
     <string name="all_documents">所有文档</string>
@@ -177,4 +176,49 @@
     <string name="onboarding_get_started">开始使用</string>
     <string name="onboarding_invoices">发票</string>
     <string name="onboarding_mail">邮件</string>
+
+    <string name="backup_and_sync">备份与同步</string>
+    <string name="sync_now">立即同步</string>
+    <string name="sync_successful">同步成功</string>
+    <string name="sync_failed">同步失败</string>
+    <string name="google_account">Google 账号</string>
+    <string name="manage_google_storage">管理 Google 存储空间</string>
+    <string name="storage_usage_format">已使用 %2$s 中的 %1$s（Pile 占用 %3$s）</string>
+    <string name="login_error_format">登录错误：%1$s</string>
+    <string name="sync_using_cellular">使用蜂窝数据同步</string>
+    <string name="sync_disabled_description">同步功能目前已禁用。请选择一个提供商以确保您的文档安全并在设备间保持同步。</string>
+    <string name="trailing_button_content_description">选择备份提供商</string>
+    <string name="encryption">加密</string>
+    <string name="end_to_end_encrypted_backup">端到端加密备份</string>
+    <string name="on">开启</string>
+    <string name="off">关闭</string>
+    <string name="no_backup">无备份</string>
+    <string name="disable_backup_confirmation_title">禁用备份？</string>
+    <string name="disable_backup_confirmation_message">您的文档和数据将不再同步到云端。本地数据仍将保留在您的设备上。</string>
+    <string name="disable">禁用</string>
+    <string name="own_hosting">自行托管</string>
+
+    <string name="authentication_failed">身份验证失败</string>
+    <string name="authentication_failed_message">我们无法通过所选提供商进行身份验证。您想重试还是禁用备份？</string>
+    <string name="retry">重试</string>
+    <string name="disable_backup">禁用备份</string>
+    <string name="recovery_key_title">恢复密钥</string>
+    <string name="recovery_key_message">如果您重新安装应用程序，则需要此密钥来解密备份。请将其保存在安全的地方。如果您丢失了它，您的数据将无法恢复。</string>
+    <string name="copy_key">复制密钥</string>
+    <string name="confirm_saved">我已经保存了密钥</string>
+    <string name="enter_recovery_key_title">输入恢复密钥</string>
+    <string name="enter_recovery_key_message">您在云端的备份已加密。请输入您的 64 位恢复密钥以继续。</string>
+    <string name="recovery_key_hint">输入 64 位密钥</string>
+    <string name="show_recovery_key">显示恢复密钥</string>
+    <string name="show_recovery_key_subtitle">查看在其他设备上恢复备份所需的密钥。</string>
+    <string name="invalid_key_length">密钥必须为 64 个字符</string>
+    <string name="invalid_recovery_key">无效的恢复密钥。请检查密钥并重试。</string>
+    <string name="never">从不</string>
+    <string name="biometric_auth_title">需要身份验证</string>
+    <string name="biometric_auth_subtitle">请验证身份以继续</string>
+    <string name="encryption_settings">加密设置</string>
+    <string name="encryption_description">端到端加密确保只有您可以访问您的数据。在使用您的恢复密钥上传到云端之前，您的文件会在您的设备上进行加密。</string>
+    <string name="disable_encryption_confirmation_title">禁用加密？</string>
+    <string name="disable_encryption_confirmation_message">如果您禁用加密，您未来的备份将不再受恢复密钥的保护。云中现有的加密数据将保持加密状态。</string>
+    <string name="disable_encryption">禁用加密</string>
 </resources>

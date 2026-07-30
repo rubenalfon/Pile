@@ -34,6 +34,7 @@ import es.pile.PileModel
 import es.pile.core.ui.theme.AppIcons
 import es.pile.core.ui.theme.ExtendedTheme
 import es.pile.core.ui.theme.PileTheme
+import java.time.LocalDateTime
 
 @Preview(showBackground = true)
 @Composable
@@ -43,7 +44,8 @@ fun PilePreview() {
             id = "1",
             name = "Documentos de Trabajo",
             iconId = "Bank",
-            colorNumber = 1L
+            colorNumber = 1L,
+            modificationDateTime = LocalDateTime.now()
         )
 
         Column(
