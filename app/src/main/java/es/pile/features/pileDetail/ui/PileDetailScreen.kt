@@ -85,6 +85,7 @@ fun PileDetailScreen(
     navigateToEditDocument: (documentId: String) -> Unit,
     navigateToAddDocument: (documentId: String) -> Unit,
     popBackStack: () -> Unit,
+    popToHome: () -> Unit,
     viewModel: PileDetailViewModel = koinViewModel { parametersOf(pileId) }
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -113,6 +114,7 @@ fun PileDetailScreen(
         isNavigating = isNavigating,
         onEvent = { viewModel.handleEvent(it) },
         popBackStack = popBackStack,
+        popToHome = popToHome,
         navigateToDocumentDetail = navigateToDocumentDetail,
         navigateToSearchScreen = { navigateToSearchScreen(pileId) },
         navigateToAddDocument = navigateToAddDocument,
@@ -155,6 +157,7 @@ private fun PileDetailPrev() {
             bitmapCache = emptyMap(),
             onEvent = {},
             popBackStack = {},
+            popToHome = {},
             navigateToDocumentDetail = {},
             navigateToSearchScreen = {},
         )
@@ -170,6 +173,7 @@ fun PileDetailContent(
     isNavigating: Boolean = false,
     onEvent: (PileDetailEvent) -> Unit,
     popBackStack: () -> Unit,
+    popToHome: () -> Unit,
     navigateToDocumentDetail: (documentId: String) -> Unit,
     navigateToSearchScreen: () -> Unit,
     navigateToAddDocument: (documentId: String) -> Unit = {},
@@ -337,7 +341,7 @@ fun PileDetailContent(
                 onConfirm = {
                     isDeletePileExpanded = false
                     onEvent(PileDetailEvent.OnDeletePile)
-                    popBackStack()
+                    popToHome()
                 }
             )
         }
