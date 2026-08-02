@@ -1,0 +1,42 @@
+<p>Pile è un'app di gestione dei documenti semplice e potente, progettata per aiutarti a organizzare, accedere e condividere i tuoi file personali — tutto in un unico posto.</p>
+
+<p>Sviluppata attorno a un sistema di etichette flessibile chiamato "piles" (pile), l'app ti consente di categorizzare i tuoi documenti nel modo in cui pensi, non nel modo in cui ti costringono le cartelle.</p>
+
+<h2>✦ CARATTERISTICHE PRINCIPALI</h2>
+<ul>
+  <li>Gestione centralizzata dei documenti — tieni tutti i tuoi file in un unico posto</li>
+  <li>Sistema di etichette intelligente (pile) — organizza i documenti a modo tuo</li>
+  <li>Supporto PDF completo — visualizza e condividi i documenti in modo fluido</li>
+  <li>Ricerca integrata — trova qualsiasi documento in pochi secondi</li>
+  <li>Design moderno (Material Design) — interfaccia pulita e intuitiva</li>
+  <li>100% offline — nessuna connessione internet richiesta</li>
+  <li>Privacy al primo posto — i tuoi documenti non lasciano mai il tuo dispositivo</li>
+</ul>
+
+<h2>✦ PROGETTATA PER LA PRIVACY</h2>
+<p>Pile non raccoglie alcun dato personale. Niente analisi. Niente tracciamento. Niente caricamenti in cloud. Tutto resta sul tuo dispositivo, sotto il tuo controllo.</p>
+
+<h2>✦ IDEALE PER</h2>
+<ul>
+  <li>Studenti che gestiscono appunti, compiti e materiali di studio</li>
+  <li>Professionisti che organizzano contratti, fatture e report</li>
+  <li>Chiunque desideri un modo pulito e privato per tenere organizzati i propri documenti</li>
+</ul>
+
+<h2>✦ COSTRUITA CON TECNOLOGIA MODERNA</h2>
+<p>Pile è sviluppata utilizzando i più recenti standard di sviluppo Android, tra cui Jetpack Compose e Material Design, garantendo un'esperienza fluida e affidabile.</p>
+
+<h2>✦ ROADMAP</h2>
+<p>Stiamo lavorando attivamente a nuove funzionalità, tra cui:</p>
+<ul>
+  <li>Estrazione di informazioni dai documenti tramite IA locale</li>
+  <li>Opzioni di backup</li>
+  <li>Flussi di condivisione migliorati</li>
+  <li>Supporto multipiattaforma</li>
+</ul>
+
+<p>Hai feedback o suggerimenti? Ci piacerebbe sentirti.</p>
+
+<hr>
+
+<p><strong>Pile — I tuoi documenti. A modo tuo. Il tuo dispositivo.</strong></p>

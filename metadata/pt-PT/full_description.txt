@@ -1,0 +1,42 @@
+<p>Pile é uma aplicação de gestão de documentos simple e poderosa, concebida para o ajudar a organizar, aceder e partilhar os seus ficheiros pessoais — tudo num só lugar.</p>
+
+<p>Construída em torno de um sistema flexível de etiquetas chamado "pilhas" (piles), a aplicação permite-lhe categorizar os seus documentos da forma como pensa, e não da forma como as pastas o obrigam.</p>
+
+<h2>✦ CARACTERÍSTICAS PRINCIPAIS</h2>
+<ul>
+  <li>Gestão centralizada de documentos — mantenha todos os seus ficheiros num só lugar</li>
+  <li>Sistema de etiquetas inteligente (pilhas) — organize documentos à sua maneira</li>
+  <li>Suporte total a PDF — visualize e partilhe documentos sem problemas</li>
+  <li>Pesquisa integrada — encontre qualquer documento em segundos</li>
+  <li>Design moderno (Material Design) — interface limpa e intuitiva</li>
+  <li>100% offline — sem necessidade de ligação à internet</li>
+  <li>Privacidade em primeiro lugar — os seus documentos nunca saem do seu dispositivo</li>
+</ul>
+
+<h2>✦ CONCEBIDO PARA A PRIVACIDADE</h2>
+<p>O Pile não recolhe quaisquer dados pessoais. Sem análises. Sem rastreio. Sem carregamentos para a nuvem. Tudo fica no seu dispositivo, sob o seu controlo.</p>
+
+<h2>✦ IDEAL PARA</h2>
+<ul>
+  <li>Estudantes que gerem notas, trabalhos e materiais de estudo</li>
+  <li>Profissionais que organizam contratos, faturas e relatórios</li>
+  <li>Qualquer pessoa que queira uma forma limpa e privada de manter os seus documentos organizados</li>
+</ul>
+
+<h2>✦ CONSTRUÍDO COM TECNOLOGIE MODERNA</h2>
+<p>O Pile é construído utilizando os mais recentes padrões de desenvolvimento Android, incluindo Jetpack Compose e Material Design, garantindo uma experiência fluida e fiável.</p>
+
+<h2>✦ PLANO DE DESENVOLVIMENTO</h2>
+<p>Estamos a trabalhar ativamente em novas funcionalidades, incluindo:</p>
+<ul>
+  <li>Extração de informações de documentos com IA local</li>
+  <li>Opções de cópia de segurança</li>
+  <li>Fluxos de partilha melhorados</li>
+  <li>Suporte multiplataforma</li>
+</ul>
+
+<p>Tem comentários ou sugestões? Gostaríamos muito de o ouvir.</p>
+
+<hr>
+
+<p><strong>Pile — Os seus documentos. À sua maneira. O seu dispositivo.</strong></p>
