@@ -91,7 +91,7 @@ fun PileDetailScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
-    LaunchedEffect(state.isLoading, state.pile) {
+    LaunchedEffect(state.isLoading) {
         if (!state.isLoading && state.pile == null) {
             popBackStack()
         }
