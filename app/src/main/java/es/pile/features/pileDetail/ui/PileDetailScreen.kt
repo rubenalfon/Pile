@@ -1,22 +1,26 @@
 package es.pile.features.pileDetail.ui
 
 import android.graphics.Bitmap
+import android.view.MotionEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -26,7 +30,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -34,9 +37,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,14 +46,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -192,8 +191,6 @@ fun PileDetailContent(
         }
     }
 
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-
     var isUpdatePileExpanded by rememberSaveable { mutableStateOf(false) }
     var isDeletePileExpanded by rememberSaveable { mutableStateOf(false) }
     var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
@@ -208,7 +205,7 @@ fun PileDetailContent(
 
     Scaffold(
         contentWindowInsets = WindowInsets.displayCutout,
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier,
         topBar = {
             state.pile?.let { pileModel ->
                 TopAppBar(
@@ -216,8 +213,7 @@ fun PileDetailContent(
                     popBackStack = popBackStack,
                     onSearchClick = navigateToSearchScreen,
                     onEditClick = { isUpdatePileExpanded = true },
-                    onDeleteClick = { isDeletePileExpanded = true },
-                    scrollBehavior = scrollBehavior
+                    onDeleteClick = { isDeletePileExpanded = true }
                 )
             }
         },
@@ -250,7 +246,7 @@ fun PileDetailContent(
                 isLoading = state.isLoading,
                 modifier = Modifier.pointerInteropFilter {
                     when (it.action) {
-                        android.view.MotionEvent.ACTION_DOWN -> {
+                        MotionEvent.ACTION_DOWN -> {
                             fabMenuExpanded = false
                         }
                     }
@@ -278,7 +274,7 @@ fun PileDetailContent(
                             Text(
                                 text = stringResource(R.string.no_documents_in_pile),
                                 style = MaterialTheme.typography.bodyLarge,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -373,33 +369,25 @@ private fun TopAppBar(
     popBackStack: () -> Unit,
     onSearchClick: () -> Unit,
     onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior
+    onDeleteClick: () -> Unit
 ) {
-    LargeFlexibleTopAppBar(
+    Column(
         modifier = modifier
+            .statusBarsPadding()
+            .displayCutoutPadding()
+            .padding(horizontal = 4.dp)
             .padding(bottom = 12.dp),
-        title = {
-            Pile(
-                pileModel = pileModel,
-                isColored = true,
-                enabled = false,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 8.dp) // Visual bug
-                    .padding(top = 8.dp)
-            )
-        },
-        titleHorizontalAlignment = Alignment.Start,
-        navigationIcon = {
+    ) {
+        Row(Modifier.padding(vertical = 8.dp)) {
             IconButton(onClick = popBackStack) {
                 Icon(
                     painter = painterResource(R.drawable.arrow_back_24px),
                     contentDescription = stringResource(R.string.return_)
                 )
             }
-        },
-        actions = {
+
+            Spacer(Modifier.weight(1f))
+
             IconButton(onClick = onSearchClick) {
                 Icon(
                     imageVector = Icons.Filled.Search,
@@ -418,12 +406,17 @@ private fun TopAppBar(
                     contentDescription = stringResource(R.string.delete_pile)
                 )
             }
-        },
-        scrollBehavior = scrollBehavior,
-        colors = topAppBarColors(
-            containerColor = Color.Transparent
+        }
+
+        Pile(
+            pileModel = pileModel,
+            isColored = true,
+            enabled = false,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
         )
-    )
+    }
 }
 
 @Composable
