@@ -76,6 +76,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.pile.DocumentModel
 import es.pile.PileModel
 import es.pile.R
+import es.pile.core.domain.models.SyncState
 import es.pile.core.ui.composables.Document
 import es.pile.core.ui.composables.KeyboardAware
 import es.pile.core.ui.composables.LoadingWrapper
@@ -83,6 +84,7 @@ import es.pile.core.ui.composables.SelectPilesBottomSheet
 import es.pile.core.ui.composables.adaptiveSizeItemsGrid
 import es.pile.core.ui.theme.PileTheme
 import es.pile.core.ui.util.horizontalPaddingValues
+import es.pile.features.home.ui.compostables.SyncStatusIndicator
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -175,6 +177,8 @@ fun SearchContent(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onSettingsClick: () -> Unit,
+    onSyncClick: () -> Unit = {},
+    syncState: SyncState = SyncState.Idle,
     viewModel: SearchViewModel = koinViewModel { parametersOf(pileId) },
     navigateToDocumentDetail: (documentId: String) -> Unit,
     focusRequester: FocusRequester? = null
@@ -189,6 +193,8 @@ fun SearchContent(
         expanded = expanded,
         onExpandedChange = onExpandedChange,
         onSettingsClick = onSettingsClick,
+        onSyncClick = onSyncClick,
+        syncState = syncState,
         onEvent = { viewModel.handleEvent(it) },
         navigateToDocumentDetail = navigateToDocumentDetail,
         focusRequester = focusRequester
@@ -204,6 +210,8 @@ fun SearchContent(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onSettingsClick: () -> Unit,
+    onSyncClick: () -> Unit = {},
+    syncState: SyncState = SyncState.Idle,
     onEvent: (SearchEvent) -> Unit,
     navigateToDocumentDetail: (documentId: String) -> Unit,
     focusRequester: FocusRequester? = null
@@ -231,6 +239,8 @@ fun SearchContent(
                 expanded = expanded,
                 onExpandedChange = { onExpandedChange(it) },
                 onSettingsClick = onSettingsClick,
+                onSyncClick = onSyncClick,
+                syncState = syncState,
                 focusRequester = focusRequester
             )
         },
@@ -358,6 +368,8 @@ private fun SearchInputField(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onSettingsClick: () -> Unit,
+    onSyncClick: () -> Unit = {},
+    syncState: SyncState = SyncState.Idle,
     focusRequester: FocusRequester
 ) {
     InputField(
@@ -400,13 +412,19 @@ private fun SearchInputField(
         },
         trailingIcon = {
             AnimatedVisibility(!expanded, enter = fadeIn(), exit = fadeOut()) {
-                IconButton(
-                    onClick = onSettingsClick
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.settings_24px),
-                        contentDescription = stringResource(R.string.settings)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    SyncStatusIndicator(
+                        state = syncState,
+                        onClick = onSyncClick
                     )
+                    IconButton(
+                        onClick = onSettingsClick
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.settings_24px),
+                            contentDescription = stringResource(R.string.settings)
+                        )
+                    }
                 }
             }
             AnimatedVisibility(

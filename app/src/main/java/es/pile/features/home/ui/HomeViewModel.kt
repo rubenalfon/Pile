@@ -8,6 +8,7 @@ import es.pile.R
 import es.pile.core.domain.models.DocumentCoverItem
 import es.pile.core.domain.repositories.BitmapCacheRepository
 import es.pile.core.domain.repositories.FileRepository
+import es.pile.core.domain.sync.SyncManager
 import es.pile.core.domain.useCases.CreatePileUseCase
 import es.pile.core.domain.useCases.RequestBitmapLoadUseCase
 import es.pile.core.ui.util.UiText
@@ -33,7 +34,8 @@ class HomeViewModel(
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
     private val cleanupScheduler: CleanupScheduler,
     private val bitmapCacheRepository: BitmapCacheRepository,
-    private val fileRepository: FileRepository
+    private val fileRepository: FileRepository,
+    private val syncManager: SyncManager
 ) : ViewModel() {
     private var _state = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> = _state.asStateFlow()
@@ -66,6 +68,12 @@ class HomeViewModel(
                         isInitialLoading = false
                     )
                 }
+            }
+        }
+
+        viewModelScope.launch {
+            syncManager.syncState.collect { syncState ->
+                _state.update { it.copy(syncState = syncState) }
             }
         }
     }
@@ -126,6 +134,7 @@ class HomeViewModel(
             }
 
             HomeEvent.OnErrorDismissed -> _state.update { it.copy(errorMessage = null) }
+            HomeEvent.OnRefreshSync -> syncManager.requestSync(force = true)
         }
     }
 

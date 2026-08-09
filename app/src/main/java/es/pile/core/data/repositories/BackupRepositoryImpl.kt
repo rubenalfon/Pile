@@ -11,6 +11,7 @@ import es.pile.core.domain.backup.BackupEncryptor
 import es.pile.core.domain.backup.BackupProvider
 import es.pile.core.domain.backup.RemoteFile
 import es.pile.core.domain.models.BackupSyncStatus
+import es.pile.core.domain.models.SyncState
 import es.pile.core.domain.repositories.BackupRepository
 import es.pile.core.domain.repositories.DocumentImageRepository
 import es.pile.core.domain.repositories.DocumentModelRepository
@@ -41,9 +42,14 @@ class BackupRepositoryImpl(
 
     private val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
-    override suspend fun sync(provider: BackupProvider, tempMasterKey: String?): Result<Unit> =
+    override suspend fun sync(
+        provider: BackupProvider,
+        tempMasterKey: String?,
+        onProgress: (SyncState) -> Unit
+    ): Result<Unit> =
         withContext(ioDispatcher) {
             runCatching {
+                onProgress(SyncState.Syncing)
                 val settings = settingsRepository.userSettings.first()
                 val masterKey = tempMasterKey ?: settingsRepository.getBackupMasterKey()
 
@@ -53,6 +59,7 @@ class BackupRepositoryImpl(
 
                 // 1. Download Remote Metadata if exists
                 val remoteBackupDto = if (metadataFile != null) {
+                    onProgress(SyncState.Downloading)
                     val remoteInput = provider.downloadFile(metadataFile.id).getOrThrow()
                     val decryptedInput =
                         backupEncryptor.wrapForDecryption(remoteInput, masterKey)
@@ -147,6 +154,7 @@ class BackupRepositoryImpl(
                 }
 
                 // 3. Prepare final upload (Consolidated data)
+                onProgress(SyncState.Uploading)
                 val updatedDocuments = documentModelRepository.getAllDocumentModels()
                 val updatedImages = documentImageRepository.getAllDocumentImages()
                 val updatedPiles = pileModelRepository.getAllPileModels()

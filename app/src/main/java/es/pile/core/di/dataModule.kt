@@ -13,6 +13,7 @@ import es.pile.core.data.repositories.DocumentImageRepositoryImpl
 import es.pile.core.data.repositories.DocumentModelRepositoryImpl
 import es.pile.core.data.repositories.FileRepositoryImpl
 import es.pile.core.data.repositories.PileModelRepositoryImpl
+import es.pile.core.data.sync.SyncManagerImpl
 import es.pile.core.data.util.CryptographyManager
 import es.pile.core.data.util.CryptographyManagerImpl
 import es.pile.core.data.util.ImageTransformationHelper
@@ -27,6 +28,11 @@ import es.pile.core.domain.repositories.FileRepository
 import es.pile.core.domain.repositories.PileModelRepository
 import es.pile.core.domain.repositories.SecureStorageRepository
 import es.pile.core.domain.repositories.SettingsRepository
+import es.pile.core.domain.sync.SyncManager
+import es.pile.core.domain.usecases.sync.PerformSyncUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -66,6 +72,18 @@ val dataModule = module {
 
     singleOf(::ImageTransformationHelper)
     singleOf(::PdfRenderHelper)
+
+    single { PerformSyncUseCase(backupRepository = get(), settingsRepository = get()) }
+
+    single<SyncManager> {
+        SyncManagerImpl(
+            context = androidContext(),
+            documentModelRepository = get(),
+            pileModelRepository = get(),
+            settingsRepository = get(),
+            externalScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        )
+    }
 
     single<PileModelRepository> {
         PileModelRepositoryImpl(

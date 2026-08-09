@@ -67,6 +67,9 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                     },
                     navigateToSettings = {
                         backStack.add(Pane.SettingsOverview)
+                    },
+                    navigateToBackup = {
+                        backStack.add(Pane.Backup)
                     }
                 )
             }

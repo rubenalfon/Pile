@@ -53,6 +53,9 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -84,6 +87,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.pile.R
+import es.pile.core.domain.models.SyncState
 import es.pile.core.ui.composables.AlertDraftDocumentWarning
 import es.pile.core.ui.composables.AlertNewPile
 import es.pile.core.ui.composables.LoadingAlert
@@ -107,6 +111,7 @@ fun HomeScreen(
     navigateToEditDocument: (documentId: String) -> Unit,
     navigateToAddDocument: (documentId: String) -> Unit,
     navigateToSettings: () -> Unit,
+    navigateToBackup: () -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -199,6 +204,8 @@ fun HomeScreen(
                 expanded = isSearchBarExpanded,
                 onExpandedChange = { isSearchBarExpanded = it },
                 onSettingsClick = navigateToSettings,
+                onSyncClick = navigateToBackup,
+                syncState = state.syncState,
                 navigateToDocumentDetail = navigateToDocumentDetail
             )
         },
@@ -231,132 +238,151 @@ fun HomeScreen(
                     }
             ) {
                 val availableWidth = maxWidth
+                val isRefreshing = state.syncState is SyncState.Syncing ||
+                                 state.syncState is SyncState.Downloading ||
+                                 state.syncState is SyncState.Uploading
 
-                LazyColumn(
-                    Modifier
-                        .padding(bottom = innerPadding.calculateBottomPadding())
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .pointerInteropFilter {
-                            when (it.action) {
-                                MotionEvent.ACTION_DOWN -> {
-                                    fabMenuExpanded = false
-                                }
-                            }
-                            false
-                        },
-                    state = listState
+                val pullToRefreshState = rememberPullToRefreshState()
+                PullToRefreshBox(
+                    isRefreshing = isRefreshing,
+                    onRefresh = { viewModel.handleEvent(HomeEvent.OnRefreshSync) },
+                    modifier = Modifier.fillMaxSize(),
+                    state = pullToRefreshState,
+                    enabled = state.syncState != SyncState.NoProvider,
+                    indicator = {
+                        PullToRefreshDefaults.LoadingIndicator(
+                            state = pullToRefreshState,
+                            isRefreshing = isRefreshing,
+                            modifier = Modifier.align(Alignment.TopCenter)
+                        )
+                    }
                 ) {
-                    item { Spacer(Modifier.height(8.dp)) }
+                    LazyColumn(
+                        Modifier
+                            .padding(bottom = innerPadding.calculateBottomPadding())
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                            .pointerInteropFilter {
+                                when (it.action) {
+                                    MotionEvent.ACTION_DOWN -> {
+                                        fabMenuExpanded = false
+                                    }
+                                }
+                                false
+                            },
+                        state = listState
+                    ) {
+                        item { Spacer(Modifier.height(8.dp)) }
+                        
+                        item {
+                            val tempDocument = state.temporaryDocument
+                            AnimatedVisibility(
+                                visible = tempDocument != null,
+                                enter = fadeIn(tween(100)) + expandVertically(),
+                                exit = fadeOut(tween(100)) + shrinkVertically()
+                            ) {
+                                UnsavedDocumentCard(
+                                    onNavigateUnsavedDocument = {
+                                        if (tempDocument == null) return@UnsavedDocumentCard
 
-                    item {
-                        val tempDocument = state.temporaryDocument
-                        AnimatedVisibility(
-                            visible = tempDocument != null,
-                            enter = fadeIn(tween(100)) + expandVertically(),
-                            exit = fadeOut(tween(100)) + shrinkVertically()
-                        ) {
-                            UnsavedDocumentCard(
-                                onNavigateUnsavedDocument = {
-                                    if (tempDocument == null) return@UnsavedDocumentCard
+                                        if (tempDocument.isIncomingPdf)
+                                            navigateToAddDocument(tempDocument.id)
+                                        else
+                                            navigateToEditDocument(tempDocument.id)
+                                    },
+                                    onDismiss = {
+                                        viewModel.handleEvent(HomeEvent.OnRemoveDraftDocument)
 
-                                    if (tempDocument.isIncomingPdf)
-                                        navigateToAddDocument(tempDocument.id)
-                                    else
-                                        navigateToEditDocument(tempDocument.id)
-                                },
-                                onDismiss = {
-                                    viewModel.handleEvent(HomeEvent.OnRemoveDraftDocument)
+                                        scope.launch {
+                                            val result = snackbarHostState
+                                                .showSnackbar(
+                                                    message = snackbarStrings.first,
+                                                    actionLabel = snackbarStrings.second,
+                                                    duration = SnackbarDuration.Long
+                                                )
+                                            when (result) {
+                                                SnackbarResult.ActionPerformed -> { // restore
+                                                    viewModel.handleEvent(HomeEvent.OnRestoreDraftDocument)
+                                                }
 
-                                    scope.launch {
-                                        val result = snackbarHostState
-                                            .showSnackbar(
-                                                message = snackbarStrings.first,
-                                                actionLabel = snackbarStrings.second,
-                                                duration = SnackbarDuration.Long
-                                            )
-                                        when (result) {
-                                            SnackbarResult.ActionPerformed -> { // restore
-                                                viewModel.handleEvent(HomeEvent.OnRestoreDraftDocument)
-                                            }
-
-                                            SnackbarResult.Dismissed -> {
-                                                viewModel.handleEvent(HomeEvent.OnPurgeDraftDocument)
+                                                SnackbarResult.Dismissed -> {
+                                                    viewModel.handleEvent(HomeEvent.OnPurgeDraftDocument)
+                                                }
                                             }
                                         }
                                     }
-                                }
-                            )
-                        }
-                    }
-
-                    item { Spacer(Modifier.height(16.dp)) }
-
-                    item {
-                        HomeScreenSectionTitle(
-                            title = stringResource(R.string.your_piles),
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                    }
-                    item { Spacer(Modifier.height(8.dp)) }
-
-                    itemPileGrid(
-                        availableWidth = availableWidth,
-                        piles = state.pileModels,
-                        onPileClick = navigateToPileDetail,
-                        onNewPileClick = { isNewPileAlertExpanded = true },
-                        coloredPileIds = state.coloredPileIds
-                    )
-
-                    item { Spacer(Modifier.height(30.dp)) }
-
-                    item {
-                        Column(
-                            Modifier
-                                .clip(
-                                    RoundedCornerShape(
-                                        topStart = 24.dp,
-                                        topEnd = 24.dp
-                                    )
                                 )
-                                .background(backgroundDocuments)
-                                .padding(top = 16.dp)
-                        ) {
-                            HomeScreenSectionTitle(
-                                title = stringResource(R.string.all_documents),
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                            )
-                            Spacer(Modifier.height(8.dp))
+                            }
                         }
-                    }
-                    val showEmptyDocuments = state.documentCoverItems.isEmpty()
 
-                    if (showEmptyDocuments) {
+                        item { Spacer(Modifier.height(16.dp)) }
+
                         item {
-                            HomeEmptyState(
-                                icon = painterResource(R.drawable.ic_clip),
-                                text = stringResource(R.string.no_documents_home),
-                                modifier = Modifier.background(backgroundDocuments)
+                            HomeScreenSectionTitle(
+                                title = stringResource(R.string.your_piles),
+                                modifier = Modifier.padding(horizontal = 16.dp)
                             )
                         }
-                    } else {
-                        itemDocumentsCompleteList(
-                            availableWidth = availableWidth,
-                            backgroundColor = backgroundDocuments,
-                            documents = state.documentCoverItems,
-                            onDocumentClick = navigateToDocumentDetail,
-                            bitmapCache = bitmapCache,
-                            onLoadBitmap = { viewModel.handleEvent(HomeEvent.OnImageDisplayed(it)) }
-                        )
-                    }
+                        item { Spacer(Modifier.height(8.dp)) }
 
-                    item {
-                        Box(
-                            Modifier
-                                .height(100.dp)
-                                .fillMaxWidth()
-                                .background(backgroundDocuments)
+                        itemPileGrid(
+                            availableWidth = availableWidth,
+                            piles = state.pileModels,
+                            onPileClick = navigateToPileDetail,
+                            onNewPileClick = { isNewPileAlertExpanded = true },
+                            coloredPileIds = state.coloredPileIds
                         )
+
+                        item { Spacer(Modifier.height(30.dp)) }
+
+                        item {
+                            Column(
+                                Modifier
+                                    .clip(
+                                        RoundedCornerShape(
+                                            topStart = 24.dp,
+                                            topEnd = 24.dp
+                                        )
+                                    )
+                                    .background(backgroundDocuments)
+                                    .padding(top = 16.dp)
+                            ) {
+                                HomeScreenSectionTitle(
+                                    title = stringResource(R.string.all_documents),
+                                    modifier = Modifier
+                                        .padding(horizontal = 16.dp)
+                                )
+                                Spacer(Modifier.height(8.dp))
+                            }
+                        }
+                        val showEmptyDocuments = state.documentCoverItems.isEmpty()
+
+                        if (showEmptyDocuments) {
+                            item {
+                                HomeEmptyState(
+                                    icon = painterResource(R.drawable.ic_clip),
+                                    text = stringResource(R.string.no_documents_home),
+                                    modifier = Modifier.background(backgroundDocuments)
+                                )
+                            }
+                        } else {
+                            itemDocumentsCompleteList(
+                                availableWidth = availableWidth,
+                                backgroundColor = backgroundDocuments,
+                                documents = state.documentCoverItems,
+                                onDocumentClick = navigateToDocumentDetail,
+                                bitmapCache = bitmapCache,
+                                onLoadBitmap = { viewModel.handleEvent(HomeEvent.OnImageDisplayed(it)) }
+                            )
+                        }
+
+                        item {
+                            Box(
+                                Modifier
+                                    .height(100.dp)
+                                    .fillMaxWidth()
+                                    .background(backgroundDocuments)
+                            )
+                        }
                     }
                 }
             }
@@ -561,4 +587,3 @@ private fun UnsavedDocumentCard(
         }
     }
 }
-

@@ -4,6 +4,7 @@ import android.net.Uri
 import es.pile.DocumentModel
 import es.pile.PileModel
 import es.pile.core.domain.models.DocumentCoverItem
+import es.pile.core.domain.models.SyncState
 import es.pile.core.ui.util.UiText
 
 
@@ -16,7 +17,8 @@ data class HomeState(
     val showDraftWarning: Boolean = false,
     val isLoadingNewDocument: Boolean = false,
     val isInitialLoading: Boolean = true,
-    val errorMessage: UiText? = null
+    val errorMessage: UiText? = null,
+    val syncState: SyncState = SyncState.Idle
 )
 
 sealed interface HomeEvent {
@@ -37,4 +39,5 @@ sealed interface HomeEvent {
     data object OnDismissDraftWarning : HomeEvent
 
     data object OnErrorDismissed : HomeEvent
+    data object OnRefreshSync : HomeEvent
 }
