@@ -10,8 +10,10 @@ import es.pile.core.domain.backup.BackupProvider
 import es.pile.core.domain.backup.BackupProviderInfo
 import es.pile.core.domain.backup.UserCancelledException
 import es.pile.core.domain.backup.toInfo
+import es.pile.core.domain.models.SyncState
 import es.pile.core.domain.repositories.BackupRepository
 import es.pile.core.domain.repositories.SettingsRepository
+import es.pile.core.domain.sync.SyncManager
 import es.pile.core.ui.util.UiText
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CompletableDeferred
@@ -29,7 +31,8 @@ import kotlin.math.pow
 
 class BackupViewModel(
     private val backupRepository: BackupRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val syncManager: SyncManager
 ) : ViewModel() {
 
     private val _state =
@@ -67,6 +70,15 @@ class BackupViewModel(
                 _state.update { it.copy(isLoading = false) }
             }
         }.launchIn(viewModelScope)
+
+        viewModelScope.launch {
+            syncManager.syncState.collect { syncState ->
+                _state.update { it.copy(syncState = syncState) }
+                if (syncState is SyncState.Success) {
+                    getSelectedProvider()?.let { loadStatus(it, updateLoading = false) }
+                }
+            }
+        }
     }
 
     private val onResolutionRequired: suspend (android.app.PendingIntent) -> Result<Intent> = { pendingIntent ->
@@ -81,7 +93,6 @@ class BackupViewModel(
             BackupEvent.OnNavigateToEncryption -> {}
 
             is BackupEvent.OnProviderSelected -> selectProvider(event.provider)
-            BackupEvent.OnSyncClicked -> sync()
             BackupEvent.OnCellularBackupToggled -> toggleCellularBackup()
             is BackupEvent.OnResolutionResult -> handleResolutionResult(event.result)
             BackupEvent.OnRetryAuthentication -> {
@@ -110,6 +121,7 @@ class BackupViewModel(
             BackupEvent.OnUrlNavigated -> {
                 _state.update { it.copy(navigateToUrl = null) }
             }
+            BackupEvent.OnSyncClicked -> syncManager.requestSync(force = true)
             is BackupEvent.OnEnterKeySubmitted -> {
                 _state.update { it.copy(enterKeyError = null) }
                 sync(tempKey = event.key)

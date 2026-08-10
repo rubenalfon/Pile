@@ -29,6 +29,7 @@ import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -66,6 +67,7 @@ import androidx.core.net.toUri
 import es.pile.R
 import es.pile.core.domain.backup.BackupProviderInfo
 import es.pile.core.domain.backup.UserCancelledException
+import es.pile.core.domain.models.SyncState
 import es.pile.core.ui.composables.LoadingWrapper
 import es.pile.core.ui.theme.PileTheme
 import es.pile.core.ui.util.BiometricHelper
@@ -112,6 +114,7 @@ fun BackupScreen(
                 BackupEvent.OnNavigateToEncryption -> {
                     runWithAuth { navigateToEncryptionSettings() }
                 }
+
                 else -> viewModel.handleEvent(event)
             }
         }
@@ -161,7 +164,7 @@ private fun BackupNoProviderPreview() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun BackupContent(
     state: BackupState,
@@ -181,9 +184,11 @@ fun BackupContent(
                     onEvent(BackupEvent.OnResolutionResult(Result.failure(Exception("Result OK but data is null"))))
                 }
             }
+
             android.app.Activity.RESULT_CANCELED -> {
                 onEvent(BackupEvent.OnResolutionResult(Result.failure(UserCancelledException())))
             }
+
             else -> {
                 onEvent(BackupEvent.OnResolutionResult(Result.failure(Exception("Result error: ${result.resultCode}"))))
             }
@@ -227,6 +232,10 @@ fun BackupContent(
         }
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
+            val isSyncing = state.syncState is SyncState.Syncing ||
+                    state.syncState is SyncState.Downloading ||
+                    state.syncState is SyncState.Uploading
+
             LoadingWrapper(state.isLoading) {
                 Column(
                     modifier = Modifier
@@ -260,9 +269,12 @@ fun BackupContent(
                                 Button(
                                     onClick = { onEvent(BackupEvent.OnSyncClicked) },
                                     modifier = Modifier.fillMaxWidth(),
-                                    enabled = !state.isSyncing
+                                    enabled = !isSyncing
                                 ) {
-                                    Icon(painterResource(R.drawable.sync_24px), contentDescription = null)
+                                    Icon(
+                                        painterResource(R.drawable.sync_24px),
+                                        contentDescription = null
+                                    )
                                     Spacer(Modifier.size(8.dp))
                                     Text(stringResource(R.string.sync_now))
                                 }
@@ -364,7 +376,7 @@ fun BackupContent(
                 }
             }
 
-            if (state.isSyncing && !state.isCheckingKey) {
+            if (isSyncing && !state.isCheckingKey) {
                 LinearProgressIndicator(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -456,7 +468,8 @@ fun ProviderSelector(
             Box {
                 val expandedString = stringResource(R.string.expanded)
                 val collapsedString = stringResource(R.string.collapsed)
-                val trailingButtonLabel = stringResource(R.string.trailing_button_content_description)
+                val trailingButtonLabel =
+                    stringResource(R.string.trailing_button_content_description)
                 SplitButtonDefaults.TonalTrailingButton(
                     checked = splitButtonExpanded,
                     onCheckedChange = { splitButtonExpanded = it },
@@ -605,7 +618,9 @@ private fun EnterRecoveryKeyDialog(
                 Text(stringResource(R.string.enter_recovery_key_message))
                 OutlinedTextField(
                     value = key,
-                    onValueChange = { key = it.lowercase().filter { c -> c in "0123456789abcdef" } },
+                    onValueChange = {
+                        key = it.lowercase().filter { c -> c in "0123456789abcdef" }
+                    },
                     label = { Text(stringResource(R.string.recovery_key_hint)) },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isCheckingKey,

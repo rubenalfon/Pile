@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import es.pile.core.domain.backup.BackupProviderInfo
 import es.pile.core.domain.models.BackupSyncStatus
+import es.pile.core.domain.models.SyncState
 import es.pile.core.ui.util.UiText
 
 data class BackupState(
@@ -26,7 +27,8 @@ data class BackupState(
     val isRecoveryKeyDialogVisible: Boolean = false,
     val isEnterKeyDialogVisible: Boolean = false,
     val enterKeyError: UiText? = null,
-    val masterKey: String? = null
+    val masterKey: String? = null,
+    val syncState: SyncState = SyncState.Idle
 )
 
 sealed interface BackupEvent {
