@@ -213,6 +213,11 @@
     <string name="show_recovery_key_subtitle">Ikusi zure kopia beste gailu batzuetan leheneratzeko beharrezko gakoa.</string>
     <string name="invalid_key_length">Gakoak 64 karaktere izan behar ditu</string>
     <string name="invalid_recovery_key">Berreskuratze-gako baliogabea. Egiaztatu gakoa eta saiatu berriro.</string>
+    <string name="last_sync_format">Azken sinkronizazioa: %1$s</string>
+    <string name="sync_status_up_to_date">Dena eguneratuta dago</string>
+    <string name="sync_status_pending">Fitxategi batzuk kargatzeko zain</string>
+    <string name="today">Gaur</string>
+    <string name="yesterday">Atzo</string>
     <string name="never">Inoiz ez</string>
     <string name="biometric_auth_title">Autentifikazioa beharrezkoa da</string>
     <string name="biometric_auth_subtitle">Mesedez, autentifikatu aurrera jarraitzeko</string>

@@ -23,9 +23,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.ByteArrayInputStream
-import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class BackupRepositoryImpl(
@@ -260,34 +258,27 @@ class BackupRepositoryImpl(
                 val remoteFiles = provider.listFiles().getOrThrow()
                 val metadataFile = remoteFiles.find { it.name == "backup_metadata.json" }
 
-                val lastBackupTime = metadataFile?.lastModified?.let { timestamp ->
-                    LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault())
-                        .format(dateTimeFormatter)
-                }
-
                 val localDocuments = documentModelRepository.getAllDocumentModels()
                 val remoteFileNames = remoteFiles.map { it.name }.toSet()
 
                 var missingCount = 0
                 for (doc in localDocuments) {
-                    if (fileRepository.getPDFFile(documentId = doc.id).name !in remoteFileNames) {
+                    val pdfFile = fileRepository.getPDFFile(documentId = doc.id)
+                    if (pdfFile.exists() && pdfFile.name !in remoteFileNames) {
                         missingCount++
                     }
                     for (imageId in doc.imageIds) {
-                        if (fileRepository.getImageFile(
-                                documentId = doc.id,
-                                imageId = imageId
-                            ).name !in remoteFileNames
-                        ) {
+                        val imageFile = fileRepository.getImageFile(documentId = doc.id, imageId = imageId)
+                        if (imageFile.exists() && imageFile.name !in remoteFileNames) {
                             missingCount++
                         }
                     }
                 }
 
                 BackupStats(
-                    lastBackupDateTime = lastBackupTime,
+                    lastBackupTimestamp = metadataFile?.lastModified,
                     missingLocalFilesCount = missingCount,
-                    totalRemoteFilesCount = remoteFiles.size
+                    totalRemoteFilesCount = (remoteFiles.size - (if (metadataFile != null) 1 else 0)).coerceAtLeast(0)
                 )
             }
         }

@@ -213,6 +213,11 @@
     <string name="show_recovery_key_subtitle">अन्य उपकरणों पर अपना बैकअप पुनर्स्थापित करने के लिए आवश्यक कुंजी देखें।</string>
     <string name="invalid_key_length">कुंजी 64 अक्षर लंबी होनी चाहिए</string>
     <string name="invalid_recovery_key">अमान्य रिकवरी कुंजी। कृपया कुंजी की जांच करें और पुन: प्रयास करें।</string>
+    <string name="last_sync_format">पिछला सिंक: %1$s</string>
+    <string name="sync_status_up_to_date">सब कुछ अप टू डेट है</string>
+    <string name="sync_status_pending">कुछ फ़ाइलों का बैकअप नहीं लिया गया है</string>
+    <string name="today">आज</string>
+    <string name="yesterday">कल</string>
     <string name="never">कभी नहीं</string>
     <string name="biometric_auth_title">प्रमाणीकरण आवश्यक है</string>
     <string name="biometric_auth_subtitle">जारी रखने के लिए कृपया प्रमाणित करें</string>

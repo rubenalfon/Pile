@@ -213,6 +213,11 @@
     <string name="show_recovery_key_subtitle">他のデバイスでバックアップを復元するために必要なキーを表示します。</string>
     <string name="invalid_key_length">キーは64文字である必要があります</string>
     <string name="invalid_recovery_key">無効なリカバリーキーです。キーを確認してもう一度お試しください。</string>
+    <string name="last_sync_format">最終同期: %1$s</string>
+    <string name="sync_status_up_to_date">すべて最新の状態です</string>
+    <string name="sync_status_pending">バックアップされていないファイルがあります</string>
+    <string name="today">今日</string>
+    <string name="yesterday">昨日</string>
     <string name="never">なし</string>
     <string name="biometric_auth_title">認証が必要です</string>
     <string name="biometric_auth_subtitle">続行するには認証してください</string>

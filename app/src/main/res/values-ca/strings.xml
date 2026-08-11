@@ -213,6 +213,11 @@
     <string name="show_recovery_key_subtitle">Mostra la clau necessària per restaurar la teva còpia en altres dispositius.</string>
     <string name="invalid_key_length">La clau ha de tenir 64 caràcters</string>
     <string name="invalid_recovery_key">Clau de recuperació no vàlida. Comprova la clau i torna-ho a provar.</string>
+    <string name="last_sync_format">Última sincro: %1$s</string>
+    <string name="sync_status_up_to_date">Tot està actualitzat</string>
+    <string name="sync_status_pending">Arxius pendents de pujar</string>
+    <string name="today">Avui</string>
+    <string name="yesterday">Ahir</string>
     <string name="never">Mai</string>
     <string name="biometric_auth_title">Autenticació requerida</string>
     <string name="biometric_auth_subtitle">Si us plau, autentiqueu-vos per continuar</string>

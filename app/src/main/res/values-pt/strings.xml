@@ -178,7 +178,7 @@
     <string name="onboarding_mail">Correio</string>
 
     <string name="backup_and_sync">Cópia de segurança e sincr.</string>
-    <string name="sync_now">Sincronizar ahora</string>
+    <string name="sync_now">Sincronizar agora</string>
     <string name="sync_successful">Sincronização bem-sucedida</string>
     <string name="sync_failed">Falha na sincronização</string>
     <string name="google_account">Conta Google</string>
@@ -213,6 +213,11 @@
     <string name="show_recovery_key_subtitle">Ver a chave necessária para restaurar a sua cópia em outros dispositivos.</string>
     <string name="invalid_key_length">A chave deve ter 64 caracteres</string>
     <string name="invalid_recovery_key">Chave de recuperação inválida. Verifique a chave e tente novamente.</string>
+    <string name="last_sync_format">Última sincronização: %1$s</string>
+    <string name="sync_status_up_to_date">Tudo está atualizado</string>
+    <string name="sync_status_pending">Alguns ficheiros não têm cópia de segurança</string>
+    <string name="today">Hoje</string>
+    <string name="yesterday">Ontem</string>
     <string name="never">Nunca</string>
     <string name="biometric_auth_title">Autenticação necessária</string>
     <string name="biometric_auth_subtitle">Por favor, autentique-se para continuar</string>

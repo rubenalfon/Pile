@@ -217,6 +217,11 @@
     <string name="show_recovery_key_subtitle">View the key needed to restore your backup on other devices.</string>
     <string name="invalid_key_length">Key must be 64 characters long</string>
     <string name="invalid_recovery_key">Invalid recovery key. Please check the key and try again.</string>
+    <string name="last_sync_format">Last sync: %1$s</string>
+    <string name="sync_status_up_to_date">Everything is up to date</string>
+    <string name="sync_status_pending">Some files are not backed up</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
     <string name="never">Never</string>
 
     <string name="biometric_auth_title">Authentication required</string>

@@ -7,15 +7,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -67,6 +71,7 @@ import androidx.core.net.toUri
 import es.pile.R
 import es.pile.core.domain.backup.BackupProviderInfo
 import es.pile.core.domain.backup.UserCancelledException
+import es.pile.core.domain.models.BackupStats
 import es.pile.core.domain.models.SyncState
 import es.pile.core.ui.composables.LoadingWrapper
 import es.pile.core.ui.theme.PileTheme
@@ -79,6 +84,11 @@ import es.pile.features.settings.ui.composables.SettingsSection
 import es.pile.features.settings.ui.composables.SettingsTopBar
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 
 @Composable
@@ -264,6 +274,10 @@ fun BackupContent(
                             SyncDisabledEmptyState()
                         } else {
                             Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                state.backupStats?.let { stats ->
+                                    BackupStatusCard(stats = stats)
+                                }
+
                                 // Sync button
                                 Button(
                                     onClick = { onEvent(BackupEvent.OnSyncClicked) },
@@ -683,4 +697,93 @@ private fun DisableBackupAlert(
             }
         }
     )
+}
+
+@Composable
+private fun BackupStatusCard(
+    stats: BackupStats,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val lastSyncText = remember(stats.lastBackupTimestamp) {
+        formatLastSync(stats.lastBackupTimestamp, context)
+    }
+
+    val isUpToDate = stats.missingLocalFilesCount == 0
+    val statusSummary = if (isUpToDate) {
+        stringResource(R.string.sync_status_up_to_date)
+    } else {
+        stringResource(R.string.sync_status_pending)
+    }
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(
+                        color = if (isUpToDate) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                        else MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(
+                        if (isUpToDate) R.drawable.check_24px else R.drawable.warning_24px
+                    ),
+                    contentDescription = null,
+                    tint = if (isUpToDate) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Column {
+                Text(
+                    text = statusSummary,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = if (isUpToDate) MaterialTheme.colorScheme.onSurface
+                    else MaterialTheme.colorScheme.error
+                )
+                Text(
+                    text = lastSyncText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+private fun formatLastSync(timestamp: Long?, context: android.content.Context): String {
+    if (timestamp == null) return context.getString(R.string.never)
+
+    val lastSync = Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).toLocalDateTime()
+    val today = LocalDate.now()
+    val lastSyncDate = lastSync.toLocalDate()
+
+    val timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+    val timeStr = lastSync.format(timeFormatter)
+
+    val dateStr = when {
+        lastSyncDate == today -> context.getString(R.string.today)
+        lastSyncDate == today.minusDays(1) -> context.getString(R.string.yesterday)
+        else -> {
+            val dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+            lastSync.format(dateFormatter)
+        }
+    }
+
+    return context.getString(R.string.last_sync_format, "$dateStr, $timeStr")
 }

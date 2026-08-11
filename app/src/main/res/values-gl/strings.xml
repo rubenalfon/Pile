@@ -213,6 +213,11 @@
     <string name="show_recovery_key_subtitle">Ver a clave necesaria para restaurar a túa copia noutros dispositivos.</string>
     <string name="invalid_key_length">A chave debe ter 64 caracteres</string>
     <string name="invalid_recovery_key">Chave de recuperación incorrecta. Compróbaa e inténtao de novo.</string>
+    <string name="last_sync_format">Última sincro: %1$s</string>
+    <string name="sync_status_up_to_date">Todo está actualizado</string>
+    <string name="sync_status_pending">Ficheiros pendentes de subir</string>
+    <string name="today">Hoxe</string>
+    <string name="yesterday">Onte</string>
     <string name="never">Nunca</string>
     <string name="biometric_auth_title">Autenticación requirida</string>
     <string name="biometric_auth_subtitle">Por favor, autentíquese para continuar</string>
