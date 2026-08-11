@@ -44,13 +44,13 @@ class BackupViewModel(
 
     init {
         settingsRepository.userSettings.onEach { settings ->
-            val provider = backupRepository.availableProviders.find { 
-                it.name == settings.selectedBackupProviderName 
+            val provider = backupRepository.availableProviders.find {
+                it.name == settings.selectedBackupProviderName
             }
-            
+
             val oldSelectedProviderName = state.value.selectedProvider?.name
 
-            _state.update { 
+            _state.update {
                 it.copy(
                     selectedProvider = provider?.toInfo(),
                     backupUsingCellular = settings.isBackupOverCellularEnabled,
@@ -74,18 +74,32 @@ class BackupViewModel(
         viewModelScope.launch {
             syncManager.syncState.collect { syncState ->
                 _state.update { it.copy(syncState = syncState) }
-                if (syncState is SyncState.Success) {
-                    getSelectedProvider()?.let { loadStatus(it, updateLoading = false) }
+
+                when (syncState) {
+                    is SyncState.Success -> {
+                        getSelectedProvider()?.let { loadStatus(it, updateLoading = false) }
+                    }
+                    SyncState.InvalidKey -> {
+                        _state.update {
+                            it.copy(
+                                isEnterKeyDialogVisible = true,
+                                enterKeyError = UiText.StringResource(R.string.invalid_recovery_key)
+                            )
+                        }
+                    }
+
+                    else -> {}
                 }
             }
         }
     }
 
-    private val onResolutionRequired: suspend (android.app.PendingIntent) -> Result<Intent> = { pendingIntent ->
-        resolutionDeferred = CompletableDeferred()
-        _state.update { it.copy(pendingResolution = pendingIntent) }
-        resolutionDeferred!!.await()
-    }
+    private val onResolutionRequired: suspend (android.app.PendingIntent) -> Result<Intent> =
+        { pendingIntent ->
+            resolutionDeferred = CompletableDeferred()
+            _state.update { it.copy(pendingResolution = pendingIntent) }
+            resolutionDeferred!!.await()
+        }
 
     fun handleEvent(event: BackupEvent) {
         when (event) {
@@ -97,35 +111,52 @@ class BackupViewModel(
             is BackupEvent.OnResolutionResult -> handleResolutionResult(event.result)
             BackupEvent.OnRetryAuthentication -> {
                 _state.update { it.copy(isAuthErrorAlertVisible = false) }
-                getSelectedProvider()?.let { authenticateAndSelectProvider(it, isInitialRestore = false) }
+                getSelectedProvider()?.let {
+                    authenticateAndSelectProvider(
+                        it,
+                        isInitialRestore = false
+                    )
+                }
             }
+
             BackupEvent.OnCancelAuthentication -> {
                 _state.update { it.copy(isAuthErrorAlertVisible = false) }
                 disableBackup()
             }
+
             BackupEvent.OnSwitchAccountClicked -> {
                 _state.update { it.copy(isAccountPickerVisible = true) }
             }
+
             is BackupEvent.OnAccountSelected -> {
                 _state.update { it.copy(isAccountPickerVisible = false) }
                 val email = event.email
                 if (email != null) {
-                    getSelectedProvider()?.let { 
-                        authenticateAndSelectProvider(it, isInitialRestore = false, selectedAccountEmail = email) 
+                    getSelectedProvider()?.let {
+                        authenticateAndSelectProvider(
+                            it,
+                            isInitialRestore = false,
+                            selectedAccountEmail = email
+                        )
                     }
                 }
             }
+
             BackupEvent.OnManageStorageClicked -> {
                 _state.update { it.copy(navigateToUrl = UiText.StringResource(R.string.google_manage_storage_url)) }
             }
+
             BackupEvent.OnUrlNavigated -> {
                 _state.update { it.copy(navigateToUrl = null) }
             }
+
             BackupEvent.OnSyncClicked -> syncManager.requestSync(force = true)
+
             is BackupEvent.OnEnterKeySubmitted -> {
                 _state.update { it.copy(enterKeyError = null) }
-                sync(tempKey = event.key)
+                syncWithKey(event.key)
             }
+
             BackupEvent.OnDismissEnterKeyDialog -> {
                 _state.update { it.copy(isEnterKeyDialogVisible = false, enterKeyError = null) }
             }
@@ -152,14 +183,20 @@ class BackupViewModel(
     }
 
     private fun authenticateAndSelectProvider(
-        provider: BackupProvider, 
+        provider: BackupProvider,
         isInitialRestore: Boolean,
         selectedAccountEmail: String? = null
     ) {
         authJob?.cancel()
-        
+
         authJob = viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, error = null, isAuthErrorAlertVisible = false) }
+            _state.update {
+                it.copy(
+                    isLoading = true,
+                    syncState = SyncState.Idle,
+                    isAuthErrorAlertVisible = false
+                )
+            }
 
             provider.authenticate(
                 onResolutionRequired = onResolutionRequired,
@@ -168,12 +205,12 @@ class BackupViewModel(
                 if (!isInitialRestore) {
                     settingsRepository.updateSelectedBackupProvider(provider.name)
                 }
-                
+
                 // Coordination: load all data before showing the UI
                 val statusResult = backupRepository.getSyncStatus(provider)
                 val accountResult = provider.getAccountInfo()
                 val storageResult = provider.getStorageInfo()
-                
+
                 _state.update {
                     it.copy(
                         selectedProvider = provider.toInfo(),
@@ -183,7 +220,12 @@ class BackupViewModel(
                             val totalStr = formatSize(storage.totalBytes)
                             val usedStr = formatSize(storage.usedBytes)
                             val appUsedStr = formatSize(storage.appUsedBytes)
-                            UiText.StringResource(R.string.storage_usage_format, usedStr, totalStr, appUsedStr)
+                            UiText.StringResource(
+                                R.string.storage_usage_format,
+                                usedStr,
+                                totalStr,
+                                appUsedStr
+                            )
                         },
                         isLoading = false,
                         isAuthErrorAlertVisible = false,
@@ -195,15 +237,20 @@ class BackupViewModel(
                     _state.update { it.copy(isLoading = false) }
                     return@onFailure
                 }
-                
+
                 Napier.e { "Authentication failed: ${e.message}" }
-                _state.update { 
+                _state.update {
                     it.copy(
-                        isLoading = false, 
+                        isLoading = false,
                         isAuthErrorAlertVisible = true,
-                        error = UiText.StringResource(R.string.login_error_format, e.message ?: ""),
+                        syncState = SyncState.Error(
+                            UiText.StringResource(
+                                R.string.login_error_format,
+                                e.message ?: ""
+                            )
+                        ),
                         selectedProvider = provider.toInfo()
-                    ) 
+                    )
                 }
             }
         }
@@ -236,17 +283,15 @@ class BackupViewModel(
         return DecimalFormat("#,##0.#").format(bytes / 1024.0.pow(digitGroups.toDouble())) + " " + units[digitGroups]
     }
 
-    private fun sync(tempKey: String? = null) {
+    private fun syncWithKey(tempKey: String) {
         val provider = getSelectedProvider() ?: return
 
         viewModelScope.launch {
-            _state.update { 
+            _state.update {
                 it.copy(
-                    isSyncing = true, 
-                    isCheckingKey = tempKey != null,
-                    error = null, 
-                    successMessage = null 
-                ) 
+                    syncState = SyncState.Syncing,
+                    isCheckingKey = true
+                )
             }
 
             provider.authenticate(
@@ -254,32 +299,35 @@ class BackupViewModel(
             ).onSuccess {
                 backupRepository.sync(provider, tempKey)
                     .onSuccess {
-                        if (tempKey != null) {
-                            settingsRepository.saveBackupMasterKey(tempKey)
-                            settingsRepository.updateBackupEncryption(true)
-                            _state.update { it.copy(isEnterKeyDialogVisible = false) }
-                        }
-
+                        settingsRepository.saveBackupMasterKey(tempKey)
+                        settingsRepository.updateBackupEncryption(true)
                         _state.update {
                             it.copy(
-                                isSyncing = false,
+                                isEnterKeyDialogVisible = false,
                                 isCheckingKey = false,
-                                successMessage = UiText.StringResource(R.string.sync_successful),
+                                syncState = SyncState.Success(System.currentTimeMillis()),
                                 pendingResolution = null
                             )
                         }
+                        syncManager.requestSync(force = true)
                         loadStatus(provider, updateLoading = false)
                     }
                     .onFailure { e ->
                         when (e) {
                             is EncryptionKeyRequiredException -> {
-                                _state.update { it.copy(isSyncing = false, isCheckingKey = false, isEnterKeyDialogVisible = true) }
+                                _state.update {
+                                    it.copy(
+                                        syncState = SyncState.Idle,
+                                        isCheckingKey = false,
+                                        isEnterKeyDialogVisible = true
+                                    )
+                                }
                             }
 
                             is InvalidEncryptionKeyException -> {
                                 _state.update {
                                     it.copy(
-                                        isSyncing = false,
+                                        syncState = SyncState.Idle,
                                         isCheckingKey = false,
                                         isEnterKeyDialogVisible = true,
                                         enterKeyError = UiText.StringResource(R.string.invalid_recovery_key)
@@ -290,9 +338,12 @@ class BackupViewModel(
                             else -> {
                                 _state.update {
                                     it.copy(
-                                        isSyncing = false,
+                                        syncState = SyncState.Error(
+                                            UiText.DynamicString(
+                                                e.message ?: ""
+                                            )
+                                        ),
                                         isCheckingKey = false,
-                                        error = UiText.DynamicString(e.message ?: ""),
                                         pendingResolution = null
                                     )
                                 }
@@ -302,9 +353,8 @@ class BackupViewModel(
             }.onFailure { _ ->
                 _state.update {
                     it.copy(
-                        isSyncing = false,
+                        syncState = SyncState.Error(UiText.StringResource(R.string.authentication_failed)),
                         isCheckingKey = false,
-                        error = UiText.StringResource(R.string.authentication_failed),
                         pendingResolution = null
                     )
                 }
@@ -327,7 +377,7 @@ class BackupViewModel(
                 .onFailure { e ->
                     _state.update {
                         it.copy(
-                            error = UiText.DynamicString(e.message ?: ""),
+                            syncState = SyncState.Error(UiText.DynamicString(e.message ?: "")),
                             isLoading = if (updateLoading) false else it.isLoading
                         )
                     }

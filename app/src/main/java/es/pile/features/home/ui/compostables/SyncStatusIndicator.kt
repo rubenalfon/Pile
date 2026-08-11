@@ -33,6 +33,7 @@ private fun SyncStatusIndicatorPreview() {
         "Uploading" to SyncState.Uploading,
         "Downloading" to SyncState.Downloading,
         "Success" to SyncState.Success(System.currentTimeMillis()),
+        "Invalid Key" to SyncState.InvalidKey,
         "Error" to SyncState.Error(UiText.DynamicString("Error"))
     )
 
@@ -87,11 +88,11 @@ fun SyncStatusIndicator(
                 SyncState.Syncing -> painterResource(R.drawable.sync_24px)
                 SyncState.Uploading -> painterResource(R.drawable.backup)
                 SyncState.Downloading -> painterResource(R.drawable.download_24px)
-                is SyncState.Error -> painterResource(R.drawable.sync_disabled_24px)
+                is SyncState.Error, SyncState.InvalidKey -> painterResource(R.drawable.sync_disabled_24px)
             }
 
             val tint = when (syncState) {
-                is SyncState.Error -> MaterialTheme.colorScheme.error
+                is SyncState.Error, SyncState.InvalidKey -> MaterialTheme.colorScheme.error
                 SyncState.NoProvider -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 SyncState.Idle, is SyncState.Success -> MaterialTheme.colorScheme.primary.copy(
                     alpha = 0.7f

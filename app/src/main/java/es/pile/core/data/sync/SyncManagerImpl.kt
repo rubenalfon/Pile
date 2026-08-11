@@ -52,15 +52,26 @@ class SyncManagerImpl(
                 val info = workInfos.firstOrNull() ?: return@onEach
                 when (info.state) {
                     WorkInfo.State.RUNNING -> {
-                        val stateStr = info.progress.getString("STATE")
+                        val stateStr = info.progress.getString(SyncWorker.PROGRESS_STATE_KEY)
                         _syncState.value = when (stateStr) {
-                            "DOWNLOADING" -> SyncState.Downloading
-                            "UPLOADING" -> SyncState.Uploading
+                            SyncWorker.STATE_DOWNLOADING -> SyncState.Downloading
+                            SyncWorker.STATE_UPLOADING -> SyncState.Uploading
                             else -> SyncState.Syncing
                         }
                     }
+
                     WorkInfo.State.SUCCEEDED -> checkProviderAndSetIdle()
-                    WorkInfo.State.FAILED -> _syncState.value = SyncState.Error(UiText.DynamicString("Sync failed"))
+
+                    WorkInfo.State.FAILED -> {
+                        val errorType = info.outputData.getString(SyncWorker.ERROR_TYPE_KEY)
+                        val errorMessage = info.outputData.getString(SyncWorker.ERROR_MESSAGE_KEY) ?: "Sync failed"
+                        
+                        _syncState.value = when (errorType) {
+                            SyncWorker.ERROR_TYPE_KEY_REQUIRED -> SyncState.KeyRequired
+                            SyncWorker.ERROR_TYPE_INVALID_KEY -> SyncState.InvalidKey
+                            else -> SyncState.Error(UiText.DynamicString(errorMessage))
+                        }
+                    }
                     else -> {}
                 }
             }.launchIn(externalScope)

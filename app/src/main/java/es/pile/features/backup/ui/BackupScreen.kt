@@ -134,7 +134,7 @@ private fun BackupGoogleDrivePreview() {
         BackupContent(
             state = BackupState(
                 isLoading = false,
-                error = UiText.DynamicString("mal"),
+                syncState = SyncState.Error(UiText.DynamicString("mal")),
                 selectedProvider = mockProvider,
                 availableProviders = listOf(mockProvider)
             ),
@@ -345,34 +345,37 @@ fun BackupContent(
                         )
                     }
 
-                    if (state.error != null || state.successMessage != null) { // TODO: Debug
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = if (state.error != null)
-                                    MaterialTheme.colorScheme.errorContainer
-                                else
-                                    MaterialTheme.colorScheme.primaryContainer
-                            )
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                state.error?.let {
-                                    Text(
-                                        text = it.asString(),
-                                        color = MaterialTheme.colorScheme.onErrorContainer,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
-                                state.successMessage?.let {
-                                    Text(
-                                        text = it.asString(),
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
+                        if (state.syncState is SyncState.Error || state.syncState is SyncState.Success) {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (state.syncState is SyncState.Error)
+                                        MaterialTheme.colorScheme.errorContainer
+                                    else
+                                        MaterialTheme.colorScheme.primaryContainer
+                                )
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    when (val syncState = state.syncState) {
+                                        is SyncState.Error -> {
+                                            Text(
+                                                text = syncState.message.asString(),
+                                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+                                        is SyncState.Success -> {
+                                            Text(
+                                                text = stringResource(R.string.sync_successful),
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+                                        else -> {}
+                                    }
                                 }
                             }
                         }
-                    }
                 }
             }
 

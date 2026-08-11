@@ -272,7 +272,7 @@ fun HomeScreen(
                         state = listState
                     ) {
                         item { Spacer(Modifier.height(8.dp)) }
-                        
+
                         item {
                             val tempDocument = state.temporaryDocument
                             AnimatedVisibility(
