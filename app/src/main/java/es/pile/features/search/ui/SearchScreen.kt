@@ -9,9 +9,11 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.horizontalScroll
@@ -96,6 +98,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -417,13 +420,33 @@ private fun SearchInputField(
                 }
             }
         },
-        trailingIcon = { // TODO: Si el estado es idle, ocultar en 5 secs.
+        trailingIcon = {
             AnimatedVisibility(!expanded, enter = fadeIn(), exit = fadeOut()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    SyncStatusIndicator(
-                        state = syncState,
-                        onClick = onSyncClick
-                    )
+                    var isSyncIndicatorVisible by remember {
+                        mutableStateOf(syncState !is SyncState.Idle && syncState !is SyncState.Success)
+                    }
+
+                    LaunchedEffect(syncState) {
+                        if (syncState is SyncState.Idle || syncState is SyncState.Success) {
+                            delay(5.seconds)
+                            isSyncIndicatorVisible = false
+                        } else {
+                            isSyncIndicatorVisible = true
+                        }
+                    }
+
+                    AnimatedVisibility(
+                        visible = isSyncIndicatorVisible,
+                        enter = fadeIn() + expandHorizontally(),
+                        exit = fadeOut() + shrinkHorizontally()
+                    ) {
+                        SyncStatusIndicator(
+                            state = syncState,
+                            onClick = onSyncClick
+                        )
+                    }
+
                     IconButton(
                         onClick = onSettingsClick
                     ) {
