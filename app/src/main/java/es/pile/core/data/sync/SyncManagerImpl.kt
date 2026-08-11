@@ -67,7 +67,6 @@ class SyncManagerImpl(
                         val errorMessage = info.outputData.getString(SyncWorker.ERROR_MESSAGE_KEY) ?: "Sync failed"
                         
                         _syncState.value = when (errorType) {
-                            SyncWorker.ERROR_TYPE_KEY_REQUIRED -> SyncState.KeyRequired
                             SyncWorker.ERROR_TYPE_INVALID_KEY -> SyncState.InvalidKey
                             else -> SyncState.Error(UiText.DynamicString(errorMessage))
                         }

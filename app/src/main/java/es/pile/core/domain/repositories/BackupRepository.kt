@@ -1,7 +1,7 @@
 package es.pile.core.domain.repositories
 
 import es.pile.core.domain.backup.BackupProvider
-import es.pile.core.domain.models.BackupSyncStatus
+import es.pile.core.domain.models.BackupStats
 import es.pile.core.domain.models.SyncState
 
 /**
@@ -28,7 +28,7 @@ interface BackupRepository {
     ): Result<Unit>
 
     /**
-     * Analyzes the state of local vs cloud files to determine sync status.
+     * Analyzes the state of local vs cloud files to determine backup statistics.
      */
-    suspend fun getSyncStatus(provider: BackupProvider): Result<BackupSyncStatus>
+    suspend fun getBackupStats(provider: BackupProvider): Result<BackupStats>
 }

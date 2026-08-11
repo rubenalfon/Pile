@@ -28,11 +28,13 @@ import es.pile.core.ui.util.UiText
 private fun SyncStatusIndicatorPreview() {
     val states = listOf(
         "Idle" to SyncState.Idle,
+        "Success" to SyncState.Success(System.currentTimeMillis()),
         "No Provider" to SyncState.NoProvider,
         "Syncing" to SyncState.Syncing,
         "Uploading" to SyncState.Uploading,
         "Downloading" to SyncState.Downloading,
-        "Success" to SyncState.Success(System.currentTimeMillis()),
+        "Verifying Key" to SyncState.VerifyingKey,
+        "Key Required" to SyncState.KeyRequired,
         "Invalid Key" to SyncState.InvalidKey,
         "Error" to SyncState.Error(UiText.DynamicString("Error"))
     )
@@ -66,8 +68,7 @@ fun SyncStatusIndicator(
     modifier: Modifier = Modifier
 ) {
     IconButton(onClick = onClick, modifier = modifier) {
-        val isSyncing =
-            state is SyncState.Syncing || state is SyncState.Uploading || state is SyncState.Downloading
+        val isSyncing = state.isSyncing
 
         if (isSyncing) {
             CircularProgressIndicator(
@@ -86,13 +87,14 @@ fun SyncStatusIndicator(
                 SyncState.Idle, is SyncState.Success -> painterResource(R.drawable.check_24px)
                 SyncState.NoProvider -> painterResource(R.drawable.sync_disabled_24px)
                 SyncState.Syncing -> painterResource(R.drawable.sync_24px)
+                SyncState.VerifyingKey -> painterResource(R.drawable.sync_24px)
                 SyncState.Uploading -> painterResource(R.drawable.backup)
                 SyncState.Downloading -> painterResource(R.drawable.download_24px)
-                is SyncState.Error, SyncState.InvalidKey -> painterResource(R.drawable.sync_disabled_24px)
+                is SyncState.Error, SyncState.InvalidKey, SyncState.KeyRequired -> painterResource(R.drawable.sync_disabled_24px)
             }
 
             val tint = when (syncState) {
-                is SyncState.Error, SyncState.InvalidKey -> MaterialTheme.colorScheme.error
+                is SyncState.Error, SyncState.InvalidKey, SyncState.KeyRequired -> MaterialTheme.colorScheme.error
                 SyncState.NoProvider -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 SyncState.Idle, is SyncState.Success -> MaterialTheme.colorScheme.primary.copy(
                     alpha = 0.7f

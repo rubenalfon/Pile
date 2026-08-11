@@ -69,6 +69,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -160,7 +161,7 @@ fun SearchScreenPreview() {
                 pileList = listOf(PileModel("1", "Pilas", "icon", 0xFF0000L, LocalDateTime.now()))
             ),
             bitmapCache = emptyMap(),
-            expanded = true,
+            expanded = false,
             onExpandedChange = {},
             onSettingsClick = {},
             onEvent = {},
@@ -378,7 +379,13 @@ private fun SearchInputField(
         onSearch = { onSearch() },
         expanded = expanded,
         onExpandedChange = onExpandedChange,
-        placeholder = { Text(stringResource(R.string.search_your_documents)) },
+        placeholder = {
+            Text(
+                text = stringResource(R.string.search_your_documents),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
         leadingIcon = {
             Crossfade(
                 targetState = expanded,
@@ -410,7 +417,7 @@ private fun SearchInputField(
                 }
             }
         },
-        trailingIcon = {
+        trailingIcon = { // TODO: Si el estado es idle, ocultar en 5 secs.
             AnimatedVisibility(!expanded, enter = fadeIn(), exit = fadeOut()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     SyncStatusIndicator(

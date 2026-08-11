@@ -3,7 +3,7 @@ package es.pile.features.backup.ui
 import android.app.PendingIntent
 import android.content.Intent
 import es.pile.core.domain.backup.BackupProviderInfo
-import es.pile.core.domain.models.BackupSyncStatus
+import es.pile.core.domain.models.BackupStats
 import es.pile.core.domain.models.SyncState
 import es.pile.core.ui.util.UiText
 
@@ -15,16 +15,12 @@ data class BackupState(
     val storageUsage: UiText? = null,
     val backupUsingCellular: Boolean = false,
     val isEncryptionOn: Boolean = false,
-    val syncStatus: BackupSyncStatus? = null,
+    val backupStats: BackupStats? = null,
     val pendingResolution: PendingIntent? = null,
     val isAuthErrorAlertVisible: Boolean = false,
-    val isCheckingKey: Boolean = false,
     val navigateToUrl: UiText? = null,
     val isAccountPickerVisible: Boolean = false,
-    val isRecoveryKeyDialogVisible: Boolean = false,
     val isEnterKeyDialogVisible: Boolean = false,
-    val enterKeyError: UiText? = null,
-    val masterKey: String? = null,
     val syncState: SyncState = SyncState.Idle
 )
 

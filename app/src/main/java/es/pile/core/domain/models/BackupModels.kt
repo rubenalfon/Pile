@@ -1,9 +1,9 @@
 package es.pile.core.domain.models
 
 /**
- * Represents the synchronization state between local and cloud storage.
+ * Represents statistics about the backup health and counts.
  */
-data class BackupSyncStatus(
+data class BackupStats(
     val lastBackupDateTime: String?,
     val missingLocalFilesCount: Int,
     val totalRemoteFilesCount: Int

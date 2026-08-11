@@ -232,9 +232,8 @@ fun BackupContent(
         }
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
-            val isSyncing = state.syncState is SyncState.Syncing ||
-                    state.syncState is SyncState.Downloading ||
-                    state.syncState is SyncState.Uploading
+            val isSyncing = state.syncState.isSyncing
+            val isVerifyingKey = state.syncState is SyncState.VerifyingKey
 
             LoadingWrapper(state.isLoading) {
                 Column(
@@ -337,49 +336,50 @@ fun BackupContent(
                     }
 
                     if (state.isEnterKeyDialogVisible) {
+                        val dialogError = if (state.syncState is SyncState.InvalidKey) {
+                            stringResource(R.string.invalid_recovery_key)
+                        } else null
+
                         EnterRecoveryKeyDialog(
-                            error = state.enterKeyError,
-                            isCheckingKey = state.isCheckingKey,
+                            error = dialogError?.let { UiText.DynamicString(it) },
+                            isCheckingKey = isVerifyingKey,
                             onConfirm = { onEvent(BackupEvent.OnEnterKeySubmitted(it)) },
                             onDismiss = { onEvent(BackupEvent.OnDismissEnterKeyDialog) }
                         )
                     }
 
-                        if (state.syncState is SyncState.Error || state.syncState is SyncState.Success) {
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = if (state.syncState is SyncState.Error)
-                                        MaterialTheme.colorScheme.errorContainer
-                                    else
-                                        MaterialTheme.colorScheme.primaryContainer
-                                )
-                            ) {
-                                Column(modifier = Modifier.padding(16.dp)) {
-                                    when (val syncState = state.syncState) {
-                                        is SyncState.Error -> {
-                                            Text(
-                                                text = syncState.message.asString(),
-                                                color = MaterialTheme.colorScheme.onErrorContainer,
-                                                style = MaterialTheme.typography.bodyMedium
-                                            )
-                                        }
-                                        is SyncState.Success -> {
-                                            Text(
-                                                text = stringResource(R.string.sync_successful),
-                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                                style = MaterialTheme.typography.bodyMedium
-                                            )
-                                        }
-                                        else -> {}
-                                    }
+                    val errorMessage = state.syncState.errorMessage
+                    if (errorMessage != null || state.syncState is SyncState.Success) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (errorMessage != null)
+                                    MaterialTheme.colorScheme.errorContainer
+                                else
+                                    MaterialTheme.colorScheme.primaryContainer
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                if (errorMessage != null) {
+                                    Text(
+                                        text = errorMessage.asString(),
+                                        color = MaterialTheme.colorScheme.onErrorContainer,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                } else if (state.syncState is SyncState.Success) {
+                                    Text(
+                                        text = stringResource(R.string.sync_successful),
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
                                 }
                             }
                         }
+                    }
                 }
             }
 
-            if (isSyncing && !state.isCheckingKey) {
+            if (isSyncing && !isVerifyingKey) {
                 LinearProgressIndicator(
                     modifier = Modifier
                         .fillMaxWidth()

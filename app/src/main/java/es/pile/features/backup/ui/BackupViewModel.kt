@@ -4,7 +4,6 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.pile.R
-import es.pile.core.data.backup.EncryptionKeyRequiredException
 import es.pile.core.data.backup.InvalidEncryptionKeyException
 import es.pile.core.domain.backup.BackupProvider
 import es.pile.core.domain.backup.BackupProviderInfo
@@ -79,12 +78,10 @@ class BackupViewModel(
                     is SyncState.Success -> {
                         getSelectedProvider()?.let { loadStatus(it, updateLoading = false) }
                     }
+
                     SyncState.InvalidKey -> {
                         _state.update {
-                            it.copy(
-                                isEnterKeyDialogVisible = true,
-                                enterKeyError = UiText.StringResource(R.string.invalid_recovery_key)
-                            )
+                            it.copy(isEnterKeyDialogVisible = true)
                         }
                     }
 
@@ -145,20 +142,16 @@ class BackupViewModel(
             BackupEvent.OnManageStorageClicked -> {
                 _state.update { it.copy(navigateToUrl = UiText.StringResource(R.string.google_manage_storage_url)) }
             }
-
             BackupEvent.OnUrlNavigated -> {
                 _state.update { it.copy(navigateToUrl = null) }
             }
 
             BackupEvent.OnSyncClicked -> syncManager.requestSync(force = true)
-
             is BackupEvent.OnEnterKeySubmitted -> {
-                _state.update { it.copy(enterKeyError = null) }
                 syncWithKey(event.key)
             }
-
             BackupEvent.OnDismissEnterKeyDialog -> {
-                _state.update { it.copy(isEnterKeyDialogVisible = false, enterKeyError = null) }
+                _state.update { it.copy(isEnterKeyDialogVisible = false) }
             }
         }
     }
@@ -207,14 +200,12 @@ class BackupViewModel(
                 }
 
                 // Coordination: load all data before showing the UI
-                val statusResult = backupRepository.getSyncStatus(provider)
                 val accountResult = provider.getAccountInfo()
                 val storageResult = provider.getStorageInfo()
 
                 _state.update {
                     it.copy(
                         selectedProvider = provider.toInfo(),
-                        syncStatus = statusResult.getOrNull(),
                         accountEmail = accountResult.getOrNull()?.email,
                         storageUsage = storageResult.getOrNull()?.let { storage ->
                             val totalStr = formatSize(storage.totalBytes)
@@ -270,7 +261,6 @@ class BackupViewModel(
                 selectedProvider = null,
                 accountEmail = null,
                 storageUsage = null,
-                syncStatus = null,
                 isLoading = false
             )
         }
@@ -288,10 +278,7 @@ class BackupViewModel(
 
         viewModelScope.launch {
             _state.update {
-                it.copy(
-                    syncState = SyncState.Syncing,
-                    isCheckingKey = true
-                )
+                it.copy(syncState = SyncState.VerifyingKey)
             }
 
             provider.authenticate(
@@ -304,7 +291,6 @@ class BackupViewModel(
                         _state.update {
                             it.copy(
                                 isEnterKeyDialogVisible = false,
-                                isCheckingKey = false,
                                 syncState = SyncState.Success(System.currentTimeMillis()),
                                 pendingResolution = null
                             )
@@ -314,23 +300,11 @@ class BackupViewModel(
                     }
                     .onFailure { e ->
                         when (e) {
-                            is EncryptionKeyRequiredException -> {
-                                _state.update {
-                                    it.copy(
-                                        syncState = SyncState.Idle,
-                                        isCheckingKey = false,
-                                        isEnterKeyDialogVisible = true
-                                    )
-                                }
-                            }
-
                             is InvalidEncryptionKeyException -> {
                                 _state.update {
                                     it.copy(
-                                        syncState = SyncState.Idle,
-                                        isCheckingKey = false,
-                                        isEnterKeyDialogVisible = true,
-                                        enterKeyError = UiText.StringResource(R.string.invalid_recovery_key)
+                                        syncState = SyncState.InvalidKey,
+                                        isEnterKeyDialogVisible = true
                                     )
                                 }
                             }
@@ -343,7 +317,6 @@ class BackupViewModel(
                                                 e.message ?: ""
                                             )
                                         ),
-                                        isCheckingKey = false,
                                         pendingResolution = null
                                     )
                                 }
@@ -354,7 +327,6 @@ class BackupViewModel(
                 _state.update {
                     it.copy(
                         syncState = SyncState.Error(UiText.StringResource(R.string.authentication_failed)),
-                        isCheckingKey = false,
                         pendingResolution = null
                     )
                 }
@@ -365,11 +337,11 @@ class BackupViewModel(
     private fun loadStatus(provider: BackupProvider, updateLoading: Boolean = true) {
         viewModelScope.launch {
             if (updateLoading) _state.update { it.copy(isLoading = true) }
-            backupRepository.getSyncStatus(provider)
-                .onSuccess { status ->
+            backupRepository.getBackupStats(provider)
+                .onSuccess { stats ->
                     _state.update {
                         it.copy(
-                            syncStatus = status, //todo how to show in the ui?
+                            backupStats = stats,
                             isLoading = if (updateLoading) false else it.isLoading
                         )
                     }

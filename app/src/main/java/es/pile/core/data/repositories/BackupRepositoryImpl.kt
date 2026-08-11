@@ -10,7 +10,7 @@ import es.pile.core.data.backup.models.PileModelDto
 import es.pile.core.domain.backup.BackupEncryptor
 import es.pile.core.domain.backup.BackupProvider
 import es.pile.core.domain.backup.RemoteFile
-import es.pile.core.domain.models.BackupSyncStatus
+import es.pile.core.domain.models.BackupStats
 import es.pile.core.domain.models.SyncState
 import es.pile.core.domain.repositories.BackupRepository
 import es.pile.core.domain.repositories.DocumentImageRepository
@@ -254,7 +254,7 @@ class BackupRepositoryImpl(
         }
     }
 
-    override suspend fun getSyncStatus(provider: BackupProvider): Result<BackupSyncStatus> =
+    override suspend fun getBackupStats(provider: BackupProvider): Result<BackupStats> =
         withContext(ioDispatcher) {
             runCatching {
                 val remoteFiles = provider.listFiles().getOrThrow()
@@ -284,7 +284,7 @@ class BackupRepositoryImpl(
                     }
                 }
 
-                BackupSyncStatus(
+                BackupStats(
                     lastBackupDateTime = lastBackupTime,
                     missingLocalFilesCount = missingCount,
                     totalRemoteFilesCount = remoteFiles.size
