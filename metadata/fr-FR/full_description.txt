@@ -1,0 +1,42 @@
+<p>Pile est une application de gestion de documents simple et puissante conçue pour vous aider à organiser, accéder et partager vos fichiers personnels — le tout au même endroit.</p>
+
+<p>Construite autour d'un système d'étiquettes flexible appelé "piles", l'application vous permet de catégoriser vos documents selon votre façon de penser, et non selon la contrainte des dossiers.</p>
+
+<h2>✦ CARACTÉRISTIQUES PRINCIPALES</h2>
+<ul>
+  <li>Gestion centralisée des documents — gardez tous vos fichiers au même endroit</li>
+  <li>Système d'étiquettes intelligent (piles) — organisez les documents à votre manière</li>
+  <li>Support complet du PDF — visualisez et partagez des documents en toute fluidité</li>
+  <li>Recherche intégrée — trouvez n'importe quel document en quelques secondes</li>
+  <li>Design moderne (Material Design) — interface propre et intuitive</li>
+  <li>100% hors ligne — aucune connexion internet requise</li>
+  <li>Priorité à la confidentialité — vos documents ne quittent jamais votre appareil</li>
+</ul>
+
+<h2>✦ CONÇU POUR LA CONFIDENTIALITÉ</h2>
+<p>Pile ne collecte aucune donnée personnelle. Pas d'analyse. Pas de suivi. Pas de téléchargement sur le cloud. Tout reste sur votre appareil, sous votre contrôle.</p>
+
+<h2>✦ PARFAIT POUR</h2>
+<ul>
+  <li>Les étudiants gérant des notes, des devoirs et du matériel d'étude</li>
+  <li>Les professionnels organisant des contrats, des factures et des rapports</li>
+  <li>Quiconque souhaite un moyen propre et privé de garder ses documents organisés</li>
+</ul>
+
+<h2>✦ CONSTRUIT AVEC UNE TECHNOLOGIE MODERNE</h2>
+<p>Pile est construit en utilisant les derniers standards de développement Android, incluant Jetpack Compose et Material Design, garantissant une expérience fluide et fiable.</p>
+
+<h2>✦ FEUILLE DE ROUTE</h2>
+<p>Nous travaillons activement sur de nouvelles fonctionnalités, notamment :</p>
+<ul>
+  <li>Extraction d'informations de documents par IA locale</li>
+  <li>Options de sauvegarde</li>
+  <li>Flux de partage améliorés</li>
+  <li>Support multiplateforme</li>
+</ul>
+
+<p>Vous avez des commentaires ou des suggestions ? Nous aimerions avoir de vos nouvelles.</p>
+
+<hr>
+
+<p><strong>Pile — Vos documents. Votre manière. Votre appareil.</strong></p>

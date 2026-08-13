@@ -27,8 +27,8 @@ android {
         applicationId = "es.pile"
         minSdk = 28
         targetSdk = 37
-        versionCode = 8
-        versionName = "1.1.1"
+        versionCode = 11
+        versionName = "1.1.4"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         val googleDriveClientId = localProperties.getProperty("google.drive.client.id") ?: ""

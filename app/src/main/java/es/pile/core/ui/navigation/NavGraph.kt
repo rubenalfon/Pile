@@ -91,6 +91,11 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                     },
                     popBackStack = {
                         backStack.removeLastOrNull()
+                    },
+                    popToHome = {
+                        backStack.removeIf {
+                            it !is Pane.Home
+                        }
                     }
                 )
             }

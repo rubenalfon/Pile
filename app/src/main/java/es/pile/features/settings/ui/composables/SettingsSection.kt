@@ -49,7 +49,7 @@ fun SettingsSection(
                 color = MaterialTheme.colorScheme.tertiary
             )
         }
-        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             content()
         }
     }

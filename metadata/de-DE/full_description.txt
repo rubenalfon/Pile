@@ -1,0 +1,42 @@
+<p>Pile ist eine einfache und leistungsstarke Dokumentenverwaltungs-App, die Ihnen hilft, Ihre persönlichen Dateien an einem Ort zu organisieren, abzurufen und zu teilen.</p>
+
+<p>Aufgebaut um ein flexibles Tag-System namens „Piles“ (Stapel), ermöglicht Ihnen die App, Ihre Dokumente so zu kategorisieren, wie Sie denken, und nicht so, wie Ordner es Ihnen vorschreiben.</p>
+
+<h2>✦ HAUPTMERKMALE</h2>
+<ul>
+  <li>Zentralisierte Dokumentenverwaltung &mdash; bewahren Sie alle Ihre Dateien an einem Ort auf</li>
+  <li>Intelligentes Tag-System (Piles) &mdash; organisieren Sie Dokumente auf Ihre Weise</li>
+  <li>Volle PDF-Unterstützung &mdash; Dokumente nahtlos anzeigen und teilen</li>
+  <li>Integrierte Suche &mdash; jedes Dokument in Sekunden finden</li>
+  <li>Modernes Design (Material Design) &mdash; saubere, intuitive Benutzeroberfläche</li>
+  <li>100 % offline &mdash; keine Internetverbindung erforderlich</li>
+  <li>Datenschutz an erster Stelle &mdash; Ihre Dokumente verlassen niemals Ihr Gerät</li>
+</ul>
+
+<h2>✦ ENTWICKELT FÜR DEN DATENSCHUTZ</h2>
+<p>Pile sammelt keine persönlichen Daten. Keine Analysen. Kein Tracking. Keine Cloud-Uploads. Alles bleibt auf Ihrem Gerät, unter Ihrer Kontrolle.</p>
+
+<h2>✦ IDEAL FÜR</h2>
+<ul>
+  <li>Studierende, die Notizen, Aufgaben und Lernmaterialien verwalten</li>
+  <li>Fachleute, die Verträge, Rechnungen und Berichte organisieren</li>
+  <li>Jeder, der eine saubere, private Möglichkeit sucht, seine Dokumente organisiert zu halten</li>
+</ul>
+
+<h2>✦ GEBAUT MIT MODERNER TECHNOLOGIE</h2>
+<p>Pile wurde mit den neuesten Android-Entwicklungsstandards wie Jetpack Compose und Material Design entwickelt, was eine reibungslose und zuverlässige Erfahrung gewährleistet.</p>
+
+<h2>✦ ROADMAP</h2>
+<p>Wir arbeiten aktiv an neuen Funktionen, darunter:</p>
+<ul>
+  <li>Lokale KI-gestützte Informationsextraktion aus Dokumenten</li>
+  <li>Backup-Optionen</li>
+  <li>Verbesserte Freigabeabläufe</li>
+  <li>Plattformübergreifende Unterstützung</li>
+</ul>
+
+<p>Haben Sie Feedback oder Vorschläge? Wir würden uns freuen, von Ihnen zu hören.</p>
+
+<hr>
+
+<p><strong>Pile &mdash; Deine Dokumente. Dein Weg. Dein Gerät.</strong></p>

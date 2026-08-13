@@ -650,7 +650,7 @@ private fun LazyListScope.documentDetailsSection(
                     onDelete = { onEvent(DetailsActionEvent.OnRemove(index)) },
                     contentPaddingValues = PaddingValues(horizontal = 16.dp),
                     enabled = isEditingMode,
-                    modifier = Modifier.padding(bottom = if (index != documentDetails.size - 1) 3.dp else 0.dp)
+                    modifier = Modifier.padding(bottom = if (index != documentDetails.size - 1) 2.dp else 0.dp)
                 ) {
                     if (documentDetail !is StringDetail) return@SwipeBox
                     DocumentDetailItem(
@@ -970,7 +970,7 @@ private fun LazyListScope.documentPilesSection(
         )
 
         if (index != documentPileModels.size - 1) {
-            Spacer(Modifier.height(3.dp))
+            Spacer(Modifier.height(2.dp))
         }
     }
 
