@@ -212,7 +212,9 @@
     <string name="show_recovery_key">Mostrar chave de recuperação</string>
     <string name="show_recovery_key_subtitle">Ver a chave necessária para restaurar a sua cópia em outros dispositivos.</string>
     <string name="invalid_key_length">A chave deve ter 64 caracteres</string>
-    <string name="invalid_recovery_key">Chave de recuperação inválida. Verifique a chave e tente novamente.</string>
+    <string name="invalid_recovery_key">Chave de recuperação incorreta. Verifique a chave e tente novamente.</string>
+    <string name="error_key_required">É necessária uma chave de recuperação para decifrar a sua cópia de segurança.</string>
+    <string name="error_invalid_key_generic">A chave de recuperação fornecida está incorreta ou os datos estão corrompidos.</string>
     <string name="last_sync_format">Última sincronização: %1$s</string>
     <string name="sync_status_up_to_date">Tudo está atualizado</string>
     <string name="sync_status_pending">Alguns ficheiros não têm cópia de segurança</string>

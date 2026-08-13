@@ -213,6 +213,8 @@
     <string name="show_recovery_key_subtitle">Visualizza la chiave necessaria per ripristinare il backup su altri dispositivi.</string>
     <string name="invalid_key_length">La chiave deve essere lunga 64 caratteri</string>
     <string name="invalid_recovery_key">Chiave di recupero non valida. Controlla la chiave e riprova.</string>
+    <string name="error_key_required">È necessaria una chiave di ripristino per decrittografare il backup.</string>
+    <string name="error_invalid_key_generic">La chiave di ripristino fornita è errata o i dati sono corrotti.</string>
     <string name="last_sync_format">Ultima sincronizzazione: %1$s</string>
     <string name="sync_status_up_to_date">Tutto è aggiornato</string>
     <string name="sync_status_pending">Alcuni file non sono salvati</string>

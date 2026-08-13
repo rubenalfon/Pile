@@ -213,6 +213,8 @@
     <string name="show_recovery_key_subtitle">Voir la clé nécessaire pour restaurer votre sauvegarde sur d\'autres appareils.</string>
     <string name="invalid_key_length">La clé doit comporter 64 caractères</string>
     <string name="invalid_recovery_key">Clé de récupération non valide. Veuillez vérifier la clé et réessayer.</string>
+    <string name="error_key_required">Une clé de récupération est requise pour déchiffrer votre sauvegarde.</string>
+    <string name="error_invalid_key_generic">La clé de récupération fournie est incorrecte ou les données sont corrompues.</string>
     <string name="last_sync_format">Dernière synchro : %1$s</string>
     <string name="sync_status_up_to_date">Tout est à jour</string>
     <string name="sync_status_pending">Certains fichiers ne sont pas sauvegardés</string>

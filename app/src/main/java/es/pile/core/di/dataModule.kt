@@ -81,6 +81,7 @@ val dataModule = module {
             documentModelRepository = get(),
             pileModelRepository = get(),
             settingsRepository = get(),
+            performSyncUseCase = get(),
             externalScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         )
     }

@@ -7,11 +7,15 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import es.pile.core.data.backup.BackupException
+import es.pile.core.data.backup.EncryptionKeyRequiredException
+import es.pile.core.data.backup.InvalidEncryptionKeyException
 import es.pile.core.domain.models.SyncState
 import es.pile.core.domain.repositories.DocumentModelRepository
 import es.pile.core.domain.repositories.PileModelRepository
 import es.pile.core.domain.repositories.SettingsRepository
 import es.pile.core.domain.sync.SyncManager
+import es.pile.core.domain.usecases.sync.PerformSyncUseCase
 import es.pile.core.ui.util.UiText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
@@ -35,6 +39,7 @@ class SyncManagerImpl(
     private val documentModelRepository: DocumentModelRepository,
     private val pileModelRepository: PileModelRepository,
     private val settingsRepository: SettingsRepository,
+    private val performSyncUseCase: PerformSyncUseCase,
     private val externalScope: CoroutineScope
 ) : SyncManager {
 
@@ -68,6 +73,7 @@ class SyncManagerImpl(
                         
                         _syncState.value = when (errorType) {
                             SyncWorker.ERROR_TYPE_INVALID_KEY -> SyncState.InvalidKey
+                            SyncWorker.ERROR_TYPE_KEY_REQUIRED -> SyncState.KeyRequired
                             else -> SyncState.Error(UiText.DynamicString(errorMessage))
                         }
                     }
@@ -144,6 +150,29 @@ class SyncManagerImpl(
             
         // Initial sync on start
         requestSync(force = false)
+    }
+
+    override suspend fun validateAndSetKey(key: String): Result<Unit> {
+        _syncState.value = SyncState.VerifyingKey
+
+        return performSyncUseCase(tempMasterKey = key).fold(
+            onSuccess = {
+                settingsRepository.saveBackupMasterKey(key)
+                settingsRepository.updateBackupEncryption(true)
+                requestSync(force = true)
+                Result.success(Unit)
+            },
+            onFailure = { error ->
+                val syncError = when (error) {
+                    is InvalidEncryptionKeyException -> SyncState.InvalidKey
+                    is EncryptionKeyRequiredException -> SyncState.KeyRequired
+                    is BackupException -> SyncState.Error(error.uiText)
+                    else -> SyncState.Error(UiText.DynamicString(error.message ?: "Validation failed"))
+                }
+                _syncState.value = syncError
+                Result.failure(error)
+            }
+        )
     }
 }
 

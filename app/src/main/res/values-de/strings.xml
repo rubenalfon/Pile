@@ -213,6 +213,8 @@
     <string name="show_recovery_key_subtitle">Den Schlüssel zum Wiederherstellen deines Backups auf anderen Geräten anzeigen.</string>
     <string name="invalid_key_length">Der Schlüssel muss 64 Zeichen lang sein</string>
     <string name="invalid_recovery_key">Ungültiger Wiederherstellungsschlüssel. Bitte überprüfen Sie den Schlüssel und versuchen Sie es erneut.</string>
+    <string name="error_key_required">Ein Wiederherstellungsschlüssel ist erforderlich, um Ihr Backup zu entschlüsseln.</string>
+    <string name="error_invalid_key_generic">Der angegebene Wiederherstellungsschlüssel ist falsch oder die Daten sind beschädigt.</string>
     <string name="last_sync_format">Letzte Synchronisierung: %1$s</string>
     <string name="sync_status_up_to_date">Alles ist auf dem neuesten Stand</string>
     <string name="sync_status_pending">Einige Dateien sind nicht gesichert</string>

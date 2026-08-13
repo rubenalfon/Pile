@@ -213,6 +213,8 @@
     <string name="show_recovery_key_subtitle">Ver la clave necesaria para restaurar tu copia en otros dispositivos.</string>
     <string name="invalid_key_length">La clave debe tener 64 caracteres</string>
     <string name="invalid_recovery_key">Clave de recuperación incorrecta. Compruébala e inténtalo de nuevo.</string>
+    <string name="error_key_required">Se requiere una clave de recuperación para descifrar tu copia de seguridad.</string>
+    <string name="error_invalid_key_generic">La clave proporcionada es incorrecta o los datos están corruptos.</string>
     <string name="last_sync_format">Última sincro: %1$s</string>
     <string name="sync_status_up_to_date">Todo está actualizado</string>
     <string name="sync_status_pending">Archivos pendientes de subir</string>

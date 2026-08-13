@@ -4,7 +4,6 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.pile.R
-import es.pile.core.data.backup.InvalidEncryptionKeyException
 import es.pile.core.domain.backup.BackupProvider
 import es.pile.core.domain.backup.BackupProviderInfo
 import es.pile.core.domain.backup.UserCancelledException
@@ -79,7 +78,7 @@ class BackupViewModel(
                         getSelectedProvider()?.let { loadStatus(it, updateLoading = false) }
                     }
 
-                    SyncState.InvalidKey -> {
+                    SyncState.InvalidKey, SyncState.KeyRequired -> {
                         _state.update {
                             it.copy(isEnterKeyDialogVisible = true)
                         }
@@ -148,7 +147,12 @@ class BackupViewModel(
 
             BackupEvent.OnSyncClicked -> syncManager.requestSync(force = true)
             is BackupEvent.OnEnterKeySubmitted -> {
-                syncWithKey(event.key)
+                viewModelScope.launch {
+                    syncManager.validateAndSetKey(event.key)
+                        .onSuccess {
+                            _state.update { it.copy(isEnterKeyDialogVisible = false) }
+                        }
+                }
             }
             BackupEvent.OnDismissEnterKeyDialog -> {
                 _state.update { it.copy(isEnterKeyDialogVisible = false) }
@@ -271,67 +275,6 @@ class BackupViewModel(
         val units = arrayOf("B", "KB", "MB", "GB", "TB")
         val digitGroups = (log10(bytes.toDouble()) / log10(1024.0)).toInt()
         return DecimalFormat("#,##0.#").format(bytes / 1024.0.pow(digitGroups.toDouble())) + " " + units[digitGroups]
-    }
-
-    private fun syncWithKey(tempKey: String) {
-        val provider = getSelectedProvider() ?: return
-
-        viewModelScope.launch {
-            _state.update {
-                it.copy(syncState = SyncState.VerifyingKey)
-            }
-
-            provider.authenticate(
-                onResolutionRequired = onResolutionRequired
-            ).onSuccess {
-                backupRepository.sync(provider, tempKey)
-                    .onSuccess {
-                        settingsRepository.saveBackupMasterKey(tempKey)
-                        settingsRepository.updateBackupEncryption(true)
-                        _state.update {
-                            it.copy(
-                                isEnterKeyDialogVisible = false,
-                                syncState = SyncState.Success(System.currentTimeMillis()),
-                                pendingResolution = null
-                            )
-                        }
-                        syncManager.requestSync(force = true)
-                        loadStatus(provider, updateLoading = false)
-                    }
-                    .onFailure { e ->
-                        when (e) {
-                            is InvalidEncryptionKeyException -> {
-                                _state.update {
-                                    it.copy(
-                                        syncState = SyncState.InvalidKey,
-                                        isEnterKeyDialogVisible = true
-                                    )
-                                }
-                            }
-
-                            else -> {
-                                _state.update {
-                                    it.copy(
-                                        syncState = SyncState.Error(
-                                            UiText.DynamicString(
-                                                e.message ?: ""
-                                            )
-                                        ),
-                                        pendingResolution = null
-                                    )
-                                }
-                            }
-                        }
-                    }
-            }.onFailure { _ ->
-                _state.update {
-                    it.copy(
-                        syncState = SyncState.Error(UiText.StringResource(R.string.authentication_failed)),
-                        pendingResolution = null
-                    )
-                }
-            }
-        }
     }
 
     private fun loadStatus(provider: BackupProvider, updateLoading: Boolean = true) {

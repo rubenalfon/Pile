@@ -213,6 +213,8 @@
     <string name="show_recovery_key_subtitle">查看在其他设备上恢复备份所需的密钥。</string>
     <string name="invalid_key_length">密钥必须为 64 个字符</string>
     <string name="invalid_recovery_key">无效的恢复密钥。请检查密钥并重试。</string>
+    <string name="error_key_required">需要恢复密钥才能解密您的备份。</string>
+    <string name="error_invalid_key_generic">提供的恢复密钥不正确或数据已损坏。</string>
     <string name="last_sync_format">最后同步: %1$s</string>
     <string name="sync_status_up_to_date">一切都是最新的</string>
     <string name="sync_status_pending">部分文件未备份</string>

@@ -213,6 +213,8 @@
     <string name="show_recovery_key_subtitle">Просмотр ключа, необходимого для восстановления резервной копии на других устройствах.</string>
     <string name="invalid_key_length">Ключ должен состоять из 64 символов</string>
     <string name="invalid_recovery_key">Неверный ключ восстановления. Проверьте ключ и попробуйте еще раз.</string>
+    <string name="error_key_required">Для расшифровки резервной копии требуется ключ восстановления.</string>
+    <string name="error_invalid_key_generic">Указанный ключ восстановления неверен или данные повреждены.</string>
     <string name="last_sync_format">Последняя синхронизация: %1$s</string>
     <string name="sync_status_up_to_date">Все данные обновлены</string>
     <string name="sync_status_pending">Некоторые файлы не сохранены</string>

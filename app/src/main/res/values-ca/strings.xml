@@ -212,7 +212,9 @@
     <string name="show_recovery_key">Mostra la clau de recuperació</string>
     <string name="show_recovery_key_subtitle">Mostra la clau necessària per restaurar la teva còpia en altres dispositius.</string>
     <string name="invalid_key_length">La clau ha de tenir 64 caràcters</string>
-    <string name="invalid_recovery_key">Clau de recuperació no vàlida. Comprova la clau i torna-ho a provar.</string>
+    <string name="invalid_recovery_key">Clau de recuperació incorrecta. Comprova-la i torna-ho a intentar.</string>
+    <string name="error_key_required">Es requereix una clau de recuperació per desxifrar la teva còpia de seguretat.</string>
+    <string name="error_invalid_key_generic">La clau proporcionada és incorrecta o les dades estan corrompudes.</string>
     <string name="last_sync_format">Última sincro: %1$s</string>
     <string name="sync_status_up_to_date">Tot està actualitzat</string>
     <string name="sync_status_pending">Arxius pendents de pujar</string>

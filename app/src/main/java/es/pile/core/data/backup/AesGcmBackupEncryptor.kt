@@ -1,6 +1,8 @@
 package es.pile.core.data.backup
 
+import es.pile.R
 import es.pile.core.domain.backup.BackupEncryptor
+import es.pile.core.ui.util.UiText
 import java.io.InputStream
 import java.io.SequenceInputStream
 import java.nio.ByteBuffer
@@ -115,6 +117,11 @@ class AesGcmBackupEncryptor : BackupEncryptor {
     }
 }
 
-class EncryptionKeyRequiredException : Exception("Master key required to decrypt backup")
+class EncryptionKeyRequiredException : BackupException(UiText.StringResource(R.string.error_key_required))
 
-class InvalidEncryptionKeyException : Exception("The provided recovery key is incorrect or data is corrupted")
+class InvalidEncryptionKeyException : BackupException(UiText.StringResource(R.string.error_invalid_key_generic))
+
+abstract class BackupException(val uiText: UiText) : Exception() {
+    override val message: String?
+        get() = "Backup error"
+}

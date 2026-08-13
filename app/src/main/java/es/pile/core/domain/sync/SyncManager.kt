@@ -19,4 +19,10 @@ interface SyncManager {
      * Starts the automatic monitoring of local changes to trigger syncs.
      */
     fun startAutoSync()
+
+    /**
+     * Validates a recovery key by attempting a test sync.
+     * If valid, it saves the key and triggers a full sync.
+     */
+    suspend fun validateAndSetKey(key: String): Result<Unit>
 }
