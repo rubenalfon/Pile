@@ -198,6 +198,7 @@ class BackupViewModel(
             ).onSuccess {
                 if (!isInitialRestore) {
                     settingsRepository.updateSelectedBackupProvider(provider.name)
+                    syncManager.requestSync(force = true)
                 }
 
                 // Coordination: load all data before showing the UI

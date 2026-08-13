@@ -103,9 +103,9 @@ class SyncManagerImpl(
             }.launchIn(externalScope)
 
         settingsRepository.userSettings
-            .map { it.selectedBackupProviderName to it.isBackupOverCellularEnabled }
+            .map { it.selectedBackupProviderName }
             .distinctUntilChanged()
-            .onEach { (providerName, _) ->
+            .onEach { providerName ->
                 if (providerName == null) {
                     _syncState.value = SyncState.NoProvider
                 } else {
