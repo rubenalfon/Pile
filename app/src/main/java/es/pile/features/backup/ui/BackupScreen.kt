@@ -286,7 +286,8 @@ fun BackupContent(
                         } else {
                             Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
                                 BackupStatusCard(
-                                    lastSyncTimestamp = state.lastSyncTimestamp
+                                    lastSyncTimestamp = state.lastSyncTimestamp,
+                                    syncState = state.syncState
                                 )
 
                                 // Sync button
@@ -380,30 +381,19 @@ fun BackupContent(
                     }
 
                     val errorMessage = state.syncState.errorMessage
-                    if (errorMessage != null || state.syncState is SyncState.Success) {
+                    if (errorMessage != null) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
-                                containerColor = if (errorMessage != null)
-                                    MaterialTheme.colorScheme.errorContainer
-                                else
-                                    MaterialTheme.colorScheme.primaryContainer
+                                containerColor = MaterialTheme.colorScheme.errorContainer
                             )
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                if (errorMessage != null) {
-                                    Text(
-                                        text = errorMessage.asString(),
-                                        color = MaterialTheme.colorScheme.onErrorContainer,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                } else if (state.syncState is SyncState.Success) {
-                                    Text(
-                                        text = stringResource(R.string.sync_successful),
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
+                                Text(
+                                    text = errorMessage.asString(),
+                                    color = MaterialTheme.colorScheme.onErrorContainer,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
                             }
                         }
                     }
@@ -719,6 +709,7 @@ private fun DisableBackupAlert(
 @Composable
 private fun BackupStatusCard(
     lastSyncTimestamp: Long?,
+    syncState: SyncState,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -742,13 +733,18 @@ private fun BackupStatusCard(
     val lastSyncText = remember(lastSyncTimestamp) {
         formatLastSync(lastSyncTimestamp, context)
     }
+    
+    val isWaitingForWifi = syncState is SyncState.WaitingForWifi
 
     Card(
         modifier = modifier
             .fillMaxWidth()
             .animateContentSize(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            containerColor = when {
+                isWaitingForWifi -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
+                else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            }
         ),
         shape = RoundedCornerShape(16.dp)
     ) {
@@ -758,11 +754,19 @@ private fun BackupStatusCard(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             AnimatedContent(
-                targetState = isRecentSuccess,
+                targetState = when {
+                    isWaitingForWifi -> "waiting"
+                    isRecentSuccess -> "recent"
+                    else -> "idle"
+                },
                 transitionSpec = { fadeIn(tween(400)) togetherWith fadeOut(tween(400)) },
                 label = "BackupIconAnimation"
-            ) { recent ->
-                val iconColor = MaterialTheme.colorScheme.primary
+            ) { status ->
+                val iconColor = when (status) {
+                    "waiting" -> MaterialTheme.colorScheme.tertiary
+                    else -> MaterialTheme.colorScheme.primary
+                }
+                
                 Box(
                     modifier = Modifier
                         .size(40.dp)
@@ -774,7 +778,11 @@ private fun BackupStatusCard(
                 ) {
                     Icon(
                         painter = painterResource(
-                            if (recent) R.drawable.check_24px else R.drawable.sync_24px
+                            when (status) {
+                                "waiting" -> R.drawable.sync_disabled_24px
+                                "recent" -> R.drawable.check_24px
+                                else -> R.drawable.sync_24px
+                            }
                         ),
                         contentDescription = null,
                         tint = iconColor,
@@ -785,22 +793,33 @@ private fun BackupStatusCard(
 
             Column {
                 AnimatedContent(
-                    targetState = isRecentSuccess,
+                    targetState = when {
+                        isWaitingForWifi -> "waiting"
+                        isRecentSuccess -> "recent"
+                        else -> "idle"
+                    },
                     transitionSpec = {
                         (fadeIn(tween(400)) + slideInVertically { it / 2 })
                             .togetherWith(fadeOut(tween(400)) + slideOutVertically { -it / 2 })
                     },
                     label = "BackupTextAnimation"
-                ) { recent ->
+                ) { status ->
                     Text(
-                        text = if (recent) stringResource(R.string.sync_successful) else lastSyncText,
+                        text = when (status) {
+                            "waiting" -> stringResource(R.string.sync_status_waiting_wifi)
+                            "recent" -> stringResource(R.string.sync_successful)
+                            else -> lastSyncText
+                        },
                         style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = when (status) {
+                            "waiting" -> MaterialTheme.colorScheme.onTertiaryContainer
+                            else -> MaterialTheme.colorScheme.onSurface
+                        }
                     )
                 }
                 
                 AnimatedVisibility(
-                    visible = isRecentSuccess,
+                    visible = isRecentSuccess || isWaitingForWifi,
                     enter = fadeIn() + expandVertically(),
                     exit = fadeOut() + shrinkVertically()
                 ) {

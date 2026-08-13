@@ -178,6 +178,7 @@
     <string name="onboarding_mail">Courrier</string>
 
     <string name="backup_and_sync">Sauvegarde &amp; Synchro</string>
+    <string name="sync_status_waiting_wifi">En attente du Wi-Fi</string>
     <string name="sync_now">Synchroniser maintenant</string>
     <string name="sync_successful">Synchronisation réussie</string>
     <string name="sync_failed">Échec de la synchronisation</string>

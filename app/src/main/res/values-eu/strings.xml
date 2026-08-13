@@ -178,6 +178,7 @@
     <string name="onboarding_mail">Posta</string>
 
     <string name="backup_and_sync">Babeskopia eta sinkronizazioa</string>
+    <string name="sync_status_waiting_wifi">Wi-Fi-aren zain</string>
     <string name="sync_now">Sinkronizatu orain</string>
     <string name="sync_successful">Sinkronizazio arrakastatsua</string>
     <string name="sync_failed">Sinkronizazioak huts egin du</string>

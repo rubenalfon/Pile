@@ -180,6 +180,7 @@
     <string name="onboarding_mail">Mail</string>
 
     <string name="backup_and_sync">Backup &amp; Sync</string>
+    <string name="sync_status_waiting_wifi">Waiting for Wi-Fi</string>
     <string name="sync_now">Sync now</string>
     <string name="sync_successful">Sync successful</string>
     <string name="sync_failed">Sync failed</string>

@@ -178,6 +178,7 @@
     <string name="onboarding_mail">Correu</string>
 
     <string name="backup_and_sync">Còpia de seguretat i sincr.</string>
+    <string name="sync_status_waiting_wifi">Esperant Wi-Fi</string>
     <string name="sync_now">Sincronitza ara</string>
     <string name="sync_successful">Sincronització correcta</string>
     <string name="sync_failed">Sincronització fallida</string>

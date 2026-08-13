@@ -178,6 +178,7 @@
     <string name="onboarding_mail">मेल</string>
 
     <string name="backup_and_sync">बैकअप और सिंक</string>
+    <string name="sync_status_waiting_wifi">Wi-Fi का इंतज़ार है</string>
     <string name="sync_now">अभी सिंक करें</string>
     <string name="sync_successful">सिंक सफल रहा</string>
     <string name="sync_failed">सिंक विफल रहा</string>

@@ -178,6 +178,7 @@
     <string name="onboarding_mail">Posta</string>
 
     <string name="backup_and_sync">Backup e sincronizzazione</string>
+    <string name="sync_status_waiting_wifi">In attesa del Wi-Fi</string>
     <string name="sync_now">Sincronizza ora</string>
     <string name="sync_successful">Sincronizzazione riuscita</string>
     <string name="sync_failed">Sincronizzazione non riuscita</string>

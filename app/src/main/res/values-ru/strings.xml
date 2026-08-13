@@ -178,6 +178,7 @@
     <string name="onboarding_mail">Почта</string>
 
     <string name="backup_and_sync">Резервное копирование и синхр.</string>
+    <string name="sync_status_waiting_wifi">Ожидание Wi-Fi</string>
     <string name="sync_now">Синхронизировать сейчас</string>
     <string name="sync_successful">Синхронизация завершена</string>
     <string name="sync_failed">Ошибка синхронизации</string>

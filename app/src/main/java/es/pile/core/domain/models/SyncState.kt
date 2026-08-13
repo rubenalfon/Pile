@@ -11,6 +11,7 @@ sealed interface SyncState {
     data object VerifyingKey : SyncState
     data object Uploading : SyncState
     data object Downloading : SyncState
+    data object WaitingForWifi : SyncState
     data class Success(val lastSyncTimestamp: Long) : SyncState
     data class Error(val message: UiText) : SyncState
 

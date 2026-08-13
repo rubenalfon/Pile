@@ -178,6 +178,7 @@
     <string name="onboarding_mail">邮件</string>
 
     <string name="backup_and_sync">备份与同步</string>
+    <string name="sync_status_waiting_wifi">正在等待 Wi-Fi</string>
     <string name="sync_now">立即同步</string>
     <string name="sync_successful">同步成功</string>
     <string name="sync_failed">同步失败</string>

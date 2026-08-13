@@ -178,6 +178,7 @@
     <string name="onboarding_mail">Correo</string>
 
     <string name="backup_and_sync">Copia de seguridad y sincro.</string>
+    <string name="sync_status_waiting_wifi">Esperando Wi-Fi</string>
     <string name="sync_now">Sincronizar ahora</string>
     <string name="sync_successful">Sincronización completada</string>
     <string name="sync_failed">Error en la sincronización</string>

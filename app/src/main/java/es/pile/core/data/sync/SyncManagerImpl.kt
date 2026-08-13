@@ -1,6 +1,7 @@
 package es.pile.core.data.sync
 
 import android.content.Context
+import android.net.ConnectivityManager
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
@@ -55,6 +56,8 @@ class SyncManagerImpl(
         workManager.getWorkInfosForUniqueWorkFlow(SyncWorker.WORK_NAME)
             .onEach { workInfos ->
                 val info = workInfos.firstOrNull() ?: return@onEach
+                val settings = settingsRepository.userSettings.first()
+                
                 when (info.state) {
                     WorkInfo.State.RUNNING -> {
                         val stateStr = info.progress.getString(SyncWorker.PROGRESS_STATE_KEY)
@@ -62,6 +65,14 @@ class SyncManagerImpl(
                             SyncWorker.STATE_DOWNLOADING -> SyncState.Downloading
                             SyncWorker.STATE_UPLOADING -> SyncState.Uploading
                             else -> SyncState.Syncing
+                        }
+                    }
+
+                    WorkInfo.State.ENQUEUED -> {
+                        if (!settings.isBackupOverCellularEnabled && isOnMeteredConnection()) {
+                            _syncState.value = SyncState.WaitingForWifi
+                        } else if (_syncState.value == SyncState.WaitingForWifi) {
+                             _syncState.value = SyncState.Idle
                         }
                     }
 
@@ -77,19 +88,25 @@ class SyncManagerImpl(
                             else -> SyncState.Error(UiText.DynamicString(errorMessage))
                         }
                     }
-                    else -> {}
+                    else -> {
+                        if (_syncState.value == SyncState.WaitingForWifi) {
+                             _syncState.value = SyncState.Idle
+                        }
+                    }
                 }
             }.launchIn(externalScope)
 
-        // Observe settings for provider changes
         settingsRepository.userSettings
-            .map { it.selectedBackupProviderName }
+            .map { it.selectedBackupProviderName to it.isBackupOverCellularEnabled }
             .distinctUntilChanged()
-            .onEach { providerName ->
+            .onEach { (providerName, _) ->
                 if (providerName == null) {
                     _syncState.value = SyncState.NoProvider
-                } else if (_syncState.value == SyncState.NoProvider) {
-                    _syncState.value = SyncState.Idle
+                } else {
+                    if (_syncState.value == SyncState.NoProvider) {
+                        _syncState.value = SyncState.Idle
+                    }
+                    requestSync(force = false)
                 }
             }.launchIn(externalScope)
     }
@@ -115,8 +132,14 @@ class SyncManagerImpl(
                 return@launch
             }
 
+            val networkType = if (settings.isBackupOverCellularEnabled) {
+                NetworkType.CONNECTED
+            } else {
+                NetworkType.UNMETERED
+            }
+
             val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiredNetworkType(networkType)
                 .build()
 
             val syncRequest = OneTimeWorkRequestBuilder<SyncWorker>()
@@ -176,5 +199,9 @@ class SyncManagerImpl(
             }
         )
     }
-}
 
+    private fun isOnMeteredConnection(): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return cm.isActiveNetworkMetered
+    }
+}

@@ -178,6 +178,7 @@
     <string name="onboarding_mail">メール</string>
 
     <string name="backup_and_sync">バックアップと同期</string>
+    <string name="sync_status_waiting_wifi">Wi-Fiを待機中</string>
     <string name="sync_now">今すぐ同期</string>
     <string name="sync_successful">同期に成功しました</string>
     <string name="sync_failed">同期に失敗しました</string>

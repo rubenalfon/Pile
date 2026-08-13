@@ -30,6 +30,7 @@ private fun SyncStatusIndicatorPreview() {
         "Idle" to SyncState.Idle,
         "Success" to SyncState.Success(System.currentTimeMillis()),
         "No Provider" to SyncState.NoProvider,
+        "Waiting for Wi-Fi" to SyncState.WaitingForWifi,
         "Syncing" to SyncState.Syncing,
         "Uploading" to SyncState.Uploading,
         "Downloading" to SyncState.Downloading,
@@ -85,7 +86,7 @@ fun SyncStatusIndicator(
         ) { syncState ->
             val icon = when (syncState) {
                 SyncState.Idle, is SyncState.Success -> painterResource(R.drawable.check_24px)
-                SyncState.NoProvider -> painterResource(R.drawable.sync_disabled_24px)
+                SyncState.NoProvider, SyncState.WaitingForWifi -> painterResource(R.drawable.sync_disabled_24px)
                 SyncState.Syncing -> painterResource(R.drawable.sync_24px)
                 SyncState.VerifyingKey -> painterResource(R.drawable.sync_24px)
                 SyncState.Uploading -> painterResource(R.drawable.backup)
@@ -95,7 +96,7 @@ fun SyncStatusIndicator(
 
             val tint = when (syncState) {
                 is SyncState.Error, SyncState.InvalidKey, SyncState.KeyRequired -> MaterialTheme.colorScheme.error
-                SyncState.NoProvider -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                SyncState.NoProvider, SyncState.WaitingForWifi -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 SyncState.Idle, is SyncState.Success -> MaterialTheme.colorScheme.primary.copy(
                     alpha = 0.7f
                 )
