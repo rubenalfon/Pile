@@ -35,18 +35,34 @@ class SyncWorker(
         return result.fold(
             onSuccess = { Result.success() },
             onFailure = { error ->
-                val errorType = when (error) {
-                    is EncryptionKeyRequiredException -> ERROR_TYPE_KEY_REQUIRED
-                    is InvalidEncryptionKeyException -> ERROR_TYPE_INVALID_KEY
-                    else -> ERROR_TYPE_GENERIC
+                if (isNetworkError(error)) {
+                    Result.retry()
+                } else {
+                    val errorType = when (error) {
+                        is EncryptionKeyRequiredException -> ERROR_TYPE_KEY_REQUIRED
+                        is InvalidEncryptionKeyException -> ERROR_TYPE_INVALID_KEY
+                        else -> ERROR_TYPE_GENERIC
+                    }
+                    val outputData = workDataOf(
+                        ERROR_TYPE_KEY to errorType,
+                        ERROR_MESSAGE_KEY to (error.message ?: "Sync failed")
+                    )
+                    Result.failure(outputData)
                 }
-                val outputData = workDataOf(
-                    ERROR_TYPE_KEY to errorType,
-                    ERROR_MESSAGE_KEY to (error.message ?: "Sync failed")
-                )
-                Result.failure(outputData)
             }
         )
+    }
+
+    private fun isNetworkError(throwable: Throwable): Boolean {
+        return throwable is java.net.UnknownHostException ||
+                throwable is java.net.ConnectException ||
+                throwable is java.net.SocketTimeoutException ||
+                throwable is java.io.IOException && !isDiskError(throwable)
+    }
+
+    private fun isDiskError(throwable: Throwable): Boolean {
+        val message = throwable.message?.lowercase() ?: ""
+        return message.contains("disk full") || message.contains("no space")
     }
 
     companion object {

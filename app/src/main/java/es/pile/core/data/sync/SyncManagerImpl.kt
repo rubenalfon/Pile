@@ -71,12 +71,18 @@ class SyncManagerImpl(
                     WorkInfo.State.ENQUEUED -> {
                         if (!settings.isBackupOverCellularEnabled && isOnMeteredConnection()) {
                             _syncState.value = SyncState.WaitingForWifi
-                        } else if (_syncState.value == SyncState.WaitingForWifi) {
-                             _syncState.value = SyncState.Idle
+                        } else {
+                            checkProviderAndSetIdle()
                         }
                     }
 
-                    WorkInfo.State.SUCCEEDED -> checkProviderAndSetIdle()
+                    WorkInfo.State.SUCCEEDED -> {
+                        val now = System.currentTimeMillis()
+                        externalScope.launch {
+                            settingsRepository.updateLastSyncTimestamp(now)
+                            checkProviderAndSetIdle()
+                        }
+                    }
 
                     WorkInfo.State.FAILED -> {
                         val errorType = info.outputData.getString(SyncWorker.ERROR_TYPE_KEY)
@@ -114,12 +120,10 @@ class SyncManagerImpl(
     private fun checkProviderAndSetIdle() {
         externalScope.launch {
             val settings = settingsRepository.userSettings.first()
-            if (settings.selectedBackupProviderName == null) {
-                _syncState.value = SyncState.NoProvider
+            _syncState.value = if (settings.selectedBackupProviderName == null) {
+                SyncState.NoProvider
             } else {
-                val now = System.currentTimeMillis()
-                settingsRepository.updateLastSyncTimestamp(now)
-                _syncState.value = SyncState.Success(now) // TODO: Se guarda el tiempo ahora? no tiene sentido
+                SyncState.Success(settings.lastSyncTimestamp ?: 0L)
             }
         }
     }
