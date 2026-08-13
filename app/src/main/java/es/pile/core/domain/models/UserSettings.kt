@@ -11,5 +11,6 @@ data class UserSettings(
     val imageResolution: ImageResolution = ImageResolution.ORIGINAL,
     val selectedBackupProviderName: String? = null,
     val isBackupOverCellularEnabled: Boolean = false,
-    val isBackupEncryptionEnabled: Boolean = false
+    val isBackupEncryptionEnabled: Boolean = false,
+    val lastSyncTimestamp: Long? = null
 )

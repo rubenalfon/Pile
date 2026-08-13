@@ -52,7 +52,8 @@ class BackupViewModel(
                 it.copy(
                     selectedProvider = provider?.toInfo(),
                     backupUsingCellular = settings.isBackupOverCellularEnabled,
-                    isEncryptionOn = settings.isBackupEncryptionEnabled
+                    isEncryptionOn = settings.isBackupEncryptionEnabled,
+                    lastSyncTimestamp = settings.lastSyncTimestamp
                 )
             }
 
@@ -74,10 +75,6 @@ class BackupViewModel(
                 _state.update { it.copy(syncState = syncState) }
 
                 when (syncState) {
-                    is SyncState.Success -> {
-                        getSelectedProvider()?.let { loadStatus(it, updateLoading = false) }
-                    }
-
                     SyncState.InvalidKey, SyncState.KeyRequired -> {
                         _state.update {
                             it.copy(isEnterKeyDialogVisible = true)
@@ -275,29 +272,6 @@ class BackupViewModel(
         val units = arrayOf("B", "KB", "MB", "GB", "TB")
         val digitGroups = (log10(bytes.toDouble()) / log10(1024.0)).toInt()
         return DecimalFormat("#,##0.#").format(bytes / 1024.0.pow(digitGroups.toDouble())) + " " + units[digitGroups]
-    }
-
-    private fun loadStatus(provider: BackupProvider, updateLoading: Boolean = true) {
-        viewModelScope.launch {
-            if (updateLoading) _state.update { it.copy(isLoading = true) }
-            backupRepository.getBackupStats(provider)
-                .onSuccess { stats ->
-                    _state.update {
-                        it.copy(
-                            backupStats = stats,
-                            isLoading = if (updateLoading) false else it.isLoading
-                        )
-                    }
-                }
-                .onFailure { e ->
-                    _state.update {
-                        it.copy(
-                            syncState = SyncState.Error(UiText.DynamicString(e.message ?: "")),
-                            isLoading = if (updateLoading) false else it.isLoading
-                        )
-                    }
-                }
-        }
     }
 
     private fun toggleCellularBackup() {

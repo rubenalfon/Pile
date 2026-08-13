@@ -99,4 +99,11 @@ interface SettingsRepository {
      * Removes the master key used for backup encryption from local storage.
      */
     suspend fun removeBackupMasterKey()
+
+    /**
+     * Updates the timestamp of the last successful synchronization.
+     *
+     * @param timestamp The epoch timestamp in milliseconds.
+     */
+    suspend fun updateLastSyncTimestamp(timestamp: Long?)
 }

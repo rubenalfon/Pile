@@ -97,10 +97,12 @@ class SyncManagerImpl(
     private fun checkProviderAndSetIdle() {
         externalScope.launch {
             val settings = settingsRepository.userSettings.first()
-            _syncState.value = if (settings.selectedBackupProviderName == null) {
-                SyncState.NoProvider
+            if (settings.selectedBackupProviderName == null) {
+                _syncState.value = SyncState.NoProvider
             } else {
-                SyncState.Success(System.currentTimeMillis())
+                val now = System.currentTimeMillis()
+                settingsRepository.updateLastSyncTimestamp(now)
+                _syncState.value = SyncState.Success(now) // TODO: Se guarda el tiempo ahora? no tiene sentido
             }
         }
     }

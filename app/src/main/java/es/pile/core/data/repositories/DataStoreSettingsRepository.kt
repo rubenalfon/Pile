@@ -90,5 +90,11 @@ class DataStoreSettingsRepository(
     override suspend fun removeBackupMasterKey() {
         secureStorageRepository.removeSecret(BACKUP_MASTER_KEY)
     }
+
+    override suspend fun updateLastSyncTimestamp(timestamp: Long?) {
+        withContext(ioDispatcher) {
+            dataStore.updateData { it.copy(lastSyncTimestamp = timestamp) }
+        }
+    }
 }
 

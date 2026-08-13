@@ -10,7 +10,6 @@ import es.pile.core.data.backup.models.PileModelDto
 import es.pile.core.domain.backup.BackupEncryptor
 import es.pile.core.domain.backup.BackupProvider
 import es.pile.core.domain.backup.RemoteFile
-import es.pile.core.domain.models.BackupStats
 import es.pile.core.domain.models.SyncState
 import es.pile.core.domain.repositories.BackupRepository
 import es.pile.core.domain.repositories.DocumentImageRepository
@@ -251,37 +250,6 @@ class BackupRepositoryImpl(
             }
         }
     }
-
-    override suspend fun getBackupStats(provider: BackupProvider): Result<BackupStats> =
-        withContext(ioDispatcher) {
-            runCatching {
-                val remoteFiles = provider.listFiles().getOrThrow()
-                val metadataFile = remoteFiles.find { it.name == "backup_metadata.json" }
-
-                val localDocuments = documentModelRepository.getAllDocumentModels()
-                val remoteFileNames = remoteFiles.map { it.name }.toSet()
-
-                var missingCount = 0
-                for (doc in localDocuments) {
-                    val pdfFile = fileRepository.getPDFFile(documentId = doc.id)
-                    if (pdfFile.exists() && pdfFile.name !in remoteFileNames) {
-                        missingCount++
-                    }
-                    for (imageId in doc.imageIds) {
-                        val imageFile = fileRepository.getImageFile(documentId = doc.id, imageId = imageId)
-                        if (imageFile.exists() && imageFile.name !in remoteFileNames) {
-                            missingCount++
-                        }
-                    }
-                }
-
-                BackupStats(
-                    lastBackupTimestamp = metadataFile?.lastModified,
-                    missingLocalFilesCount = missingCount,
-                    totalRemoteFilesCount = (remoteFiles.size - (if (metadataFile != null) 1 else 0)).coerceAtLeast(0)
-                )
-            }
-        }
 
     // Mappers
     private fun DocumentModel.toDto() = DocumentModelDto(
