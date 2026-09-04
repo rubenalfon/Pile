@@ -4,6 +4,25 @@ Pile is an application focused on centralized document management, designed to m
 
 The project is built with **Kotlin** and **Jetpack Compose**, following a **Clean architecture + MVI / UDF** approach, with a strong focus on maintainability, scalability and modern Android development practices.
 
+<table align="center">
+  <tr>
+    <th align="center">F-Droid</th>
+    <th align="center">Google Play</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="https://f-droid.org/packages/es.pile/">
+        <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Consíguelo en F-Droid" height="60">
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://play.google.com/store/apps/details?id=es.pile">
+        <img src="https://play.google.com/intl/en_us/badges/static/images/badges/es_badge_web_generic.png" alt="Disponible en Google Play" height="60">
+      </a>
+    </td>
+  </tr>
+</table>
+
 > 🚧 This project is currently under active development.
 
 ## Screenshots
