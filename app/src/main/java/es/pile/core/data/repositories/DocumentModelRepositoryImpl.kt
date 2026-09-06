@@ -13,6 +13,7 @@ import es.pile.core.domain.repositories.DocumentModelRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
 class DocumentModelRepositoryImpl(
     private val databaseQueries: DatabaseQueries,
@@ -80,6 +81,7 @@ class DocumentModelRepositoryImpl(
         withContext(ioDispatcher) {
             databaseQueries.updateDocumentTitle(
                 title = title,
+                modificationDateTime = LocalDateTime.now(),
                 id = id
             )
         }
@@ -89,6 +91,7 @@ class DocumentModelRepositoryImpl(
         withContext(ioDispatcher) {
             databaseQueries.updateDocumentNote(
                 documentNote = note,
+                modificationDateTime = LocalDateTime.now(),
                 id = id
             )
         }
@@ -98,6 +101,7 @@ class DocumentModelRepositoryImpl(
         withContext(ioDispatcher) {
             databaseQueries.updateDocumentDetails(
                 documentDetails = details,
+                modificationDateTime = LocalDateTime.now(),
                 id = id
             )
         }

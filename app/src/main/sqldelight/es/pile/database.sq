@@ -151,12 +151,14 @@ WHERE id = ?;
 
 updateDocumentTitle:
 UPDATE DocumentModel
-SET title = ?
+SET title = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 updateDocumentImageIds:
 UPDATE DocumentModel
-SET imageIds = ?
+SET imageIds = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 updateDocumentModificationDateTime:
@@ -166,32 +168,38 @@ WHERE id = ?;
 
 updateDocumentStatus:
 UPDATE DocumentModel
-SET documentStatus = ?
+SET documentStatus = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 updateDocumentPileIds:
 UPDATE DocumentModel
-SET documentPileIds = ?
+SET documentPileIds = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 updateDocumentDetails:
 UPDATE DocumentModel
-SET documentDetails = ?
+SET documentDetails = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 updateDocumentNote:
 UPDATE DocumentModel
-SET documentNote = ?
+SET documentNote = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 updateDocumentOrganizationIds:
 UPDATE DocumentModel
-SET documentOrganizationIds = ?
+SET documentOrganizationIds = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 updateDocumentIsIncomingPdf:
 UPDATE DocumentModel
-SET isIncomingPdf = ?
+SET isIncomingPdf = ?,
+    modificationDateTime = ?
 WHERE id = ?;
 
 

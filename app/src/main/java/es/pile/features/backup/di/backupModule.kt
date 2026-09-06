@@ -31,7 +31,8 @@ val backupModule = module {
             backupEncryptor = get(),
             json = get(),
             ioDispatcher = get(),
-            availableProviders = get()
+            availableProviders = get(),
+            bitmapCacheRepository = get()
         )
     }
 

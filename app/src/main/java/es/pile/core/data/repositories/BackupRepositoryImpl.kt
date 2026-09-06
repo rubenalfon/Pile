@@ -13,6 +13,7 @@ import es.pile.core.domain.backup.RemoteFile
 import es.pile.core.domain.models.DeletedEntityType
 import es.pile.core.domain.models.SyncState
 import es.pile.core.domain.repositories.BackupRepository
+import es.pile.core.domain.repositories.BitmapCacheRepository
 import es.pile.core.domain.repositories.DeletedEntityRepository
 import es.pile.core.domain.repositories.DocumentImageRepository
 import es.pile.core.domain.repositories.DocumentModelRepository
@@ -37,7 +38,8 @@ class BackupRepositoryImpl(
     private val backupEncryptor: BackupEncryptor,
     private val json: Json,
     private val ioDispatcher: CoroutineDispatcher,
-    override val availableProviders: List<BackupProvider>
+    override val availableProviders: List<BackupProvider>,
+    private val bitmapCacheRepository: BitmapCacheRepository? = null
 ) : BackupRepository {
 
     private val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
@@ -107,6 +109,7 @@ class BackupRepositoryImpl(
                 }
 
                 // 3. Resolve Conflicts for Piles, Images, and Documents
+                val modifiedCacheIds = mutableSetOf<String>()
 
                 // 3.1 Sync Piles
                 val localPiles = pileModelRepository.getAllPileModels()
@@ -142,6 +145,7 @@ class BackupRepositoryImpl(
                 for (id in allDeletedImageIds) {
                     if (id in localImageMap) {
                         documentImageRepository.deleteDocumentImage(id)
+                        modifiedCacheIds.add(id)
                     }
                     remoteFiles.find { it.name == id }?.let { remoteImg ->
                         runCatching { provider.deleteFile(remoteImg.id) }
@@ -156,6 +160,7 @@ class BackupRepositoryImpl(
                         documentImageRepository.insertDocumentImage(
                             remoteDto.toDomain(remoteBackupDto?.timestamp)
                         )
+                        modifiedCacheIds.add(id)
                     } else {
                         val remoteDate = LocalDateTime.parse(
                             remoteDto.modificationDateTime ?: remoteBackupDto?.timestamp,
@@ -165,6 +170,7 @@ class BackupRepositoryImpl(
                             documentImageRepository.insertDocumentImage(
                                 remoteDto.toDomain(remoteBackupDto?.timestamp)
                             )
+                            modifiedCacheIds.add(id)
                         }
                     }
                 }
@@ -178,6 +184,7 @@ class BackupRepositoryImpl(
                     if (docId in localDocMap) {
                         documentModelRepository.deleteDocumentModel(docId)
                         fileRepository.deleteDocumentStorage(documentId = docId)
+                        modifiedCacheIds.add(docId)
                     }
                     val pdfName = "$docId.pdf"
                     remoteFiles.find { it.name == pdfName }?.let { remotePdf ->
@@ -192,6 +199,7 @@ class BackupRepositoryImpl(
                     if (localDoc == null) {
                         documentModelRepository.insertDocumentModel(remoteDocDto.toDomain())
                         downloadFilesForDoc(provider, remoteDocDto, remoteFiles, masterKey)
+                        modifiedCacheIds.add(docId)
                     } else {
                         val remoteDate = LocalDateTime.parse(
                             remoteDocDto.modificationDateTime ?: remoteDocDto.creationDateTime,
@@ -200,6 +208,7 @@ class BackupRepositoryImpl(
                         if (remoteDate.isAfter(localDoc.modificationDateTime)) {
                             documentModelRepository.insertDocumentModel(remoteDocDto.toDomain())
                             downloadFilesForDoc(provider, remoteDocDto, remoteFiles, masterKey)
+                            modifiedCacheIds.add(docId)
                         }
                     }
                 }
@@ -219,14 +228,16 @@ class BackupRepositoryImpl(
                     if (settings.isBackupEncryptionEnabled) masterKey else null
 
                 for (doc in updatedDocuments) {
-                    val pdfFile = fileRepository.getPDFFile(documentId = doc.id)
-                    if (pdfFile.exists() && pdfFile.name !in currentRemoteFileNames) {
-                        pdfFile.inputStream().use { input ->
-                            provider.uploadFile(
-                                pdfFile.name,
-                                backupEncryptor.wrapForEncryption(input, uploadEncryptionKey),
-                                mapOf("docId" to doc.id, "type" to "pdf")
-                            ).getOrThrow()
+                    if (doc.isIncomingPdf) {
+                        val pdfFile = fileRepository.getPDFFile(documentId = doc.id)
+                        if (pdfFile.exists() && pdfFile.name !in currentRemoteFileNames) {
+                            pdfFile.inputStream().use { input ->
+                                provider.uploadFile(
+                                    pdfFile.name,
+                                    backupEncryptor.wrapForEncryption(input, uploadEncryptionKey),
+                                    mapOf("docId" to doc.id, "type" to "pdf")
+                                ).getOrThrow()
+                            }
                         }
                     }
 
@@ -269,6 +280,8 @@ class BackupRepositoryImpl(
                     mapOf("type" to "metadata")
                 )
                     .getOrThrow()
+
+                bitmapCacheRepository?.invalidateCacheFor(modifiedCacheIds)
                 Unit
             }
         }
@@ -279,16 +292,17 @@ class BackupRepositoryImpl(
         remoteFiles: List<RemoteFile>,
         masterKey: String?
     ) {
-        // PDF
-        val pdfName = "${docDto.id}.pdf"
-        val remotePdf = remoteFiles.find { it.name == pdfName }
-        if (remotePdf != null) {
-            val localFile = fileRepository.getPDFFile(documentId = docDto.id)
-            if (!localFile.exists()) {
-                localFile.parentFile?.mkdirs()
-                provider.downloadFile(remotePdf.id).onSuccess { remoteInput ->
-                    localFile.outputStream().use { output ->
-                        backupEncryptor.wrapForDecryption(remoteInput, masterKey).copyTo(output)
+        if (docDto.isIncomingPdf) {
+            val pdfName = "${docDto.id}.pdf"
+            val remotePdf = remoteFiles.find { it.name == pdfName }
+            if (remotePdf != null) {
+                val localFile = fileRepository.getPDFFile(documentId = docDto.id)
+                if (!localFile.exists()) {
+                    localFile.parentFile?.mkdirs()
+                    provider.downloadFile(remotePdf.id).onSuccess { remoteInput ->
+                        localFile.outputStream().use { output ->
+                            backupEncryptor.wrapForDecryption(remoteInput, masterKey).copyTo(output)
+                        }
                     }
                 }
             }

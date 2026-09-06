@@ -98,6 +98,27 @@ class BitmapCacheRepositoryImpl(
         }
     }
 
+    override fun invalidateCacheFor(ids: Set<String>) {
+        if (ids.isEmpty()) return
+
+        _bitmapCache.update { current ->
+            val keysToRemove = current.keys.filter { key ->
+                ids.any { id -> key == id || key.startsWith("${id}_") }
+            }
+
+            if (keysToRemove.isEmpty()) return@update current
+
+            val mutableMap = current.toMutableMap()
+            keysToRemove.forEach { key ->
+                val bitmap = mutableMap.remove(key)
+                if (bitmap != null && !bitmap.isRecycled) {
+                    bitmap.recycle()
+                }
+            }
+            mutableMap.toMap()
+        }
+    }
+
     override fun clearCache() {
         val bitmapsToRecycle = _bitmapCache.value.values
         _bitmapCache.update { emptyMap() }
