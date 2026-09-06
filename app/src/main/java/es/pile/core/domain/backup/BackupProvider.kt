@@ -75,6 +75,12 @@ interface BackupProvider {
      * Deletes a file from the cloud storage.
      */
     suspend fun deleteFile(fileId: String): Result<Unit>
+
+    /**
+     * Physically deletes all files associated with the app from the cloud storage.
+     * This action is irreversible.
+     */
+    suspend fun wipeCloudStorage(): Result<Unit>
 }
 
 /**

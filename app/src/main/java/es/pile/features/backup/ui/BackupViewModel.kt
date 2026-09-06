@@ -98,6 +98,7 @@ class BackupViewModel(
         when (event) {
             BackupEvent.OnBackClicked -> {}
             BackupEvent.OnNavigateToEncryption -> {}
+            BackupEvent.OnNavigateToWipeCloud -> {}
 
             is BackupEvent.OnProviderSelected -> selectProvider(event.provider)
             BackupEvent.OnCellularBackupToggled -> toggleCellularBackup()

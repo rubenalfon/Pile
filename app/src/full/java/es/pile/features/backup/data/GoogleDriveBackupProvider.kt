@@ -196,4 +196,20 @@ class GoogleDriveBackupProvider(
             Unit
         }
     }
+
+    override suspend fun wipeCloudStorage(): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatching {
+            val service = driveService ?: throw Exception("Not authenticated with Google Drive")
+            
+            // AppDataFolder is specific to the app. Deleting its contents wipes all app data.
+            val existingFiles = service.files().list()
+                .setSpaces("appDataFolder")
+                .setFields("files(id)")
+                .execute()
+
+            for (file in existingFiles.files) {
+                service.files().delete(file.id).execute()
+            }
+        }
+    }
 }

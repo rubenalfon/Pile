@@ -5,6 +5,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import es.pile.core.data.backup.EncryptionKeyRequiredException
+import es.pile.core.data.backup.EncryptionStateMismatchException
 import es.pile.core.data.backup.InvalidEncryptionKeyException
 import es.pile.core.domain.models.SyncState
 import es.pile.core.domain.usecases.sync.PerformSyncUseCase
@@ -41,6 +42,14 @@ class SyncWorker(
                     val errorType = when (error) {
                         is EncryptionKeyRequiredException -> ERROR_TYPE_KEY_REQUIRED
                         is InvalidEncryptionKeyException -> ERROR_TYPE_INVALID_KEY
+                        is EncryptionStateMismatchException -> {
+                            val outputData = workDataOf(
+                                ERROR_TYPE_KEY to ERROR_TYPE_ENCRYPTION_MISMATCH,
+                                IS_CLOUD_ENCRYPTED to error.isCloudEncrypted,
+                                ERROR_MESSAGE_KEY to (error.message ?: "Sync failed")
+                            )
+                            return@fold Result.failure(outputData)
+                        }
                         else -> ERROR_TYPE_GENERIC
                     }
                     val outputData = workDataOf(
@@ -72,11 +81,13 @@ class SyncWorker(
         const val STATE_DOWNLOADING = "DOWNLOADING"
         const val STATE_UPLOADING = "UPLOADING"
         const val STATE_SYNCING = "SYNCING"
+        const val IS_CLOUD_ENCRYPTED = "CLOUD_ENCRYPTED"
         
         const val ERROR_TYPE_KEY = "ERROR_TYPE"
         const val ERROR_MESSAGE_KEY = "ERROR_MESSAGE"
         const val ERROR_TYPE_KEY_REQUIRED = "KEY_REQUIRED"
         const val ERROR_TYPE_INVALID_KEY = "INVALID_KEY"
+        const val ERROR_TYPE_ENCRYPTION_MISMATCH = "ENCRYPTION_MISMATCH"
         const val ERROR_TYPE_GENERIC = "GENERIC"
     }
 }

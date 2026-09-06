@@ -91,6 +91,10 @@ class SyncManagerImpl(
                         _syncState.value = when (errorType) {
                             SyncWorker.ERROR_TYPE_INVALID_KEY -> SyncState.InvalidKey
                             SyncWorker.ERROR_TYPE_KEY_REQUIRED -> SyncState.KeyRequired
+                            SyncWorker.ERROR_TYPE_ENCRYPTION_MISMATCH -> {
+                                val isCloudEncrypted = info.outputData.getBoolean(SyncWorker.ERROR_TYPE_ENCRYPTION_MISMATCH, false)
+                                SyncState.EncryptionMismatch(isCloudEncrypted)
+                            }
                             else -> SyncState.Error(UiText.DynamicString(errorMessage))
                         }
                     }

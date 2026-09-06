@@ -6,6 +6,7 @@ import es.pile.core.domain.backup.BackupEncryptor
 import es.pile.core.domain.repositories.BackupRepository
 import es.pile.features.backup.ui.BackupViewModel
 import es.pile.features.backup.ui.encryption.EncryptionViewModel
+import es.pile.features.backup.ui.wipe.WipeCloudViewModel
 import kotlinx.serialization.json.Json
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -38,5 +39,6 @@ val backupModule = module {
 
     viewModelOf(::BackupViewModel)
     viewModelOf(::EncryptionViewModel)
+    viewModelOf(::WipeCloudViewModel)
 }
 

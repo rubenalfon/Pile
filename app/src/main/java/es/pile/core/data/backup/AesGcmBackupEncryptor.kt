@@ -121,6 +121,8 @@ class EncryptionKeyRequiredException : BackupException(UiText.StringResource(R.s
 
 class InvalidEncryptionKeyException : BackupException(UiText.StringResource(R.string.error_invalid_key_generic))
 
+class EncryptionStateMismatchException(val isCloudEncrypted: Boolean) : Exception("Encryption state mismatch between cloud ($isCloudEncrypted) and local.")
+
 abstract class BackupException(val uiText: UiText) : Exception() {
     override val message: String?
         get() = "Backup error"

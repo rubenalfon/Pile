@@ -1,5 +1,6 @@
 package es.pile.core.data.repositories
 
+import es.pile.core.data.backup.EncryptionStateMismatchException
 import es.pile.core.data.backup.InvalidEncryptionKeyException
 import es.pile.core.data.backup.models.BackupDto
 import es.pile.core.data.backup.models.DocumentModelDto
@@ -146,7 +147,7 @@ class BackupRepositoryImplTest {
         every { settingsRepository.userSettings } returns flowOf(settings)
         coEvery { settingsRepository.getBackupMasterKey() } returns "wrong-key"
         coEvery { provider.listFiles() } returns Result.success(listOf(RemoteFile("m1", "backup_metadata.json")))
-        coEvery { provider.downloadFile("m1") } returns Result.success(ByteArrayInputStream(byteArrayOf()))
+        coEvery { provider.downloadFile("m1") } returns Result.success(ByteArrayInputStream("PILEbadtagdata".toByteArray()))
         
         val failingStream = object : InputStream() {
             override fun read(): Int = throw AEADBadTagException("Bad Tag")
@@ -256,5 +257,55 @@ class BackupRepositoryImplTest {
         // Then
         assertTrue("Sync should be successful. Error: ${result.exceptionOrNull()?.message}", result.isSuccess)
         coVerify { documentModelRepository.insertDocumentModel(any()) }
+    }
+
+    @Test
+    fun `when cloud is encrypted and local is not, then sync should throw EncryptionStateMismatchException`() = runTest {
+        // Given
+        val settings = UserSettings(isBackupEncryptionEnabled = false)
+        every { settingsRepository.userSettings } returns flowOf(settings)
+        coEvery { provider.listFiles() } returns Result.success(listOf(RemoteFile("m1", "backup_metadata.json")))
+        coEvery { provider.downloadFile("m1") } returns Result.success(ByteArrayInputStream("PILEdata".toByteArray()))
+
+        // When
+        val result = repository.sync(provider)
+
+        // Then
+        assertTrue("Sync should fail", result.isFailure)
+        val exception = result.exceptionOrNull()
+        assertTrue("Exception should be EncryptionStateMismatchException", exception is EncryptionStateMismatchException)
+        assertTrue("isCloudEncrypted should be true", (exception as EncryptionStateMismatchException).isCloudEncrypted)
+    }
+
+    @Test
+    fun `when cloud is unencrypted and local is encrypted, then sync should throw EncryptionStateMismatchException`() = runTest {
+        // Given
+        val settings = UserSettings(isBackupEncryptionEnabled = true)
+        every { settingsRepository.userSettings } returns flowOf(settings)
+        coEvery { settingsRepository.getBackupMasterKey() } returns "key"
+        coEvery { provider.listFiles() } returns Result.success(listOf(RemoteFile("m1", "backup_metadata.json")))
+        coEvery { provider.downloadFile("m1") } returns Result.success(ByteArrayInputStream("PLAINdata".toByteArray()))
+
+        // When
+        val result = repository.sync(provider)
+
+        // Then
+        assertTrue("Sync should fail", result.isFailure)
+        val exception = result.exceptionOrNull()
+        assertTrue("Exception should be EncryptionStateMismatchException", exception is EncryptionStateMismatchException)
+        assertTrue("isCloudEncrypted should be false", !(exception as EncryptionStateMismatchException).isCloudEncrypted)
+    }
+
+    @Test
+    fun `when wipeCloudData is called, then it should call provider wipeCloudStorage`() = runTest {
+        // Given
+        coEvery { provider.wipeCloudStorage() } returns Result.success(Unit)
+
+        // When
+        val result = repository.wipeCloudData(provider)
+
+        // Then
+        assertTrue("Wipe cloud data should be successful", result.isSuccess)
+        coVerify { provider.wipeCloudStorage() }
     }
 }

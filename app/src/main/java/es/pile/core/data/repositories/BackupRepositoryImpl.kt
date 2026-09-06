@@ -3,6 +3,7 @@ package es.pile.core.data.repositories
 import es.pile.DocumentImage
 import es.pile.DocumentModel
 import es.pile.PileModel
+import es.pile.core.data.backup.EncryptionStateMismatchException
 import es.pile.core.data.backup.models.BackupDto
 import es.pile.core.data.backup.models.DocumentImageDto
 import es.pile.core.data.backup.models.DocumentModelDto
@@ -62,8 +63,22 @@ class BackupRepositoryImpl(
                 val remoteBackupDto = if (metadataFile != null) {
                     onProgress(SyncState.Downloading)
                     val remoteInput = provider.downloadFile(metadataFile.id).getOrThrow()
+                    
+                    // Peek first 4 bytes to check for PILE magic bytes (encryption)
+                    val bufferedInput = remoteInput.buffered()
+                    bufferedInput.mark(4)
+                    val header = ByteArray(4)
+                    val read = bufferedInput.read(header)
+                    bufferedInput.reset()
+                    
+                    val isCloudEncrypted = read == 4 && String(header) == "PILE"
+                    
+                    if (isCloudEncrypted != settings.isBackupEncryptionEnabled) {
+                        throw EncryptionStateMismatchException(isCloudEncrypted)
+                    }
+
                     val decryptedInput =
-                        backupEncryptor.wrapForDecryption(remoteInput, masterKey)
+                        backupEncryptor.wrapForDecryption(bufferedInput, masterKey)
 
                     val jsonString = try {
                         decryptedInput.bufferedReader().use { it.readText() }
@@ -324,6 +339,10 @@ class BackupRepositoryImpl(
                 }
             }
         }
+    }
+
+    override suspend fun wipeCloudData(provider: BackupProvider): Result<Unit> = withContext(ioDispatcher) {
+        provider.wipeCloudStorage()
     }
 
     // Mappers

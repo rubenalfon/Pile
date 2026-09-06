@@ -25,4 +25,12 @@ interface BackupRepository {
         tempMasterKey: String? = null,
         onProgress: (SyncState) -> Unit = {}
     ): Result<Unit>
+
+    /**
+     * Completely wipes all data from the specified provider's cloud storage.
+     * 
+     * @param provider The cloud storage provider to wipe.
+     * @return Result of the wipe operation.
+     */
+    suspend fun wipeCloudData(provider: BackupProvider): Result<Unit>
 }

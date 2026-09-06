@@ -10,9 +10,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,6 +29,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -76,7 +77,7 @@ fun EncryptionScreen(
     EncryptionContent(
         state = state,
         onBack = popBackStack,
-        onEvent = viewModel::handleEvent
+        onEvent = { viewModel.handleEvent(it) }
     )
 }
 
@@ -111,70 +112,84 @@ fun EncryptionContent(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            Spacer(Modifier.height(16.dp))
+        Box(modifier = Modifier.padding(padding)) {
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                Icon(
-                    imageVector = if (state.isEncryptionOn) Icons.Default.Lock else Icons.Default.LockOpen,
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = if (state.isEncryptionOn) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
-                )
-                Text(
-                    text = stringResource(R.string.encryption_description),
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            SettingsSection(title = stringResource(R.string.encryption)) {
-                SettingsItem(
-                    itemPosition = if (state.isEncryptionOn) ItemPosition.TOP else ItemPosition.SINGLE,
-                    title = stringResource(R.string.end_to_end_encrypted_backup),
-                    subtitle = if (state.isEncryptionOn) stringResource(R.string.on) else stringResource(
-                        R.string.off
-                    ),
-                    leadingIcon = {
-                        Icon(
-                            painterResource(R.drawable.backup),
-                            contentDescription = null
-                        )
-                    },
-                    onAction = {
-                        onEvent(EncryptionEvent.OnToggleEncryption)
-                    }
-                )
-                AnimatedVisibility(
-                    visible = state.isEncryptionOn,
-                    enter = expandVertically(),
-                    exit = shrinkVertically(),
-                    label = "RecoveryItemAppear"
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    SettingsItem(
-                        itemPosition = ItemPosition.BOTTOM,
-                        title = stringResource(R.string.show_recovery_key),
-                        subtitle = stringResource(R.string.show_recovery_key_subtitle),
-                        onAction = {
-                            onEvent(EncryptionEvent.OnShowRecoveryKeyClicked)
-                        }
+                    Icon(
+                        imageVector = if (state.isEncryptionOn) Icons.Default.Lock else Icons.Default.LockOpen,
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp),
+                        tint = if (state.isEncryptionOn) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                    )
+                    Text(
+                        text = stringResource(R.string.encryption_description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
+                SettingsSection(title = stringResource(R.string.encryption)) {
+                    SettingsItem(
+                        itemPosition = if (state.isEncryptionOn) ItemPosition.TOP else ItemPosition.SINGLE,
+                        title = stringResource(R.string.end_to_end_encrypted_backup),
+                        subtitle = if (state.isEncryptionOn) stringResource(R.string.on) else stringResource(
+                            R.string.off
+                        ),
+                        leadingIcon = {
+                            Icon(
+                                painterResource(R.drawable.backup),
+                                contentDescription = null
+                            )
+                        },
+                        onAction = {
+                            if (!state.isLoading) {
+                                onEvent(EncryptionEvent.OnToggleEncryption)
+                            }
+                        }
+                    )
+                    AnimatedVisibility(
+                        visible = state.isEncryptionOn,
+                        enter = expandVertically(),
+                        exit = shrinkVertically(),
+                        label = "RecoveryItemAppear"
+                    ) {
+                        SettingsItem(
+                            itemPosition = ItemPosition.BOTTOM,
+                            title = stringResource(R.string.show_recovery_key),
+                            subtitle = stringResource(R.string.show_recovery_key_subtitle),
+                            onAction = {
+                                if (!state.isLoading) {
+                                    onEvent(EncryptionEvent.OnShowRecoveryKeyClicked)
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+
+            if (state.isLoading) {
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.TopCenter)
+                )
             }
         }
 
         if (state.isRecoveryKeyVisible && state.recoveryKey != null) {
-            RecoveryKeyDialog(
+            ShowRecoveryKeyDialog(
                 recoveryKey = state.recoveryKey,
                 isEnabling = !state.isEncryptionOn,
                 onConfirm = { onEvent(EncryptionEvent.OnRecoveryKeyConfirmed) },
@@ -217,7 +232,7 @@ private fun DisableEncryptionAlert(
 }
 
 @Composable
-private fun RecoveryKeyDialog(
+private fun ShowRecoveryKeyDialog(
     recoveryKey: String,
     isEnabling: Boolean = false,
     onConfirm: () -> Unit,
@@ -270,12 +285,7 @@ private fun RecoveryKeyDialog(
                     onClick = {
                         scope.launch {
                             clipboard.setClipEntry(
-                                ClipEntry(
-                                    ClipData.newPlainText(
-                                        "Recovery Key",
-                                        recoveryKey
-                                    )
-                                )
+                                ClipEntry(ClipData.newPlainText("Recovery Key", recoveryKey))
                             )
                         }
                         isCopied = true
@@ -292,7 +302,8 @@ private fun RecoveryKeyDialog(
                     ) { copied ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.height(24.dp)
+                            modifier = Modifier.height(24.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Icon(
                                 painter = if (copied) painterResource(R.drawable.check_24px) else painterResource(
@@ -301,7 +312,6 @@ private fun RecoveryKeyDialog(
                                 contentDescription = null,
                                 tint = if (copied) MaterialTheme.colorScheme.onPrimaryContainer else LocalContentColor.current
                             )
-                            Spacer(Modifier.size(8.dp))
                             Text(
                                 text = if (copied) stringResource(R.string.selected_) else stringResource(
                                     R.string.copy_key

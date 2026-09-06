@@ -26,6 +26,7 @@ data class BackupState(
 sealed interface BackupEvent {
     data object OnBackClicked : BackupEvent
     data object OnNavigateToEncryption : BackupEvent
+    data object OnNavigateToWipeCloud : BackupEvent
 
     data class OnProviderSelected(val provider: BackupProviderInfo?) : BackupEvent
     data object OnSyncClicked : BackupEvent

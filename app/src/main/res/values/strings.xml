@@ -201,6 +201,15 @@
     <string name="disable_backup_confirmation_message">Your documents and data will no longer be synced to the cloud. Local data will remain on your device.</string>
     <string name="disable">Disable</string>
     <string name="own_hosting">Own hosting</string>
+    <string name="danger_zone">Danger Zone</string>
+    <string name="wipe_cloud_data">Wipe cloud data</string>
+    <string name="this_action_is_irreversible">This action is irreversible.</string>
+    <string name="error_cloud_is_encrypted" >The cloud backup is encrypted, but encryption is disabled locally. Enable encryption or wipe cloud data to continue.</string>
+    <string name="error_cloud_not_encrypted" >The cloud backup is not encrypted, but encryption is enabled locally. Disable encryption or wipe cloud data to continue.</string>
+    <string name="wipe_cloud_data_alert_title" >Wipe cloud backup?</string>
+    <string name="wipe_cloud_data_alert_message" >This will permanently delete all backup files from your cloud storage. This action cannot be undone.</string>
+    <string name="wipe" >Wipe</string>
+    <string name="wiping_cloud_data" >Wiping cloud data…</string>
 
     <string name="authentication_failed">Authentication failed</string>
     <string name="authentication_failed_message">We couldn\'t authenticate with the selected provider. Would you like to try again or disable backup?</string>

@@ -42,8 +42,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CheckableDropdownMenuItem
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuPopup
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -106,7 +104,8 @@ import kotlin.time.Duration.Companion.seconds
 fun BackupScreen(
     viewModel: BackupViewModel = koinViewModel(),
     onBack: () -> Unit,
-    navigateToEncryptionSettings: () -> Unit
+    navigateToEncryptionSettings: () -> Unit,
+    navigateToWipeCloud: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -135,6 +134,8 @@ fun BackupScreen(
                 BackupEvent.OnNavigateToEncryption -> {
                     runWithAuth { navigateToEncryptionSettings() }
                 }
+
+                BackupEvent.OnNavigateToWipeCloud -> navigateToWipeCloud()
 
                 else -> viewModel.handleEvent(event)
             }
@@ -185,7 +186,6 @@ private fun BackupNoProviderPreview() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun BackupContent(
     state: BackupState,
@@ -294,8 +294,13 @@ fun BackupContent(
                                 val size = ButtonDefaults.MediumContainerHeight
                                 Button(
                                     onClick = { onEvent(BackupEvent.OnSyncClicked) },
-                                    modifier = Modifier.fillMaxWidth().heightIn(size),
-                                    contentPadding = ButtonDefaults.contentPaddingFor(size, hasStartIcon = true),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(size),
+                                    contentPadding = ButtonDefaults.contentPaddingFor(
+                                        size,
+                                        hasStartIcon = true
+                                    ),
                                     enabled = !isSyncing
                                 ) {
                                     Icon(
@@ -360,6 +365,24 @@ fun BackupContent(
                                         },
                                         onAction = {
                                             onEvent(BackupEvent.OnNavigateToEncryption)
+                                        }
+                                    )
+                                }
+
+                                // Danger Zone Section
+                                SettingsSection(title = stringResource(R.string.danger_zone)) {
+                                    SettingsItem(
+                                        itemPosition = ItemPosition.SINGLE,
+                                        title = stringResource(R.string.wipe_cloud_data),
+                                        subtitle = stringResource(R.string.this_action_is_irreversible),
+                                        leadingIcon = {
+                                            Icon(
+                                                painterResource(R.drawable.delete_forever_24px),
+                                                contentDescription = null
+                                            )
+                                        },
+                                        onAction = {
+                                            onEvent(BackupEvent.OnNavigateToWipeCloud)
                                         }
                                     )
                                 }
@@ -437,7 +460,6 @@ private fun SyncDisabledEmptyState(modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProviderSelector(
     selectedProvider: BackupProviderInfo?,
@@ -713,12 +735,12 @@ private fun BackupStatusCard(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    
+
     // Recalculate recentness every minute to allow the UI to transition automatically
     var isRecentSuccess by remember(lastSyncTimestamp) {
         mutableStateOf(lastSyncTimestamp != null && (System.currentTimeMillis() - lastSyncTimestamp) < 5 * 60 * 1000)
     }
-    
+
     LaunchedEffect(lastSyncTimestamp) {
         if (lastSyncTimestamp != null) {
             while (true) {
@@ -733,7 +755,7 @@ private fun BackupStatusCard(
     val lastSyncText = remember(lastSyncTimestamp) {
         formatLastSync(lastSyncTimestamp, context)
     }
-    
+
     val isWaitingForWifi = syncState is SyncState.WaitingForWifi
 
     Card(
@@ -766,7 +788,7 @@ private fun BackupStatusCard(
                     "waiting" -> MaterialTheme.colorScheme.tertiary
                     else -> MaterialTheme.colorScheme.primary
                 }
-                
+
                 Box(
                     modifier = Modifier
                         .size(40.dp)
@@ -817,7 +839,7 @@ private fun BackupStatusCard(
                         }
                     )
                 }
-                
+
                 AnimatedVisibility(
                     visible = isRecentSuccess || isWaitingForWifi,
                     enter = fadeIn() + expandVertically(),

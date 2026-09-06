@@ -17,6 +17,7 @@ import androidx.navigation3.ui.NavDisplay
 import es.pile.features.addDocument.ui.AddDocumentScreen
 import es.pile.features.backup.ui.BackupScreen
 import es.pile.features.backup.ui.encryption.EncryptionScreen
+import es.pile.features.backup.ui.wipe.WipeCloudScreen
 import es.pile.features.documentDetail.ui.DocumentDetailScreen
 import es.pile.features.editDocument.ui.EditDocumentScreen
 import es.pile.features.home.ui.HomeScreen
@@ -170,7 +171,7 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
 
             entry<Pane.SettingsOverview> {
                 SettingsOverviewScreen(
-                    popBackStack = backStack::removeLastOrNull,
+                    popBackStack = { backStack.removeLastOrNull() },
                     navigateToSettingsResolution = {
                         backStack.add(Pane.SettingsResolution)
                     },
@@ -182,7 +183,7 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
 
             entry<Pane.SettingsResolution> {
                 SettingsResolutionScreen(
-                    popBackStack = backStack::removeLastOrNull
+                    popBackStack = { backStack.removeLastOrNull() }
                 )
             }
 
@@ -191,12 +192,21 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                     onBack = { backStack.removeLastOrNull() },
                     navigateToEncryptionSettings = {
                         backStack.add(Pane.EncryptionSettings)
+                    },
+                    navigateToWipeCloud = {
+                        backStack.add(Pane.WipeCloud)
                     }
                 )
             }
 
             entry<Pane.EncryptionSettings> {
                 EncryptionScreen(
+                    popBackStack = { backStack.removeLastOrNull() }
+                )
+            }
+
+            entry<Pane.WipeCloud> {
+                WipeCloudScreen(
                     popBackStack = { backStack.removeLastOrNull() }
                 )
             }

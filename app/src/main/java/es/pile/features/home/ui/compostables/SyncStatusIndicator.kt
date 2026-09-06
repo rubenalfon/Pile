@@ -37,6 +37,7 @@ private fun SyncStatusIndicatorPreview() {
         "Verifying Key" to SyncState.VerifyingKey,
         "Key Required" to SyncState.KeyRequired,
         "Invalid Key" to SyncState.InvalidKey,
+        "Encryption Mismatch" to SyncState.EncryptionMismatch(true),
         "Error" to SyncState.Error(UiText.DynamicString("Error"))
     )
 
@@ -91,12 +92,17 @@ fun SyncStatusIndicator(
                 SyncState.VerifyingKey -> painterResource(R.drawable.sync_24px)
                 SyncState.Uploading -> painterResource(R.drawable.backup)
                 SyncState.Downloading -> painterResource(R.drawable.download_24px)
-                is SyncState.Error, SyncState.InvalidKey, SyncState.KeyRequired -> painterResource(R.drawable.sync_disabled_24px)
+                is SyncState.Error, SyncState.InvalidKey, SyncState.KeyRequired, is SyncState.EncryptionMismatch -> painterResource(
+                    R.drawable.sync_disabled_24px
+                )
             }
 
             val tint = when (syncState) {
-                is SyncState.Error, SyncState.InvalidKey, SyncState.KeyRequired -> MaterialTheme.colorScheme.error
-                SyncState.NoProvider, SyncState.WaitingForWifi -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                is SyncState.Error, SyncState.InvalidKey, SyncState.KeyRequired, is SyncState.EncryptionMismatch -> MaterialTheme.colorScheme.error
+                SyncState.NoProvider, SyncState.WaitingForWifi -> MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                    alpha = 0.7f
+                )
+
                 SyncState.Idle, is SyncState.Success -> MaterialTheme.colorScheme.primary.copy(
                     alpha = 0.7f
                 )
