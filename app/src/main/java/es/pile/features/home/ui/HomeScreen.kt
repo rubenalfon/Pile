@@ -238,9 +238,7 @@ fun HomeScreen(
                     }
             ) {
                 val availableWidth = maxWidth
-                val isRefreshing = state.syncState is SyncState.Syncing ||
-                                 state.syncState is SyncState.Downloading ||
-                                 state.syncState is SyncState.Uploading
+                val isRefreshing = state.isManualRefreshing
 
                 val pullToRefreshState = rememberPullToRefreshState()
                 PullToRefreshBox(

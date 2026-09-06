@@ -18,7 +18,8 @@ data class HomeState(
     val isLoadingNewDocument: Boolean = false,
     val isInitialLoading: Boolean = true,
     val errorMessage: UiText? = null,
-    val syncState: SyncState = SyncState.Idle
+    val syncState: SyncState = SyncState.Idle,
+    val isManualRefreshing: Boolean = false
 )
 
 sealed interface HomeEvent {

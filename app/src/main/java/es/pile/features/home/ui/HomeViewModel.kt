@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import es.pile.DocumentModel
 import es.pile.R
 import es.pile.core.domain.models.DocumentCoverItem
+import es.pile.core.domain.models.SyncState
 import es.pile.core.domain.repositories.BitmapCacheRepository
 import es.pile.core.domain.repositories.FileRepository
 import es.pile.core.domain.sync.SyncManager
@@ -73,13 +74,22 @@ class HomeViewModel(
 
         viewModelScope.launch {
             syncManager.syncState.collect { syncState ->
-                _state.update { it.copy(syncState = syncState) }
+                _state.update { current ->
+                    val isSyncActive = syncState is SyncState.Syncing ||
+                            syncState is SyncState.Downloading ||
+                            syncState is SyncState.Uploading ||
+                            syncState is SyncState.VerifyingKey
+
+                    current.copy(
+                        syncState = syncState,
+                        isManualRefreshing = isSyncActive && current.isManualRefreshing
+                    )
+                }
             }
         }
     }
 
     override fun onCleared() {
-        super.onCleared()
         purgeDraftDocument()
     }
 
@@ -134,7 +144,10 @@ class HomeViewModel(
             }
 
             HomeEvent.OnErrorDismissed -> _state.update { it.copy(errorMessage = null) }
-            HomeEvent.OnRefreshSync -> syncManager.requestSync(force = true)
+            HomeEvent.OnRefreshSync -> {
+                _state.update { it.copy(isManualRefreshing = true) }
+                syncManager.requestSync(force = true)
+            }
         }
     }
 
