@@ -13,7 +13,10 @@ data class BackupDto(
     val timestamp: String,
     val documents: List<DocumentModelDto>,
     val images: List<DocumentImageDto>,
-    val piles: List<PileModelDto>
+    val piles: List<PileModelDto>,
+    val deletedDocumentIds: List<String> = emptyList(),
+    val deletedPileIds: List<String> = emptyList(),
+    val deletedImageIds: List<String> = emptyList()
 )
 
 @Serializable

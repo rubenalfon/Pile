@@ -10,8 +10,10 @@ import es.pile.core.data.backup.models.PileModelDto
 import es.pile.core.domain.backup.BackupEncryptor
 import es.pile.core.domain.backup.BackupProvider
 import es.pile.core.domain.backup.RemoteFile
+import es.pile.core.domain.models.DeletedEntityType
 import es.pile.core.domain.models.SyncState
 import es.pile.core.domain.repositories.BackupRepository
+import es.pile.core.domain.repositories.DeletedEntityRepository
 import es.pile.core.domain.repositories.DocumentImageRepository
 import es.pile.core.domain.repositories.DocumentModelRepository
 import es.pile.core.domain.repositories.FileRepository
@@ -29,6 +31,7 @@ class BackupRepositoryImpl(
     private val documentModelRepository: DocumentModelRepository,
     private val documentImageRepository: DocumentImageRepository,
     private val pileModelRepository: PileModelRepository,
+    private val deletedEntityRepository: DeletedEntityRepository,
     private val fileRepository: FileRepository,
     private val settingsRepository: SettingsRepository,
     private val backupEncryptor: BackupEncryptor,
@@ -53,7 +56,6 @@ class BackupRepositoryImpl(
                 val remoteFiles = provider.listFiles().getOrThrow()
                 val metadataFile = remoteFiles.find { it.name == "backup_metadata.json" }
 
-
                 // 1. Download Remote Metadata if exists
                 val remoteBackupDto = if (metadataFile != null) {
                     onProgress(SyncState.Downloading)
@@ -77,16 +79,51 @@ class BackupRepositoryImpl(
                     null
                 }
 
-                // 2. Resolve Conflicts for Documents, Piles, and Images
+                // 2. Consolidate Local and Remote Tombstones (Deleted Entities)
+                val localDeletedDocIds =
+                    deletedEntityRepository.getDeletedEntityIdsByType(DeletedEntityType.DOCUMENT)
+                val localDeletedPileIds =
+                    deletedEntityRepository.getDeletedEntityIdsByType(DeletedEntityType.PILE)
+                val localDeletedImageIds =
+                    deletedEntityRepository.getDeletedEntityIdsByType(DeletedEntityType.IMAGE)
 
-                // Sync Piles
+                val remoteDeletedDocIds = remoteBackupDto?.deletedDocumentIds?.toSet() ?: emptySet()
+                val remoteDeletedPileIds = remoteBackupDto?.deletedPileIds?.toSet() ?: emptySet()
+                val remoteDeletedImageIds = remoteBackupDto?.deletedImageIds?.toSet() ?: emptySet()
+
+                val allDeletedDocIds = localDeletedDocIds + remoteDeletedDocIds
+                val allDeletedPileIds = localDeletedPileIds + remoteDeletedPileIds
+                val allDeletedImageIds = localDeletedImageIds + remoteDeletedImageIds
+
+                // Persist remote tombstones locally so local DB is aware of deletions on other devices
+                (remoteDeletedDocIds - localDeletedDocIds).forEach {
+                    deletedEntityRepository.insertDeletedEntity(it, DeletedEntityType.DOCUMENT)
+                }
+                (remoteDeletedPileIds - localDeletedPileIds).forEach {
+                    deletedEntityRepository.insertDeletedEntity(it, DeletedEntityType.PILE)
+                }
+                (remoteDeletedImageIds - localDeletedImageIds).forEach {
+                    deletedEntityRepository.insertDeletedEntity(it, DeletedEntityType.IMAGE)
+                }
+
+                // 3. Resolve Conflicts for Piles, Images, and Documents
+
+                // 3.1 Sync Piles
                 val localPiles = pileModelRepository.getAllPileModels()
                 val localPileMap = localPiles.associateBy { it.id }
                 val remotePileMap = remoteBackupDto?.piles?.associateBy { it.id } ?: emptyMap()
-                (localPileMap.keys + remotePileMap.keys).forEach { id ->
+
+                for (id in allDeletedPileIds) {
+                    if (id in localPileMap) pileModelRepository.deletePileModel(id)
+                }
+
+                for ((id, remoteDto) in remotePileMap) {
+                    if (id in allDeletedPileIds) continue
+
                     val local = localPileMap[id]
-                    val remoteDto = remotePileMap[id]
-                    if (local != null && remoteDto != null) {
+                    if (local == null) {
+                        pileModelRepository.insertPileModel(remoteDto.toDomain(remoteBackupDto?.timestamp))
+                    } else {
                         val remoteDate = LocalDateTime.parse(
                             remoteDto.modificationDateTime ?: remoteBackupDto?.timestamp,
                             dateTimeFormatter
@@ -94,19 +131,32 @@ class BackupRepositoryImpl(
                         if (remoteDate.isAfter(local.modificationDateTime)) {
                             pileModelRepository.insertPileModel(remoteDto.toDomain(remoteBackupDto?.timestamp))
                         }
-                    } else if (remoteDto != null) {
-                        pileModelRepository.insertPileModel(remoteDto.toDomain(remoteBackupDto?.timestamp))
                     }
                 }
 
-                // Sync Images metadata
+                // 3.2 Sync Images metadata
                 val localImages = documentImageRepository.getAllDocumentImages()
                 val localImageMap = localImages.associateBy { it.id }
                 val remoteImageMap = remoteBackupDto?.images?.associateBy { it.id } ?: emptyMap()
-                (localImageMap.keys + remoteImageMap.keys).forEach { id ->
+
+                for (id in allDeletedImageIds) {
+                    if (id in localImageMap) {
+                        documentImageRepository.deleteDocumentImage(id)
+                    }
+                    remoteFiles.find { it.name == id }?.let { remoteImg ->
+                        runCatching { provider.deleteFile(remoteImg.id) }
+                    }
+                }
+
+                for ((id, remoteDto) in remoteImageMap) {
+                    if (id in allDeletedImageIds) continue
+
                     val local = localImageMap[id]
-                    val remoteDto = remoteImageMap[id]
-                    if (local != null && remoteDto != null) {
+                    if (local == null) {
+                        documentImageRepository.insertDocumentImage(
+                            remoteDto.toDomain(remoteBackupDto?.timestamp)
+                        )
+                    } else {
                         val remoteDate = LocalDateTime.parse(
                             remoteDto.modificationDateTime ?: remoteBackupDto?.timestamp,
                             dateTimeFormatter
@@ -116,26 +166,33 @@ class BackupRepositoryImpl(
                                 remoteDto.toDomain(remoteBackupDto?.timestamp)
                             )
                         }
-                    } else if (remoteDto != null) {
-                        documentImageRepository.insertDocumentImage(
-                            remoteDto.toDomain(
-                                remoteBackupDto?.timestamp
-                            )
-                        )
                     }
                 }
 
-                // Sync Documents and their physical files
+                // 3.3 Sync Documents and their PDF files
                 val localDocuments = documentModelRepository.getAllDocumentModels()
                 val localDocMap = localDocuments.associateBy { it.id }
                 val remoteDocMap = remoteBackupDto?.documents?.associateBy { it.id } ?: emptyMap()
 
-                val allDocIds = localDocMap.keys + remoteDocMap.keys
-                for (docId in allDocIds) {
-                    val localDoc = localDocMap[docId]
-                    val remoteDocDto = remoteDocMap[docId]
+                for (docId in allDeletedDocIds) {
+                    if (docId in localDocMap) {
+                        documentModelRepository.deleteDocumentModel(docId)
+                        fileRepository.deleteDocumentStorage(documentId = docId)
+                    }
+                    val pdfName = "$docId.pdf"
+                    remoteFiles.find { it.name == pdfName }?.let { remotePdf ->
+                        runCatching { provider.deleteFile(remotePdf.id) }
+                    }
+                }
 
-                    if (localDoc != null && remoteDocDto != null) {
+                for ((docId, remoteDocDto) in remoteDocMap) {
+                    if (docId in allDeletedDocIds) continue
+
+                    val localDoc = localDocMap[docId]
+                    if (localDoc == null) {
+                        documentModelRepository.insertDocumentModel(remoteDocDto.toDomain())
+                        downloadFilesForDoc(provider, remoteDocDto, remoteFiles, masterKey)
+                    } else {
                         val remoteDate = LocalDateTime.parse(
                             remoteDocDto.modificationDateTime ?: remoteDocDto.creationDateTime,
                             dateTimeFormatter
@@ -144,17 +201,17 @@ class BackupRepositoryImpl(
                             documentModelRepository.insertDocumentModel(remoteDocDto.toDomain())
                             downloadFilesForDoc(provider, remoteDocDto, remoteFiles, masterKey)
                         }
-                    } else if (remoteDocDto != null) {
-                        documentModelRepository.insertDocumentModel(remoteDocDto.toDomain())
-                        downloadFilesForDoc(provider, remoteDocDto, remoteFiles, masterKey)
                     }
                 }
 
-                // 3. Prepare final upload (Consolidated data)
+                // 4. Prepare final upload (Consolidated data excluding tombstones)
                 onProgress(SyncState.Uploading)
                 val updatedDocuments = documentModelRepository.getAllDocumentModels()
+                    .filter { it.id !in allDeletedDocIds }
                 val updatedImages = documentImageRepository.getAllDocumentImages()
+                    .filter { it.id !in allDeletedImageIds }
                 val updatedPiles = pileModelRepository.getAllPileModels()
+                    .filter { it.id !in allDeletedPileIds }
 
                 val currentRemoteFileNames =
                     provider.listFiles().getOrThrow().map { it.name }.toSet()
@@ -174,6 +231,7 @@ class BackupRepositoryImpl(
                     }
 
                     for (imageId in doc.imageIds) {
+                        if (imageId in allDeletedImageIds) continue
                         val imageFile =
                             fileRepository.getImageFile(documentId = doc.id, imageId = imageId)
                         if (imageFile.exists() && imageFile.name !in currentRemoteFileNames) {
@@ -188,12 +246,15 @@ class BackupRepositoryImpl(
                     }
                 }
 
-                // 4. Upload final Metadata
+                // 5. Upload final Metadata with Tombstones
                 val backupDto = BackupDto(
                     timestamp = LocalDateTime.now().format(dateTimeFormatter),
                     documents = updatedDocuments.map { it.toDto() },
                     images = updatedImages.map { it.toDto() },
-                    piles = updatedPiles.map { it.toDto() }
+                    piles = updatedPiles.map { it.toDto() },
+                    deletedDocumentIds = allDeletedDocIds.toList(),
+                    deletedPileIds = allDeletedPileIds.toList(),
+                    deletedImageIds = allDeletedImageIds.toList()
                 )
 
                 val jsonString = json.encodeToString(backupDto)

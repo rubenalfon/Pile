@@ -2,8 +2,10 @@ package es.pile.features.home.ui
 
 import es.pile.DocumentModel
 import es.pile.PileModel
+import es.pile.core.domain.models.SyncState
 import es.pile.core.domain.repositories.BitmapCacheRepository
 import es.pile.core.domain.repositories.FileRepository
+import es.pile.core.domain.sync.SyncManager
 import es.pile.core.domain.useCases.CreatePileUseCase
 import es.pile.core.domain.useCases.RequestBitmapLoadUseCase
 import es.pile.features.home.domain.schedulers.CleanupScheduler
@@ -14,6 +16,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -37,6 +40,7 @@ class HomeViewModelTest {
     private val cleanupScheduler: CleanupScheduler = mockk()
     private val bitmapCacheRepository: BitmapCacheRepository = mockk(relaxed = true)
     private val fileRepository: FileRepository = mockk()
+    private val syncManager: SyncManager = mockk(relaxed = true)
 
     private val testDispatcher = UnconfinedTestDispatcher()
 
@@ -62,6 +66,7 @@ class HomeViewModelTest {
             coloredPileIds = listOf("p1")
         )
         every { getHomeDataUseCase() } returns flowOf(homeData)
+        every { syncManager.syncState } returns MutableStateFlow(SyncState.Idle)
 
         // When
         val viewModel = HomeViewModel(
@@ -72,7 +77,8 @@ class HomeViewModelTest {
             requestBitmapLoadUseCase,
             cleanupScheduler,
             bitmapCacheRepository,
-            fileRepository
+            fileRepository,
+            syncManager
         )
 
         // Then

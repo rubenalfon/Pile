@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
  * Handles persistence and retrieval of image-specific metadata such as cropping, filters, and rotation.
  */
 interface DocumentImageRepository {
-    
+
     /**
      * Retrieves all document images currently stored in the database.
      * 
@@ -25,7 +25,7 @@ interface DocumentImageRepository {
     fun getDocumentImageById(id: String): Flow<DocumentImage?>
 
     /**
-     * Persists a new document image record in the database.
+     * Persists a new document image record in the database and clears any previous deletion tombstone.
      * 
      * @param documentImage The image metadata to insert.
      */
@@ -39,7 +39,7 @@ interface DocumentImageRepository {
     suspend fun updateDocumentImage(documentImage: DocumentImage)
 
     /**
-     * Removes a document image record from the database.
+     * Removes a document image record from the database and registers a tombstone record for synchronization.
      * 
      * @param id The unique identifier of the image to delete.
      */

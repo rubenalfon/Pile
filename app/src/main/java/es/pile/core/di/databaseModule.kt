@@ -5,6 +5,7 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import es.pile.Database
 import es.pile.DatabaseQueries
+import es.pile.DeletedEntity
 import es.pile.DocumentImage
 import es.pile.DocumentModel
 import es.pile.PileModel
@@ -36,6 +37,9 @@ val databaseModule = module {
             ),
             PileModelAdapter = PileModel.Adapter(
                 modificationDateTimeAdapter = get(named("LocalDateTimeStringAdapter"))
+            ),
+            DeletedEntityAdapter = DeletedEntity.Adapter(
+                deletedDateTimeAdapter = get(named("LocalDateTimeStringAdapter"))
             )
         )
     }

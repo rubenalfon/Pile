@@ -6,7 +6,9 @@ import es.pile.core.data.backup.models.DocumentModelDto
 import es.pile.core.domain.backup.BackupEncryptor
 import es.pile.core.domain.backup.BackupProvider
 import es.pile.core.domain.backup.RemoteFile
+import es.pile.core.domain.models.DeletedEntityType
 import es.pile.core.domain.models.UserSettings
+import es.pile.core.domain.repositories.DeletedEntityRepository
 import es.pile.core.domain.repositories.DocumentImageRepository
 import es.pile.core.domain.repositories.DocumentModelRepository
 import es.pile.core.domain.repositories.FileRepository
@@ -20,11 +22,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.ByteArrayInputStream
-import java.io.File
 import java.io.InputStream
 import java.time.LocalDateTime
 import javax.crypto.AEADBadTagException
@@ -34,6 +34,7 @@ class BackupRepositoryImplTest {
     private val documentModelRepository: DocumentModelRepository = mockk(relaxed = true)
     private val documentImageRepository: DocumentImageRepository = mockk(relaxed = true)
     private val pileModelRepository: PileModelRepository = mockk(relaxed = true)
+    private val deletedEntityRepository: DeletedEntityRepository = mockk(relaxed = true)
     private val fileRepository: FileRepository = mockk(relaxed = true)
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
     private val backupEncryptor: BackupEncryptor = mockk()
@@ -44,6 +45,7 @@ class BackupRepositoryImplTest {
         documentModelRepository,
         documentImageRepository,
         pileModelRepository,
+        deletedEntityRepository,
         fileRepository,
         settingsRepository,
         backupEncryptor,
@@ -161,48 +163,61 @@ class BackupRepositoryImplTest {
     }
 
     @Test
-    fun `when getSyncStatus is called and metadata exists, then it should return status with formatted timestamp`() = runTest {
+    fun `when sync is called and document is marked as deleted, then it should delete remote file and not reinsert document`() = runTest {
         // Given
-        val timestamp = 1722687801000L // 2024-08-03
-        val remoteFile = RemoteFile(
-            id = "id",
-            name = "backup_metadata.json",
-            lastModified = timestamp
+        val deletedEntityRepository: DeletedEntityRepository = mockk(relaxed = true)
+        val repoWithQueries = BackupRepositoryImpl(
+            documentModelRepository,
+            documentImageRepository,
+            pileModelRepository,
+            deletedEntityRepository,
+            fileRepository,
+            settingsRepository,
+            backupEncryptor,
+            json,
+            Dispatchers.Unconfined,
+            listOf(provider)
         )
-        coEvery { provider.listFiles() } returns Result.success(listOf(remoteFile))
-        coEvery { documentModelRepository.getAllDocumentModels() } returns emptyList()
+
+        val settings = UserSettings(isBackupEncryptionEnabled = false)
+        every { settingsRepository.userSettings } returns flowOf(settings)
+
+        coEvery { deletedEntityRepository.getDeletedEntityIdsByType(DeletedEntityType.DOCUMENT) } returns setOf("deleted-doc-1")
+        coEvery { deletedEntityRepository.getDeletedEntityIdsByType(DeletedEntityType.PILE) } returns emptySet()
+        coEvery { deletedEntityRepository.getDeletedEntityIdsByType(DeletedEntityType.IMAGE) } returns emptySet()
+
+        val remoteDoc = DocumentModelDto(
+            id = "deleted-doc-1", title = "Deleted Title", imageIds = emptyList(),
+            creationDateTime = "2024-01-01T12:00:00",
+            modificationDateTime = "2024-01-01T12:00:00",
+            documentStatus = 0, documentPileIds = emptyList(),
+            documentDetails = emptyList(), documentNote = "",
+            documentOrganizationIds = emptyList(), isIncomingPdf = false
+        )
+        val remoteMetadata = BackupDto(
+            timestamp = "2024-01-01T12:00:00",
+            documents = listOf(remoteDoc),
+            images = emptyList(),
+            piles = emptyList()
+        )
+        val metadataJson = json.encodeToString(BackupDto.serializer(), remoteMetadata)
+
+        val remotePdf = RemoteFile("f1", "deleted-doc-1.pdf")
+        val metadataFile = RemoteFile("m1", "backup_metadata.json")
+        coEvery { provider.listFiles() } returns Result.success(listOf(metadataFile, remotePdf))
+        coEvery { provider.downloadFile("m1") } returns Result.success(ByteArrayInputStream(metadataJson.toByteArray()))
+        every { backupEncryptor.wrapForDecryption(any(), any()) } answers { it.invocation.args[0] as InputStream }
+        every { backupEncryptor.wrapForEncryption(any(), any()) } answers { it.invocation.args[0] as InputStream }
+        coEvery { provider.deleteFile("f1") } returns Result.success(Unit)
+        coEvery { provider.uploadFile(any(), any(), any()) } returns Result.success("id")
 
         // When
-        val result = repository.getSyncStatus(provider)
+        val result = repoWithQueries.sync(provider)
 
         // Then
-        assertTrue(result.isSuccess)
-        val status = result.getOrThrow()
-        assertTrue(status.lastBackupDateTime != null)
-        assertTrue(status.lastBackupDateTime!!.contains("2024-08-03"))
-    }
-
-    @Test
-    fun `when getSyncStatus is called and local files are missing on remote, then it should return correct count`() = runTest {
-        // Given
-        val localDoc = createMockDocument("doc1", LocalDateTime.now())
-        coEvery { documentModelRepository.getAllDocumentModels() } returns listOf(localDoc)
-        
-        val pdfFile = File("doc1.pdf")
-        val imgFile = File("img1")
-        every { fileRepository.getPDFFile(documentId = "doc1") } returns pdfFile
-        every { fileRepository.getImageFile(documentId = "doc1", imageId = "img1") } returns imgFile
-        
-        // Remote has nothing
-        coEvery { provider.listFiles() } returns Result.success(emptyList())
-
-        // When
-        val result = repository.getSyncStatus(provider)
-
-        // Then
-        assertTrue(result.isSuccess)
-        val status = result.getOrThrow()
-        assertEquals(1, status.missingLocalFilesCount) // 1 PDF (mock imageIds was empty)
+        assertTrue("Sync should be successful", result.isSuccess)
+        coVerify { provider.deleteFile("f1") }
+        coVerify(exactly = 0) { documentModelRepository.insertDocumentModel(any()) }
     }
 
     @Test

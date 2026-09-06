@@ -1,0 +1,7 @@
+import java.time.LocalDateTime;
+
+CREATE TABLE IF NOT EXISTS DeletedEntity(
+    id                  TEXT                    PRIMARY KEY,
+    type                TEXT                    NOT NULL,
+    deletedDateTime    TEXT AS LocalDateTime   NOT NULL
+);

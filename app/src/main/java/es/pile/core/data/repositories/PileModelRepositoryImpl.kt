@@ -5,15 +5,17 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import es.pile.DatabaseQueries
 import es.pile.PileModel
+import es.pile.core.domain.models.DeletedEntityType
+import es.pile.core.domain.repositories.DeletedEntityRepository
 import es.pile.core.domain.repositories.PileModelRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 
-
 class PileModelRepositoryImpl(
     private val databaseQueries: DatabaseQueries,
+    private val deletedEntityRepository: DeletedEntityRepository,
     private val ioDispatcher: CoroutineDispatcher
 ) : PileModelRepository {
 
@@ -35,6 +37,7 @@ class PileModelRepositoryImpl(
 
     override suspend fun insertPileModel(pileModel: PileModel) {
         withContext(ioDispatcher) {
+            deletedEntityRepository.removeDeletedEntity(pileModel.id)
             databaseQueries.insertPileModel(
                 id = pileModel.id,
                 name = pileModel.name,
@@ -59,6 +62,7 @@ class PileModelRepositoryImpl(
 
     override suspend fun deletePileModel(id: String) {
         withContext(ioDispatcher) {
+            deletedEntityRepository.insertDeletedEntity(id, DeletedEntityType.PILE)
             databaseQueries.removePileModel(id)
         }
     }

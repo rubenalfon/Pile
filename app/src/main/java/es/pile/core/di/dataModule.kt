@@ -9,6 +9,7 @@ import es.pile.core.data.repositories.AndroidSecureStorageRepository
 import es.pile.core.data.repositories.BitmapCacheRepositoryImpl
 import es.pile.core.data.repositories.DataStoreAppPreferencesRepository
 import es.pile.core.data.repositories.DataStoreSettingsRepository
+import es.pile.core.data.repositories.DeletedEntityRepositoryImpl
 import es.pile.core.data.repositories.DocumentImageRepositoryImpl
 import es.pile.core.data.repositories.DocumentModelRepositoryImpl
 import es.pile.core.data.repositories.FileRepositoryImpl
@@ -22,6 +23,7 @@ import es.pile.core.domain.models.AppPreferences
 import es.pile.core.domain.models.UserSettings
 import es.pile.core.domain.repositories.AppPreferencesRepository
 import es.pile.core.domain.repositories.BitmapCacheRepository
+import es.pile.core.domain.repositories.DeletedEntityRepository
 import es.pile.core.domain.repositories.DocumentImageRepository
 import es.pile.core.domain.repositories.DocumentModelRepository
 import es.pile.core.domain.repositories.FileRepository
@@ -86,9 +88,17 @@ val dataModule = module {
         )
     }
 
+    single<DeletedEntityRepository> {
+        DeletedEntityRepositoryImpl(
+            databaseQueries = get(),
+            ioDispatcher = get()
+        )
+    }
+
     single<PileModelRepository> {
         PileModelRepositoryImpl(
             databaseQueries = get(),
+            deletedEntityRepository = get(),
             ioDispatcher = get()
         )
     }
@@ -96,6 +106,7 @@ val dataModule = module {
     single<DocumentModelRepository> {
         DocumentModelRepositoryImpl(
             databaseQueries = get(),
+            deletedEntityRepository = get(),
             ioDispatcher = get()
         )
     }
@@ -103,6 +114,7 @@ val dataModule = module {
     single<DocumentImageRepository> {
         DocumentImageRepositoryImpl(
             databaseQueries = get(),
+            deletedEntityRepository = get(),
             ioDispatcher = get()
         )
     }

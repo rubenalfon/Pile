@@ -25,6 +25,7 @@ val backupModule = module {
             documentModelRepository = get(),
             documentImageRepository = get(),
             pileModelRepository = get(),
+            deletedEntityRepository = get(),
             fileRepository = get(),
             settingsRepository = get(),
             backupEncryptor = get(),

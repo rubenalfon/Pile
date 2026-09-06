@@ -194,6 +194,7 @@ UPDATE DocumentModel
 SET isIncomingPdf = ?
 WHERE id = ?;
 
+
 -- DocumentImage
 
 CREATE TABLE IF NOT EXISTS DocumentImage(
@@ -254,3 +255,30 @@ UPDATE DocumentImage
 SET rotation = ?,
     modificationDateTime = ?
 WHERE id = ?;
+
+
+-- DeletedEntity
+
+CREATE TABLE IF NOT EXISTS DeletedEntity(
+    id                  TEXT                    PRIMARY KEY,
+    type                TEXT                    NOT NULL,
+    deletedDateTime    TEXT AS LocalDateTime   NOT NULL
+);
+
+insertDeletedEntity:
+INSERT OR REPLACE INTO DeletedEntity(id, type, deletedDateTime)
+VALUES(?, ?, ?);
+
+selectAllDeletedEntities:
+SELECT *
+FROM DeletedEntity;
+
+selectDeletedEntitiesByType:
+SELECT *
+FROM DeletedEntity
+WHERE type = ?;
+
+removeDeletedEntity:
+DELETE FROM DeletedEntity
+WHERE id = ?;
+

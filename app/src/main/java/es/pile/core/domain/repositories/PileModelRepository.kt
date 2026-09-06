@@ -39,7 +39,7 @@ interface PileModelRepository {
     fun getPileModelsByIds(ids: List<String>): Flow<List<PileModel>>
 
     /**
-     * Persists a new pile record in the database.
+     * Persists a new pile record in the database and clears any previous deletion tombstone.
      * 
      * @param pileModel The pile metadata to insert.
      */
@@ -53,7 +53,7 @@ interface PileModelRepository {
     suspend fun updatePileModel(pileModel: PileModel)
 
     /**
-     * Removes a pile record from the database.
+     * Removes a pile record from the database and registers a tombstone record for synchronization.
      * 
      * @param id The unique identifier of the pile to delete.
      */
