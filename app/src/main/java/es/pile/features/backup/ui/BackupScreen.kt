@@ -290,6 +290,28 @@ fun BackupContent(
                                     syncState = state.syncState
                                 )
 
+                                val errorMessage = state.syncState.errorMessage
+                                AnimatedVisibility(
+                                    visible = errorMessage != null,
+                                    enter = fadeIn() + expandVertically(),
+                                    exit = fadeOut() + shrinkVertically()
+                                ) {
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = MaterialTheme.colorScheme.errorContainer
+                                        )
+                                    ) {
+                                        Column(modifier = Modifier.padding(16.dp)) {
+                                            Text(
+                                                text = errorMessage?.asString() ?: "",
+                                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+                                    }
+                                }
+
                                 // Sync button
                                 val size = ButtonDefaults.MediumContainerHeight
                                 Button(
@@ -401,24 +423,6 @@ fun BackupContent(
                             onConfirm = { onEvent(BackupEvent.OnEnterKeySubmitted(it)) },
                             onDismiss = { onEvent(BackupEvent.OnDismissEnterKeyDialog) }
                         )
-                    }
-
-                    val errorMessage = state.syncState.errorMessage
-                    if (errorMessage != null) {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer
-                            )
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    text = errorMessage.asString(),
-                                    color = MaterialTheme.colorScheme.onErrorContainer,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-                        }
                     }
                 }
             }
@@ -764,7 +768,7 @@ private fun BackupStatusCard(
             .animateContentSize(),
         colors = CardDefaults.cardColors(
             containerColor = when {
-                isWaitingForWifi -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
+                isWaitingForWifi -> MaterialTheme.colorScheme.tertiaryContainer
                 else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
             }
         ),
