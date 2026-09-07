@@ -235,7 +235,9 @@
     <string name="this_action_is_irreversible">この操作は取り消せません。</string>
     <string name="wipe_cloud_data">クラウドデータを消去</string>
     <string name="wipe_cloud_data_alert_title">クラウドバックアップを消去しますか？</string>
-    <string name="wipe_cloud_data_alert_message">これにより、クラウドストレージからすべてのバックアップファイルが永久に削除されます。この操作は取り消せません。</string>
+    <string name="wipe_cloud_data_alert_message">これにより、クラウドストレージからすべてのバックアップファイルが永久に削除されます。\n\nこの操作は取り消せません。</string>
     <string name="wipe">消去</string>
     <string name="wiping_cloud_data">クラウドデータを消去中…</string>
+    <string name="are_you_sure">本当によろしいですか？</string>
+    <string name="wipe_cloud_dialog_message">この操作は恒久的であり、取り消すことはできません。クラウドに保存されているすべてのバックアップデータが消去されます。</string>
 </resources>

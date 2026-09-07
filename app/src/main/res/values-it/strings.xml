@@ -235,7 +235,9 @@
     <string name="this_action_is_irreversible">Questa azione è irreversibile.</string>
     <string name="wipe_cloud_data">Cancella dati nel cloud</string>
     <string name="wipe_cloud_data_alert_title">Cancellare il backup nel cloud?</string>
-    <string name="wipe_cloud_data_alert_message">Questo eliminerà definitivamente tutti i file di backup dallo spazio di archiviazione nel cloud. Questa azione non può essere annullata.</string>
+    <string name="wipe_cloud_data_alert_message">Questo eliminerà definitivamente tutti i file di backup dallo spazio di archiviazione nel cloud.\n\nQuesta azione non può essere annullata.</string>
     <string name="wipe">Cancella</string>
     <string name="wiping_cloud_data">Cancellazione dati nel cloud…</string>
+    <string name="are_you_sure">Sei sicuro?</string>
+    <string name="wipe_cloud_dialog_message">Questa azione è permanente e non può essere annullata. Tutti i dati di backup memorizzati nel cloud verranno eliminati.</string>
 </resources>

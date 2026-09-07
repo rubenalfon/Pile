@@ -235,7 +235,9 @@
     <string name="this_action_is_irreversible">Ekintza hau ezin da atzera bota.</string>
     <string name="wipe_cloud_data">Ezabatu hodeiko datuak</string>
     <string name="wipe_cloud_data_alert_title">Ezabatu hodeiko babeskopia?</string>
-    <string name="wipe_cloud_data_alert_message">Honek behin betiko ezabatuko ditu babeskopia fitxategi guztiak zure hodeiko biltegitik. Ekintza hau ezin da desegin.</string>
+    <string name="wipe_cloud_data_alert_message">Honek behin betiko ezabatuko ditu babeskopia fitxategi guztiak zure hodeiko biltegitik.\n\nEkintza hau ezin da desegin.</string>
     <string name="wipe">Ezabatu</string>
     <string name="wiping_cloud_data">Hodeiko datuak ezabatzen…</string>
+    <string name="are_you_sure">Ziur zaude?</string>
+    <string name="wipe_cloud_dialog_message">Ekintza hau betiko da eta ezin da desegin. Hodeian gordetako zure babeskopia-datu guztiak ezabatuko dira.</string>
 </resources>

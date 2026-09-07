@@ -207,9 +207,11 @@
     <string name="error_cloud_is_encrypted" >The cloud backup is encrypted, but encryption is disabled locally. Enable encryption or wipe cloud data to continue.</string>
     <string name="error_cloud_not_encrypted" >The cloud backup is not encrypted, but encryption is enabled locally. Disable encryption or wipe cloud data to continue.</string>
     <string name="wipe_cloud_data_alert_title" >Wipe cloud backup?</string>
-    <string name="wipe_cloud_data_alert_message" >This will permanently delete all backup files from your cloud storage. This action cannot be undone.</string>
+    <string name="wipe_cloud_data_alert_message" >This will permanently delete all backup files from your cloud storage. \n\nThis action cannot be undone.</string>
     <string name="wipe" >Wipe</string>
     <string name="wiping_cloud_data" >Wiping cloud data…</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="wipe_cloud_dialog_message">This action is permanent and cannot be undone. All your backup data stored in the cloud will be erased.</string>
 
     <string name="authentication_failed">Authentication failed</string>
     <string name="authentication_failed_message">We couldn\'t authenticate with the selected provider. Would you like to try again or disable backup?</string>

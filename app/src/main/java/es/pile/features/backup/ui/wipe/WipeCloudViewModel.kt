@@ -27,6 +27,8 @@ class WipeCloudViewModel(
         when (event) {
             WipeCloudEvent.OnConfirmWipe -> wipeCloudData()
             WipeCloudEvent.OnBackClicked -> {}
+            WipeCloudEvent.ShowConfirmationDialog -> _state.update { it.copy(showConfirmationDialog = true) }
+            WipeCloudEvent.HideConfirmationDialog -> _state.update { it.copy(showConfirmationDialog = false) }
         }
     }
 
@@ -34,7 +36,7 @@ class WipeCloudViewModel(
         if (state.value.isWiping) return
 
         viewModelScope.launch {
-            _state.update { it.copy(isWiping = true, error = null) }
+            _state.update { it.copy(isWiping = true, error = null, showConfirmationDialog = false) }
 
             val selectedProviderName = settingsRepository.userSettings.first().selectedBackupProviderName
             val provider = backupRepository.availableProviders.find { it.name == selectedProviderName }

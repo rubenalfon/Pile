@@ -235,7 +235,9 @@
     <string name="this_action_is_irreversible">Esta ação é irreversível.</string>
     <string name="wipe_cloud_data">Apagar dados na nuvem</string>
     <string name="wipe_cloud_data_alert_title">Apagar cópia na nuvem?</string>
-    <string name="wipe_cloud_data_alert_message">Isto irá eliminar permanentemente todos os ficheiros de cópia de segurança do seu armazenamento na nuvem. Esta ação não pode ser desfeita.</string>
+    <string name="wipe_cloud_data_alert_message">Isto irá eliminar permanentemente todos os ficheiros de cópia de segurança do seu armazenamento na nuvem.\n\nEsta ação não pode ser desfeita.</string>
     <string name="wipe">Apagar</string>
     <string name="wiping_cloud_data">A apagar dados na nuvem…</string>
+    <string name="are_you_sure">Tem a certeza?</string>
+    <string name="wipe_cloud_dialog_message">Esta ação é permanente e não pode ser desfeita. Todos os seus dados de cópia de segurança armazenados na nuvem serão apagados.</string>
 </resources>

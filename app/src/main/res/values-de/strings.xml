@@ -235,7 +235,9 @@
     <string name="this_action_is_irreversible">Diese Aktion kann nicht rückgängig gemacht werden.</string>
     <string name="wipe_cloud_data">Cloud-Daten löschen</string>
     <string name="wipe_cloud_data_alert_title">Cloud-Backup löschen?</string>
-    <string name="wipe_cloud_data_alert_message">Dadurch werden alle Backup-Dateien dauerhaft aus Ihrem Cloud-Speicher gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="wipe_cloud_data_alert_message">Dadurch werden alle Backup-Dateien dauerhaft aus Ihrem Cloud-Speicher gelöscht.\n\nDiese Aktion kann nicht rückgängig gemacht werden.</string>
     <string name="wipe">Löschen</string>
     <string name="wiping_cloud_data">Cloud-Daten werden gelöscht…</string>
+    <string name="are_you_sure">Sind Sie sicher?</string>
+    <string name="wipe_cloud_dialog_message">Diese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden. Alle Ihre in der Cloud gespeicherten Backup-Daten werden gelöscht.</string>
 </resources>

@@ -235,7 +235,9 @@
     <string name="this_action_is_irreversible">Это действие необратимо.</string>
     <string name="wipe_cloud_data">Стереть данные в облаке</string>
     <string name="wipe_cloud_data_alert_title">Стереть облачную копию?</string>
-    <string name="wipe_cloud_data_alert_message">Это навсегда удалит все файлы резервных копий из вашего облачного хранилища. Это действие нельзя отменить.</string>
+    <string name="wipe_cloud_data_alert_message">Это навсегда удалит все файлы резервных копий из вашего облачного хранилища.\n\nЭто действие нельзя отменить.</string>
     <string name="wipe">Стереть</string>
     <string name="wiping_cloud_data">Стирание данных в облаке…</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="wipe_cloud_dialog_message">Это действие является постоянным и не может быть отменено. Все ваши данные резервного копирования, хранящиеся в облаке, будут удалены.</string>
 </resources>

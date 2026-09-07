@@ -235,7 +235,9 @@
     <string name="this_action_is_irreversible">Aquesta acció és irreversible.</string>
     <string name="wipe_cloud_data">Esborrar dades al núvol</string>
     <string name="wipe_cloud_data_alert_title">Esborrar còpia al núvol?</string>
-    <string name="wipe_cloud_data_alert_message">Això eliminarà permanentment tots els fitxers de còpia de seguretat del teu emmagatzematge al núvol. Aquesta acció no es pot desfer.</string>
+    <string name="wipe_cloud_data_alert_message">Això eliminarà permanentment tots els fitxers de còpia de seguretat del teu emmagatzematge al núvol.\n\nAquesta acció no es pot desfer.</string>
     <string name="wipe">Esborrar</string>
     <string name="wiping_cloud_data">S\'estan esborrant les dades al núvol…</string>
+    <string name="are_you_sure">N\'estàs segur?</string>
+    <string name="wipe_cloud_dialog_message">Aquesta acció és permanent i no es pot desfer. S\'esborraran totes les dades de la teva còpia de seguretat guardades al núvol.</string>
 </resources>

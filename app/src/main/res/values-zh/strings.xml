@@ -235,7 +235,9 @@
     <string name="this_action_is_irreversible">此操作不可逆。</string>
     <string name="wipe_cloud_data">擦除云端数据</string>
     <string name="wipe_cloud_data_alert_title">擦除云端备份？</string>
-    <string name="wipe_cloud_data_alert_message">这将从您的云存储中永久删除所有备份文件。此操作无法撤销。</string>
+    <string name="wipe_cloud_data_alert_message">这将从您的云存储中永久删除所有备份文件。\n\n此操作无法撤销。</string>
     <string name="wipe">擦除</string>
     <string name="wiping_cloud_data">正在擦除云端数据…</string>
+    <string name="are_you_sure">您确定吗？</string>
+    <string name="wipe_cloud_dialog_message">此操作是永久性的，无法撤销。存储在云端的所有备份数据将被擦除。</string>
 </resources>

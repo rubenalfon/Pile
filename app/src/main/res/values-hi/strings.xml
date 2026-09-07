@@ -235,7 +235,9 @@
     <string name="this_action_is_irreversible">यह कार्रवाई अपरिवर्तनीय है।</string>
     <string name="wipe_cloud_data">क्लाउड डेटा मिटाएं</string>
     <string name="wipe_cloud_data_alert_title">क्लाउड बैकअप मिटाएं?</string>
-    <string name="wipe_cloud_data_alert_message">यह आपके क्लाउड स्टोरेज से सभी बैकअप फ़ाइलों को स्थायी रूप से हटा देगा। इस कार्रवाई को पूर्ववत नहीं किया जा सकता है।</string>
+    <string name="wipe_cloud_data_alert_message">यह आपके क्लाउड स्टोरेज से सभी बैकअप फ़ाइलों को स्थायी रूप से हटा देगा।\n\nइस कार्रवाई को पूर्ववत नहीं किया जा सकता है।</string>
     <string name="wipe">मिटाएं</string>
     <string name="wiping_cloud_data">क्लाउड डेटा मिटाया जा रहा है…</string>
+    <string name="are_you_sure">क्या आप निश्चित हैं?</string>
+    <string name="wipe_cloud_dialog_message">यह कार्रवाई स्थायी है और इसे पूर्ववत नहीं किया जा सकता है। क्लाउड में संग्रहीत आपका सभी बैकअप डेटा मिटा दिया जाएगा।</string>
 </resources>
