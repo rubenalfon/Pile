@@ -229,4 +229,13 @@
     <string name="disable_encryption_confirmation_title">Enkriptatzea desgaitu?</string>
     <string name="disable_encryption_confirmation_message">Enkriptatzea desgaitzen baduzu, zure hurrengo babeskopiak ez dira zure berreskuratze-gakoarekin babestuko. Hodeian dauden enkriptatutako datuek enkriptatuta jarraituko dute.</string>
     <string name="disable_encryption">Enkriptatzea desgaitu</string>
+    <string name="error_cloud_is_encrypted">Hodeiko babeskopia zifratuta dago, baina zifratzea desgaituta dago tokian-tokian. Gaitu zifratzea edo ezabatu hodeiko datuak jarraitzeko.</string>
+    <string name="error_cloud_not_encrypted">Hodeiko babeskopia ez dago zifratuta, baina zifratzea gaituta dago tokian-tokian. Desgaitu zifratzea edo ezabatu hodeiko datuak jarraitzeko.</string>
+    <string name="danger_zone">Arrisku-eremua</string>
+    <string name="this_action_is_irreversible">Ekintza hau ezin da atzera bota.</string>
+    <string name="wipe_cloud_data">Ezabatu hodeiko datuak</string>
+    <string name="wipe_cloud_data_alert_title">Ezabatu hodeiko babeskopia?</string>
+    <string name="wipe_cloud_data_alert_message">Honek behin betiko ezabatuko ditu babeskopia fitxategi guztiak zure hodeiko biltegitik. Ekintza hau ezin da desegin.</string>
+    <string name="wipe">Ezabatu</string>
+    <string name="wiping_cloud_data">Hodeiko datuak ezabatzen…</string>
 </resources>

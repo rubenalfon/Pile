@@ -229,4 +229,13 @@
     <string name="disable_encryption_confirmation_title">禁用加密？</string>
     <string name="disable_encryption_confirmation_message">如果您禁用加密，您未来的备份将不再受恢复密钥的保护。云中现有的加密数据将保持加密状态。</string>
     <string name="disable_encryption">禁用加密</string>
+    <string name="error_cloud_is_encrypted">云端备份已被加密，但本地禁用了加密。请启用加密或擦除云端数据以继续。</string>
+    <string name="error_cloud_not_encrypted">云端备份未加密，但本地启用了加密。请禁用加密或擦除云端数据以继续。</string>
+    <string name="danger_zone">危险区域</string>
+    <string name="this_action_is_irreversible">此操作不可逆。</string>
+    <string name="wipe_cloud_data">擦除云端数据</string>
+    <string name="wipe_cloud_data_alert_title">擦除云端备份？</string>
+    <string name="wipe_cloud_data_alert_message">这将从您的云存储中永久删除所有备份文件。此操作无法撤销。</string>
+    <string name="wipe">擦除</string>
+    <string name="wiping_cloud_data">正在擦除云端数据…</string>
 </resources>

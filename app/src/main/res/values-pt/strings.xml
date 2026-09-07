@@ -229,4 +229,13 @@
     <string name="disable_encryption_confirmation_title">Desativar criptografia?</string>
     <string name="disable_encryption_confirmation_message">Se você desativar a criptografia, seus backups futuros não serão protegidos pela sua chave de recuperação. Os datos criptografados existentes na nuvem permanecerão criptografados.</string>
     <string name="disable_encryption">Desativar criptografia</string>
+    <string name="error_cloud_is_encrypted">O backup na nuvem está encriptado, mas a encriptação está desativada localmente. Ative a encriptação ou apague os dados na nuvem para continuar.</string>
+    <string name="error_cloud_not_encrypted">O backup na nuvem não está encriptado, mas a encriptação está ativada localmente. Desative a encriptação ou apague os dados na nuvem para continuar.</string>
+    <string name="danger_zone">Zona de perigo</string>
+    <string name="this_action_is_irreversible">Esta ação é irreversível.</string>
+    <string name="wipe_cloud_data">Apagar dados na nuvem</string>
+    <string name="wipe_cloud_data_alert_title">Apagar cópia na nuvem?</string>
+    <string name="wipe_cloud_data_alert_message">Isto irá eliminar permanentemente todos os ficheiros de cópia de segurança do seu armazenamento na nuvem. Esta ação não pode ser desfeita.</string>
+    <string name="wipe">Apagar</string>
+    <string name="wiping_cloud_data">A apagar dados na nuvem…</string>
 </resources>

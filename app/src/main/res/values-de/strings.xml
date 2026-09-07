@@ -229,4 +229,13 @@
     <string name="disable_encryption_confirmation_title">Verschlüsselung deaktivieren?</string>
     <string name="disable_encryption_confirmation_message">Wenn Sie die Verschlüsselung deaktivieren, werden Ihre zukünftigen Backups nicht mehr durch Ihren Wiederherstellungsschlüssel geschützt. Vorhandene verschlüsselte Daten in der Cloud bleiben verschlüsselt.</string>
     <string name="disable_encryption">Verschlüsselung deaktivieren</string>
+    <string name="error_cloud_is_encrypted">Das Cloud-Backup ist verschlüsselt, aber die Verschlüsselung ist lokal deaktiviert. Aktivieren Sie die Verschlüsselung oder löschen Sie die Cloud-Daten, um fortzufahren.</string>
+    <string name="error_cloud_not_encrypted">Das Cloud-Backup ist nicht verschlüsselt, aber die Verschlüsselung ist lokal aktiviert. Deaktivieren Sie die Verschlüsselung oder löschen Sie die Cloud-Daten, um fortzufahren.</string>
+    <string name="danger_zone">Gefahrenzone</string>
+    <string name="this_action_is_irreversible">Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="wipe_cloud_data">Cloud-Daten löschen</string>
+    <string name="wipe_cloud_data_alert_title">Cloud-Backup löschen?</string>
+    <string name="wipe_cloud_data_alert_message">Dadurch werden alle Backup-Dateien dauerhaft aus Ihrem Cloud-Speicher gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="wipe">Löschen</string>
+    <string name="wiping_cloud_data">Cloud-Daten werden gelöscht…</string>
 </resources>

@@ -244,6 +244,4 @@
     <string name="disable_encryption_confirmation_title">Disable Encryption?</string>
     <string name="disable_encryption_confirmation_message">If you disable encryption, your future backups will not be protected by your recovery key. Existing encrypted data in the cloud will remain encrypted.</string>
     <string name="disable_encryption">Disable Encryption</string>
-
-    <!--    <string name=""></string>-->
 </resources>

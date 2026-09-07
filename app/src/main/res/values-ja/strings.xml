@@ -229,4 +229,13 @@
     <string name="disable_encryption_confirmation_title">暗号化を無効にしますか？</string>
     <string name="disable_encryption_confirmation_message">暗号化を無効にすると、今後のバックアップはリカバリキーで保護されなくなります。クラウド内の既存の暗号化データは暗号化されたままになります。</string>
     <string name="disable_encryption">暗号化を無効にする</string>
+    <string name="error_cloud_is_encrypted">クラウドバックアップは暗号化されていますが、ローカルで暗号化が無効になっています。続行するには暗号化を有効にするか、クラウドデータを消去してください。</string>
+    <string name="error_cloud_not_encrypted">クラウドバックアップは暗号化されていませんが、ローカルで暗号化が有効になっています。続行するには暗号化を無効にするか、クラウドデータを消去してください。</string>
+    <string name="danger_zone">デンジャーゾーン</string>
+    <string name="this_action_is_irreversible">この操作は取り消せません。</string>
+    <string name="wipe_cloud_data">クラウドデータを消去</string>
+    <string name="wipe_cloud_data_alert_title">クラウドバックアップを消去しますか？</string>
+    <string name="wipe_cloud_data_alert_message">これにより、クラウドストレージからすべてのバックアップファイルが永久に削除されます。この操作は取り消せません。</string>
+    <string name="wipe">消去</string>
+    <string name="wiping_cloud_data">クラウドデータを消去中…</string>
 </resources>

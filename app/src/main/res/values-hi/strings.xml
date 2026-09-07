@@ -229,4 +229,13 @@
     <string name="disable_encryption_confirmation_title">एन्क्रिप्शन अक्षम करें?</string>
     <string name="disable_encryption_confirmation_message">यदि आप एन्क्रिप्शन अक्षम करते हैं, तो आपके भविष्य के बैकअप आपकी रिकवरी कुंजी द्वारा सुरक्षित नहीं होंगे। क्लाउड में मौजूद एन्क्रिप्टेड डेटा एन्क्रिप्टेड ही रहेगा।</string>
     <string name="disable_encryption">एन्क्रिप्शन अक्षम करें</string>
+    <string name="error_cloud_is_encrypted">क्लाउड बैकअप एन्क्रिप्टेड है, लेकिन एन्क्रिप्शन स्थानीय रूप से अक्षम है। जारी रखने के लिए एन्क्रिप्शन सक्षम करें या क्लाउड डेटा मिटाएं।</string>
+    <string name="error_cloud_not_encrypted">क्लाउड बैकअप एन्क्रिप्टेड नहीं है, लेकिन एन्क्रिप्शन स्थानीय रूप से सक्षम है। जारी रखने के लिए एन्क्रिप्शन अक्षम करें या क्लाउड डेटा मिटाएं।</string>
+    <string name="danger_zone">खतरे का क्षेत्र</string>
+    <string name="this_action_is_irreversible">यह कार्रवाई अपरिवर्तनीय है।</string>
+    <string name="wipe_cloud_data">क्लाउड डेटा मिटाएं</string>
+    <string name="wipe_cloud_data_alert_title">क्लाउड बैकअप मिटाएं?</string>
+    <string name="wipe_cloud_data_alert_message">यह आपके क्लाउड स्टोरेज से सभी बैकअप फ़ाइलों को स्थायी रूप से हटा देगा। इस कार्रवाई को पूर्ववत नहीं किया जा सकता है।</string>
+    <string name="wipe">मिटाएं</string>
+    <string name="wiping_cloud_data">क्लाउड डेटा मिटाया जा रहा है…</string>
 </resources>

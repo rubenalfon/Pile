@@ -229,4 +229,13 @@
     <string name="disable_encryption_confirmation_title">Désactiver le chiffrement ?</string>
     <string name="disable_encryption_confirmation_message">Si vous désactivez le chiffrement, vos futures sauvegardes ne seront pas protégées par votre clé de récupération. Les données chiffrées existantes dans le cloud resteront chiffrées.</string>
     <string name="disable_encryption">Désactiver le chiffrement</string>
+    <string name="error_cloud_is_encrypted">La sauvegarde cloud est chiffrée, mais le chiffrement est désactivé localement. Activez le chiffrement ou effacez les données cloud pour continuer.</string>
+    <string name="error_cloud_not_encrypted">La sauvegarde cloud n\'est pas chiffrée, mais le chiffrement est activé localement. Désactivez le chiffrement ou effacez les données cloud pour continuer.</string>
+    <string name="danger_zone">Zone de danger</string>
+    <string name="this_action_is_irreversible">Cette action est irréversible.</string>
+    <string name="wipe_cloud_data">Effacer les données cloud</string>
+    <string name="wipe_cloud_data_alert_title">Effacer la sauvegarde cloud ?</string>
+    <string name="wipe_cloud_data_alert_message">Cela supprimera définitivement tous les fichiers de sauvegarde de votre stockage cloud. Cette action ne peut pas être annulée.</string>
+    <string name="wipe">Effacer</string>
+    <string name="wiping_cloud_data">Effacement des données cloud…</string>
 </resources>

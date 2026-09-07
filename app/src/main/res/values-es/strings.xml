@@ -229,4 +229,13 @@
     <string name="disable_encryption_confirmation_title">¿Desactivar cifrado?</string>
     <string name="disable_encryption_confirmation_message">Si desactivas el cifrado, tus futuras copias de seguridad no estarán protegidas por tu clave de recuperación. Los datos cifrados existentes en la nube permanecerán cifrados.</string>
     <string name="disable_encryption">Desactivar cifrado</string>
+    <string name="error_cloud_is_encrypted">La copia en la nube está cifrada, pero el cifrado está desactivado localmente. Activa el cifrado o borra los datos en la nube para continuar.</string>
+    <string name="error_cloud_not_encrypted">La copia en la nube no está cifrada, pero el cifrado está activado localmente. Desactiva el cifrado o borra los datos en la nube para continuar.</string>
+    <string name="danger_zone">Zona de peligro</string>
+    <string name="this_action_is_irreversible">Esta acción es irreversible.</string>
+    <string name="wipe_cloud_data">Borrar datos en la nube</string>
+    <string name="wipe_cloud_data_alert_title">¿Borrar copia en la nube?</string>
+    <string name="wipe_cloud_data_alert_message">Esto eliminará permanentemente todos los archivos de copia de seguridad de tu almacenamiento en la nube. Esta acción no se puede deshacer.</string>
+    <string name="wipe">Borrar</string>
+    <string name="wiping_cloud_data">Borrando datos en la nube…</string>
 </resources>

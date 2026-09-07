@@ -229,4 +229,13 @@
     <string name="disable_encryption_confirmation_title">Disattivare la crittografia?</string>
     <string name="disable_encryption_confirmation_message">Se disattivi la crittografia, i tuoi futuri backup non saranno protetti dalla tua chiave di ripristino. I dati crittografati esistenti nel cloud rimarranno crittografati.</string>
     <string name="disable_encryption">Disattiva crittografia</string>
+    <string name="error_cloud_is_encrypted">Il backup nel cloud è crittografato, ma la crittografia è disattivata localmente. Abilita la crittografia o cancella i dati nel cloud per continuare.</string>
+    <string name="error_cloud_not_encrypted">Il backup nel cloud non è crittografato, ma la crittografia è abilitata localmente. Disabilita la crittografia o cancella i dati nel cloud per continuare.</string>
+    <string name="danger_zone">Zona di pericolo</string>
+    <string name="this_action_is_irreversible">Questa azione è irreversibile.</string>
+    <string name="wipe_cloud_data">Cancella dati nel cloud</string>
+    <string name="wipe_cloud_data_alert_title">Cancellare il backup nel cloud?</string>
+    <string name="wipe_cloud_data_alert_message">Questo eliminerà definitivamente tutti i file di backup dallo spazio di archiviazione nel cloud. Questa azione non può essere annullata.</string>
+    <string name="wipe">Cancella</string>
+    <string name="wiping_cloud_data">Cancellazione dati nel cloud…</string>
 </resources>
