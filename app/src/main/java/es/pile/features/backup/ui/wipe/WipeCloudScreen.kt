@@ -1,5 +1,6 @@
 package es.pile.features.backup.ui.wipe
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -90,6 +91,10 @@ fun WipeCloudContent(
     state: WipeCloudState,
     onEvent: (WipeCloudEvent) -> Unit
 ) {
+    BackHandler(enabled = state.isWiping) {
+        // Intercept and prevent back navigation while cloud data is being wiped
+    }
+
     if (state.showConfirmationDialog) {
         ConfirmationDialog(onEvent)
     }

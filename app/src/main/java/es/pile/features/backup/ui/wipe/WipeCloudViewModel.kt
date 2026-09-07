@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import es.pile.R
 import es.pile.core.domain.repositories.BackupRepository
 import es.pile.core.domain.repositories.SettingsRepository
-import es.pile.core.domain.sync.SyncManager
 import es.pile.core.ui.util.UiText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,8 +15,7 @@ import kotlinx.coroutines.launch
 
 class WipeCloudViewModel(
     private val settingsRepository: SettingsRepository,
-    private val backupRepository: BackupRepository,
-    private val syncManager: SyncManager
+    private val backupRepository: BackupRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(WipeCloudState())
@@ -44,7 +42,12 @@ class WipeCloudViewModel(
             if (provider != null) {
                 backupRepository.wipeCloudData(provider)
                     .onSuccess {
-                        syncManager.requestSync(force = true) // TODO: No
+                        settingsRepository.updateSelectedBackupProvider(null)
+                        settingsRepository.updateBackupOverCellular(false)
+                        settingsRepository.updateBackupEncryption(false)
+                        settingsRepository.removeBackupMasterKey()
+                        settingsRepository.updateLastSyncTimestamp(null)
+
                         _state.update { it.copy(isWiping = false, isSuccess = true) }
                     }
                     .onFailure { e ->
