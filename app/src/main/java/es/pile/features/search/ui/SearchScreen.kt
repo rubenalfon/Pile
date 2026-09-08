@@ -87,7 +87,7 @@ import es.pile.core.ui.composables.SelectPilesBottomSheet
 import es.pile.core.ui.composables.adaptiveSizeItemsGrid
 import es.pile.core.ui.theme.PileTheme
 import es.pile.core.ui.util.horizontalPaddingValues
-import es.pile.features.home.ui.compostables.SyncStatusIndicator
+import es.pile.features.home.ui.compostables.SyncStatusIcon
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -441,7 +441,7 @@ private fun SearchInputField(
                         enter = fadeIn() + expandHorizontally(),
                         exit = fadeOut() + shrinkHorizontally()
                     ) {
-                        SyncStatusIndicator(
+                        SyncStatusIcon(
                             state = syncState,
                             onClick = onSyncClick
                         )

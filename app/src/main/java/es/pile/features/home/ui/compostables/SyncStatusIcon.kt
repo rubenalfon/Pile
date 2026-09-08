@@ -25,7 +25,7 @@ import es.pile.core.ui.util.UiText
 
 @Preview(showBackground = true)
 @Composable
-private fun SyncStatusIndicatorPreview() {
+private fun SyncStatusIconPreview() {
     val states = listOf(
         "Idle" to SyncState.Idle,
         "Success" to SyncState.Success(System.currentTimeMillis()),
@@ -48,7 +48,7 @@ private fun SyncStatusIndicatorPreview() {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(vertical = 4.dp)
                 ) {
-                    SyncStatusIndicator(
+                    SyncStatusIcon(
                         state = state,
                         onClick = {}
                     )
@@ -64,7 +64,7 @@ private fun SyncStatusIndicatorPreview() {
 }
 
 @Composable
-fun SyncStatusIndicator(
+fun SyncStatusIcon(
     state: SyncState,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
