@@ -182,6 +182,8 @@
     <string name="sync_now">अभी सिंक करें</string>
     <string name="sync_successful">सिंक सफल रहा</string>
     <string name="sync_failed">सिंक विफल रहा</string>
+    <string name="syncing">सिंक हो रहा है…</string>
+    <string name="no_internet_connection">कोई इंटरनेट कनेक्शन नहीं</string>
     <string name="google_account">Google खाता</string>
     <string name="manage_google_storage">Google स्टोरेज प्रबंधित करें</string>
     <string name="storage_usage_format">%2$s में से %1$s उपयोग किया गया (Pile द्वारा %3$s)</string>

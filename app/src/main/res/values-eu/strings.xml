@@ -182,6 +182,8 @@
     <string name="sync_now">Sinkronizatu orain</string>
     <string name="sync_successful">Sinkronizazio arrakastatsua</string>
     <string name="sync_failed">Sinkronizazioak huts egin du</string>
+    <string name="syncing">Sinkronizatzen…</string>
+    <string name="no_internet_connection">Internet konexiorik gabe</string>
     <string name="google_account">Google kontua</string>
     <string name="manage_google_storage">Kudeatu Google biltegiratzea</string>
     <string name="storage_usage_format">%2$s-(e)tik %1$s erabilita (%3$s Pile-k)</string>

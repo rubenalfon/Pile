@@ -182,6 +182,8 @@
     <string name="sync_now">Синхронизировать сейчас</string>
     <string name="sync_successful">Синхронизация завершена</string>
     <string name="sync_failed">Ошибка синхронизации</string>
+    <string name="syncing">Синхронизация…</string>
+    <string name="no_internet_connection">Нет подключения к интернету</string>
     <string name="google_account">Аккаунт Google</string>
     <string name="manage_google_storage">Управление хранилищем Google</string>
     <string name="storage_usage_format">Использовано %1$s из %2$s (%3$s — Pile)</string>

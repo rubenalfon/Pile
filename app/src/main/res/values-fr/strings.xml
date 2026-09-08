@@ -182,6 +182,8 @@
     <string name="sync_now">Synchroniser maintenant</string>
     <string name="sync_successful">Synchronisation réussie</string>
     <string name="sync_failed">Échec de la synchronisation</string>
+    <string name="syncing">Synchronisation…</string>
+    <string name="no_internet_connection">Aucune connexion Internet</string>
     <string name="google_account">Compte Google</string>
     <string name="manage_google_storage">Gérer le stockage Google</string>
     <string name="storage_usage_format">%1$s sur %2$s utilisés (%3$s par Pile)</string>

@@ -8,19 +8,13 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,8 +22,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -85,19 +77,13 @@ import es.pile.core.ui.theme.PileTheme
 import es.pile.core.ui.util.BiometricHelper
 import es.pile.core.ui.util.UiText
 import es.pile.features.backup.domain.BackupAuthHandler
+import es.pile.features.backup.ui.compostables.SyncStatusIndicator
 import es.pile.features.settings.ui.composables.ItemPosition
 import es.pile.features.settings.ui.composables.SettingsItem
 import es.pile.features.settings.ui.composables.SettingsSection
 import es.pile.features.settings.ui.composables.SettingsTopBar
-import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import kotlin.time.Duration.Companion.seconds
 
 
 @Composable
@@ -285,9 +271,9 @@ fun BackupContent(
                             SyncDisabledEmptyState()
                         } else {
                             Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                                BackupStatusCard(
-                                    lastSyncTimestamp = state.lastSyncTimestamp,
-                                    syncState = state.syncState
+                                SyncStatusIndicator(
+                                    syncState = state.syncState,
+                                    lastSyncTimestamp = state.lastSyncTimestamp
                                 )
 
                                 val errorMessage = state.syncState.errorMessage

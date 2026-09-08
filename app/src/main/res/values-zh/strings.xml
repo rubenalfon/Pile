@@ -182,6 +182,8 @@
     <string name="sync_now">立即同步</string>
     <string name="sync_successful">同步成功</string>
     <string name="sync_failed">同步失败</string>
+    <string name="syncing">正在同步…</string>
+    <string name="no_internet_connection">无网络连接</string>
     <string name="google_account">Google 账号</string>
     <string name="manage_google_storage">管理 Google 存储空间</string>
     <string name="storage_usage_format">已使用 %2$s 中的 %1$s（Pile 占用 %3$s）</string>

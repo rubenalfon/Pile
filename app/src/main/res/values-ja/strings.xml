@@ -182,6 +182,8 @@
     <string name="sync_now">今すぐ同期</string>
     <string name="sync_successful">同期に成功しました</string>
     <string name="sync_failed">同期に失敗しました</string>
+    <string name="syncing">同期中…</string>
+    <string name="no_internet_connection">インターネット接続がありません</string>
     <string name="google_account">Google アカウント</string>
     <string name="manage_google_storage">Google ストレージを管理</string>
     <string name="storage_usage_format">%2$s 中 %1$s を使用中（Pile が %3$s）</string>

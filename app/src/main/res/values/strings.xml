@@ -184,6 +184,8 @@
     <string name="sync_now">Sync now</string>
     <string name="sync_successful">Sync successful</string>
     <string name="sync_failed">Sync failed</string>
+    <string name="syncing">Syncing…</string>
+    <string name="no_internet_connection">No internet connection</string>
     <string name="google_account">Google account</string>
     <string name="manage_google_storage">Manage Google storage</string>
     <string name="google_manage_storage_url" translatable="false">https://one.google.com/storage?utm_source=pile&amp;utm_medium=android</string>

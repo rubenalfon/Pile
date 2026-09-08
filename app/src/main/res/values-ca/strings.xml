@@ -182,6 +182,8 @@
     <string name="sync_now">Sincronitza ara</string>
     <string name="sync_successful">Sincronització correcta</string>
     <string name="sync_failed">Sincronització fallida</string>
+    <string name="syncing">Sincronitzant…</string>
+    <string name="no_internet_connection">Sense connexió a internet</string>
     <string name="google_account">Compte de Google</string>
     <string name="manage_google_storage">Gestiona l’emmagatzematge de Google</string>
     <string name="storage_usage_format">%1$s de %2$s fets servir (%3$s de Pile)</string>
