@@ -229,7 +229,7 @@
     <string name="encryption_settings">Paramètres de chiffrement</string>
     <string name="encryption_description">Le chiffrement de bout en bout garantit que vous seul pouvez accéder à vos données. Vos fichiers sont chiffrés sur votre appareil avant d\'être téléchargés sur le cloud à l\'aide de votre clé de récupération.</string>
     <string name="disable_encryption_confirmation_title">Désactiver le chiffrement ?</string>
-    <string name="disable_encryption_confirmation_message">Si vous désactivez le chiffrement, vos futures sauvegardes ne seront pas protégées par votre clé de récupération. Les données chiffrées existantes dans le cloud resteront chiffrées.</string>
+    <string name="disable_encryption_confirmation_message">Si vous désactivez le chiffrement, vos futures sauvegardes ne seront pas protégées par votre clé de récupération. Les données chiffrées existantes dans le cloud resteront chiffrées.\n\nVeuillez noter que les données cloud non synchronisées seront supprimées.</string>
     <string name="disable_encryption">Désactiver le chiffrement</string>
     <string name="error_cloud_is_encrypted">La sauvegarde cloud est chiffrée, mais le chiffrement est désactivé localement. Activez le chiffrement ou effacez les données cloud pour continuer.</string>
     <string name="error_cloud_not_encrypted">La sauvegarde cloud n\'est pas chiffrée, mais le chiffrement est activé localement. Désactivez le chiffrement ou effacez les données cloud pour continuer.</string>
@@ -242,4 +242,18 @@
     <string name="wiping_cloud_data">Effacement des données cloud…</string>
     <string name="are_you_sure">Êtes-vous sûr ?</string>
     <string name="wipe_cloud_dialog_message">Cette action est permanente et ne peut pas être annulée. Toutes vos données de sauvegarde stockées dans le cloud seront effacées.</string>
+    <string name="encryption_mismatch_title">Désaccord de chiffrement</string>
+    <string name="mismatch_device_encrypted_cloud_not_body">Le chiffrement est activé sur votre appareil, mais la sauvegarde cloud n\'est pas chiffrée.\n\nChoisissez comment procéder :</string>
+    <string name="mismatch_option_restore_unencrypted">Restaurer la copie cloud et désactiver le chiffrement</string>
+    <string name="mismatch_option_wipe_and_upload_encrypted">Effacer la copie cloud et télécharger une sauvegarde chiffrée</string>
+    <string name="mismatch_cloud_encrypted_device_not_body">La sauvegarde cloud est chiffrée, mais le chiffrement est désactivé sur cet appareil.\n\nChoisissez comment procéder :</string>
+    <string name="mismatch_option_enter_recovery_key">Saisir la clé de récupération et continuer la synchro</string>
+    <string name="mismatch_option_wipe_and_upload_unencrypted">Effacer la copie cloud et télécharger une sauvegarde non chiffrée</string>
+    <string name="confirm_restore_unencrypted_title">Désactiver le chiffrement et restaurer ?</string>
+    <string name="confirm_restore_unencrypted_message">Cela désactivera le chiffrement sur votre appareil et téléchargera la sauvegarde cloud non chiffrée. Voulez-vous continuer ?</string>
+    <string name="confirm_wipe_cloud_title">Effacer la sauvegarde cloud ?</string>
+    <string name="confirm_wipe_unencrypted_message">Cela supprimera définitivement la sauvegarde cloud non chiffrée et la remplacera par une nouvelle copie chiffrée. Voulez-vous continuer ?</string>
+    <string name="confirm_wipe_encrypted_message">Cela supprimera définitivement la sauvegarde cloud chiffrée et la remplacera par une nouvelle copie non chiffrée. Voulez-vous continuer ?</string>
+    <string name="wipe_and_upload">Effacer et télécharger</string>
+    <string name="continue_text">Continuer</string>
 </resources>

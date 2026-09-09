@@ -229,7 +229,7 @@
     <string name="encryption_settings">Impostazioni di crittografia</string>
     <string name="encryption_description">La crittografia end-to-end garantisce che solo tu possa accedere ai tuoi dati. I tuoi file vengono crittografati sul tuo dispositivo prima di essere caricati sul cloud utilizzando la tua chiave di ripristino.</string>
     <string name="disable_encryption_confirmation_title">Disattivare la crittografia?</string>
-    <string name="disable_encryption_confirmation_message">Se disattivi la crittografia, i tuoi futuri backup non saranno protetti dalla tua chiave di ripristino. I dati crittografati esistenti nel cloud rimarranno crittografati.</string>
+    <string name="disable_encryption_confirmation_message">Se disattivi la crittografia, i tuoi futuri backup non saranno protetti dalla tua chiave di ripristino. I dati crittografati esistenti nel cloud rimarranno crittografati.\n\nTieni presente che i dati nel cloud non sincronizzati verranno eliminati.</string>
     <string name="disable_encryption">Disattiva crittografia</string>
     <string name="error_cloud_is_encrypted">Il backup nel cloud è crittografato, ma la crittografia è disattivata localmente. Abilita la crittografia o cancella i dati nel cloud per continuare.</string>
     <string name="error_cloud_not_encrypted">Il backup nel cloud non è crittografato, ma la crittografia è abilitata localmente. Disabilita la crittografia o cancella i dati nel cloud per continuare.</string>
@@ -242,4 +242,18 @@
     <string name="wiping_cloud_data">Cancellazione dati nel cloud…</string>
     <string name="are_you_sure">Sei sicuro?</string>
     <string name="wipe_cloud_dialog_message">Questa azione è permanente e non può essere annullata. Tutti i dati di backup memorizzati nel cloud verranno eliminati.</string>
+    <string name="encryption_mismatch_title">Mancata corrispondenza di crittografia</string>
+    <string name="mismatch_device_encrypted_cloud_not_body">La crittografia è abilitata sul dispositivo, ma il backup nel cloud non è crittografato.\n\nScegli come procedere:</string>
+    <string name="mismatch_option_restore_unencrypted">Ripristina copia del cloud e disattiva crittografia</string>
+    <string name="mismatch_option_wipe_and_upload_encrypted">Cancella copia del cloud e carica backup crittografato</string>
+    <string name="mismatch_cloud_encrypted_device_not_body">Il backup nel cloud è crittografato, ma la crittografia è disattivata su questo dispositivo.\n\nScegli come procedere:</string>
+    <string name="mismatch_option_enter_recovery_key">Inserisci chiave di recupero e continua la sincro</string>
+    <string name="mismatch_option_wipe_and_upload_unencrypted">Cancella copia del cloud e carica backup non crittografato</string>
+    <string name="confirm_restore_unencrypted_title">Disattivare crittografia e ripristinare?</string>
+    <string name="confirm_restore_unencrypted_message">Questo disattiverà la crittografia sul dispositivo e scaricherà il backup nel cloud non crittografato. Vuoi continuare?</string>
+    <string name="confirm_wipe_cloud_title">Cancellare il backup nel cloud?</string>
+    <string name="confirm_wipe_unencrypted_message">Questo eliminerà definitivamente il backup nel cloud non crittografato e lo sostituirà con una nuova copia crittografata. Vuoi continuare?</string>
+    <string name="confirm_wipe_encrypted_message">Questo eliminerà definitivamente il backup nel cloud crittografato e lo sostituirà con una nuova copia non crittografata. Vuoi continuare?</string>
+    <string name="wipe_and_upload">Cancella e carica</string>
+    <string name="continue_text">Continua</string>
 </resources>

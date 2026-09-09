@@ -229,7 +229,7 @@
     <string name="encryption_settings">Ajustes de cifrado</string>
     <string name="encryption_description">El cifrado de extremo a extremo garantiza que solo tú puedas acceder a tus datos. Tus archivos se cifran en tu dispositivo antes de subirse a la nube utilizando tu clave de recuperación.</string>
     <string name="disable_encryption_confirmation_title">¿Desactivar cifrado?</string>
-    <string name="disable_encryption_confirmation_message">Si desactivas el cifrado, tus futuras copias de seguridad no estarán protegidas por tu clave de recuperación. Los datos cifrados existentes en la nube permanecerán cifrados.</string>
+    <string name="disable_encryption_confirmation_message">Si desactivas el cifrado, tus futuras copias de seguridad no estarán protegidas por tu clave de recuperación. Los datos cifrados existentes en la nube permanecerán cifrados.\n\nTen en cuenta que se borrarán los datos en la nube que no estén sincronizados.</string>
     <string name="disable_encryption">Desactivar cifrado</string>
     <string name="error_cloud_is_encrypted">La copia en la nube está cifrada, pero el cifrado está desactivado localmente. Activa el cifrado o borra los datos en la nube para continuar.</string>
     <string name="error_cloud_not_encrypted">La copia en la nube no está cifrada, pero el cifrado está activado localmente. Desactiva el cifrado o borra los datos en la nube para continuar.</string>
@@ -242,4 +242,18 @@
     <string name="wiping_cloud_data">Borrando datos en la nube…</string>
     <string name="are_you_sure">¿Estás seguro?</string>
     <string name="wipe_cloud_dialog_message">Esta acción es permanente y no se puede deshacer. Se borrarán todos los datos de tu copia de seguridad guardados en la nube.</string>
+    <string name="encryption_mismatch_title">Desajuste de cifrado</string>
+    <string name="mismatch_device_encrypted_cloud_not_body">El cifrado está activado en tu dispositivo, pero la copia en la nube no está cifrada.\n\nElige cómo proceder:</string>
+    <string name="mismatch_option_restore_unencrypted">Recoger copia de la nube y desactivar cifrado</string>
+    <string name="mismatch_option_wipe_and_upload_encrypted">Borrar la de la nube y subir una cifrada</string>
+    <string name="mismatch_cloud_encrypted_device_not_body">La copia en la nube está cifrada, pero en este dispositivo el cifrado está desactivado.\n\nElige cómo proceder:</string>
+    <string name="mismatch_option_enter_recovery_key">Poner la clave de recuperación y continuar sincronización</string>
+    <string name="mismatch_option_wipe_and_upload_unencrypted">Borrar la de la nube y subir una sin cifrar</string>
+    <string name="confirm_restore_unencrypted_title">¿Desactivar cifrado y restaurar?</string>
+    <string name="confirm_restore_unencrypted_message">Esto desactivará el cifrado en tu dispositivo y descargará la copia no cifrada de la nube. ¿Quieres continuar?</string>
+    <string name="confirm_wipe_cloud_title">¿Borrar copia en la nube?</string>
+    <string name="confirm_wipe_unencrypted_message">Esto eliminará permanentemente la copia no cifrada en la nube y la reemplazará por una cifrada. ¿Quieres continuar?</string>
+    <string name="confirm_wipe_encrypted_message">Esto eliminará permanentemente la copia cifrada en la nube y la reemplazará por una sin cifrar. ¿Quieres continuar?</string>
+    <string name="wipe_and_upload">Borrar y subir</string>
+    <string name="continue_text">Continuar</string>
 </resources>

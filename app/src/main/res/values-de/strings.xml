@@ -229,7 +229,7 @@
     <string name="encryption_settings">Verschlüsselungseinstellungen</string>
     <string name="encryption_description">Die Ende-zu-Ende-Verschlüsselung stellt sicher, dass nur Sie auf Ihre Daten zugreifen können. Ihre Dateien werden auf Ihrem Gerät verschlüsselt, bevor sie mit Ihrem Wiederherstellungsschlüssel in die Cloud hochgeladen werden.</string>
     <string name="disable_encryption_confirmation_title">Verschlüsselung deaktivieren?</string>
-    <string name="disable_encryption_confirmation_message">Wenn Sie die Verschlüsselung deaktivieren, werden Ihre zukünftigen Backups nicht mehr durch Ihren Wiederherstellungsschlüssel geschützt. Vorhandene verschlüsselte Daten in der Cloud bleiben verschlüsselt.</string>
+    <string name="disable_encryption_confirmation_message">Wenn Sie die Verschlüsselung deaktivieren, werden Ihre zukünftigen Backups nicht mehr durch Ihren Wiederherstellungsschlüssel geschützt. Vorhandene verschlüsselte Daten in der Cloud bleiben verschlüsselt.\n\nBeachten Sie, dass nicht synchronisierte Cloud-Daten gelöscht werden.</string>
     <string name="disable_encryption">Verschlüsselung deaktivieren</string>
     <string name="error_cloud_is_encrypted">Das Cloud-Backup ist verschlüsselt, aber die Verschlüsselung ist lokal deaktiviert. Aktivieren Sie die Verschlüsselung oder löschen Sie die Cloud-Daten, um fortzufahren.</string>
     <string name="error_cloud_not_encrypted">Das Cloud-Backup ist nicht verschlüsselt, aber die Verschlüsselung ist lokal aktiviert. Deaktivieren Sie die Verschlüsselung oder löschen Sie die Cloud-Daten, um fortzufahren.</string>
@@ -242,4 +242,18 @@
     <string name="wiping_cloud_data">Cloud-Daten werden gelöscht…</string>
     <string name="are_you_sure">Sind Sie sicher?</string>
     <string name="wipe_cloud_dialog_message">Diese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden. Alle Ihre in der Cloud gespeicherten Backup-Daten werden gelöscht.</string>
+    <string name="encryption_mismatch_title">Verschlüsselungsabweichung</string>
+    <string name="mismatch_device_encrypted_cloud_not_body">Die Verschlüsselung ist auf Ihrem Gerät aktiviert, das Cloud-Backup ist jedoch nicht verschlüsselt.\n\nWählen Sie, wie Sie fortfahren möchten:</string>
+    <string name="mismatch_option_restore_unencrypted">Cloud-Kopie wiederherstellen &amp; Verschlüsselung deaktivieren</string>
+    <string name="mismatch_option_wipe_and_upload_encrypted">Cloud-Kopie löschen &amp; verschlüsseltes Backup hochladen</string>
+    <string name="mismatch_cloud_encrypted_device_not_body">Das Cloud-Backup ist verschlüsselt, die Verschlüsselung ist auf diesem Gerät jedoch deaktiviert.\n\nWählen Sie, wie Sie fortfahren möchten:</string>
+    <string name="mismatch_option_enter_recovery_key">Wiederherstellungsschlüssel eingeben und Synchronisierung fortsetzen</string>
+    <string name="mismatch_option_wipe_and_upload_unencrypted">Cloud-Kopie löschen &amp; unverschlüsseltes Backup hochladen</string>
+    <string name="confirm_restore_unencrypted_title">Verschlüsselung deaktivieren &amp; wiederherstellen?</string>
+    <string name="confirm_restore_unencrypted_message">Dadurch wird die Verschlüsselung auf Ihrem Gerät deaktiviert und das unverschlüsselte Cloud-Backup heruntergeladen. Möchten Sie fortfahren?</string>
+    <string name="confirm_wipe_cloud_title">Cloud-Backup löschen?</string>
+    <string name="confirm_wipe_unencrypted_message">Dadurch wird das unverschlüsselte Cloud-Backup dauerhaft gelöscht und durch eine neue verschlüsselte Kopie ersetzt. Möchten Sie fortfahren?</string>
+    <string name="confirm_wipe_encrypted_message">Dadurch wird das verschlüsselte Cloud-Backup dauerhaft gelöscht und durch eine neue unverschlüsselte Kopie ersetzt. Möchten Sie fortfahren?</string>
+    <string name="wipe_and_upload">Löschen &amp; Hochladen</string>
+    <string name="continue_text">Fortfahren</string>
 </resources>

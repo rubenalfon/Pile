@@ -229,7 +229,7 @@
     <string name="encryption_settings">Zifratze-ezarpenak</string>
     <string name="encryption_description">Puntuz puntuko enkriptatzeak zure datuak zuk soilik atzi ditzakezula ziurtatzen du. Fitxategiak zure gailuan enkriptatzen dira hodeira kargatu aurretik, zure berreskuratze-gakoa erabiliz.</string>
     <string name="disable_encryption_confirmation_title">Enkriptatzea desgaitu?</string>
-    <string name="disable_encryption_confirmation_message">Enkriptatzea desgaitzen baduzu, zure hurrengo babeskopiak ez dira zure berreskuratze-gakoarekin babestuko. Hodeian dauden enkriptatutako datuek enkriptatuta jarraituko dute.</string>
+    <string name="disable_encryption_confirmation_message">Enkriptatzea desgaitzen baduzu, zure hurrengo babeskopiak ez dira zure berreskuratze-gakoarekin babestuko. Hodeian dauden enkriptatutako datuek enkriptatuta jarraituko dute.\n\nKontuan izan sinkronizatu gabeko hodeiko datuak ezabatu egingo direla.</string>
     <string name="disable_encryption">Enkriptatzea desgaitu</string>
     <string name="error_cloud_is_encrypted">Hodeiko babeskopia zifratuta dago, baina zifratzea desgaituta dago tokian-tokian. Gaitu zifratzea edo ezabatu hodeiko datuak jarraitzeko.</string>
     <string name="error_cloud_not_encrypted">Hodeiko babeskopia ez dago zifratuta, baina zifratzea gaituta dago tokian-tokian. Desgaitu zifratzea edo ezabatu hodeiko datuak jarraitzeko.</string>
@@ -242,4 +242,18 @@
     <string name="wiping_cloud_data">Hodeiko datuak ezabatzen…</string>
     <string name="are_you_sure">Ziur zaude?</string>
     <string name="wipe_cloud_dialog_message">Ekintza hau betiko da eta ezin da desegin. Hodeian gordetako zure babeskopia-datu guztiak ezabatuko dira.</string>
+    <string name="encryption_mismatch_title">Zifratze-desdoitzea</string>
+    <string name="mismatch_device_encrypted_cloud_not_body">Zifratzea gaituta dago zure gailuan, baina hodeiko babeskopia ez dago zifratuta.\n\nAukeratu nola jarraitu:</string>
+    <string name="mismatch_option_restore_unencrypted">Berreskuratu hodeiko kopia eta desgaitu zifratzea</string>
+    <string name="mismatch_option_wipe_and_upload_encrypted">Ezabatu hodeikoa eta kargatu zifratutako bat</string>
+    <string name="mismatch_cloud_encrypted_device_not_body">Hodeiko babeskopia zifratuta dago, baina gailu honetan zifratzea desgaituta dago.\n\nAukeratu nola jarraitu:</string>
+    <string name="mismatch_option_enter_recovery_key">Sartu berreskuratze-gakoa eta jarraitu sinkronizatzen</string>
+    <string name="mismatch_option_wipe_and_upload_unencrypted">Ezabatu hodeikoa eta kargatu zifratu gabeko bat</string>
+    <string name="confirm_restore_unencrypted_title">Zifratzea desgaitu eta berreskuratu?</string>
+    <string name="confirm_restore_unencrypted_message">Honek zifratzea desgaituko du zure gailuan eta hodeiko zifratu gabeko kopia deskargatuko du. Jarraitu nahi duzu?</string>
+    <string name="confirm_wipe_cloud_title">Ezabatu hodeiko babeskopia?</string>
+    <string name="confirm_wipe_unencrypted_message">Honek behin betiko ezabatuko du hodeiko zifratu gabeko kopia eta zifratutako batekin ordezkatuko du. Jarraitu nahi duzu?</string>
+    <string name="confirm_wipe_encrypted_message">Honek behin betiko ezabatuko du hodeiko zifratutako kopia eta zifratu gabeko batekin ordezkatuko du. Jarraitu nahi duzu?</string>
+    <string name="wipe_and_upload">Ezabatu eta kargatu</string>
+    <string name="continue_text">Jarraitu</string>
 </resources>

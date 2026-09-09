@@ -229,7 +229,7 @@
     <string name="encryption_settings">Ajustos de xifratge</string>
     <string name="encryption_description">El xifratge d\'extrem a extrem garanteix que només tu puguis accedir a les teves dades. Els teus fitxers es xifren al teu dispositiu abans de pujar-se al núvol mitjançant la teva clau de recuperació.</string>
     <string name="disable_encryption_confirmation_title">Desactivar el xifratge?</string>
-    <string name="disable_encryption_confirmation_message">Si desactives el xifratge, les teves futures còpies de seguretat no estaran protegides per la teva clau de recuperació. Les dades xifrades existents al núvol romandran xifrades.</string>
+    <string name="disable_encryption_confirmation_message">Si desactives el xifratge, les teves futures còpies de seguretat no estaran protegides per la teva clau de recuperació. Les dades xifrades existents al núvol romandran xifrades.\n\nTingues en compte que s\'esborraran les dades al núvol que no estiguin sincronitzades.</string>
     <string name="disable_encryption">Desactivar xifratge</string>
     <string name="error_cloud_is_encrypted">La còpia al núvol està xifrada, però el xifratge està desactivat localment. Activa el xifratge o esborra les dades al núvol per continuar.</string>
     <string name="error_cloud_not_encrypted">La còpia al núvol no està xifrada, però el xifratge està activat localment. Desactiva el xifratge o esborra les dades al núvol per continuar.</string>
@@ -242,4 +242,18 @@
     <string name="wiping_cloud_data">S\'estan esborrant les dades al núvol…</string>
     <string name="are_you_sure">N\'estàs segur?</string>
     <string name="wipe_cloud_dialog_message">Aquesta acció és permanent i no es pot desfer. S\'esborraran totes les dades de la teva còpia de seguretat guardades al núvol.</string>
+    <string name="encryption_mismatch_title">Desajust de xifratge</string>
+    <string name="mismatch_device_encrypted_cloud_not_body">El xifratge està activat al teu dispositiu, però la còpia al núvol no està xifrada.\n\nTria com procedir:</string>
+    <string name="mismatch_option_restore_unencrypted">Restaurar còpia del núvol i desactivar xifratge</string>
+    <string name="mismatch_option_wipe_and_upload_encrypted">Esborrar la del núvol i pujar-ne una de xifrada</string>
+    <string name="mismatch_cloud_encrypted_device_not_body">La còpia al núvol està xifrada, però en aquest dispositiu el xifratge està desactivat.\n\nTria com procedir:</string>
+    <string name="mismatch_option_enter_recovery_key">Introduir clau de recuperació i continuar la sincronització</string>
+    <string name="mismatch_option_wipe_and_upload_unencrypted">Esborrar la del núvol i pujar-ne una sense xifrar</string>
+    <string name="confirm_restore_unencrypted_title">Desactivar xifratge i restaurar?</string>
+    <string name="confirm_restore_unencrypted_message">Això desactivarà el xifratge al teu dispositiu i descarregarà la còpia no xifrada del núvol. Vols continuar?</string>
+    <string name="confirm_wipe_cloud_title">Esborrar còpia al núvol?</string>
+    <string name="confirm_wipe_unencrypted_message">Això eliminarà permanentment la còpia no xifrada al núvol i la substituirà per una de xifrada. Vols continuar?</string>
+    <string name="confirm_wipe_encrypted_message">Això eliminarà permanentment la còpia xifrada al núvol i la substituirà per una sense xifrar. Vols continuar?</string>
+    <string name="wipe_and_upload">Esborrar i pujar</string>
+    <string name="continue_text">Continuar</string>
 </resources>

@@ -5,23 +5,24 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -34,15 +35,20 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CheckableDropdownMenuItem
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuPopup
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SplitButtonDefaults
 import androidx.compose.material3.SplitButtonLayout
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -60,6 +66,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -89,6 +96,7 @@ import org.koin.compose.koinInject
 @Composable
 fun BackupScreen(
     viewModel: BackupViewModel = koinViewModel(),
+    authHandler: BackupAuthHandler = koinInject(),
     onBack: () -> Unit,
     navigateToEncryptionSettings: () -> Unit,
     navigateToWipeCloud: () -> Unit
@@ -114,6 +122,7 @@ fun BackupScreen(
 
     BackupContent(
         state = state,
+        authHandler = authHandler,
         onEvent = { event ->
             when (event) {
                 BackupEvent.OnBackClicked -> onBack()
@@ -121,7 +130,9 @@ fun BackupScreen(
                     runWithAuth { navigateToEncryptionSettings() }
                 }
 
-                BackupEvent.OnNavigateToWipeCloud -> navigateToWipeCloud()
+                BackupEvent.OnNavigateToWipeCloud -> {
+                    runWithAuth { navigateToWipeCloud() }
+                }
 
                 else -> viewModel.handleEvent(event)
             }
@@ -172,10 +183,43 @@ private fun BackupNoProviderPreview() {
     }
 }
 
+@Preview
+@Composable
+private fun EncryptionMismatch1Preview() {
+    PileTheme {
+        Surface {
+            EncryptionMismatchSheetContent(
+                syncState = SyncState.EncryptionMismatch(
+                    isCloudEncrypted = false
+                ),
+                onEvent = {},
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun EncryptionMismatch2Preview() {
+    PileTheme {
+        Surface {
+            EncryptionMismatchSheetContent(
+                syncState = SyncState.EncryptionMismatch(
+                    isCloudEncrypted = true
+                ),
+                onEvent = {},
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
 @Composable
 fun BackupContent(
     state: BackupState,
-    onEvent: (BackupEvent) -> Unit
+    onEvent: (BackupEvent) -> Unit,
+    authHandler: BackupAuthHandler? = null
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -210,11 +254,10 @@ fun BackupContent(
 
     val context = LocalContext.current
     val googleDriveClientId = stringResource(R.string.google_drive_client_id)
-    val authHandler = koinInject<BackupAuthHandler>()
 
     LaunchedEffect(state.isAccountPickerVisible) {
         if (state.isAccountPickerVisible) {
-            val email = authHandler.launchAccountPicker(context, googleDriveClientId)
+            val email = authHandler?.launchAccountPicker(context, googleDriveClientId)
             onEvent(BackupEvent.OnAccountSelected(email))
         }
     }
@@ -230,6 +273,7 @@ fun BackupContent(
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        contentWindowInsets = WindowInsets.displayCutout,
         topBar = {
             SettingsTopBar(
                 title = stringResource(R.string.backup_and_sync),
@@ -275,28 +319,6 @@ fun BackupContent(
                                     syncState = state.syncState,
                                     lastSyncTimestamp = state.lastSyncTimestamp
                                 )
-
-                                val errorMessage = state.syncState.errorMessage
-                                AnimatedVisibility(
-                                    visible = errorMessage != null,
-                                    enter = fadeIn() + expandVertically(),
-                                    exit = fadeOut() + shrinkVertically()
-                                ) {
-                                    Card(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = MaterialTheme.colorScheme.errorContainer
-                                        )
-                                    ) {
-                                        Column(modifier = Modifier.padding(16.dp)) {
-                                            Text(
-                                                text = errorMessage?.asString() ?: "",
-                                                color = MaterialTheme.colorScheme.onErrorContainer,
-                                                style = MaterialTheme.typography.bodyMedium
-                                            )
-                                        }
-                                    }
-                                }
 
                                 // Sync button
                                 val size = ButtonDefaults.MediumContainerHeight
@@ -396,6 +418,13 @@ fun BackupContent(
                                 }
                             }
                         }
+                    }
+
+                    if (state.syncState is SyncState.EncryptionMismatch) {
+                        EncryptionMismatchBottomSheet(
+                            syncState = state.syncState,
+                            onEvent = onEvent
+                        )
                     }
 
                     if (state.isEnterKeyDialogVisible) {
@@ -718,152 +747,256 @@ private fun DisableBackupAlert(
     )
 }
 
+private enum class MismatchOption {
+    OPTION_PRIMARY,
+    OPTION_SECONDARY
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BackupStatusCard(
-    lastSyncTimestamp: Long?,
-    syncState: SyncState,
+private fun EncryptionMismatchBottomSheet(
+    syncState: SyncState.EncryptionMismatch,
+    onEvent: (BackupEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    ModalBottomSheet(
+        onDismissRequest = { onEvent(BackupEvent.OnDismissSyncMismatchBottomSheet) }
+    ) {
+        EncryptionMismatchSheetContent(
+            syncState = syncState,
+            onEvent = onEvent,
+            modifier = modifier
+        )
+    }
+}
 
-    // Recalculate recentness every minute to allow the UI to transition automatically
-    var isRecentSuccess by remember(lastSyncTimestamp) {
-        mutableStateOf(lastSyncTimestamp != null && (System.currentTimeMillis() - lastSyncTimestamp) < 5 * 60 * 1000)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun EncryptionMismatchSheetContent(
+    syncState: SyncState.EncryptionMismatch,
+    onEvent: (BackupEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isCloudEncrypted = syncState.isCloudEncrypted
+    var selectedOption by remember { mutableStateOf(MismatchOption.OPTION_PRIMARY) }
+    var pendingWipeConfirmation by remember { mutableStateOf(false) }
+
+    val optionPrimaryText = stringResource(
+        if (isCloudEncrypted) R.string.mismatch_option_enter_recovery_key
+        else R.string.mismatch_option_restore_unencrypted
+    )
+
+    val optionSecondaryText = stringResource(
+        if (isCloudEncrypted) R.string.mismatch_option_wipe_and_upload_unencrypted
+        else R.string.mismatch_option_wipe_and_upload_encrypted
+    )
+
+    if (pendingWipeConfirmation) {
+        PendingWipeConfirmationAlert(
+            isCloudEncrypted = isCloudEncrypted,
+            onEvent = onEvent,
+            onDismiss = { pendingWipeConfirmation = false }
+        )
     }
 
-    LaunchedEffect(lastSyncTimestamp) {
-        if (lastSyncTimestamp != null) {
-            while (true) {
-                val elapsed = System.currentTimeMillis() - lastSyncTimestamp
-                isRecentSuccess = elapsed < 5 * 60 * 1000
-                if (!isRecentSuccess) break
-                delay(30.seconds) // Check every 30 seconds
-            }
-        }
-    }
-
-    val lastSyncText = remember(lastSyncTimestamp) {
-        formatLastSync(lastSyncTimestamp, context)
-    }
-
-    val isWaitingForWifi = syncState is SyncState.WaitingForWifi
-
-    Card(
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .animateContentSize(),
-        colors = CardDefaults.cardColors(
-            containerColor = when {
-                isWaitingForWifi -> MaterialTheme.colorScheme.tertiaryContainer
-                else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            }
-        ),
-        shape = RoundedCornerShape(16.dp)
+            .navigationBarsPadding()
+            .padding(bottom = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            AnimatedContent(
-                targetState = when {
-                    isWaitingForWifi -> "waiting"
-                    isRecentSuccess -> "recent"
-                    else -> "idle"
-                },
-                transitionSpec = { fadeIn(tween(400)) togetherWith fadeOut(tween(400)) },
-                label = "BackupIconAnimation"
-            ) { status ->
-                val iconColor = when (status) {
-                    "waiting" -> MaterialTheme.colorScheme.tertiary
-                    else -> MaterialTheme.colorScheme.primary
-                }
+            Icon(
+                painter = painterResource(R.drawable.warning_24px),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(28.dp)
+            )
+            Text(
+                text = stringResource(R.string.encryption_mismatch_title),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
 
-                Box(
+        Text(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            text = stringResource(
+                if (isCloudEncrypted) R.string.mismatch_cloud_encrypted_device_not_body
+                else R.string.mismatch_device_encrypted_cloud_not_body
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = selectedOption == MismatchOption.OPTION_PRIMARY,
+                        onClick = { selectedOption = MismatchOption.OPTION_PRIMARY },
+                        role = Role.RadioButton
+                    ),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                ),
+                shape = RoundedCornerShape(12.dp, 12.dp, 4.dp, 4.dp)
+            ) {
+                Row(
                     modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            color = iconColor.copy(alpha = 0.1f),
-                            shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
+                        .fillMaxWidth()
+                        .padding(start = 4.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        painter = painterResource(
-                            when (status) {
-                                "waiting" -> R.drawable.sync_disabled_24px
-                                "recent" -> R.drawable.check_24px
-                                else -> R.drawable.sync_24px
-                            }
-                        ),
-                        contentDescription = null,
-                        tint = iconColor,
-                        modifier = Modifier.size(20.dp)
+                    RadioButton(
+                        selected = selectedOption == MismatchOption.OPTION_PRIMARY,
+                        onClick = null,
+                        modifier = Modifier.size(48.dp) // For Figma parity
+                    )
+                    Text(
+                        text = optionPrimaryText,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
 
-            Column {
-                AnimatedContent(
-                    targetState = when {
-                        isWaitingForWifi -> "waiting"
-                        isRecentSuccess -> "recent"
-                        else -> "idle"
-                    },
-                    transitionSpec = {
-                        (fadeIn(tween(400)) + slideInVertically { it / 2 })
-                            .togetherWith(fadeOut(tween(400)) + slideOutVertically { -it / 2 })
-                    },
-                    label = "BackupTextAnimation"
-                ) { status ->
-                    Text(
-                        text = when (status) {
-                            "waiting" -> stringResource(R.string.sync_status_waiting_wifi)
-                            "recent" -> stringResource(R.string.sync_successful)
-                            else -> lastSyncText
-                        },
-                        style = MaterialTheme.typography.titleSmall,
-                        color = when (status) {
-                            "waiting" -> MaterialTheme.colorScheme.onTertiaryContainer
-                            else -> MaterialTheme.colorScheme.onSurface
-                        }
-                    )
-                }
-
-                AnimatedVisibility(
-                    visible = isRecentSuccess || isWaitingForWifi,
-                    enter = fadeIn() + expandVertically(),
-                    exit = fadeOut() + shrinkVertically()
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = selectedOption == MismatchOption.OPTION_SECONDARY,
+                        onClick = { selectedOption = MismatchOption.OPTION_SECONDARY },
+                        role = Role.RadioButton
+                    ),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                ),
+                shape = RoundedCornerShape(4.dp, 4.dp, 12.dp, 12.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 4.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    RadioButton(
+                        selected = selectedOption == MismatchOption.OPTION_SECONDARY,
+                        onClick = null,
+                        modifier = Modifier.size(48.dp) // For Figma parity
+                    )
                     Text(
-                        text = lastSyncText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = optionSecondaryText,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
+            }
+        }
+
+        Spacer(Modifier.weight(1f, fill = false))
+
+        HorizontalDivider()
+
+        Row(Modifier.padding(horizontal = 16.dp)) {
+            TextButton(
+                onClick = { onEvent(BackupEvent.OnDismissSyncMismatchBottomSheet) }
+            ) {
+                Text(text = stringResource(R.string.cancel))
+            }
+
+            Spacer(Modifier.weight(1f))
+
+            Button(
+                onClick = {
+                    if (selectedOption == MismatchOption.OPTION_PRIMARY) {
+                        if (isCloudEncrypted) {
+                            onEvent(BackupEvent.OnShowEnterKeyForEncryptedCloud)
+                        } else {
+                            onEvent(BackupEvent.OnRestoreUnencryptedAndDisableEncryption)
+                        }
+                    } else {
+                        pendingWipeConfirmation = true
+                    }
+                },
+                colors = if (selectedOption == MismatchOption.OPTION_SECONDARY) {
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
+                } else {
+                    ButtonDefaults.buttonColors()
+                }
+            ) {
+                Text(
+                    text = stringResource(R.string.continue_text),
+                )
             }
         }
     }
 }
 
-private fun formatLastSync(timestamp: Long?, context: android.content.Context): String {
-    if (timestamp == null) return context.getString(R.string.never)
-
-    val lastSync = Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).toLocalDateTime()
-    val today = LocalDate.now()
-    val lastSyncDate = lastSync.toLocalDate()
-
-    val timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-    val timeStr = lastSync.format(timeFormatter)
-
-    val dateStr = when {
-        lastSyncDate == today -> context.getString(R.string.today)
-        lastSyncDate == today.minusDays(1) -> context.getString(R.string.yesterday)
-        else -> {
-            val dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
-            lastSync.format(dateFormatter)
+@Composable
+private fun PendingWipeConfirmationAlert(
+    isCloudEncrypted: Boolean,
+    onEvent: (BackupEvent) -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                painter = painterResource(R.drawable.warning_24px),
+                contentDescription = null
+            )
+        },
+        title = {
+            Text(
+                text = stringResource(R.string.confirm_wipe_cloud_title),
+                textAlign = TextAlign.Center
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(
+                    if (isCloudEncrypted) R.string.confirm_wipe_encrypted_message
+                    else R.string.confirm_wipe_unencrypted_message
+                ),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (isCloudEncrypted) {
+                        onEvent(BackupEvent.OnWipeEncryptedAndUploadUnencrypted)
+                    } else {
+                        onEvent(BackupEvent.OnWipeUnencryptedAndUploadEncrypted)
+                    }
+                    onDismiss()
+                },
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text(stringResource(R.string.wipe_and_upload))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
         }
-    }
-
-    return context.getString(R.string.last_sync_format, "$dateStr, $timeStr")
+    )
 }

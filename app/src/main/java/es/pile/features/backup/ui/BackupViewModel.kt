@@ -139,6 +139,7 @@ class BackupViewModel(
             BackupEvent.OnManageStorageClicked -> {
                 _state.update { it.copy(navigateToUrl = UiText.StringResource(R.string.google_manage_storage_url)) }
             }
+
             BackupEvent.OnUrlNavigated -> {
                 _state.update { it.copy(navigateToUrl = null) }
             }
@@ -146,14 +147,81 @@ class BackupViewModel(
             BackupEvent.OnSyncClicked -> syncManager.requestSync(force = true)
             is BackupEvent.OnEnterKeySubmitted -> {
                 viewModelScope.launch {
+                    settingsRepository.updateBackupEncryption(true)
+                    _state.update { it.copy(syncState = SyncState.VerifyingKey) }
                     syncManager.validateAndSetKey(event.key)
                         .onSuccess {
+                            settingsRepository.saveBackupMasterKey(event.key)
                             _state.update { it.copy(isEnterKeyDialogVisible = false) }
+                        }.onFailure {
+                            settingsRepository.updateBackupEncryption(false)
                         }
                 }
             }
+
             BackupEvent.OnDismissEnterKeyDialog -> {
-                _state.update { it.copy(isEnterKeyDialogVisible = false) }
+                _state.update {
+                    it.copy(
+                        isEnterKeyDialogVisible = false,
+                        syncState = SyncState.Error(
+                            message = it.syncState.errorMessage
+                                ?: UiText.StringResource(R.string.error_key_required)
+                        )
+                    )
+                }
+            }
+
+            BackupEvent.OnRestoreUnencryptedAndDisableEncryption -> {
+                viewModelScope.launch {
+                    _state.update { it.copy(isLoading = true, syncState = SyncState.Syncing) }
+                    settingsRepository.updateBackupEncryption(false)
+                    settingsRepository.removeBackupMasterKey()
+                    syncManager.requestSync(force = true)
+                    _state.update { it.copy(isLoading = false) }
+                }
+            }
+
+            BackupEvent.OnWipeUnencryptedAndUploadEncrypted -> {
+                viewModelScope.launch {
+                    val provider = getSelectedProvider()
+                    if (provider != null) {
+                        _state.update { it.copy(isLoading = true, syncState = SyncState.Syncing) }
+                        backupRepository.wipeCloudData(provider)
+                            .onSuccess {
+                                syncManager.requestSync(force = true)
+                            }
+                        _state.update { it.copy(isLoading = false) }
+                    }
+                }
+            }
+
+            BackupEvent.OnShowEnterKeyForEncryptedCloud -> {
+                _state.update { it.copy(isEnterKeyDialogVisible = true) }
+            }
+
+            BackupEvent.OnWipeEncryptedAndUploadUnencrypted -> {
+                viewModelScope.launch {
+                    val provider = getSelectedProvider()
+                    if (provider != null) {
+                        _state.update { it.copy(isLoading = true, syncState = SyncState.Syncing) }
+                        backupRepository.wipeCloudData(provider)
+                            .onSuccess {
+                                syncManager.requestSync(force = true)
+                            }
+                        _state.update { it.copy(isLoading = false) }
+                    }
+                }
+            }
+
+            BackupEvent.OnDismissSyncMismatchBottomSheet -> {
+                _state.update {
+                    it.copy(
+                        syncState = SyncState.Error(
+                            message = it.syncState.errorMessage
+                                ?: UiText.StringResource(R.string.sync_failed)
+                        )
+                    )
+                }
             }
         }
     }

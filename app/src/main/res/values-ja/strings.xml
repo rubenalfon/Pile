@@ -229,7 +229,7 @@
     <string name="encryption_settings">暗号化設定</string>
     <string name="encryption_description">エンドツーエンドの暗号化により、あなただけがデータにアクセスできるようになります。ファイルはリカバリキーを使用してクラウドにアップロードされる前に、デバイス上で暗号化されます。</string>
     <string name="disable_encryption_confirmation_title">暗号化を無効にしますか？</string>
-    <string name="disable_encryption_confirmation_message">暗号化を無効にすると、今後のバックアップはリカバリキーで保護されなくなります。クラウド内の既存の暗号化データは暗号化されたままになります。</string>
+    <string name="disable_encryption_confirmation_message">暗号化を無効にすると、今後のバックアップはリカバリキーで保護されなくなります。クラウド内の既存の暗号化データは暗号化されたままになります。\n\n同期されていないクラウドデータは削除されることに注意してください。</string>
     <string name="disable_encryption">暗号化を無効にする</string>
     <string name="error_cloud_is_encrypted">クラウドバックアップは暗号化されていますが、ローカルで暗号化が無効になっています。続行するには暗号化を有効にするか、クラウドデータを消去してください。</string>
     <string name="error_cloud_not_encrypted">クラウドバックアップは暗号化されていませんが、ローカルで暗号化が有効になっています。続行するには暗号化を無効にするか、クラウドデータを消去してください。</string>
@@ -242,4 +242,18 @@
     <string name="wiping_cloud_data">クラウドデータを消去中…</string>
     <string name="are_you_sure">本当によろしいですか？</string>
     <string name="wipe_cloud_dialog_message">この操作は恒久的であり、取り消すことはできません。クラウドに保存されているすべてのバックアップデータが消去されます。</string>
+    <string name="encryption_mismatch_title">暗号化の不一致</string>
+    <string name="mismatch_device_encrypted_cloud_not_body">デバイスでは暗号化が有効になっていますが、クラウドバックアップは暗号化されていません。\n\n進行方法を選択してください：</string>
+    <string name="mismatch_option_restore_unencrypted">クラウドコピーを復元して暗号化を無効化</string>
+    <string name="mismatch_option_wipe_and_upload_encrypted">クラウドコピーを消去して暗号化バックアップをアップロード</string>
+    <string name="mismatch_cloud_encrypted_device_not_body">クラウドバックアップは暗号化されていますが、このデバイスでは暗号化が無効になっています。\n\n進行方法を選択してください：</string>
+    <string name="mismatch_option_enter_recovery_key">リカバリーキーを入力して同期を継続</string>
+    <string name="mismatch_option_wipe_and_upload_unencrypted">クラウドコピーを消去して未暗号化バックアップをアップロード</string>
+    <string name="confirm_restore_unencrypted_title">暗号化を無効にして復元しますか？</string>
+    <string name="confirm_restore_unencrypted_message">これによりデバイスの暗号化が無効になり、未暗号化のクラウドバックアップがダウンロードされます。続行しますか？</string>
+    <string name="confirm_wipe_cloud_title">クラウドバックアップを消去しますか？</string>
+    <string name="confirm_wipe_unencrypted_message">これにより未暗号化のクラウドバックアップが永久に削除され、新しい暗号化コピーに置き換えられます。続行しますか？</string>
+    <string name="confirm_wipe_encrypted_message">これにより暗号化されたクラウドバックアップが永久に削除され、新しい未暗号化コピーに置き換えられます。続行しますか？</string>
+    <string name="wipe_and_upload">消去してアップロード</string>
+    <string name="continue_text">続行</string>
 </resources>

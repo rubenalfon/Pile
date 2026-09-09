@@ -229,7 +229,7 @@
     <string name="encryption_settings">Настройки шифрования</string>
     <string name="encryption_description">Сквозное шифрование гарантирует, что только вы имеете доступ к своим данным. Ваши файлы шифруются на вашем устройстве перед загрузкой в облако с использованием ключа восстановления.</string>
     <string name="disable_encryption_confirmation_title">Отключить шифрование?</string>
-    <string name="disable_encryption_confirmation_message">Если вы отключите шифрование, ваши будущие резервные копии не будут защищены ключом восстановления. Существующие зашифрованные данные в облаке останутся зашифрованными.</string>
+    <string name="disable_encryption_confirmation_message">Если вы отключите шифрование, ваши будущие резервные копии не будут защищены ключом восстановления. Существующие зашифрованные данные в облаке останутся зашифрованными.\n\nОбратите внимание, что несинхронизированные данные в облаке будут удалены.</string>
     <string name="disable_encryption">Отключить шифрование</string>
     <string name="error_cloud_is_encrypted">Резервная копия в облаке зашифрована, но шифрование отключено локально. Включите шифрование или удалите данные из облака, чтобы продолжить.</string>
     <string name="error_cloud_not_encrypted">Резервная копия в облаке не зашифрована, но шифрование включено локально. Отключите шифрование или удалите данные из облака, чтобы продолжить.</string>
@@ -242,4 +242,18 @@
     <string name="wiping_cloud_data">Стирание данных в облаке…</string>
     <string name="are_you_sure">Вы уверены?</string>
     <string name="wipe_cloud_dialog_message">Это действие является постоянным и не может быть отменено. Все ваши данные резервного копирования, хранящиеся в облаке, будут удалены.</string>
+    <string name="encryption_mismatch_title">Несоответствие шифрования</string>
+    <string name="mismatch_device_encrypted_cloud_not_body">Шифрование включено на вашем устройстве, но резервная копия в облаке не зашифрована.\n\nВыберите, как продолжить:</string>
+    <string name="mismatch_option_restore_unencrypted">Восстановить облачную копию и отключить шифрование</string>
+    <string name="mismatch_option_wipe_and_upload_encrypted">Стереть облачную копию и загрузить зашифрованную</string>
+    <string name="mismatch_cloud_encrypted_device_not_body">Резервная копия в облаке зашифрована, но шифрование на этом устройстве отключено.\n\nВыберите, как продолжить:</string>
+    <string name="mismatch_option_enter_recovery_key">Введите ключ восстановления и продолжите синхронизацию</string>
+    <string name="mismatch_option_wipe_and_upload_unencrypted">Стереть облачную копию и загрузить незашифрованную</string>
+    <string name="confirm_restore_unencrypted_title">Отключить шифрование и восстановить?</string>
+    <string name="confirm_restore_unencrypted_message">Это отключит шифрование на вашем устройстве и скачает незашифрованную резервную копию из облака. Продолжить?</string>
+    <string name="confirm_wipe_cloud_title">Стереть облачную копию?</string>
+    <string name="confirm_wipe_unencrypted_message">Это навсегда удалит незашифрованную резервную копию из облака и заменит её новой зашифрованной копией. Продолжить?</string>
+    <string name="confirm_wipe_encrypted_message">Это навсегда удалит зашифрованную резервную копию из облака и заменит её новой незашифрованной копией. Продолжить?</string>
+    <string name="wipe_and_upload">Стереть и загрузить</string>
+    <string name="continue_text">Продолжить</string>
 </resources>

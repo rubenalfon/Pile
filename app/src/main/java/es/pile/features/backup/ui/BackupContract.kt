@@ -38,6 +38,13 @@ sealed interface BackupEvent {
     data object OnManageStorageClicked : BackupEvent
     data class OnAccountSelected(val email: String?) : BackupEvent
     data object OnUrlNavigated : BackupEvent
+
     data class OnEnterKeySubmitted(val key: String) : BackupEvent
     data object OnDismissEnterKeyDialog : BackupEvent
+
+    data object OnRestoreUnencryptedAndDisableEncryption : BackupEvent
+    data object OnWipeUnencryptedAndUploadEncrypted : BackupEvent
+    data object OnShowEnterKeyForEncryptedCloud : BackupEvent
+    data object OnWipeEncryptedAndUploadUnencrypted : BackupEvent
+    data object OnDismissSyncMismatchBottomSheet : BackupEvent
 }

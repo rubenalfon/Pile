@@ -140,7 +140,10 @@ private fun SyncStatusIndicatorInteractivePreview() {
                 .background(MaterialTheme.colorScheme.background),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(text = "Animation Test (Changes every 3s):", style = MaterialTheme.typography.labelSmall)
+            Text(
+                text = "Animation Test (Changes every 3s):",
+                style = MaterialTheme.typography.labelSmall
+            )
 
             SyncStatusIndicator(
                 syncState = currentState,
@@ -178,7 +181,8 @@ fun SyncStatusIndicator(
     }
 
     val styleCategory = when {
-        syncState.isSyncing -> CardStyleCategory.SYNCING
+        syncState.isSyncing || syncState is SyncState.EncryptionMismatch
+                || syncState is SyncState.InvalidKey || syncState is SyncState.KeyRequired -> CardStyleCategory.SYNCING
         syncState is SyncState.WaitingForWifi -> CardStyleCategory.WAITING_WIFI
         syncState is SyncState.Error && syncState.message.asString(context)
             .contains("internet", ignoreCase = true) -> CardStyleCategory.NO_INTERNET

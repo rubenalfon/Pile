@@ -229,7 +229,7 @@
     <string name="encryption_settings">Configurações de criptografia</string>
     <string name="encryption_description">A criptografia de ponta a ponta garante que apenas você possa acessar seus dados. Seus arquivos são criptografados no seu dispositivo antes de serem enviados para a nuvem usando sua chave de recuperação.</string>
     <string name="disable_encryption_confirmation_title">Desativar criptografia?</string>
-    <string name="disable_encryption_confirmation_message">Se você desativar a criptografia, seus backups futuros não serão protegidos pela sua chave de recuperação. Os datos criptografados existentes na nuvem permanecerão criptografados.</string>
+    <string name="disable_encryption_confirmation_message">Se você desativar a criptografia, seus backups futuros não serão protegidos pela sua chave de recuperação. Os datos criptografados existentes na nuvem permanecerão criptografados.\n\nTenha em mente que os dados na nuvem não sincronizados serão apagados.</string>
     <string name="disable_encryption">Desativar criptografia</string>
     <string name="error_cloud_is_encrypted">O backup na nuvem está encriptado, mas a encriptação está desativada localmente. Ative a encriptação ou apague os dados na nuvem para continuar.</string>
     <string name="error_cloud_not_encrypted">O backup na nuvem não está encriptado, mas a encriptação está ativada localmente. Desative a encriptação ou apague os dados na nuvem para continuar.</string>
@@ -242,4 +242,18 @@
     <string name="wiping_cloud_data">A apagar dados na nuvem…</string>
     <string name="are_you_sure">Tem a certeza?</string>
     <string name="wipe_cloud_dialog_message">Esta ação é permanente e não pode ser desfeita. Todos os seus dados de cópia de segurança armazenados na nuvem serão apagados.</string>
+    <string name="encryption_mismatch_title">Incompatibilidade de criptografia</string>
+    <string name="mismatch_device_encrypted_cloud_not_body">A criptografia está ativada no seu dispositivo, mas o backup na nuvem não está encriptado.\n\nEscolha como proceder:</string>
+    <string name="mismatch_option_restore_unencrypted">Restaurar cópia da nuvem e desativar criptografia</string>
+    <string name="mismatch_option_wipe_and_upload_encrypted">Apagar cópia da nuvem e enviar backup encriptado</string>
+    <string name="mismatch_cloud_encrypted_device_not_body">O backup na nuvem está encriptado, mas a criptografia está desativada neste dispositivo.\n\nEscolha como proceder:</string>
+    <string name="mismatch_option_enter_recovery_key">Inserir chave de recuperação e continuar sincronização</string>
+    <string name="mismatch_option_wipe_and_upload_unencrypted">Apagar cópia da nuvem e enviar backup não encriptado</string>
+    <string name="confirm_restore_unencrypted_title">Desativar criptografia e restaurar?</string>
+    <string name="confirm_restore_unencrypted_message">Isto desativará a criptografia no seu dispositivo e descarregará o backup não encriptado da nuvem. Quer continuar?</string>
+    <string name="confirm_wipe_cloud_title">Apagar cópia na nuvem?</string>
+    <string name="confirm_wipe_unencrypted_message">Isto eliminará permanentemente o backup não encriptado na nuvem e substituí-lo-á por uma nova cópia encriptada. Quer continuar?</string>
+    <string name="confirm_wipe_encrypted_message">Isto eliminará permanentemente o backup encriptado na nuvem e substituí-lo-á por uma nova cópia não encriptada. Quer continuar?</string>
+    <string name="wipe_and_upload">Apagar e enviar</string>
+    <string name="continue_text">Continuar</string>
 </resources>

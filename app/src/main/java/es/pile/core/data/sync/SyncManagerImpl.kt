@@ -10,6 +10,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import es.pile.core.data.backup.BackupException
 import es.pile.core.data.backup.EncryptionKeyRequiredException
+import es.pile.core.data.backup.EncryptionStateMismatchException
 import es.pile.core.data.backup.InvalidEncryptionKeyException
 import es.pile.core.domain.models.SyncState
 import es.pile.core.domain.repositories.DocumentModelRepository
@@ -92,7 +93,7 @@ class SyncManagerImpl(
                             SyncWorker.ERROR_TYPE_INVALID_KEY -> SyncState.InvalidKey
                             SyncWorker.ERROR_TYPE_KEY_REQUIRED -> SyncState.KeyRequired
                             SyncWorker.ERROR_TYPE_ENCRYPTION_MISMATCH -> {
-                                val isCloudEncrypted = info.outputData.getBoolean(SyncWorker.ERROR_TYPE_ENCRYPTION_MISMATCH, false)
+                                val isCloudEncrypted = info.outputData.getBoolean(SyncWorker.IS_CLOUD_ENCRYPTED, false)
                                 SyncState.EncryptionMismatch(isCloudEncrypted)
                             }
                             else -> SyncState.Error(UiText.DynamicString(errorMessage))
@@ -199,6 +200,7 @@ class SyncManagerImpl(
                 val syncError = when (error) {
                     is InvalidEncryptionKeyException -> SyncState.InvalidKey
                     is EncryptionKeyRequiredException -> SyncState.KeyRequired
+                    is EncryptionStateMismatchException -> SyncState.EncryptionMismatch(error.isCloudEncrypted)
                     is BackupException -> SyncState.Error(error.uiText)
                     else -> SyncState.Error(UiText.DynamicString(error.message ?: "Validation failed"))
                 }

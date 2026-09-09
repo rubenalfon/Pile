@@ -229,7 +229,7 @@
     <string name="encryption_settings">加密设置</string>
     <string name="encryption_description">端到端加密确保只有您可以访问您的数据。在使用您的恢复密钥上传到云端之前，您的文件会在您的设备上进行加密。</string>
     <string name="disable_encryption_confirmation_title">禁用加密？</string>
-    <string name="disable_encryption_confirmation_message">如果您禁用加密，您未来的备份将不再受恢复密钥的保护。云中现有的加密数据将保持加密状态。</string>
+    <string name="disable_encryption_confirmation_message">如果您禁用加密，您未来的备份将不再受恢复密钥的保护。云中现有的加密数据将保持加密状态。\n\n请注意，未同步的云端数据将被删除。</string>
     <string name="disable_encryption">禁用加密</string>
     <string name="error_cloud_is_encrypted">云端备份已被加密，但本地禁用了加密。请启用加密或擦除云端数据以继续。</string>
     <string name="error_cloud_not_encrypted">云端备份未加密，但本地启用了加密。请禁用加密或擦除云端数据以继续。</string>
@@ -242,4 +242,18 @@
     <string name="wiping_cloud_data">正在擦除云端数据…</string>
     <string name="are_you_sure">您确定吗？</string>
     <string name="wipe_cloud_dialog_message">此操作是永久性的，无法撤销。存储在云端的所有备份数据将被擦除。</string>
+    <string name="encryption_mismatch_title">加密不一致</string>
+    <string name="mismatch_device_encrypted_cloud_not_body">您的设备上已启用加密，但云端备份未加密。\n\n请选择如何继续：</string>
+    <string name="mismatch_option_restore_unencrypted">恢复云端副本并禁用加密</string>
+    <string name="mismatch_option_wipe_and_upload_encrypted">擦除云端副本并上传加密备份</string>
+    <string name="mismatch_cloud_encrypted_device_not_body">云端备份已被加密，但此设备上禁用了加密。\n\n请选择如何继续：</string>
+    <string name="mismatch_option_enter_recovery_key">输入恢复密钥并继续同步</string>
+    <string name="mismatch_option_wipe_and_upload_unencrypted">擦除云端副本并上传未加密备份</string>
+    <string name="confirm_restore_unencrypted_title">禁用加密并恢复？</string>
+    <string name="confirm_restore_unencrypted_message">这将禁用设备上的加密并下载未加密的云端备份。是否继续？</string>
+    <string name="confirm_wipe_cloud_title">擦除云端备份？</string>
+    <string name="confirm_wipe_unencrypted_message">这将永久删除未加密的云端备份，并替换为新的加密副本。是否继续？</string>
+    <string name="confirm_wipe_encrypted_message">这将永久删除加密的云端备份，并替换为新的未加密副本。是否继续？</string>
+    <string name="wipe_and_upload">擦除并上传</string>
+    <string name="continue_text">继续</string>
 </resources>
