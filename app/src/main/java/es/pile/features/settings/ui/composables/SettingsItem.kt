@@ -138,7 +138,7 @@ fun SettingsItem(
     onAction: () -> Unit
 ) {
     val containerColor = if (enabled) {
-        MaterialTheme.colorScheme.surfaceContainerHighest
+        MaterialTheme.colorScheme.surfaceContainerHigh
     } else {
         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
     }
