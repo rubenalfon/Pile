@@ -9,3 +9,8 @@
 .cxx
 /.kotlin/
 /app/release/
+/app/full/
+/app/foss/
+*.aab
+*.apk
+mapping.txt
