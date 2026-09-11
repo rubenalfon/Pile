@@ -10,6 +10,7 @@ data class SettingsOverviewState(
     val isLocalAiEnabled: Boolean = false,
     val selectedModel: String? = null,
     val imageResolution: ImageResolution = ImageResolution.LOW,
+    val isBackupSupported: Boolean = false,
 )
 
 sealed interface SettingsOverviewEvent {

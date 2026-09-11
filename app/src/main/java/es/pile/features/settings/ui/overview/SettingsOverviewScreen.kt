@@ -130,9 +130,11 @@ fun SettingsOverviewContent(
                     onResolutionChange = { onEvent(SettingsOverviewEvent.OnResolutionClicked) }
                 )
 
-                BackupSection(
-                    onBackupClick = { onEvent(SettingsOverviewEvent.OnBackupClicked) }
-                )
+                if (state.isBackupSupported) {
+                    BackupSection(
+                        onBackupClick = { onEvent(SettingsOverviewEvent.OnBackupClicked) }
+                    )
+                }
             }
         }
     }

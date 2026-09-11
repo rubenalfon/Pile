@@ -423,12 +423,13 @@ private fun SearchInputField(
         trailingIcon = {
             AnimatedVisibility(!expanded, enter = fadeIn(), exit = fadeOut()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    var isSyncIndicatorVisible by remember {
-                        mutableStateOf(syncState !is SyncState.Idle && syncState !is SyncState.Success)
+                    val isSyncAvailable = syncState !is SyncState.NoProvider
+                    var isSyncIndicatorVisible by remember(syncState) {
+                        mutableStateOf(isSyncAvailable && syncState !is SyncState.Idle && syncState !is SyncState.Success)
                     }
 
                     LaunchedEffect(syncState) {
-                        if (syncState is SyncState.Idle || syncState is SyncState.Success) {
+                        if (!isSyncAvailable || syncState is SyncState.Idle || syncState is SyncState.Success) {
                             delay(5.seconds)
                             isSyncIndicatorVisible = false
                         } else {
