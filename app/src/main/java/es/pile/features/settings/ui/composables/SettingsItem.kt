@@ -148,7 +148,10 @@ fun SettingsItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable(enabled) { onAction() },
-        colors = CardDefaults.cardColors(containerColor = containerColor),
+        colors = CardDefaults.cardColors(
+            containerColor = containerColor,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        ),
         shape = itemPosition.getShape()
     ) {
         val paddingValues = if (subtitle != null)
