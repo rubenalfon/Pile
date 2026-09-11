@@ -55,7 +55,8 @@ class FinalizeDocumentUpdateUseCaseTest {
             isDraft = true,
             crop = null,
             filter = 0,
-            rotation = 0
+            rotation = 0,
+            modificationDateTime = LocalDateTime.now()
         )
         val imageList = listOf(draftImage)
 

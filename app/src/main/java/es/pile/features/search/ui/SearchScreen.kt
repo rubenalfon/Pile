@@ -9,9 +9,11 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.horizontalScroll
@@ -69,6 +71,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -76,6 +79,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.pile.DocumentModel
 import es.pile.PileModel
 import es.pile.R
+import es.pile.core.domain.models.SyncState
 import es.pile.core.ui.composables.Document
 import es.pile.core.ui.composables.KeyboardAware
 import es.pile.core.ui.composables.LoadingWrapper
@@ -83,6 +87,7 @@ import es.pile.core.ui.composables.SelectPilesBottomSheet
 import es.pile.core.ui.composables.adaptiveSizeItemsGrid
 import es.pile.core.ui.theme.PileTheme
 import es.pile.core.ui.util.horizontalPaddingValues
+import es.pile.features.home.ui.compostables.SyncStatusIcon
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -93,6 +98,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -155,10 +161,10 @@ fun SearchScreenPreview() {
                 isLoading = false,
                 searchQuery = "",
                 filteredDocumentList = listOf(SearchItem(document, "")),
-                pileList = listOf(PileModel("1", "Pilas", "icon", 0xFF0000L))
+                pileList = listOf(PileModel("1", "Pilas", "icon", 0xFF0000L, LocalDateTime.now()))
             ),
             bitmapCache = emptyMap(),
-            expanded = true,
+            expanded = false,
             onExpandedChange = {},
             onSettingsClick = {},
             onEvent = {},
@@ -175,6 +181,8 @@ fun SearchContent(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onSettingsClick: () -> Unit,
+    onSyncClick: () -> Unit = {},
+    syncState: SyncState = SyncState.Idle,
     viewModel: SearchViewModel = koinViewModel { parametersOf(pileId) },
     navigateToDocumentDetail: (documentId: String) -> Unit,
     focusRequester: FocusRequester? = null
@@ -189,6 +197,8 @@ fun SearchContent(
         expanded = expanded,
         onExpandedChange = onExpandedChange,
         onSettingsClick = onSettingsClick,
+        onSyncClick = onSyncClick,
+        syncState = syncState,
         onEvent = { viewModel.handleEvent(it) },
         navigateToDocumentDetail = navigateToDocumentDetail,
         focusRequester = focusRequester
@@ -204,6 +214,8 @@ fun SearchContent(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onSettingsClick: () -> Unit,
+    onSyncClick: () -> Unit = {},
+    syncState: SyncState = SyncState.Idle,
     onEvent: (SearchEvent) -> Unit,
     navigateToDocumentDetail: (documentId: String) -> Unit,
     focusRequester: FocusRequester? = null
@@ -231,6 +243,8 @@ fun SearchContent(
                 expanded = expanded,
                 onExpandedChange = { onExpandedChange(it) },
                 onSettingsClick = onSettingsClick,
+                onSyncClick = onSyncClick,
+                syncState = syncState,
                 focusRequester = focusRequester
             )
         },
@@ -358,6 +372,8 @@ private fun SearchInputField(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onSettingsClick: () -> Unit,
+    onSyncClick: () -> Unit = {},
+    syncState: SyncState = SyncState.Idle,
     focusRequester: FocusRequester
 ) {
     InputField(
@@ -366,7 +382,13 @@ private fun SearchInputField(
         onSearch = { onSearch() },
         expanded = expanded,
         onExpandedChange = onExpandedChange,
-        placeholder = { Text(stringResource(R.string.search_your_documents)) },
+        placeholder = {
+            Text(
+                text = stringResource(R.string.search_your_documents),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
         leadingIcon = {
             Crossfade(
                 targetState = expanded,
@@ -400,13 +422,40 @@ private fun SearchInputField(
         },
         trailingIcon = {
             AnimatedVisibility(!expanded, enter = fadeIn(), exit = fadeOut()) {
-                IconButton(
-                    onClick = onSettingsClick
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.settings_24px),
-                        contentDescription = stringResource(R.string.settings)
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val isSyncAvailable = syncState !is SyncState.NoProvider
+                    var isSyncIndicatorVisible by remember(syncState) {
+                        mutableStateOf(isSyncAvailable && syncState !is SyncState.Idle && syncState !is SyncState.Success)
+                    }
+
+                    LaunchedEffect(syncState) {
+                        if (!isSyncAvailable || syncState is SyncState.Idle || syncState is SyncState.Success) {
+                            delay(5.seconds)
+                            isSyncIndicatorVisible = false
+                        } else {
+                            isSyncIndicatorVisible = true
+                        }
+                    }
+
+                    AnimatedVisibility(
+                        visible = isSyncIndicatorVisible,
+                        enter = fadeIn() + expandHorizontally(),
+                        exit = fadeOut() + shrinkHorizontally()
+                    ) {
+                        SyncStatusIcon(
+                            state = syncState,
+                            onClick = onSyncClick
+                        )
+                    }
+
+                    IconButton(
+                        onClick = onSettingsClick
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.settings_24px),
+                            contentDescription = stringResource(R.string.settings)
+                        )
+                    }
                 }
             }
             AnimatedVisibility(

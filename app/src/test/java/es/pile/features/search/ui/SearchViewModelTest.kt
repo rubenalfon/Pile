@@ -46,7 +46,7 @@ class SearchViewModelTest {
     @Test
     fun `init should load piles and documents`() = runTest {
         // Given
-        val mockPiles = listOf(PileModel("p1", "Pile 1", "icon1", 1))
+        val mockPiles = listOf(PileModel("p1", "Pile 1", "icon1", 1, LocalDateTime.now()))
         val mockDocs = listOf(mockk<DocumentModel>(relaxed = true) { every { id } returns "d1" })
         every { pileRepository.pileModels } returns flowOf(mockPiles)
         every { documentRepository.documentModels } returns flowOf(mockDocs)

@@ -46,7 +46,8 @@ import org.koin.androidx.compose.koinViewModel
 fun SettingsOverviewScreen(
     viewModel: SettingsOverviewViewModel = koinViewModel(),
     popBackStack: () -> Unit,
-    navigateToSettingsResolution: () -> Unit
+    navigateToSettingsResolution: () -> Unit,
+    navigateToBackup: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -56,6 +57,7 @@ fun SettingsOverviewScreen(
             when (event) {
                 is SettingsOverviewEvent.OnBackClicked -> popBackStack()
                 is SettingsOverviewEvent.OnResolutionClicked -> navigateToSettingsResolution()
+                is SettingsOverviewEvent.OnBackupClicked -> navigateToBackup()
                 else -> viewModel.handleEvent(event)
             }
         }
@@ -127,6 +129,12 @@ fun SettingsOverviewContent(
                     imageResolution = state.imageResolution,
                     onResolutionChange = { onEvent(SettingsOverviewEvent.OnResolutionClicked) }
                 )
+
+                if (state.isBackupSupported) {
+                    BackupSection(
+                        onBackupClick = { onEvent(SettingsOverviewEvent.OnBackupClicked) }
+                    )
+                }
             }
         }
     }
@@ -230,6 +238,27 @@ private fun ResolutionSection(
             title = stringResource(R.string.document_resolution),
             subtitle = subtitle,
             onAction = onResolutionChange
+        )
+    }
+}
+
+@Composable
+private fun BackupSection(
+    modifier: Modifier = Modifier,
+    onBackupClick: () -> Unit,
+) {
+    SettingsSection(modifier = modifier, title = "Cloud Backup") {
+        SettingsItem(
+            itemPosition = ItemPosition.SINGLE,
+            title = "Backup & Sync",
+            subtitle = "Manage your cloud backups",
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(R.drawable.backup),
+                    contentDescription = null
+                )
+            },
+            onAction = onBackupClick
         )
     }
 }

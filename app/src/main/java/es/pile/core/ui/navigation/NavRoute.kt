@@ -65,4 +65,17 @@ sealed interface Pane : Parcelable, NavKey {
     @Parcelize
     @Serializable
     data object SettingsLanguageModel : Pane
+
+    @Parcelize
+    @Serializable
+    data object Backup : Pane
+
+    @Parcelize
+    @Serializable
+    data object EncryptionSettings : Pane
+
+    @Parcelize
+    @Serializable
+    data object WipeCloud : Pane
 }
+

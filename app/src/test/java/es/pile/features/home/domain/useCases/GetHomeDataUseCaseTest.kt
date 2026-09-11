@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import java.time.LocalDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -24,7 +25,7 @@ class GetHomeDataUseCaseTest {
     @Test
     fun `invoke should aggregate data correctly`() = runTest {
         // Given
-        val mockPiles = listOf(PileModel("p1", "Pile 1", "icon1", 1))
+        val mockPiles = listOf(PileModel("p1", "Pile 1", "icon1", 1, LocalDateTime.now()))
         val mockDocuments = listOf(
             mockk<DocumentModel> {
                 every { id } returns "d1"

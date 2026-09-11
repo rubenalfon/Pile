@@ -6,7 +6,10 @@ import es.pile.core.di.appModule
 import es.pile.core.di.dataModule
 import es.pile.core.di.databaseModule
 import es.pile.core.di.domainModule
+import es.pile.core.domain.sync.SyncManager
 import es.pile.features.addDocument.di.addDocumentModule
+import es.pile.features.backup.di.backupFlavorModule
+import es.pile.features.backup.di.backupModule
 import es.pile.features.documentDetail.di.documentDetailModule
 import es.pile.features.editDocument.di.editDocumentModule
 import es.pile.features.externalImport.di.externalImportModule
@@ -17,6 +20,7 @@ import es.pile.features.search.di.searchModule
 import es.pile.features.settings.di.settingsModule
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
+import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
@@ -48,8 +52,13 @@ class App : Application() {
                 editDocumentModule,
                 addDocumentModule,
                 externalImportModule,
-                settingsModule
+                settingsModule,
+                backupModule,
+                backupFlavorModule
             )
         }
+
+        val syncManager: SyncManager by inject()
+        syncManager.startAutoSync()
     }
 }

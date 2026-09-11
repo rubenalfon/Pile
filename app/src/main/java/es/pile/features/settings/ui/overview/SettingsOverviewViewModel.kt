@@ -3,6 +3,7 @@ package es.pile.features.settings.ui.overview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.pile.core.domain.models.AppTheme
+import es.pile.core.domain.repositories.BackupRepository
 import es.pile.core.domain.repositories.SettingsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +12,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SettingsOverviewViewModel(
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val backupRepository: BackupRepository
 ) : ViewModel() {
     val state: StateFlow<SettingsOverviewState> = settingsRepository.userSettings
         .map { userSettings ->
@@ -21,7 +23,8 @@ class SettingsOverviewViewModel(
                 isMaterialColor = userSettings.isMaterialColor,
                 isLocalAiEnabled = userSettings.isLocalAiEnabled,
                 selectedModel = userSettings.selectedModel,
-                imageResolution = userSettings.imageResolution
+                imageResolution = userSettings.imageResolution,
+                isBackupSupported = backupRepository.availableProviders.isNotEmpty()
             )
         }
         .stateIn(
@@ -34,6 +37,7 @@ class SettingsOverviewViewModel(
         when (event) {
             SettingsOverviewEvent.OnBackClicked -> {}
             SettingsOverviewEvent.OnResolutionClicked -> {}
+            SettingsOverviewEvent.OnBackupClicked -> {}
 
             is SettingsOverviewEvent.OnThemeChanged -> updateTheme(event.newTheme)
 

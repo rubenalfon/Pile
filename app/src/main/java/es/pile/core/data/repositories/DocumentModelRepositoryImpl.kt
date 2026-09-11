@@ -5,16 +5,19 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import es.pile.DatabaseQueries
 import es.pile.DocumentModel
+import es.pile.core.domain.models.DeletedEntityType
 import es.pile.core.domain.models.DocumentDetail
 import es.pile.core.domain.models.DocumentStatus
+import es.pile.core.domain.repositories.DeletedEntityRepository
 import es.pile.core.domain.repositories.DocumentModelRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-
+import java.time.LocalDateTime
 
 class DocumentModelRepositoryImpl(
     private val databaseQueries: DatabaseQueries,
+    private val deletedEntityRepository: DeletedEntityRepository,
     private val ioDispatcher: CoroutineDispatcher
 ) : DocumentModelRepository {
     override val documentModels: Flow<List<DocumentModel>> =
@@ -40,6 +43,7 @@ class DocumentModelRepositoryImpl(
 
     override suspend fun insertDocumentModel(documentModel: DocumentModel) {
         withContext(ioDispatcher) {
+            deletedEntityRepository.removeDeletedEntity(documentModel.id)
             databaseQueries.insertDocumentModel(
                 id = documentModel.id,
                 title = documentModel.title,
@@ -77,6 +81,7 @@ class DocumentModelRepositoryImpl(
         withContext(ioDispatcher) {
             databaseQueries.updateDocumentTitle(
                 title = title,
+                modificationDateTime = LocalDateTime.now(),
                 id = id
             )
         }
@@ -86,6 +91,7 @@ class DocumentModelRepositoryImpl(
         withContext(ioDispatcher) {
             databaseQueries.updateDocumentNote(
                 documentNote = note,
+                modificationDateTime = LocalDateTime.now(),
                 id = id
             )
         }
@@ -95,6 +101,7 @@ class DocumentModelRepositoryImpl(
         withContext(ioDispatcher) {
             databaseQueries.updateDocumentDetails(
                 documentDetails = details,
+                modificationDateTime = LocalDateTime.now(),
                 id = id
             )
         }
@@ -102,6 +109,11 @@ class DocumentModelRepositoryImpl(
 
     override suspend fun deleteDocumentModel(id: String) {
         withContext(ioDispatcher) {
+            val existingDoc = databaseQueries.selectDocumentModelById(id).executeAsOneOrNull()
+            existingDoc?.imageIds?.forEach { imageId ->
+                deletedEntityRepository.insertDeletedEntity(imageId, DeletedEntityType.IMAGE)
+            }
+            deletedEntityRepository.insertDeletedEntity(id, DeletedEntityType.DOCUMENT)
             databaseQueries.removeDocumentModel(id)
         }
     }

@@ -2,6 +2,7 @@ package es.pile.core.domain.useCases
 
 import es.pile.PileModel
 import es.pile.core.domain.repositories.PileModelRepository
+import java.time.LocalDateTime
 import java.util.UUID
 
 /**
@@ -24,7 +25,8 @@ class CreatePileUseCase(
             id = UUID.randomUUID().toString(),
             name = name,
             iconId = iconId,
-            colorNumber = color
+            colorNumber = color,
+            modificationDateTime = LocalDateTime.now()
         )
 
         pileModelRepository.insertPileModel(pileModel)

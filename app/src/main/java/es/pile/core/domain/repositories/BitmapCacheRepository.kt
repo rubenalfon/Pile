@@ -73,6 +73,13 @@ interface BitmapCacheRepository {
     fun removeFromCache(cacheKey: String)
 
     /**
+     * Removes all cached bitmaps associated with the given set of image IDs or document IDs.
+     *
+     * @param ids The set of image IDs or document IDs to invalidate from memory cache.
+     */
+    fun invalidateCacheFor(ids: Set<String>)
+
+    /**
      * Clears all bitmaps from the cache and recycles them to prevent memory leaks.
      */
     fun clearCache()

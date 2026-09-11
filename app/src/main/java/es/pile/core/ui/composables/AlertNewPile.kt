@@ -68,6 +68,7 @@ import es.pile.core.ui.theme.AppIcons
 import es.pile.core.ui.theme.ExtendedTheme
 import es.pile.core.ui.theme.PileTheme
 import kotlinx.coroutines.delay
+import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.milliseconds
 
 
@@ -81,7 +82,8 @@ internal fun AlertEditPilePreview() {
                     id = "1",
                     name = "Sample Piles",
                     iconId = "Bank",
-                    colorNumber = 1L
+                    colorNumber = 1L,
+                    modificationDateTime = LocalDateTime.now()
                 ),
                 onDismiss = {},
                 onConfirm = { _, _, _ -> }

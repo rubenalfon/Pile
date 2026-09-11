@@ -25,6 +25,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDateTime
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -46,7 +47,9 @@ class PileDetailViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         
-        every { pileModelRepository.getPileModelById(pileId) } returns flowOf(PileModel(pileId, "Pile", "icon", 0))
+        every { pileModelRepository.getPileModelById(pileId) } returns flowOf(
+            PileModel(pileId, "Pile", "icon", 0, LocalDateTime.now())
+        )
         every { documentModelRepository.documentModels } returns flowOf(emptyList())
     }
 

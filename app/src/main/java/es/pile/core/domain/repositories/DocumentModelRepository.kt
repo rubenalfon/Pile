@@ -48,7 +48,7 @@ interface DocumentModelRepository {
     fun getDocumentModelsByStatus(documentStatus: DocumentStatus): Flow<List<DocumentModel>>
 
     /**
-     * Persists a new document model record in the database.
+     * Persists a new document model record in the database and clears any previous deletion tombstone.
      * 
      * @param documentModel The document metadata to insert.
      */
@@ -77,7 +77,8 @@ interface DocumentModelRepository {
     suspend fun updateDetails(id: String, details: List<DocumentDetail>)
 
     /**
-     * Removes a document model record from the database.
+     * Removes a document model record from the database and registers tombstone records
+     * for the document and its associated images for synchronization.
      * 
      * @param id The unique identifier of the document to delete.
      */

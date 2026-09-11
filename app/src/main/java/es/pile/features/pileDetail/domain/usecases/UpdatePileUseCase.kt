@@ -4,6 +4,7 @@ import es.pile.PileModel
 import es.pile.core.domain.repositories.PileModelRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
 
 /**
@@ -27,7 +28,8 @@ class UpdatePileUseCase(
                 id = id,
                 name = name,
                 iconId = iconId,
-                colorNumber = color
+                colorNumber = color,
+                modificationDateTime = LocalDateTime.now()
             )
 
             pileModelRepository.updatePileModel(pileModel)

@@ -7,6 +7,7 @@ import es.pile.core.domain.repositories.FileRepository
 import es.pile.core.domain.useCases.SaveImagesUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
 /**
  * Use case responsible for orchestrating the addition of a new page to an existing document.
@@ -47,7 +48,8 @@ class AddPageToDocumentUseCase(
                 isDraft = true,
                 crop = null,
                 filter = 0,
-                rotation = 0
+                rotation = 0,
+                modificationDateTime = LocalDateTime.now()
             )
         }
 
