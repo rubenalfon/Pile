@@ -39,7 +39,6 @@ android {
     productFlavors {
         create("foss") {
             dimension = "distribution"
-            applicationIdSuffix = ".foss"
         }
         create("full") {
             dimension = "distribution"
@@ -49,6 +48,8 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            resValue("string", "app_name", "Pile (Debug)")
         }
         release {
             isMinifyEnabled = true
