@@ -5,23 +5,15 @@
     <string name="search_your_documents">Rechercher dans vos documents</string>
     <string name="user_document_unsaved_changes">Vous avez un document avec des modifications non enregistrées.</string>
     <string name="document_unsaved_changes_deleted">Document supprimé</string>
-    <string name="navigate_to_edit_unsaved_document">Accéder à la modification du document non enregistré</string>
-    <string name="see_more">Voir plus</string>
 
     <string name="new_">Nouveau</string>
     <string name="edit">Modifier</string>
     <string name="cancel">Annuler</string>
-    <string name="done">Terminé</string>
     <string name="undo">Annuler</string>
-    <string name="rename">Renommer</string>
     <string name="delete">Supprimer</string>
     <string name="search">Rechercher</string>
-    <string name="add">Ajouter</string>
     <string name="delete_text">Supprimer le texte</string>
-    <string name="color">Couleur</string>
-    <string name="icon">Icône</string>
     <string name="return_">Retour</string>
-    <string name="reset">Réinitialiser</string>
     <string name="rotate">Faire pivoter</string>
     <string name="settings">Paramètres</string>
     <string name="date">Date</string>
@@ -35,7 +27,6 @@
 
     <string name="new_pile">Nouvelle Pile</string>
     <string name="add_pile">Ajouter une Pile</string>
-    <string name="pile_name">Nom de la Pile</string>
     <string name="loading_new_document">Chargement du nouveau document</string>
 
     <string name="add_document">Ajouter un document</string>
@@ -66,7 +57,6 @@
     <string name="move_previous">Précédent</string>
     <string name="move_next">Suivant</string>
     <string name="detail_deleted">Détail supprimé</string>
-    <string name="delete_detail">Supprimer le détail</string>
     <string name="no_piles_saved">Vous n\'avez pas encore créé de Pile. Créez votre première Pile pour commencer à organiser vos documents !</string>
     <string name="no_documents_in_pile">Cette Pile est vide, commencez par y ajouter des documents !</string>
     <string name="no_documents_home">Vous n\'avez pas encore ajouté de document. Appuyez sur le bouton ci-dessous pour commencer !</string>
@@ -74,8 +64,6 @@
 
 
     <string name="document_no_name_error">ajoutez un nom à votre document.</string>
-    <string name="error_saving_document">Erreur lors de l\'enregistrement du document</string>
-    <string name="error_opening_files_explorer">Erreur lors de l\'ouverture de l\'explorateur de fichiers</string>
     <string name="error_importing_images">Erreur lors de l\'importation des images</string>
     <string name="error_importing_pdf">Erreur lors de l\'importation du PDF</string>
     <string name="error_restoring_draft_document">Erreur lors de la restauration du brouillon</string>
@@ -115,7 +103,6 @@
     <string name="document_name">Nom du document</string>
 
     <string name="rotate_image_counterclockwise">Pivoter vers la gauche</string>
-    <string name="reset_image_crop">Réinitialiser le recadrage</string>
     <string name="error_loading_crop_controller">Erreur lors du chargement de l\'éditeur de recadrage</string>
 
     <string name="close_pile_selection_bottom_sheet">Fermer la sélection de Pile</string>
@@ -137,7 +124,6 @@
 
     <string name="no_images_found">Aucune image trouvée.</string>
     <string name="no_pdf_found">Aucun PDF trouvé.</string>
-    <string name="error_creating_pdf">Erreur lors de la création du PDF</string>
 
 
     <string name="appearance">Apparence</string>
@@ -199,7 +185,6 @@
     <string name="disable_backup_confirmation_title">Désactiver la sauvegarde ?</string>
     <string name="disable_backup_confirmation_message">Vos documents et données ne seront plus synchronisés sur le cloud. Les données locales resteront sur votre appareil.</string>
     <string name="disable">Désactiver</string>
-    <string name="own_hosting">Hébergement propre</string>
 
     <string name="authentication_failed">Authentification échouée</string>
     <string name="authentication_failed_message">Nous n\'avons pas pu nous authentifier auprès du fournisseur sélectionné. Souhaitez-vous réessayer ou désactiver la sauvegarde ?</string>
@@ -219,11 +204,8 @@
     <string name="error_key_required">Une clé de récupération est requise pour déchiffrer votre sauvegarde.</string>
     <string name="error_invalid_key_generic">La clé de récupération fournie est incorrecte ou les données sont corrompues.</string>
     <string name="last_sync_format">Dernière synchro : %1$s</string>
-    <string name="sync_status_up_to_date">Tout est à jour</string>
-    <string name="sync_status_pending">Certains fichiers ne sont pas sauvegardés</string>
     <string name="today">Aujourd\'hui</string>
     <string name="yesterday">Hier</string>
-    <string name="never">Jamais</string>
     <string name="biometric_auth_title">Authentification requise</string>
     <string name="biometric_auth_subtitle">Veuillez vous authentifier pour continuer</string>
     <string name="encryption_settings">Paramètres de chiffrement</string>
@@ -236,10 +218,8 @@
     <string name="danger_zone">Zone de danger</string>
     <string name="this_action_is_irreversible">Cette action est irréversible.</string>
     <string name="wipe_cloud_data">Effacer les données cloud</string>
-    <string name="wipe_cloud_data_alert_title">Effacer la sauvegarde cloud ?</string>
     <string name="wipe_cloud_data_alert_message">Cela supprimera définitivement tous les fichiers de sauvegarde de votre stockage cloud.\n\nCette action ne peut pas être annulée.</string>
     <string name="wipe">Effacer</string>
-    <string name="wiping_cloud_data">Effacement des données cloud…</string>
     <string name="are_you_sure">Êtes-vous sûr ?</string>
     <string name="wipe_cloud_dialog_message">Cette action est permanente et ne peut pas être annulée. Toutes vos données de sauvegarde stockées dans le cloud seront effacées.</string>
     <string name="encryption_mismatch_title">Désaccord de chiffrement</string>
@@ -249,11 +229,22 @@
     <string name="mismatch_cloud_encrypted_device_not_body">La sauvegarde cloud est chiffrée, mais le chiffrement est désactivé sur cet appareil.\n\nChoisissez comment procéder :</string>
     <string name="mismatch_option_enter_recovery_key">Saisir la clé de récupération et continuer la synchro</string>
     <string name="mismatch_option_wipe_and_upload_unencrypted">Effacer la copie cloud et télécharger une sauvegarde non chiffrée</string>
-    <string name="confirm_restore_unencrypted_title">Désactiver le chiffrement et restaurer ?</string>
-    <string name="confirm_restore_unencrypted_message">Cela désactivera le chiffrement sur votre appareil et téléchargera la sauvegarde cloud non chiffrée. Voulez-vous continuer ?</string>
     <string name="confirm_wipe_cloud_title">Effacer la sauvegarde cloud ?</string>
     <string name="confirm_wipe_unencrypted_message">Cela supprimera définitivement la sauvegarde cloud non chiffrée et la remplacera par une nouvelle copie chiffrée. Voulez-vous continuer ?</string>
     <string name="confirm_wipe_encrypted_message">Cela supprimera définitivement la sauvegarde cloud chiffrée et la remplacera par une nouvelle copie non chiffrée. Voulez-vous continuer ?</string>
     <string name="wipe_and_upload">Effacer et télécharger</string>
     <string name="continue_text">Continuer</string>
+    <string name="sync_and_backup">Synchronisation et sauvegarde</string>
+    <string name="cloud_sync">Synchronisation dans le cloud</string>
+    <string name="manage_your_cloud_sync">Gérer la synchronisation dans le cloud</string>
+    <string name="export_data">Exporter les données</string>
+    <string name="export_data_desc">Créer un fichier .zip avec toutes les données de l\'application</string>
+    <string name="import_data">Importer les données</string>
+    <string name="import_data_desc">Restaurer les données depuis un fichier .zip</string>
+    <string name="export_success">Données exportées avec succès</string>
+    <string name="export_error">Erreur lors de l\'exportation des données</string>
+    <string name="import_success">Données importées avec succès</string>
+    <string name="import_error">Erreur lors de l\'importation des données</string>
+    <string name="import_backup_dialog_title">Importer la sauvegarde</string>
+    <string name="import_backup_dialog_message">Les données de la sauvegarde seront fusionnées avec vos données actuelles. Tout élément correspondant sera mis à jour avec les informations du fichier importé.</string>
 </resources>

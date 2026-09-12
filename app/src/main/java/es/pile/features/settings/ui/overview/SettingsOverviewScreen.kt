@@ -2,6 +2,8 @@ package es.pile.features.settings.ui.overview
 
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.S
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -13,16 +15,21 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -72,6 +79,7 @@ fun SettingsOverviewPreview() {
             state = SettingsOverviewState(
                 isLoading = false,
                 isLocalAiEnabled = true,
+                isBackupSupported = true
             ),
             onEvent = {}
         )
@@ -89,11 +97,34 @@ fun SettingsOverviewContent(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     var showAppThemeDialog by rememberSaveable { mutableStateOf(false) }
+    var showImportConfirmationDialog by rememberSaveable { mutableStateOf(false) }
 
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(state.snackbarMessage) {
+        state.snackbarMessage?.let {
+            snackbarHostState.showSnackbar(it.asString(context))
+            onEvent(SettingsOverviewEvent.OnSnackbarMessageShown)
+        }
+    }
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/zip")
+    ) { uri ->
+        uri?.let { onEvent(SettingsOverviewEvent.OnExportUriSelected(it)) }
+    }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { onEvent(SettingsOverviewEvent.OnImportUriSelected(it)) }
+    }
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets.displayCutout,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             SettingsTopBar(
                 title = stringResource(R.string.settings),
@@ -130,13 +161,25 @@ fun SettingsOverviewContent(
                     onResolutionChange = { onEvent(SettingsOverviewEvent.OnResolutionClicked) }
                 )
 
-                if (state.isBackupSupported) {
-                    BackupSection(
-                        onBackupClick = { onEvent(SettingsOverviewEvent.OnBackupClicked) }
-                    )
-                }
+                BackupSection(
+                    isBackupSupported = state.isBackupSupported,
+                    onBackupClick = { onEvent(SettingsOverviewEvent.OnBackupClicked) },
+                    onExportClick = { exportLauncher.launch("pile_backup.zip") },
+                    onImportClick = { showImportConfirmationDialog = true }
+                )
+
             }
         }
+    }
+
+    if (showImportConfirmationDialog) {
+        ShowImportConfirmationDialog(
+            onConfirm = {
+                importLauncher.launch(arrayOf("application/zip"))
+                showImportConfirmationDialog = false
+            },
+            onDismiss = { showImportConfirmationDialog = false }
+        )
     }
 
     if (showAppThemeDialog) {
@@ -151,6 +194,32 @@ fun SettingsOverviewContent(
             }
         )
     }
+}
+
+@Composable
+private fun ShowImportConfirmationDialog(
+    modifier: Modifier = Modifier,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.import_backup_dialog_title)) },
+        text = { Text(stringResource(R.string.import_backup_dialog_message)) },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm
+            ) {
+                Text(stringResource(R.string.continue_text))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 @Composable
@@ -245,20 +314,49 @@ private fun ResolutionSection(
 @Composable
 private fun BackupSection(
     modifier: Modifier = Modifier,
+    isBackupSupported: Boolean,
     onBackupClick: () -> Unit,
+    onExportClick: () -> Unit,
+    onImportClick: () -> Unit,
 ) {
-    SettingsSection(modifier = modifier, title = "Cloud Backup") {
+    SettingsSection(modifier = modifier, title = stringResource(R.string.sync_and_backup)) {
+        if (isBackupSupported) {
+            SettingsItem(
+                itemPosition = ItemPosition.TOP,
+                title = stringResource(R.string.cloud_sync),
+                subtitle = stringResource(R.string.manage_your_cloud_sync),
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(R.drawable.cloud_sync_24px),
+                        contentDescription = null
+                    )
+                },
+                onAction = onBackupClick
+            )
+        }
         SettingsItem(
-            itemPosition = ItemPosition.SINGLE,
-            title = "Backup & Sync",
-            subtitle = "Manage your cloud backups",
+            itemPosition = if (isBackupSupported) ItemPosition.MIDDLE else ItemPosition.TOP,
+            title = stringResource(R.string.export_data),
+            subtitle = stringResource(R.string.export_data_desc),
             leadingIcon = {
                 Icon(
-                    painter = painterResource(R.drawable.backup),
+                    painter = painterResource(R.drawable.upload_24px),
                     contentDescription = null
                 )
             },
-            onAction = onBackupClick
+            onAction = onExportClick
+        )
+        SettingsItem(
+            itemPosition = ItemPosition.BOTTOM,
+            title = stringResource(R.string.import_data),
+            subtitle = stringResource(R.string.import_data_desc),
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(R.drawable.download_24px),
+                    contentDescription = null
+                )
+            },
+            onAction = onImportClick
         )
     }
 }

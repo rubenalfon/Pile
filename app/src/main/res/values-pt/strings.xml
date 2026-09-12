@@ -5,23 +5,15 @@
     <string name="search_your_documents">Pesquisar nos seus documentos</string>
     <string name="user_document_unsaved_changes">Tem um documento com alterações não guardadas.</string>
     <string name="document_unsaved_changes_deleted">Documento eliminado</string>
-    <string name="navigate_to_edit_unsaved_document">Navegar para editar documento não guardado</string>
-    <string name="see_more">Ver mais</string>
 
     <string name="new_">Novo</string>
     <string name="edit">Editar</string>
     <string name="cancel">Cancelar</string>
-    <string name="done">Concluído</string>
     <string name="undo">Anular</string>
-    <string name="rename">Renomear</string>
     <string name="delete">Eliminar</string>
     <string name="search">Pesquisar</string>
-    <string name="add">Adicionar</string>
     <string name="delete_text">Eliminar texto</string>
-    <string name="color">Cor</string>
-    <string name="icon">Ícone</string>
     <string name="return_">Voltar</string>
-    <string name="reset">Repor</string>
     <string name="rotate">Rodar</string>
     <string name="settings">Definições</string>
     <string name="date">Data</string>
@@ -35,7 +27,6 @@
 
     <string name="new_pile">Nova pilha</string>
     <string name="add_pile">Adicionar pilha</string>
-    <string name="pile_name">Nome da pilha</string>
     <string name="loading_new_document">A carregar novo documento</string>
 
     <string name="add_document">Adicionar documento</string>
@@ -66,7 +57,6 @@
     <string name="move_previous">Mover anterior</string>
     <string name="move_next">Mover seguinte</string>
     <string name="detail_deleted">Detalhe eliminado</string>
-    <string name="delete_detail">Eliminar detalhe</string>
     <string name="no_piles_saved">Ainda não criou nenhuma pilha. Crie a sua primeira para começar a organizar os seus documentos!</string>
     <string name="no_documents_in_pile">Esta pilha está vazia, comece por adicionar alguns documentos!</string>
     <string name="no_documents_home">Ainda não adicionou nenhum documento. Toque no botão abaixo para começar!</string>
@@ -74,8 +64,6 @@
 
 
     <string name="document_no_name_error">adicione um nome ao seu documento.</string>
-    <string name="error_saving_document">Erro ao guardar o documento</string>
-    <string name="error_opening_files_explorer">Erro ao abrir o explorador de ficheiros</string>
     <string name="error_importing_images">Erro ao importar imagens</string>
     <string name="error_importing_pdf">Erro ao importar o PDF</string>
     <string name="error_restoring_draft_document">Erro ao restaurar rascunho de documento</string>
@@ -115,7 +103,6 @@
     <string name="document_name">Nome do documento</string>
 
     <string name="rotate_image_counterclockwise">Rodar imagem para a esquerda</string>
-    <string name="reset_image_crop">Repor recorte de imagem</string>
     <string name="error_loading_crop_controller">Erro ao carregar o editor de recorte</string>
 
     <string name="close_pile_selection_bottom_sheet">Fechar seleção de pilhas</string>
@@ -137,7 +124,6 @@
 
     <string name="no_images_found">Nenhuma imagem encontrada.</string>
     <string name="no_pdf_found">Nenhum PDF encontrado.</string>
-    <string name="error_creating_pdf">Erro ao criar PDF</string>
 
 
     <string name="appearance">Aparência</string>
@@ -199,7 +185,6 @@
     <string name="disable_backup_confirmation_title">Desativar cópia de segurança?</string>
     <string name="disable_backup_confirmation_message">Os seus documentos e dados deixarão de ser sincronizados na nuvem. Os dados locais permanecerão no seu dispositivo.</string>
     <string name="disable">Desativar</string>
-    <string name="own_hosting">Alojamento próprio</string>
 
     <string name="authentication_failed">Falha na autenticação</string>
     <string name="authentication_failed_message">Não foi possível autenticar com o fornecedor selecionado. Gostaria de tentar novamente ou desativar a cópia de segurança?</string>
@@ -219,11 +204,8 @@
     <string name="error_key_required">É necessária uma chave de recuperação para decifrar a sua cópia de segurança.</string>
     <string name="error_invalid_key_generic">A chave de recuperação fornecida está incorreta ou os datos estão corrompidos.</string>
     <string name="last_sync_format">Última sincronização: %1$s</string>
-    <string name="sync_status_up_to_date">Tudo está atualizado</string>
-    <string name="sync_status_pending">Alguns ficheiros não têm cópia de segurança</string>
     <string name="today">Hoje</string>
     <string name="yesterday">Ontem</string>
-    <string name="never">Nunca</string>
     <string name="biometric_auth_title">Autenticação necessária</string>
     <string name="biometric_auth_subtitle">Por favor, autentique-se para continuar</string>
     <string name="encryption_settings">Configurações de criptografia</string>
@@ -236,10 +218,8 @@
     <string name="danger_zone">Zona de perigo</string>
     <string name="this_action_is_irreversible">Esta ação é irreversível.</string>
     <string name="wipe_cloud_data">Apagar dados na nuvem</string>
-    <string name="wipe_cloud_data_alert_title">Apagar cópia na nuvem?</string>
     <string name="wipe_cloud_data_alert_message">Isto irá eliminar permanentemente todos os ficheiros de cópia de segurança do seu armazenamento na nuvem.\n\nEsta ação não pode ser desfeita.</string>
     <string name="wipe">Apagar</string>
-    <string name="wiping_cloud_data">A apagar dados na nuvem…</string>
     <string name="are_you_sure">Tem a certeza?</string>
     <string name="wipe_cloud_dialog_message">Esta ação é permanente e não pode ser desfeita. Todos os seus dados de cópia de segurança armazenados na nuvem serão apagados.</string>
     <string name="encryption_mismatch_title">Incompatibilidade de criptografia</string>
@@ -249,11 +229,22 @@
     <string name="mismatch_cloud_encrypted_device_not_body">O backup na nuvem está encriptado, mas a criptografia está desativada neste dispositivo.\n\nEscolha como proceder:</string>
     <string name="mismatch_option_enter_recovery_key">Inserir chave de recuperação e continuar sincronização</string>
     <string name="mismatch_option_wipe_and_upload_unencrypted">Apagar cópia da nuvem e enviar backup não encriptado</string>
-    <string name="confirm_restore_unencrypted_title">Desativar criptografia e restaurar?</string>
-    <string name="confirm_restore_unencrypted_message">Isto desativará a criptografia no seu dispositivo e descarregará o backup não encriptado da nuvem. Quer continuar?</string>
     <string name="confirm_wipe_cloud_title">Apagar cópia na nuvem?</string>
     <string name="confirm_wipe_unencrypted_message">Isto eliminará permanentemente o backup não encriptado na nuvem e substituí-lo-á por uma nova cópia encriptada. Quer continuar?</string>
     <string name="confirm_wipe_encrypted_message">Isto eliminará permanentemente o backup encriptado na nuvem e substituí-lo-á por uma nova cópia não encriptada. Quer continuar?</string>
     <string name="wipe_and_upload">Apagar e enviar</string>
     <string name="continue_text">Continuar</string>
+    <string name="sync_and_backup">Sincronização e cópia de segurança</string>
+    <string name="cloud_sync">Sincronização na nuvem</string>
+    <string name="manage_your_cloud_sync">Gerir a sincronização na nuvem</string>
+    <string name="export_data">Exportar dados</string>
+    <string name="export_data_desc">Criar um ficheiro .zip com todos os dados da aplicação</string>
+    <string name="import_data">Importar dados</string>
+    <string name="import_data_desc">Restaurar dados a partir de um ficheiro .zip</string>
+    <string name="export_success">Dados exportados com sucesso</string>
+    <string name="export_error">Erro ao exportar os dados</string>
+    <string name="import_success">Dados importados com sucesso</string>
+    <string name="import_error">Erro ao importar os dados</string>
+    <string name="import_backup_dialog_title">Importar cópia de segurança</string>
+    <string name="import_backup_dialog_message">Os dados da cópia de segurança serão combinados com os dados atuais. Elementos correspondentes serão atualizados com as informações do ficheiro importado.</string>
 </resources>

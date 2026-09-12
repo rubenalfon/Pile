@@ -5,23 +5,15 @@
     <string name="search_your_documents">Busca en tus documentos</string>
     <string name="user_document_unsaved_changes">Tienes un documento con cambios sin guardar.</string>
     <string name="document_unsaved_changes_deleted">Documento eliminado</string>
-    <string name="navigate_to_edit_unsaved_document">Navegar para editar documento sin guardar</string>
-    <string name="see_more">Ver más</string>
 
     <string name="new_">Nuevo</string>
     <string name="edit">Editar</string>
     <string name="cancel">Cancelar</string>
-    <string name="done">Hecho</string>
     <string name="undo">Deshacer</string>
-    <string name="rename">Renombrar</string>
     <string name="delete">Eliminar</string>
     <string name="search">Buscar</string>
-    <string name="add">Añadir</string>
     <string name="delete_text">Eliminar texto</string>
-    <string name="color">Color</string>
-    <string name="icon">Icono</string>
     <string name="return_">Volver</string>
-    <string name="reset">Restablecer</string>
     <string name="rotate">Rotar</string>
     <string name="settings">Ajustes</string>
     <string name="date">Fecha</string>
@@ -35,7 +27,6 @@
 
     <string name="new_pile">Nueva pila</string>
     <string name="add_pile">Añadir pila</string>
-    <string name="pile_name">Nombre de la pila</string>
     <string name="loading_new_document">Cargando nuevo documento</string>
 
     <string name="add_document">Añadir documento</string>
@@ -66,7 +57,6 @@
     <string name="move_previous">Mover al anterior</string>
     <string name="move_next">Mover al siguiente</string>
     <string name="detail_deleted">Detalle eliminado</string>
-    <string name="delete_detail">Eliminar detalle</string>
     <string name="no_piles_saved">¡Aún no has creado ninguna pila. Crea la primera para empezar a organizar tus documentos!</string>
     <string name="no_documents_in_pile">Esta pila está vacía, ¡empieza añadiendo algunos documentos!</string>
     <string name="no_documents_home">Aún no has añadido ningún documento. ¡Pulsa el botón de abajo para empezar!</string>
@@ -74,8 +64,6 @@
 
 
     <string name="document_no_name_error">añade un nombre a tu documento.</string>
-    <string name="error_saving_document">Error al guardar el documento</string>
-    <string name="error_opening_files_explorer">Error al abrir el explorador de archivos</string>
     <string name="error_importing_images">Error al importar imágenes</string>
     <string name="error_importing_pdf">Error al importar el PDF</string>
     <string name="error_restoring_draft_document">Error al restaurar el borrador del documento</string>
@@ -115,7 +103,6 @@
     <string name="document_name">Nombre del documento</string>
 
     <string name="rotate_image_counterclockwise">Girar imagen a la izquierda</string>
-    <string name="reset_image_crop">Restablecer recorte de imagen</string>
     <string name="error_loading_crop_controller">Error al cargar el editor de recorte</string>
 
     <string name="close_pile_selection_bottom_sheet">Cerrar selección de pilas</string>
@@ -137,7 +124,6 @@
 
     <string name="no_images_found">No se encontraron imágenes.</string>
     <string name="no_pdf_found">No se encontró ningún PDF.</string>
-    <string name="error_creating_pdf">Error al crear el PDF</string>
 
 
     <string name="appearance">Apariencia</string>
@@ -199,7 +185,6 @@
     <string name="disable_backup_confirmation_title">¿Desactivar copia de seguridad?</string>
     <string name="disable_backup_confirmation_message">Tus documentos y datos dejarán de sincronizarse en la nube. Los datos locales permanecerán en tu dispositivo.</string>
     <string name="disable">Desactivar</string>
-    <string name="own_hosting">Hosting propio</string>
 
     <string name="authentication_failed">Error de autenticación</string>
     <string name="authentication_failed_message">No hemos podido autenticar con el proveedor seleccionado. ¿Quieres volver a intentarlo o desactivar la copia de seguridad?</string>
@@ -219,11 +204,8 @@
     <string name="error_key_required">Se requiere una clave de recuperación para descifrar tu copia de seguridad.</string>
     <string name="error_invalid_key_generic">La clave proporcionada es incorrecta o los datos están corruptos.</string>
     <string name="last_sync_format">Última sincro: %1$s</string>
-    <string name="sync_status_up_to_date">Todo está actualizado</string>
-    <string name="sync_status_pending">Archivos pendientes de subir</string>
     <string name="today">Hoy</string>
     <string name="yesterday">Ayer</string>
-    <string name="never">Nunca</string>
     <string name="biometric_auth_title">Autenticación requerida</string>
     <string name="biometric_auth_subtitle">Por favor, autentícate para continuar</string>
     <string name="encryption_settings">Ajustes de cifrado</string>
@@ -236,10 +218,8 @@
     <string name="danger_zone">Zona de peligro</string>
     <string name="this_action_is_irreversible">Esta acción es irreversible.</string>
     <string name="wipe_cloud_data">Borrar datos en la nube</string>
-    <string name="wipe_cloud_data_alert_title">¿Borrar copia en la nube?</string>
     <string name="wipe_cloud_data_alert_message">Esto eliminará permanentemente todos los archivos de copia de seguridad de tu almacenamiento en la nube.\n\nEsta acción no se puede deshacer.</string>
     <string name="wipe">Borrar</string>
-    <string name="wiping_cloud_data">Borrando datos en la nube…</string>
     <string name="are_you_sure">¿Estás seguro?</string>
     <string name="wipe_cloud_dialog_message">Esta acción es permanente y no se puede deshacer. Se borrarán todos los datos de tu copia de seguridad guardados en la nube.</string>
     <string name="encryption_mismatch_title">Desajuste de cifrado</string>
@@ -249,11 +229,22 @@
     <string name="mismatch_cloud_encrypted_device_not_body">La copia en la nube está cifrada, pero en este dispositivo el cifrado está desactivado.\n\nElige cómo proceder:</string>
     <string name="mismatch_option_enter_recovery_key">Poner la clave de recuperación y continuar sincronización</string>
     <string name="mismatch_option_wipe_and_upload_unencrypted">Borrar la de la nube y subir una sin cifrar</string>
-    <string name="confirm_restore_unencrypted_title">¿Desactivar cifrado y restaurar?</string>
-    <string name="confirm_restore_unencrypted_message">Esto desactivará el cifrado en tu dispositivo y descargará la copia no cifrada de la nube. ¿Quieres continuar?</string>
     <string name="confirm_wipe_cloud_title">¿Borrar copia en la nube?</string>
     <string name="confirm_wipe_unencrypted_message">Esto eliminará permanentemente la copia no cifrada en la nube y la reemplazará por una cifrada. ¿Quieres continuar?</string>
     <string name="confirm_wipe_encrypted_message">Esto eliminará permanentemente la copia cifrada en la nube y la reemplazará por una sin cifrar. ¿Quieres continuar?</string>
     <string name="wipe_and_upload">Borrar y subir</string>
     <string name="continue_text">Continuar</string>
+    <string name="sync_and_backup">Sincronización y copia de seguridad</string>
+    <string name="cloud_sync">Sincronización en la nube</string>
+    <string name="manage_your_cloud_sync">Gestionar la sincronización en la nube</string>
+    <string name="export_data">Exportar datos</string>
+    <string name="export_data_desc">Crear un archivo .zip con todos los datos de la app</string>
+    <string name="import_data">Importar datos</string>
+    <string name="import_data_desc">Restaurar datos desde un archivo .zip</string>
+    <string name="export_success">Datos exportados correctamente</string>
+    <string name="export_error">Error al exportar los datos</string>
+    <string name="import_success">Datos importados correctamente</string>
+    <string name="import_error">Error al importar los datos</string>
+    <string name="import_backup_dialog_title">Importar copia de seguridad</string>
+    <string name="import_backup_dialog_message">Los datos de la copia de seguridad se combinarán con los datos actuales. Si existen elementos duplicados, se actualizarán con la información del archivo importado.</string>
 </resources>

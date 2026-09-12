@@ -7,23 +7,15 @@
     <string name="search_your_documents">Search your Documents</string>
     <string name="user_document_unsaved_changes">You have a document with unsaved changes.</string>
     <string name="document_unsaved_changes_deleted">Document deleted</string>
-    <string name="navigate_to_edit_unsaved_document">Navigate to edit unsaved document</string>
-    <string name="see_more">See more</string>
 
     <string name="new_">New</string>
     <string name="edit">Edit</string>
     <string name="cancel">Cancel</string>
-    <string name="done">Done</string>
     <string name="undo">Undo</string>
-    <string name="rename">Rename</string>
     <string name="delete">Delete</string>
     <string name="search">Search</string>
-    <string name="add">Add</string>
     <string name="delete_text">Delete text</string>
-    <string name="color">Color</string>
-    <string name="icon">Icon</string>
     <string name="return_">Return</string>
-    <string name="reset">Reset</string>
     <string name="rotate">Rotate</string>
     <string name="settings">Settings</string>
     <string name="date">Date</string>
@@ -37,7 +29,6 @@
 
     <string name="new_pile">New Pile</string>
     <string name="add_pile">Add Pile</string>
-    <string name="pile_name">Pile Name</string>
     <string name="loading_new_document">Loading new document</string>
 
     <string name="add_document">Add Document</string>
@@ -68,7 +59,6 @@
     <string name="move_previous">Move previous</string>
     <string name="move_next">Move next</string>
     <string name="detail_deleted">Detail deleted</string>
-    <string name="delete_detail">Delete detail</string>
     <string name="no_piles_saved">You haven\'t created any piles yet. Create your first one to start organizing your documents!</string>
     <string name="no_documents_in_pile">This pile is empty, start by adding some documents to it!</string>
     <string name="no_documents_home">You haven\'t added any documents yet. Tap the button below to start!</string>
@@ -76,8 +66,6 @@
 
 
     <string name="document_no_name_error">add a name to your document.</string>
-    <string name="error_saving_document">Error saving document</string>
-    <string name="error_opening_files_explorer">Error opening files explorer</string>
     <string name="error_importing_images">Error importing images</string>
     <string name="error_importing_pdf">Error importing the PDF</string>
     <string name="error_restoring_draft_document">Error restoring draft document</string>
@@ -117,7 +105,6 @@
     <string name="document_name">Document name</string>
 
     <string name="rotate_image_counterclockwise">Rotate image counterclockwise</string>
-    <string name="reset_image_crop">Reset image crop</string>
     <string name="error_loading_crop_controller">Error loading crop editor</string>
 
     <string name="close_pile_selection_bottom_sheet">Close pile selection bottom sheet</string>
@@ -139,7 +126,6 @@
 
     <string name="no_images_found">No images were found.</string>
     <string name="no_pdf_found">No PDF was found.</string>
-    <string name="error_creating_pdf">Error creating PDF</string>
 
 
     <string name="appearance">Appearance</string>
@@ -179,6 +165,10 @@
     <string name="onboarding_invoices">Invoices</string>
     <string name="onboarding_mail">Mail</string>
 
+    <string name="sync_and_backup">Sync &amp; Backup</string>
+    <string name="cloud_sync">Cloud Sync</string>
+    <string name="manage_your_cloud_sync">Manage your cloud sync</string>
+
     <string name="backup_and_sync">Backup &amp; Sync</string>
     <string name="sync_status_waiting_wifi">Waiting for Wi-Fi</string>
     <string name="sync_now">Sync now</string>
@@ -202,16 +192,13 @@
     <string name="disable_backup_confirmation_title">Disable Backup?</string>
     <string name="disable_backup_confirmation_message">Your documents and data will no longer be synced to the cloud. Local data will remain on your device.</string>
     <string name="disable">Disable</string>
-    <string name="own_hosting">Own hosting</string>
     <string name="danger_zone">Danger Zone</string>
     <string name="wipe_cloud_data">Wipe cloud data</string>
     <string name="this_action_is_irreversible">This action is irreversible.</string>
     <string name="error_cloud_is_encrypted" >The cloud backup is encrypted, but encryption is disabled locally. Enable encryption or wipe cloud data to continue.</string>
     <string name="error_cloud_not_encrypted" >The cloud backup is not encrypted, but encryption is enabled locally. Disable encryption or wipe cloud data to continue.</string>
-    <string name="wipe_cloud_data_alert_title" >Wipe cloud backup?</string>
-    <string name="wipe_cloud_data_alert_message" >This will permanently delete all backup files from your cloud storage. \n\nThis action cannot be undone.</string>
+    <string name="wipe_cloud_data_alert_message">This will permanently delete all backup files from your cloud storage. \n\nThis action cannot be undone.</string>
     <string name="wipe" >Wipe</string>
-    <string name="wiping_cloud_data" >Wiping cloud data…</string>
     <string name="are_you_sure">Are you sure?</string>
     <string name="wipe_cloud_dialog_message">This action is permanent and cannot be undone. All your backup data stored in the cloud will be erased.</string>
     <string name="encryption_mismatch_title">Encryption Mismatch</string>
@@ -221,8 +208,6 @@
     <string name="mismatch_cloud_encrypted_device_not_body">The cloud backup is encrypted, but encryption is disabled on this device.\n\nChoose how to proceed:</string>
     <string name="mismatch_option_enter_recovery_key">Enter recovery key and continue sync</string>
     <string name="mismatch_option_wipe_and_upload_unencrypted">Wipe cloud copy &amp; upload unencrypted backup</string>
-    <string name="confirm_restore_unencrypted_title">Disable Encryption &amp; Restore?</string>
-    <string name="confirm_restore_unencrypted_message">This will disable encryption on your device and download the unencrypted cloud backup. Do you want to continue?</string>
     <string name="confirm_wipe_cloud_title">Wipe Cloud Backup?</string>
     <string name="confirm_wipe_unencrypted_message">This will permanently delete the unencrypted cloud backup and replace it with a new encrypted copy. Do you want to continue?</string>
     <string name="confirm_wipe_encrypted_message">This will permanently delete the encrypted cloud backup and replace it with a new unencrypted copy. Do you want to continue?</string>
@@ -248,11 +233,8 @@
     <string name="error_key_required">A recovery key is required to decrypt your backup.</string>
     <string name="error_invalid_key_generic">The provided recovery key is incorrect or the data is corrupted.</string>
     <string name="last_sync_format">Last sync: %1$s</string>
-    <string name="sync_status_up_to_date">Everything is up to date</string>
-    <string name="sync_status_pending">Some files are not backed up</string>
     <string name="today">Today</string>
     <string name="yesterday">Yesterday</string>
-    <string name="never">Never</string>
 
     <string name="biometric_auth_title">Authentication required</string>
     <string name="biometric_auth_subtitle">Please authenticate to continue</string>
@@ -262,4 +244,14 @@
     <string name="disable_encryption_confirmation_title">Disable Encryption?</string>
     <string name="disable_encryption_confirmation_message">If you disable encryption, your future backups will not be protected by your recovery key. Existing encrypted data in the cloud will remain encrypted.\n\nNote that un-synced cloud data will be erased.</string>
     <string name="disable_encryption">Disable Encryption</string>
+    <string name="export_data">Export data</string>
+    <string name="export_data_desc">Create a .zip file with all app data</string>
+    <string name="import_data">Import data</string>
+    <string name="import_data_desc">Restore data from a .zip file</string>
+    <string name="import_backup_dialog_title">Import Backup</string>
+    <string name="import_backup_dialog_message">Backup data will be merged with your current data. Any matching items will be updated with the information from the imported backup file.</string>
+    <string name="export_success">Data exported successfully</string>
+    <string name="export_error">Error exporting data</string>
+    <string name="import_success">Data imported successfully</string>
+    <string name="import_error">Error importing data</string>
 </resources>

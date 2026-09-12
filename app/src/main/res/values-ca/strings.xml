@@ -5,23 +5,15 @@
     <string name="search_your_documents">Cerca en els teus documents</string>
     <string name="user_document_unsaved_changes">Tens un document amb canvis sense desar.</string>
     <string name="document_unsaved_changes_deleted">Document eliminat</string>
-    <string name="navigate_to_edit_unsaved_document">Navega per editar el document sense desar</string>
-    <string name="see_more">Veure més</string>
 
     <string name="new_">Nou</string>
     <string name="edit">Editar</string>
     <string name="cancel">Cancel·lar</string>
-    <string name="done">Fet</string>
     <string name="undo">Desfer</string>
-    <string name="rename">Reanomenar</string>
     <string name="delete">Eliminar</string>
     <string name="search">Cercar</string>
-    <string name="add">Afegir</string>
     <string name="delete_text">Eliminar text</string>
-    <string name="color">Color</string>
-    <string name="icon">Icona</string>
     <string name="return_">Tornar</string>
-    <string name="reset">Restablir</string>
     <string name="rotate">Girar</string>
     <string name="settings">Ajustos</string>
     <string name="date">Data</string>
@@ -35,7 +27,6 @@
 
     <string name="new_pile">Nova pila</string>
     <string name="add_pile">Afegir pila</string>
-    <string name="pile_name">Nom de la pila</string>
     <string name="loading_new_document">S’està carregant el nou document</string>
 
     <string name="add_document">Afegir document</string>
@@ -66,7 +57,6 @@
     <string name="move_previous">Moure a l’anterior</string>
     <string name="move_next">Moure al següent</string>
     <string name="detail_deleted">Detall eliminat</string>
-    <string name="delete_detail">Eliminar detall</string>
     <string name="no_piles_saved">Encara no has creat cap pila. Crea la teva primera per començar a organitzar els teus documents!</string>
     <string name="no_documents_in_pile">Aquesta pila està buida, comença afegint-hi alguns documents!</string>
     <string name="no_documents_home">Encara no has afegit cap document. Prem el botó de sota per començar!</string>
@@ -74,8 +64,6 @@
 
 
     <string name="document_no_name_error">afegeix un nom al teu document.</string>
-    <string name="error_saving_document">Error en desar el document</string>
-    <string name="error_opening_files_explorer">Error en obrir l’explorador de fitxers</string>
     <string name="error_importing_images">Error en importar imatges</string>
     <string name="error_importing_pdf">Error en importar el PDF</string>
     <string name="error_restoring_draft_document">Error en restaurar l’esborrany del document</string>
@@ -115,7 +103,6 @@
     <string name="document_name">Nom del document</string>
 
     <string name="rotate_image_counterclockwise">Girar imatge a l’esquerra</string>
-    <string name="reset_image_crop">Restablir retall d’imatge</string>
     <string name="error_loading_crop_controller">Error en carregar l’editor de retall</string>
 
     <string name="close_pile_selection_bottom_sheet">Tancar selecció de piles</string>
@@ -137,7 +124,6 @@
 
     <string name="no_images_found">No s’han trobat imatges.</string>
     <string name="no_pdf_found">No s’ha trobat cap PDF.</string>
-    <string name="error_creating_pdf">Error en crear el PDF</string>
 
 
     <string name="appearance">Aparença</string>
@@ -189,7 +175,7 @@
     <string name="storage_usage_format">%1$s de %2$s fets servir (%3$s de Pile)</string>
     <string name="login_error_format">Error d’inici de sessió: %1$s</string>
     <string name="sync_using_cellular">Sincronitza amb dades mòbils</string>
-    <string name="sync_disabled_description">La sincronización està desactivada. Selecciona un proveïdor per mantenir els teus documents segurs i sincronitzats entre dispositius.</string>
+    <string name="sync_disabled_description">La sincronización està desactivada. Selecciona un proveïdor per mantenir els teus documents segurs i sincronitats entre dispositius.</string>
     <string name="trailing_button_content_description">Selecciona un proveïdor de còpia de seguretat</string>
     <string name="encryption">Xifratge</string>
     <string name="end_to_end_encrypted_backup">Còpia de seguretat xifrada d’extrem a extrem</string>
@@ -199,7 +185,6 @@
     <string name="disable_backup_confirmation_title">Vols desactivar la còpia de seguretat?</string>
     <string name="disable_backup_confirmation_message">Els teus documents i dades ja no es sincronitzaran amb el núvol. Les dades locals romandran al teu dispositiu.</string>
     <string name="disable">Desactiva</string>
-    <string name="own_hosting">Hosting propi</string>
 
     <string name="authentication_failed">Error d’autenticació</string>
     <string name="authentication_failed_message">No hem pogut fer l’autenticació amb el proveïdor seleccionat. Vols tornar-ho a provar o desactivar la còpia de seguretat?</string>
@@ -219,11 +204,8 @@
     <string name="error_key_required">Es requereix una clau de recuperació per desxifrar la teva còpia de seguretat.</string>
     <string name="error_invalid_key_generic">La clau proporcionada és incorrecta o les dades estan corrompudes.</string>
     <string name="last_sync_format">Última sincro: %1$s</string>
-    <string name="sync_status_up_to_date">Tot està actualitzat</string>
-    <string name="sync_status_pending">Arxius pendents de pujar</string>
     <string name="today">Avui</string>
     <string name="yesterday">Ahir</string>
-    <string name="never">Mai</string>
     <string name="biometric_auth_title">Autenticació requerida</string>
     <string name="biometric_auth_subtitle">Si us plau, autentiqueu-vos per continuar</string>
     <string name="encryption_settings">Ajustos de xifratge</string>
@@ -236,10 +218,8 @@
     <string name="danger_zone">Zona de perill</string>
     <string name="this_action_is_irreversible">Aquesta acció és irreversible.</string>
     <string name="wipe_cloud_data">Esborrar dades al núvol</string>
-    <string name="wipe_cloud_data_alert_title">Esborrar còpia al núvol?</string>
     <string name="wipe_cloud_data_alert_message">Això eliminarà permanentment tots els fitxers de còpia de seguretat del teu emmagatzematge al núvol.\n\nAquesta acció no es pot desfer.</string>
     <string name="wipe">Esborrar</string>
-    <string name="wiping_cloud_data">S\'estan esborrant les dades al núvol…</string>
     <string name="are_you_sure">N\'estàs segur?</string>
     <string name="wipe_cloud_dialog_message">Aquesta acció és permanent i no es pot desfer. S\'esborraran totes les dades de la teva còpia de seguretat guardades al núvol.</string>
     <string name="encryption_mismatch_title">Desajust de xifratge</string>
@@ -249,11 +229,22 @@
     <string name="mismatch_cloud_encrypted_device_not_body">La còpia al núvol està xifrada, però en aquest dispositiu el xifratge està desactivat.\n\nTria com procedir:</string>
     <string name="mismatch_option_enter_recovery_key">Introduir clau de recuperació i continuar la sincronització</string>
     <string name="mismatch_option_wipe_and_upload_unencrypted">Esborrar la del núvol i pujar-ne una sense xifrar</string>
-    <string name="confirm_restore_unencrypted_title">Desactivar xifratge i restaurar?</string>
-    <string name="confirm_restore_unencrypted_message">Això desactivarà el xifratge al teu dispositiu i descarregarà la còpia no xifrada del núvol. Vols continuar?</string>
     <string name="confirm_wipe_cloud_title">Esborrar còpia al núvol?</string>
     <string name="confirm_wipe_unencrypted_message">Això eliminarà permanentment la còpia no xifrada al núvol i la substituirà per una de xifrada. Vols continuar?</string>
     <string name="confirm_wipe_encrypted_message">Això eliminarà permanentment la còpia xifrada al núvol i la substituirà per una sense xifrar. Vols continuar?</string>
     <string name="wipe_and_upload">Esborrar i pujar</string>
     <string name="continue_text">Continuar</string>
+    <string name="sync_and_backup">Sincronització i còpia de seguretat</string>
+    <string name="cloud_sync">Sincronització al núvol</string>
+    <string name="manage_your_cloud_sync">Gestionar la sincronització al núvol</string>
+    <string name="export_data">Exportar dades</string>
+    <string name="export_data_desc">Crear un fitxer .zip amb totes les dades de l’aplicació</string>
+    <string name="import_data">Importar dades</string>
+    <string name="import_data_desc">Restaurar dades des d’un fitxer .zip</string>
+    <string name="export_success">Dades exportades correctament</string>
+    <string name="export_error">Error en exportar les dades</string>
+    <string name="import_success">Dades importades correctament</string>
+    <string name="import_error">Error en importar les dades</string>
+    <string name="import_backup_dialog_title">Importar còpia de seguretat</string>
+    <string name="import_backup_dialog_message">Les dades de la còpia de seguretat es combinaran amb les dades actuals. Si hi ha elements duplicats, s’actualitzaran amb la informació del fitxer importat.</string>
 </resources>

@@ -5,23 +5,15 @@
     <string name="search_your_documents">Поиск в документах</string>
     <string name="user_document_unsaved_changes">У вас есть документ с несохраненными изменениями.</string>
     <string name="document_unsaved_changes_deleted">Документ удален</string>
-    <string name="navigate_to_edit_unsaved_document">Перейти к редактированию несохраненного документа</string>
-    <string name="see_more">Показать больше</string>
 
     <string name="new_">Новый</string>
     <string name="edit">Изменить</string>
     <string name="cancel">Отмена</string>
-    <string name="done">Готово</string>
     <string name="undo">Отменить</string>
-    <string name="rename">Переименовать</string>
     <string name="delete">Удалить</string>
     <string name="search">Поиск</string>
-    <string name="add">Добавить</string>
     <string name="delete_text">Удалить текст</string>
-    <string name="color">Цвет</string>
-    <string name="icon">Иконка</string>
     <string name="return_">Вернуться</string>
-    <string name="reset">Сбросить</string>
     <string name="rotate">Повернуть</string>
     <string name="settings">Настройки</string>
     <string name="date">Дата</string>
@@ -35,7 +27,6 @@
 
     <string name="new_pile">Новая стопка</string>
     <string name="add_pile">Добавить стопку</string>
-    <string name="pile_name">Название стопки</string>
     <string name="loading_new_document">Загрузка нового документа</string>
 
     <string name="add_document">Добавить документ</string>
@@ -66,7 +57,6 @@
     <string name="move_previous">Переместить к предыдущему</string>
     <string name="move_next">Переместить к следующему</string>
     <string name="detail_deleted">Деталь удалена</string>
-    <string name="delete_detail">Удалить деталь</string>
     <string name="no_piles_saved">Вы еще не создали ни одной стопки. Создайте свою первую стопку, чтобы начать организовывать документы!</string>
     <string name="no_documents_in_pile">Эта стопка пуста, добавьте в нее документы!</string>
     <string name="no_documents_home">Вы еще не добавили ни одного документа. Нажмите кнопку ниже, чтобы начать!</string>
@@ -74,8 +64,6 @@
 
 
     <string name="document_no_name_error">добавьте название вашему документу.</string>
-    <string name="error_saving_document">Ошибка при сохранении документа</string>
-    <string name="error_opening_files_explorer">Ошибка при открытии проводника</string>
     <string name="error_importing_images">Ошибка при импорте изображений</string>
     <string name="error_importing_pdf">Ошибка при импорте PDF</string>
     <string name="error_restoring_draft_document">Ошибка при восстановлении черновика документа</string>
@@ -115,7 +103,6 @@
     <string name="document_name">Название документа</string>
 
     <string name="rotate_image_counterclockwise">Повернуть против часовой стрелки</string>
-    <string name="reset_image_crop">Сбросить обрезку изображения</string>
     <string name="error_loading_crop_controller">Ошибка при загрузке редактора обрезки</string>
 
     <string name="close_pile_selection_bottom_sheet">Закрыть выбор стопок</string>
@@ -137,7 +124,6 @@
 
     <string name="no_images_found">Изображения не найдены.</string>
     <string name="no_pdf_found">PDF не найден.</string>
-    <string name="error_creating_pdf">Ошибка при создании PDF</string>
 
 
     <string name="appearance">Внешний вид</string>
@@ -199,7 +185,6 @@
     <string name="disable_backup_confirmation_title">Отключить резервное копирование?</string>
     <string name="disable_backup_confirmation_message">Ваши документы и данные больше не будут синхронизироваться с облаком. Локальные данные останутся на вашем устройстве.</string>
     <string name="disable">Отключить</string>
-    <string name="own_hosting">Собственный хостинг</string>
 
     <string name="authentication_failed">Ошибка аутентификации</string>
     <string name="authentication_failed_message">Не удалось выполнить аутентификацию у выбранного поставщика. Хотите попробовать еще раз или отключить резервное копирование?</string>
@@ -219,11 +204,8 @@
     <string name="error_key_required">Для расшифровки резервной копии требуется ключ восстановления.</string>
     <string name="error_invalid_key_generic">Указанный ключ восстановления неверен или данные повреждены.</string>
     <string name="last_sync_format">Последняя синхронизация: %1$s</string>
-    <string name="sync_status_up_to_date">Все данные обновлены</string>
-    <string name="sync_status_pending">Некоторые файлы не сохранены</string>
     <string name="today">Сегодня</string>
     <string name="yesterday">Вчера</string>
-    <string name="never">Никогда</string>
     <string name="biometric_auth_title">Требуется аутентификация</string>
     <string name="biometric_auth_subtitle">Пожалуйста, подтвердите личность, чтобы продолжить</string>
     <string name="encryption_settings">Настройки шифрования</string>
@@ -236,10 +218,8 @@
     <string name="danger_zone">Опасная зона</string>
     <string name="this_action_is_irreversible">Это действие необратимо.</string>
     <string name="wipe_cloud_data">Стереть данные в облаке</string>
-    <string name="wipe_cloud_data_alert_title">Стереть облачную копию?</string>
     <string name="wipe_cloud_data_alert_message">Это навсегда удалит все файлы резервных копий из вашего облачного хранилища.\n\nЭто действие нельзя отменить.</string>
     <string name="wipe">Стереть</string>
-    <string name="wiping_cloud_data">Стирание данных в облаке…</string>
     <string name="are_you_sure">Вы уверены?</string>
     <string name="wipe_cloud_dialog_message">Это действие является постоянным и не может быть отменено. Все ваши данные резервного копирования, хранящиеся в облаке, будут удалены.</string>
     <string name="encryption_mismatch_title">Несоответствие шифрования</string>
@@ -249,11 +229,22 @@
     <string name="mismatch_cloud_encrypted_device_not_body">Резервная копия в облаке зашифрована, но шифрование на этом устройстве отключено.\n\nВыберите, как продолжить:</string>
     <string name="mismatch_option_enter_recovery_key">Введите ключ восстановления и продолжите синхронизацию</string>
     <string name="mismatch_option_wipe_and_upload_unencrypted">Стереть облачную копию и загрузить незашифрованную</string>
-    <string name="confirm_restore_unencrypted_title">Отключить шифрование и восстановить?</string>
-    <string name="confirm_restore_unencrypted_message">Это отключит шифрование на вашем устройстве и скачает незашифрованную резервную копию из облака. Продолжить?</string>
     <string name="confirm_wipe_cloud_title">Стереть облачную копию?</string>
     <string name="confirm_wipe_unencrypted_message">Это навсегда удалит незашифрованную резервную копию из облака и заменит её новой зашифрованной копией. Продолжить?</string>
     <string name="confirm_wipe_encrypted_message">Это навсегда удалит зашифрованную резервную копию из облака и заменит её новой незашифрованной копией. Продолжить?</string>
     <string name="wipe_and_upload">Стереть и загрузить</string>
     <string name="continue_text">Продолжить</string>
+    <string name="sync_and_backup">Синхронизация и резервное копирование</string>
+    <string name="cloud_sync">Облачная синхронизация</string>
+    <string name="manage_your_cloud_sync">Управление облачной синхронизацией</string>
+    <string name="export_data">Экспорт данных</string>
+    <string name="export_data_desc">Создать .zip-файл со всеми данными приложения</string>
+    <string name="import_data">Импорт данных</string>
+    <string name="import_data_desc">Восстановить данные из .zip-файла</string>
+    <string name="export_success">Данные успешно экспортированы</string>
+    <string name="export_error">Ошибка при экспорте данных</string>
+    <string name="import_success">Данные успешно импортированы</string>
+    <string name="import_error">Ошибка при импорте данных</string>
+    <string name="import_backup_dialog_title">Импорт резервной копии</string>
+    <string name="import_backup_dialog_message">Данные резервной копии будут объединены с текущими данными. Совпадающие элементы будут обновлены информацией из импортируемого файла.</string>
 </resources>

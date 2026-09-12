@@ -5,23 +5,15 @@
     <string name="search_your_documents">搜索文档</string>
     <string name="user_document_unsaved_changes">您有未保存更改的文档。</string>
     <string name="document_unsaved_changes_deleted">文档已删除</string>
-    <string name="navigate_to_edit_unsaved_document">去编辑未保存的文档</string>
-    <string name="see_more">查看更多</string>
 
     <string name="new_">新建</string>
     <string name="edit">编辑</string>
     <string name="cancel">取消</string>
-    <string name="done">完成</string>
     <string name="undo">撤销</string>
-    <string name="rename">重命名</string>
     <string name="delete">删除</string>
     <string name="search">搜索</string>
-    <string name="add">添加</string>
     <string name="delete_text">删除文本</string>
-    <string name="color">颜色</string>
-    <string name="icon">图标</string>
     <string name="return_">返回</string>
-    <string name="reset">重置</string>
     <string name="rotate">旋转</string>
     <string name="settings">设置</string>
     <string name="date">日期</string>
@@ -35,7 +27,6 @@
 
     <string name="new_pile">新建堆叠</string>
     <string name="add_pile">添加堆叠</string>
-    <string name="pile_name">堆叠名称</string>
     <string name="loading_new_document">正在加载新文档</string>
 
     <string name="add_document">添加文档</string>
@@ -66,7 +57,6 @@
     <string name="move_previous">移至上一个</string>
     <string name="move_next">移至下一个</string>
     <string name="detail_deleted">详情已删除</string>
-    <string name="delete_detail">删除详情</string>
     <string name="no_piles_saved">您还没有创建过堆叠。创建第一个堆叠来开始整理您的文档吧！</string>
     <string name="no_documents_in_pile">此堆叠为空，开始添加文档吧！</string>
     <string name="no_documents_home">您还没有添加过文档。点击下方按钮开始！</string>
@@ -74,8 +64,6 @@
 
 
     <string name="document_no_name_error">请为您的文档添加名称。</string>
-    <string name="error_saving_document">保存文档时出错</string>
-    <string name="error_opening_files_explorer">打开文件资源管理器时出错</string>
     <string name="error_importing_images">导入图像时出错</string>
     <string name="error_importing_pdf">导入 PDF 时出错</string>
     <string name="error_restoring_draft_document">恢复草稿文档时出错</string>
@@ -115,7 +103,6 @@
     <string name="document_name">文档名称</string>
 
     <string name="rotate_image_counterclockwise">逆时针旋转图像</string>
-    <string name="reset_image_crop">重置图像裁剪</string>
     <string name="error_loading_crop_controller">加载裁剪编辑器时出错</string>
 
     <string name="close_pile_selection_bottom_sheet">关闭堆叠选择页</string>
@@ -137,7 +124,6 @@
 
     <string name="no_images_found">未找到图像。</string>
     <string name="no_pdf_found">未找到 PDF。</string>
-    <string name="error_creating_pdf">创建 PDF 时出错</string>
 
 
     <string name="appearance">外观</string>
@@ -199,7 +185,6 @@
     <string name="disable_backup_confirmation_title">禁用备份？</string>
     <string name="disable_backup_confirmation_message">您的文档和数据将不再同步到云端。本地数据仍将保留在您的设备上。</string>
     <string name="disable">禁用</string>
-    <string name="own_hosting">自行托管</string>
 
     <string name="authentication_failed">身份验证失败</string>
     <string name="authentication_failed_message">我们无法通过所选提供商进行身份验证。您想重试还是禁用备份？</string>
@@ -219,11 +204,8 @@
     <string name="error_key_required">需要恢复密钥才能解密您的备份。</string>
     <string name="error_invalid_key_generic">提供的恢复密钥不正确或数据已损坏。</string>
     <string name="last_sync_format">最后同步: %1$s</string>
-    <string name="sync_status_up_to_date">一切都是最新的</string>
-    <string name="sync_status_pending">部分文件未备份</string>
     <string name="today">今天</string>
     <string name="yesterday">昨天</string>
-    <string name="never">从不</string>
     <string name="biometric_auth_title">需要身份验证</string>
     <string name="biometric_auth_subtitle">请验证身份以继续</string>
     <string name="encryption_settings">加密设置</string>
@@ -236,10 +218,8 @@
     <string name="danger_zone">危险区域</string>
     <string name="this_action_is_irreversible">此操作不可逆。</string>
     <string name="wipe_cloud_data">擦除云端数据</string>
-    <string name="wipe_cloud_data_alert_title">擦除云端备份？</string>
     <string name="wipe_cloud_data_alert_message">这将从您的云存储中永久删除所有备份文件。\n\n此操作无法撤销。</string>
     <string name="wipe">擦除</string>
-    <string name="wiping_cloud_data">正在擦除云端数据…</string>
     <string name="are_you_sure">您确定吗？</string>
     <string name="wipe_cloud_dialog_message">此操作是永久性的，无法撤销。存储在云端的所有备份数据将被擦除。</string>
     <string name="encryption_mismatch_title">加密不一致</string>
@@ -249,11 +229,22 @@
     <string name="mismatch_cloud_encrypted_device_not_body">云端备份已被加密，但此设备上禁用了加密。\n\n请选择如何继续：</string>
     <string name="mismatch_option_enter_recovery_key">输入恢复密钥并继续同步</string>
     <string name="mismatch_option_wipe_and_upload_unencrypted">擦除云端副本并上传未加密备份</string>
-    <string name="confirm_restore_unencrypted_title">禁用加密并恢复？</string>
-    <string name="confirm_restore_unencrypted_message">这将禁用设备上的加密并下载未加密的云端备份。是否继续？</string>
     <string name="confirm_wipe_cloud_title">擦除云端备份？</string>
     <string name="confirm_wipe_unencrypted_message">这将永久删除未加密的云端备份，并替换为新的加密副本。是否继续？</string>
     <string name="confirm_wipe_encrypted_message">这将永久删除加密的云端备份，并替换为新的未加密副本。是否继续？</string>
     <string name="wipe_and_upload">擦除并上传</string>
     <string name="continue_text">继续</string>
+    <string name="sync_and_backup">同步与备份</string>
+    <string name="cloud_sync">云端同步</string>
+    <string name="manage_your_cloud_sync">管理您的云端同步</string>
+    <string name="export_data">导出数据</string>
+    <string name="export_data_desc">创建包含所有应用数据的 .zip 文件</string>
+    <string name="import_data">导入数据</string>
+    <string name="import_data_desc">从 .zip 文件恢复数据</string>
+    <string name="export_success">数据导出成功</string>
+    <string name="export_error">导出数据时出错</string>
+    <string name="import_success">数据导入成功</string>
+    <string name="import_error">导入数据时出错</string>
+    <string name="import_backup_dialog_title">导入备份</string>
+    <string name="import_backup_dialog_message">备份数据将与您当前的数据合并。任何匹配的项都将更新为导入文件中的信息。</string>
 </resources>

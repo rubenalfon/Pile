@@ -5,23 +5,15 @@
     <string name="search_your_documents">Bilatu zure dokumentuetan</string>
     <string name="user_document_unsaved_changes">Gorde gabeko aldaketak dituen dokumentu bat duzu.</string>
     <string name="document_unsaved_changes_deleted">Dokumentua ezabatuta</string>
-    <string name="navigate_to_edit_unsaved_document">Nabigatu gorde gabeko dokumentua editatzeko</string>
-    <string name="see_more">Ikusi gehiago</string>
 
     <string name="new_">Berria</string>
     <string name="edit">Editatu</string>
     <string name="cancel">Utzi</string>
-    <string name="done">Eginda</string>
     <string name="undo">Desegin</string>
-    <string name="rename">Izena aldatu</string>
     <string name="delete">Ezabatu</string>
     <string name="search">Bilatu</string>
-    <string name="add">Gehitu</string>
     <string name="delete_text">Ezabatu testua</string>
-    <string name="color">Kolorea</string>
-    <string name="icon">Ikonoa</string>
     <string name="return_">Itzuli</string>
-    <string name="reset">Berrezarri</string>
     <string name="rotate">Biratu</string>
     <string name="settings">Ezarpenak</string>
     <string name="date">Data</string>
@@ -35,7 +27,6 @@
 
     <string name="new_pile">Pila berria</string>
     <string name="add_pile">Gehitu pila</string>
-    <string name="pile_name">Pilaren izena</string>
     <string name="loading_new_document">Dokumentu berria kargatzen</string>
 
     <string name="add_document">Gehitu dokumentua</string>
@@ -66,7 +57,6 @@
     <string name="move_previous">Mugitu aurrekoera</string>
     <string name="move_next">Mugitu hurrengora</string>
     <string name="detail_deleted">Xehetasuna ezabatuta</string>
-    <string name="delete_detail">Ezabatu xehetasuna</string>
     <string name="no_piles_saved">Oraindik ez duzu pilarik sortu. Sortu zure lehenengoa dokumentuak antolatzen hasteko!</string>
     <string name="no_documents_in_pile">Pila hau hutsik dago, hasi dokumentu batzuk gehitzen!</string>
     <string name="no_documents_home">Oraindik ez duzu dokumenturik gehitu. Sakatu beheko botoia hasteko!</string>
@@ -74,8 +64,6 @@
 
 
     <string name="document_no_name_error">gehitu izen bat zure dokumentuari.</string>
-    <string name="error_saving_document">Errorea dokumentua gordetzean</string>
-    <string name="error_opening_files_explorer">Errorea fitxategi-esploratzailea irekitzean</string>
     <string name="error_importing_images">Errorea irudiak inportatzean</string>
     <string name="error_importing_pdf">Errorea PDFa inportatzean</string>
     <string name="error_restoring_draft_document">Errorea dokumentuaren zirriborroa berreskuratzean</string>
@@ -115,7 +103,6 @@
     <string name="document_name">Dokumentuaren izena</string>
 
     <string name="rotate_image_counterclockwise">Biratu irudia ezkerrera</string>
-    <string name="reset_image_crop">Berrezarri irudi-moztea</string>
     <string name="error_loading_crop_controller">Errorea moztea editatzeko kargatzean</string>
 
     <string name="close_pile_selection_bottom_sheet">Itxi pilak hautatzeko orria</string>
@@ -137,7 +124,6 @@
 
     <string name="no_images_found">Ez da irudirik aurkitu.</string>
     <string name="no_pdf_found">Ez da PDFrik aurkitu.</string>
-    <string name="error_creating_pdf">Errorea PDFa sortzean</string>
 
 
     <string name="appearance">Itxura</string>
@@ -199,7 +185,6 @@
     <string name="disable_backup_confirmation_title">Desgaitu babeskopia?</string>
     <string name="disable_backup_confirmation_message">Zure dokumentuak eta datuak ez dira gehiago hodeian sinkronizatuko. Tokiko datuak zure gailuan geratuko dira.</string>
     <string name="disable">Desgaitu</string>
-    <string name="own_hosting">Hosting propioa</string>
 
     <string name="authentication_failed">Autentifikazioak huts egin du</string>
     <string name="authentication_failed_message">Ezin izan dugu autentifikatu hautatutako hornitzailearekin. Berriro saiatu nahi duzu ala babeskopia desgaitu?</string>
@@ -219,11 +204,8 @@
     <string name="error_key_required">Berreskuratze-gakoa behar da zure babeskopia deszifratzeko.</string>
     <string name="error_invalid_key_generic">Emandako gakoa okerra da edo datuak hondatuta daude.</string>
     <string name="last_sync_format">Azken sinkronizazioa: %1$s</string>
-    <string name="sync_status_up_to_date">Dena eguneratuta dago</string>
-    <string name="sync_status_pending">Fitxategi batzuk kargatzeko zain</string>
     <string name="today">Gaur</string>
     <string name="yesterday">Atzo</string>
-    <string name="never">Inoiz ez</string>
     <string name="biometric_auth_title">Autentifikazioa beharrezkoa da</string>
     <string name="biometric_auth_subtitle">Mesedez, autentifikatu aurrera jarraitzeko</string>
     <string name="encryption_settings">Zifratze-ezarpenak</string>
@@ -236,10 +218,8 @@
     <string name="danger_zone">Arrisku-eremua</string>
     <string name="this_action_is_irreversible">Ekintza hau ezin da atzera bota.</string>
     <string name="wipe_cloud_data">Ezabatu hodeiko datuak</string>
-    <string name="wipe_cloud_data_alert_title">Ezabatu hodeiko babeskopia?</string>
     <string name="wipe_cloud_data_alert_message">Honek behin betiko ezabatuko ditu babeskopia fitxategi guztiak zure hodeiko biltegitik.\n\nEkintza hau ezin da desegin.</string>
     <string name="wipe">Ezabatu</string>
-    <string name="wiping_cloud_data">Hodeiko datuak ezabatzen…</string>
     <string name="are_you_sure">Ziur zaude?</string>
     <string name="wipe_cloud_dialog_message">Ekintza hau betiko da eta ezin da desegin. Hodeian gordetako zure babeskopia-datu guztiak ezabatuko dira.</string>
     <string name="encryption_mismatch_title">Zifratze-desdoitzea</string>
@@ -249,11 +229,22 @@
     <string name="mismatch_cloud_encrypted_device_not_body">Hodeiko babeskopia zifratuta dago, baina gailu honetan zifratzea desgaituta dago.\n\nAukeratu nola jarraitu:</string>
     <string name="mismatch_option_enter_recovery_key">Sartu berreskuratze-gakoa eta jarraitu sinkronizatzen</string>
     <string name="mismatch_option_wipe_and_upload_unencrypted">Ezabatu hodeikoa eta kargatu zifratu gabeko bat</string>
-    <string name="confirm_restore_unencrypted_title">Zifratzea desgaitu eta berreskuratu?</string>
-    <string name="confirm_restore_unencrypted_message">Honek zifratzea desgaituko du zure gailuan eta hodeiko zifratu gabeko kopia deskargatuko du. Jarraitu nahi duzu?</string>
     <string name="confirm_wipe_cloud_title">Ezabatu hodeiko babeskopia?</string>
     <string name="confirm_wipe_unencrypted_message">Honek behin betiko ezabatuko du hodeiko zifratu gabeko kopia eta zifratutako batekin ordezkatuko du. Jarraitu nahi duzu?</string>
     <string name="confirm_wipe_encrypted_message">Honek behin betiko ezabatuko du hodeiko zifratutako kopia eta zifratu gabeko batekin ordezkatuko du. Jarraitu nahi duzu?</string>
     <string name="wipe_and_upload">Ezabatu eta kargatu</string>
     <string name="continue_text">Jarraitu</string>
+    <string name="sync_and_backup">Sincronizazioa eta babeskopia</string>
+    <string name="cloud_sync">Hodeiko sincronizazioa</string>
+    <string name="manage_your_cloud_sync">Kudeatu hodeiko sincronizazioa</string>
+    <string name="export_data">Exportatu datuak</string>
+    <string name="export_data_desc">Sortu .zip fitxategi bat aplikazioko datu guztiekin</string>
+    <string name="import_data">Inportatu datuak</string>
+    <string name="import_data_desc">Berreskuratu datuak .zip fitxategi batetik</string>
+    <string name="export_success">Datuak ondo exportatu dira</string>
+    <string name="export_error">Errorea datuak exportatzean</string>
+    <string name="import_success">Datuak ondo inportatu dira</string>
+    <string name="import_error">Errorea datuak inportatzean</string>
+    <string name="import_backup_dialog_title">Inportatu babeskopia</string>
+    <string name="import_backup_dialog_message">Babeskopiako datuak uneko datuekin konbinatuko dira. Bikoiztutako elementurik badago, inportatutako fitxategiko informazioarekin eguneratuko dira.</string>
 </resources>

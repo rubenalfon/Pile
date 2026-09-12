@@ -5,23 +5,15 @@
     <string name="search_your_documents">दस्तावेज़ खोजें</string>
     <string name="user_document_unsaved_changes">आपके पास एक दस्तावेज़ है जिसमें बिना सहेजे गए बदलाव हैं।</string>
     <string name="document_unsaved_changes_deleted">दस्तावेज़ हटा दिया गया</string>
-    <string name="navigate_to_edit_unsaved_document">बिना सहेजे गए दस्तावेज़ को संपादित करने के लिए नेविगेट करें</string>
-    <string name="see_more">और देखें</string>
 
     <string name="new_">नया</string>
     <string name="edit">संपादित करें</string>
     <string name="cancel">रद्द करें</string>
-    <string name="done">हो गया</string>
     <string name="undo">पूर्ववत करें</string>
-    <string name="rename">नाम बदलें</string>
     <string name="delete">हटाएं</string>
     <string name="search">खोजें</string>
-    <string name="add">जोड़ें</string>
     <string name="delete_text">टेक्स्ट हटाएं</string>
-    <string name="color">रंग</string>
-    <string name="icon">आइकन</string>
     <string name="return_">वापस जाएं</string>
-    <string name="reset">रीसेट करें</string>
     <string name="rotate">घुमाएं</string>
     <string name="settings">सेटिंग्स</string>
     <string name="date">तारीख</string>
@@ -35,7 +27,6 @@
 
     <string name="new_pile">नया ढेर</string>
     <string name="add_pile">ढेर जोड़ें</string>
-    <string name="pile_name">ढेर का नाम</string>
     <string name="loading_new_document">नया दस्तावेज़ लोड हो रहा है</string>
 
     <string name="add_document">दस्तावेज़ जोड़ें</string>
@@ -66,7 +57,6 @@
     <string name="move_previous">पिछला ले जाएं</string>
     <string name="move_next">अगला ले जाएं</string>
     <string name="detail_deleted">विवरण हटा दिया गया</string>
-    <string name="delete_detail">विवरण हटाएं</string>
     <string name="no_piles_saved">आपने अभी तक कोई ढेर नहीं बनाया है। अपने दस्तावेज़ों को व्यवस्थित करना शुरू करने के लिए अपना पहला ढेर बनाएं!</string>
     <string name="no_documents_in_pile">यह ढेर खाली है, इसमें दस्तावेज़ जोड़ना शुरू करें!</string>
     <string name="no_documents_home">आपने अभी तक कोई दस्तावेज़ नहीं जोड़ा है। शुरू करने के लिए नीचे दिए गए बटन पर टैप करें!</string>
@@ -74,8 +64,6 @@
 
 
     <string name="document_no_name_error">अपने दस्तावेज़ में एक नाम जोड़ें।</string>
-    <string name="error_saving_document">दस्तावेज़ सहेजने में त्रुटि</string>
-    <string name="error_opening_files_explorer">फ़ाइल एक्सप्लोरर खोलने में त्रुटि</string>
     <string name="error_importing_images">छवियां आयात करने में त्रुटि</string>
     <string name="error_importing_pdf">पीडीएफ आयात करने में त्रुटि</string>
     <string name="error_restoring_draft_document">ड्राफ्ट दस्तावेज़ पुनर्स्थापित करने में त्रुटि</string>
@@ -115,7 +103,6 @@
     <string name="document_name">दस्तावेज़ का नाम</string>
 
     <string name="rotate_image_counterclockwise">छवि को वामावर्त घुमाएं</string>
-    <string name="reset_image_crop">छवि क्रॉप रीसेट करें</string>
     <string name="error_loading_crop_controller">क्रॉप एडिटर लोड करने में त्रुटि</string>
 
     <string name="close_pile_selection_bottom_sheet">ढेर चयन बॉटम शीट बंद करें</string>
@@ -137,7 +124,6 @@
 
     <string name="no_images_found">कोई छवि नहीं मिली।</string>
     <string name="no_pdf_found">कोई पीडीएफ नहीं मिली।</string>
-    <string name="error_creating_pdf">पीडीएफ बनाने में त्रुटि</string>
 
 
     <string name="appearance">दिखावट</string>
@@ -199,7 +185,6 @@
     <string name="disable_backup_confirmation_title">बैकअप अक्षम करें?</string>
     <string name="disable_backup_confirmation_message">आपके दस्तावेज़ और डेटा अब क्लाउड पर सिंक नहीं होंगे। स्थानीय डेटा आपके डिवाइस पर ही रहेगा।</string>
     <string name="disable">अक्षम करें</string>
-    <string name="own_hosting">स्वयं की होस्टिंग</string>
 
     <string name="authentication_failed">प्रमाणीकरण विफल रहा</string>
     <string name="authentication_failed_message">हम चयनित प्रदाता के साथ प्रमाणित नहीं कर सके। क्या आप पुन: प्रयास करना चाहेंगे या बैकअप अक्षम करना चाहेंगे?</string>
@@ -219,11 +204,8 @@
     <string name="error_key_required">आपके बैकअप को डिक्रिप्ट करने के लिए एक रिकवरी कुंजी की आवश्यकता है।</string>
     <string name="error_invalid_key_generic">प्रदान की गई रिकवरी कुंजी गलत है या डेटा दूषित है।</string>
     <string name="last_sync_format">पिछला सिंक: %1$s</string>
-    <string name="sync_status_up_to_date">सब कुछ अप टू डेट है</string>
-    <string name="sync_status_pending">कुछ फ़ाइलों का बैकअप नहीं लिया गया है</string>
     <string name="today">आज</string>
     <string name="yesterday">कल</string>
-    <string name="never">कभी नहीं</string>
     <string name="biometric_auth_title">प्रमाणीकरण आवश्यक है</string>
     <string name="biometric_auth_subtitle">जारी रखने के लिए कृपया प्रमाणित करें</string>
     <string name="encryption_settings">एन्क्रिप्शन सेटिंग्स</string>
@@ -236,10 +218,8 @@
     <string name="danger_zone">खतरे का क्षेत्र</string>
     <string name="this_action_is_irreversible">यह कार्रवाई अपरिवर्तनीय है।</string>
     <string name="wipe_cloud_data">क्लाउड डेटा मिटाएं</string>
-    <string name="wipe_cloud_data_alert_title">क्लाउड बैकअप मिटाएं?</string>
     <string name="wipe_cloud_data_alert_message">यह आपके क्लाउड स्टोरेज से सभी बैकअप फ़ाइलों को स्थायी रूप से हटा देगा।\n\nइस कार्रवाई को पूर्ववत नहीं किया जा सकता है।</string>
     <string name="wipe">मिटाएं</string>
-    <string name="wiping_cloud_data">क्लाउड डेटा मिटाया जा रहा है…</string>
     <string name="are_you_sure">क्या आप निश्चित हैं?</string>
     <string name="wipe_cloud_dialog_message">यह कार्रवाई स्थायी है और इसे पूर्ववत नहीं किया जा सकता है। क्लाउड में संग्रहीत आपका सभी बैकअप डेटा मिटा दिया जाएगा।</string>
     <string name="encryption_mismatch_title">एन्क्रिप्शन बेमेल</string>
@@ -249,11 +229,22 @@
     <string name="mismatch_cloud_encrypted_device_not_body">क्लाउड बैकअप एन्क्रिप्टेड है, लेकिन इस डिवाइस पर एन्क्रिप्शन अक्षम है।\n\nचुनें कि कैसे आगे बढ़ना है:</string>
     <string name="mismatch_option_enter_recovery_key">रिकवरी कुंजी दर्ज करें और सिंक जारी रखें</string>
     <string name="mismatch_option_wipe_and_upload_unencrypted">क्लाउड कॉपी मिटाएं और बिना एन्क्रिप्शन वाला बैकअप अपलोड करें</string>
-    <string name="confirm_restore_unencrypted_title">एन्क्रिप्शन अक्षम करें और पुनर्स्थापित करें?</string>
-    <string name="confirm_restore_unencrypted_message">यह आपके डिवाइस पर एन्क्रिप्शन को अक्षम कर देगा और अनएन्क्रिप्टेड क्लाउड बैकअप डाउनलोड करेगा। क्या आप जारी रखना चाहते हैं?</string>
     <string name="confirm_wipe_cloud_title">क्लाउड बैकअप मिटाएं?</string>
     <string name="confirm_wipe_unencrypted_message">यह अनएन्क्रिप्टेड क्लाउड बैकअप को स्थायी रूप से हटा देगा और इसे एक नई एन्क्रिप्टेड कॉपी से बदल देगा। क्या आप जारी रखना चाहते हैं?</string>
     <string name="confirm_wipe_encrypted_message">यह एन्क्रिप्टेड क्लाउड बैकअप को स्थायी रूप से हटा देगा और इसे एक नई अनएन्क्रिप्टेड कॉपी से बदल देगा। क्या आप जारी रखना चाहते हैं?</string>
     <string name="wipe_and_upload">मिटाएं और अपलोड करें</string>
     <string name="continue_text">जारी रखें</string>
+    <string name="sync_and_backup">सिंक और बैकअप</string>
+    <string name="cloud_sync">क्लाउड सिंक</string>
+    <string name="manage_your_cloud_sync">अपने क्लाउड सिंक को प्रबंधित करें</string>
+    <string name="export_data">डेटा निर्यात करें</string>
+    <string name="export_data_desc">सभी ऐप डेटा के साथ एक .zip फ़ाइल बनाएं</string>
+    <string name="import_data">डेटा आयात करें</string>
+    <string name="import_data_desc">.zip फ़ाइल से डेटा पुनर्स्थापित करें</string>
+    <string name="export_success">डेटा सफलतापूर्वक निर्यात किया गया</string>
+    <string name="export_error">डेटा निर्यात करने में त्रुटि</string>
+    <string name="import_success">डेटा सफलतापूर्वक आयात किया गया</string>
+    <string name="import_error">डेटा आयात करने में त्रुटि</string>
+    <string name="import_backup_dialog_title">बैकअप आयात करें</string>
+    <string name="import_backup_dialog_message">बैकअप डेटा आपके वर्तमान डेटा के साथ मिला दिया जाएगा। किसी भी मेल खाने वाले आइटम को आयात की गई फ़ाइल की जानकारी से अपडेट किया जाएगा。</string>
 </resources>

@@ -5,23 +5,15 @@
     <string name="search_your_documents">ドキュメントを検索</string>
     <string name="user_document_unsaved_changes">保存されていない変更があるドキュメントがあります。</string>
     <string name="document_unsaved_changes_deleted">ドキュメントが削除されました</string>
-    <string name="navigate_to_edit_unsaved_document">未保存のドキュメントを編集</string>
-    <string name="see_more">もっと見る</string>
 
     <string name="new_">新規</string>
     <string name="edit">編集</string>
     <string name="cancel">キャンセル</string>
-    <string name="done">完了</string>
     <string name="undo">元に戻す</string>
-    <string name="rename">名前を変更</string>
     <string name="delete">削除</string>
     <string name="search">検索</string>
-    <string name="add">追加</string>
     <string name="delete_text">テキストを削除</string>
-    <string name="color">カラー</string>
-    <string name="icon">アイコン</string>
     <string name="return_">戻る</string>
-    <string name="reset">リセット</string>
     <string name="rotate">回転</string>
     <string name="settings">設定</string>
     <string name="date">日付</string>
@@ -35,7 +27,6 @@
 
     <string name="new_pile">新規パイル</string>
     <string name="add_pile">パイルを追加</string>
-    <string name="pile_name">パイル名</string>
     <string name="loading_new_document">新しいドキュメントを読み込み中</string>
 
     <string name="add_document">ドキュメントを追加</string>
@@ -66,7 +57,6 @@
     <string name="move_previous">前に移動</string>
     <string name="move_next">次に移動</string>
     <string name="detail_deleted">詳細が削除されました</string>
-    <string name="delete_detail">詳細を削除</string>
     <string name="no_piles_saved">パイルがまだ作成されていません。最初のパイルを作成して、ドキュメントの整理を始めましょう！</string>
     <string name="no_documents_in_pile">このパイルは空です。ドキュメントを追加しましょう！</string>
     <string name="no_documents_home">ドキュメントがまだ追加されていません。下のボタンをタップして開始しましょう！</string>
@@ -74,8 +64,6 @@
 
 
     <string name="document_no_name_error">ドキュメントに名前を付けてください。</string>
-    <string name="error_saving_document">ドキュメントの保存中にエラーが発生しました</string>
-    <string name="error_opening_files_explorer">ファイルエクスプローラーを開く際にエラーが発生しました</string>
     <string name="error_importing_images">画像のインポート中にエラーが発生しました</string>
     <string name="error_importing_pdf">PDFのインポート中にエラーが発生しました</string>
     <string name="error_restoring_draft_document">下書きドキュメントの復元中にエラーが発生しました</string>
@@ -115,7 +103,6 @@
     <string name="document_name">ドキュメント名</string>
 
     <string name="rotate_image_counterclockwise">画像を反時計回りに回転</string>
-    <string name="reset_image_crop">画像の切り抜きをリセット</string>
     <string name="error_loading_crop_controller">切り抜きエディターの読み込み中にエラーが発生しました</string>
 
     <string name="close_pile_selection_bottom_sheet">パイル選択シートを閉じる</string>
@@ -137,7 +124,6 @@
 
     <string name="no_images_found">画像が見つかりませんでした。</string>
     <string name="no_pdf_found">PDFが見つかりませんでした。</string>
-    <string name="error_creating_pdf">PDFの作成中にエラーが発生しました</string>
 
 
     <string name="appearance">外観</string>
@@ -199,7 +185,6 @@
     <string name="disable_backup_confirmation_title">バックアップを無効にしますか？</string>
     <string name="disable_backup_confirmation_message">ドキュメントとデータはクラウドに同期されなくなります。ローカルデータはデバイスに残ります。</string>
     <string name="disable">無効にする</string>
-    <string name="own_hosting">独自のホスティング</string>
 
     <string name="authentication_failed">認証に失敗しました</string>
     <string name="authentication_failed_message">選択したプロバイダーで認証できませんでした。再試行しますか？それともバックアップを無効にしますか？</string>
@@ -219,11 +204,8 @@
     <string name="error_key_required">バックアップを復号するにはリカバリキーが必要です。</string>
     <string name="error_invalid_key_generic">提供されたリカバリキーが正しくないか、データが破損しています。</string>
     <string name="last_sync_format">最終同期: %1$s</string>
-    <string name="sync_status_up_to_date">すべて最新の状態です</string>
-    <string name="sync_status_pending">バックアップされていないファイルがあります</string>
     <string name="today">今日</string>
     <string name="yesterday">昨日</string>
-    <string name="never">なし</string>
     <string name="biometric_auth_title">認証が必要です</string>
     <string name="biometric_auth_subtitle">続行するには認証してください</string>
     <string name="encryption_settings">暗号化設定</string>
@@ -236,10 +218,8 @@
     <string name="danger_zone">デンジャーゾーン</string>
     <string name="this_action_is_irreversible">この操作は取り消せません。</string>
     <string name="wipe_cloud_data">クラウドデータを消去</string>
-    <string name="wipe_cloud_data_alert_title">クラウドバックアップを消去しますか？</string>
     <string name="wipe_cloud_data_alert_message">これにより、クラウドストレージからすべてのバックアップファイルが永久に削除されます。\n\nこの操作は取り消せません。</string>
     <string name="wipe">消去</string>
-    <string name="wiping_cloud_data">クラウドデータを消去中…</string>
     <string name="are_you_sure">本当によろしいですか？</string>
     <string name="wipe_cloud_dialog_message">この操作は恒久的であり、取り消すことはできません。クラウドに保存されているすべてのバックアップデータが消去されます。</string>
     <string name="encryption_mismatch_title">暗号化の不一致</string>
@@ -249,11 +229,22 @@
     <string name="mismatch_cloud_encrypted_device_not_body">クラウドバックアップは暗号化されていますが、このデバイスでは暗号化が無効になっています。\n\n進行方法を選択してください：</string>
     <string name="mismatch_option_enter_recovery_key">リカバリーキーを入力して同期を継続</string>
     <string name="mismatch_option_wipe_and_upload_unencrypted">クラウドコピーを消去して未暗号化バックアップをアップロード</string>
-    <string name="confirm_restore_unencrypted_title">暗号化を無効にして復元しますか？</string>
-    <string name="confirm_restore_unencrypted_message">これによりデバイスの暗号化が無効になり、未暗号化のクラウドバックアップがダウンロードされます。続行しますか？</string>
     <string name="confirm_wipe_cloud_title">クラウドバックアップを消去しますか？</string>
     <string name="confirm_wipe_unencrypted_message">これにより未暗号化のクラウドバックアップが永久に削除され、新しい暗号化コピーに置き換えられます。続行しますか？</string>
     <string name="confirm_wipe_encrypted_message">これにより暗号化されたクラウドバックアップが永久に削除され、新しい未暗号化コピーに置き換えられます。続行しますか？</string>
     <string name="wipe_and_upload">消去してアップロード</string>
     <string name="continue_text">続行</string>
+    <string name="sync_and_backup">同期とバックアップ</string>
+    <string name="cloud_sync">クラウド同期</string>
+    <string name="manage_your_cloud_sync">クラウド同期を管理</string>
+    <string name="export_data">データをエクスポート</string>
+    <string name="export_data_desc">すべてのアプリデータを含む.zipファイルを作成</string>
+    <string name="import_data">データをインポート</string>
+    <string name="import_data_desc">.zipファイルからデータを復元</string>
+    <string name="export_success">データが正常にエクスポートされました</string>
+    <string name="export_error">データのエクスポート中にエラーが発生しました</string>
+    <string name="import_success">データが正常にインポートされました</string>
+    <string name="import_error">データのインポート中にエラーが発生しました</string>
+    <string name="import_backup_dialog_title">バックアップをインポート</string>
+    <string name="import_backup_dialog_message">バックアップデータは現在のデータと統合されます。一致する項目はインポートされたファイルの情報で更新されます。</string>
 </resources>

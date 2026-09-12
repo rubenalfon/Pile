@@ -5,23 +5,15 @@
     <string name="search_your_documents">Dokumente durchsuchen</string>
     <string name="user_document_unsaved_changes">Sie haben ein Dokument mit ungespeicherten Änderungen.</string>
     <string name="document_unsaved_changes_deleted">Dokument gelöscht</string>
-    <string name="navigate_to_edit_unsaved_document">Ungespeichertes Dokument bearbeiten</string>
-    <string name="see_more">Mehr anzeigen</string>
 
     <string name="new_">Neu</string>
     <string name="edit">Bearbeiten</string>
     <string name="cancel">Abbrechen</string>
-    <string name="done">Fertig</string>
     <string name="undo">Rückgängig</string>
-    <string name="rename">Umbenennen</string>
     <string name="delete">Löschen</string>
     <string name="search">Suchen</string>
-    <string name="add">Hinzufügen</string>
     <string name="delete_text">Text löschen</string>
-    <string name="color">Farbe</string>
-    <string name="icon">Symbol</string>
     <string name="return_">Zurück</string>
-    <string name="reset">Zurücksetzen</string>
     <string name="rotate">Drehen</string>
     <string name="settings">Einstellungen</string>
     <string name="date">Datum</string>
@@ -35,7 +27,6 @@
 
     <string name="new_pile">Neuer Pile</string>
     <string name="add_pile">Pile hinzufügen</string>
-    <string name="pile_name">Pile-Name</string>
     <string name="loading_new_document">Neues Dokument wird geladen</string>
 
     <string name="add_document">Dokument hinzufügen</string>
@@ -66,7 +57,6 @@
     <string name="move_previous">Vorheriges</string>
     <string name="move_next">Nächstes</string>
     <string name="detail_deleted">Detail gelöscht</string>
-    <string name="delete_detail">Detail löschen</string>
     <string name="no_piles_saved">Sie haben noch keine Piles erstellt. Erstellen Sie Ihren ersten Pile, um Ihre Dokumente zu organisieren!</string>
     <string name="no_documents_in_pile">Dieser Pile ist leer. Fügen Sie Dokumente hinzu!</string>
     <string name="no_documents_home">Sie haben noch keine Dokumente hinzugefügt. Tippen Sie auf die Schaltfläche unten!</string>
@@ -74,8 +64,6 @@
 
 
     <string name="document_no_name_error">Fügen Sie Ihrem Dokument einen Namen hinzu.</string>
-    <string name="error_saving_document">Fehler beim Speichern des Dokuments</string>
-    <string name="error_opening_files_explorer">Fehler beim Öffnen des Datei-Explorers</string>
     <string name="error_importing_images">Fehler beim Importieren von Bildern</string>
     <string name="error_importing_pdf">Fehler beim Importieren der PDF</string>
     <string name="error_restoring_draft_document">Fehler beim Wiederherstellen des Dokumententwurfs</string>
@@ -115,7 +103,6 @@
     <string name="document_name">Dokumentname</string>
 
     <string name="rotate_image_counterclockwise">Gegen den Uhrzeigersinn drehen</string>
-    <string name="reset_image_crop">Zuschneiden zurücksetzen</string>
     <string name="error_loading_crop_controller">Fehler beim Laden des Zuschneide-Editors</string>
 
     <string name="close_pile_selection_bottom_sheet">Pile-Auswahl schließen</string>
@@ -137,7 +124,6 @@
 
     <string name="no_images_found">Keine Bilder gefunden.</string>
     <string name="no_pdf_found">Keine PDF gefunden.</string>
-    <string name="error_creating_pdf">Fehler beim Erstellen der PDF</string>
 
 
     <string name="appearance">Erscheinungsbild</string>
@@ -199,7 +185,6 @@
     <string name="disable_backup_confirmation_title">Backup deaktivieren?</string>
     <string name="disable_backup_confirmation_message">Ihre Dokumente und Daten werden nicht mehr mit der Cloud synchronisiert. Lokale Daten bleiben auf Ihrem Gerät erhalten.</string>
     <string name="disable">Deaktivieren</string>
-    <string name="own_hosting">Eigenes Hosting</string>
 
     <string name="authentication_failed">Authentifizierung fehlgeschlagen</string>
     <string name="authentication_failed_message">Wir konnten uns nicht beim ausgewählten Anbieter authentifizieren. Möchten Sie es erneut versuchen oder das Backup deaktivieren?</string>
@@ -219,11 +204,8 @@
     <string name="error_key_required">Ein Wiederherstellungsschlüssel ist erforderlich, um Ihr Backup zu entschlüsseln.</string>
     <string name="error_invalid_key_generic">Der angegebene Wiederherstellungsschlüssel ist falsch oder die Daten sind beschädigt.</string>
     <string name="last_sync_format">Letzte Synchronisierung: %1$s</string>
-    <string name="sync_status_up_to_date">Alles ist auf dem neuesten Stand</string>
-    <string name="sync_status_pending">Einige Dateien sind nicht gesichert</string>
     <string name="today">Heute</string>
     <string name="yesterday">Gestern</string>
-    <string name="never">Nie</string>
     <string name="biometric_auth_title">Authentifizierung erforderlich</string>
     <string name="biometric_auth_subtitle">Bitte authentifizieren Sie sich, um fortzufahren</string>
     <string name="encryption_settings">Verschlüsselungseinstellungen</string>
@@ -236,10 +218,8 @@
     <string name="danger_zone">Gefahrenzone</string>
     <string name="this_action_is_irreversible">Diese Aktion kann nicht rückgängig gemacht werden.</string>
     <string name="wipe_cloud_data">Cloud-Daten löschen</string>
-    <string name="wipe_cloud_data_alert_title">Cloud-Backup löschen?</string>
     <string name="wipe_cloud_data_alert_message">Dadurch werden alle Backup-Dateien dauerhaft aus Ihrem Cloud-Speicher gelöscht.\n\nDiese Aktion kann nicht rückgängig gemacht werden.</string>
     <string name="wipe">Löschen</string>
-    <string name="wiping_cloud_data">Cloud-Daten werden gelöscht…</string>
     <string name="are_you_sure">Sind Sie sicher?</string>
     <string name="wipe_cloud_dialog_message">Diese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden. Alle Ihre in der Cloud gespeicherten Backup-Daten werden gelöscht.</string>
     <string name="encryption_mismatch_title">Verschlüsselungsabweichung</string>
@@ -249,11 +229,22 @@
     <string name="mismatch_cloud_encrypted_device_not_body">Das Cloud-Backup ist verschlüsselt, die Verschlüsselung ist auf diesem Gerät jedoch deaktiviert.\n\nWählen Sie, wie Sie fortfahren möchten:</string>
     <string name="mismatch_option_enter_recovery_key">Wiederherstellungsschlüssel eingeben und Synchronisierung fortsetzen</string>
     <string name="mismatch_option_wipe_and_upload_unencrypted">Cloud-Kopie löschen &amp; unverschlüsseltes Backup hochladen</string>
-    <string name="confirm_restore_unencrypted_title">Verschlüsselung deaktivieren &amp; wiederherstellen?</string>
-    <string name="confirm_restore_unencrypted_message">Dadurch wird die Verschlüsselung auf Ihrem Gerät deaktiviert und das unverschlüsselte Cloud-Backup heruntergeladen. Möchten Sie fortfahren?</string>
     <string name="confirm_wipe_cloud_title">Cloud-Backup löschen?</string>
     <string name="confirm_wipe_unencrypted_message">Dadurch wird das unverschlüsselte Cloud-Backup dauerhaft gelöscht und durch eine neue verschlüsselte Kopie ersetzt. Möchten Sie fortfahren?</string>
     <string name="confirm_wipe_encrypted_message">Dadurch wird das verschlüsselte Cloud-Backup dauerhaft gelöscht und durch eine neue unverschlüsselte Kopie ersetzt. Möchten Sie fortfahren?</string>
     <string name="wipe_and_upload">Löschen &amp; Hochladen</string>
     <string name="continue_text">Fortfahren</string>
+    <string name="sync_and_backup">Synchronisierung &amp; Sicherung</string>
+    <string name="cloud_sync">Cloud-Synchronisierung</string>
+    <string name="manage_your_cloud_sync">Cloud-Synchronisierung verwalten</string>
+    <string name="export_data">Daten exportieren</string>
+    <string name="export_data_desc">Eine .zip-Datei mit allen App-Daten erstellen</string>
+    <string name="import_data">Daten importieren</string>
+    <string name="import_data_desc">Daten aus einer .zip-Datei wiederherstellen</string>
+    <string name="export_success">Daten erfolgreich exportiert</string>
+    <string name="export_error">Fehler beim Exportieren der Daten</string>
+    <string name="import_success">Daten erfolgreich importiert</string>
+    <string name="import_error">Fehler beim Importieren der Daten</string>
+    <string name="import_backup_dialog_title">Sicherung importieren</string>
+    <string name="import_backup_dialog_message">Die Sicherungsdaten werden mit Ihren aktuellen Daten zusammengeführt. Übereinstimmende Elemente werden mit den Informationen aus der importierten Datei aktualisiert.</string>
 </resources>

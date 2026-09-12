@@ -5,23 +5,15 @@
     <string name="search_your_documents">Cerca nei tuoi documenti</string>
     <string name="user_document_unsaved_changes">Hai un documento con modifiche non salvate.</string>
     <string name="document_unsaved_changes_deleted">Documento eliminato</string>
-    <string name="navigate_to_edit_unsaved_document">Modifica documento non salvato</string>
-    <string name="see_more">Vedi altro</string>
 
     <string name="new_">Nuovo</string>
     <string name="edit">Modifica</string>
     <string name="cancel">Annulla</string>
-    <string name="done">Fatto</string>
     <string name="undo">Annulla</string>
-    <string name="rename">Rinomina</string>
     <string name="delete">Elimina</string>
     <string name="search">Cerca</string>
-    <string name="add">Aggiungi</string>
     <string name="delete_text">Elimina testo</string>
-    <string name="color">Colore</string>
-    <string name="icon">Icona</string>
     <string name="return_">Torna</string>
-    <string name="reset">Ripristina</string>
     <string name="rotate">Ruota</string>
     <string name="settings">Impostazioni</string>
     <string name="date">Data</string>
@@ -35,7 +27,6 @@
 
     <string name="new_pile">Nuovo mucchio</string>
     <string name="add_pile">Aggiungi mucchio</string>
-    <string name="pile_name">Nome mucchio</string>
     <string name="loading_new_document">Caricamento nuovo documento</string>
 
     <string name="add_document">Aggiungi documento</string>
@@ -66,7 +57,6 @@
     <string name="move_previous">Precedente</string>
     <string name="move_next">Successivo</string>
     <string name="detail_deleted">Dettaglio eliminato</string>
-    <string name="delete_detail">Elimina dettaglio</string>
     <string name="no_piles_saved">Non hai ancora creato mucchi. Crea il tuo primo mucchio per organizzare i tuoi documenti!</string>
     <string name="no_documents_in_pile">Questo mucchio è vuoto, aggiungi dei documenti!</string>
     <string name="no_documents_home">Non hai ancora aggiunto documenti. Premi il pulsante qui sotto per iniziare!</string>
@@ -74,8 +64,6 @@
 
 
     <string name="document_no_name_error">aggiungi un nombre al tuo documento.</string>
-    <string name="error_saving_document">Errore nel salvataggio del documento</string>
-    <string name="error_opening_files_explorer">Errore nell\'apertura di Esplora file</string>
     <string name="error_importing_images">Errore nell\'importazione delle immagini</string>
     <string name="error_importing_pdf">Errore nell\'importazione del PDF</string>
     <string name="error_restoring_draft_document">Errore nel ripristino della bozza</string>
@@ -115,7 +103,6 @@
     <string name="document_name">Nome del documento</string>
 
     <string name="rotate_image_counterclockwise">Ruota a sinistra</string>
-    <string name="reset_image_crop">Ripristina ritaglio</string>
     <string name="error_loading_crop_controller">Errore nel caricamento dell\'editor di ritaglio</string>
 
     <string name="close_pile_selection_bottom_sheet">Chiudi selezione mucchi</string>
@@ -137,7 +124,6 @@
 
     <string name="no_images_found">Nessuna immagine trovata.</string>
     <string name="no_pdf_found">Nessun PDF trovato.</string>
-    <string name="error_creating_pdf">Errore nella creazione del PDF</string>
 
 
     <string name="appearance">Aspetto</string>
@@ -199,7 +185,6 @@
     <string name="disable_backup_confirmation_title">Disattivare il backup?</string>
     <string name="disable_backup_confirmation_message">I tuoi documenti e dati non verranno più sincronizzati sul cloud. I dati locali rimarranno sul tuo dispositivo.</string>
     <string name="disable">Disattiva</string>
-    <string name="own_hosting">Hosting proprio</string>
 
     <string name="authentication_failed">Autenticazione non riuscita</string>
     <string name="authentication_failed_message">Impossibile autenticarsi con il fornitore selezionato. Vuoi riprovare o disattivare il backup?</string>
@@ -219,11 +204,8 @@
     <string name="error_key_required">È necessaria una chiave di ripristino per decrittografare il backup.</string>
     <string name="error_invalid_key_generic">La chiave di ripristino fornita è errata o i dati sono corrotti.</string>
     <string name="last_sync_format">Ultima sincronizzazione: %1$s</string>
-    <string name="sync_status_up_to_date">Tutto è aggiornato</string>
-    <string name="sync_status_pending">Alcuni file non sono salvati</string>
     <string name="today">Oggi</string>
     <string name="yesterday">Ieri</string>
-    <string name="never">Mai</string>
     <string name="biometric_auth_title">Autenticazione richiesta</string>
     <string name="biometric_auth_subtitle">Si prega di autenticarsi per continuare</string>
     <string name="encryption_settings">Impostazioni di crittografia</string>
@@ -236,10 +218,8 @@
     <string name="danger_zone">Zona di pericolo</string>
     <string name="this_action_is_irreversible">Questa azione è irreversibile.</string>
     <string name="wipe_cloud_data">Cancella dati nel cloud</string>
-    <string name="wipe_cloud_data_alert_title">Cancellare il backup nel cloud?</string>
     <string name="wipe_cloud_data_alert_message">Questo eliminerà definitivamente tutti i file di backup dallo spazio di archiviazione nel cloud.\n\nQuesta azione non può essere annullata.</string>
     <string name="wipe">Cancella</string>
-    <string name="wiping_cloud_data">Cancellazione dati nel cloud…</string>
     <string name="are_you_sure">Sei sicuro?</string>
     <string name="wipe_cloud_dialog_message">Questa azione è permanente e non può essere annullata. Tutti i dati di backup memorizzati nel cloud verranno eliminati.</string>
     <string name="encryption_mismatch_title">Mancata corrispondenza di crittografia</string>
@@ -249,11 +229,22 @@
     <string name="mismatch_cloud_encrypted_device_not_body">Il backup nel cloud è crittografato, ma la crittografia è disattivata su questo dispositivo.\n\nScegli come procedere:</string>
     <string name="mismatch_option_enter_recovery_key">Inserisci chiave di recupero e continua la sincro</string>
     <string name="mismatch_option_wipe_and_upload_unencrypted">Cancella copia del cloud e carica backup non crittografato</string>
-    <string name="confirm_restore_unencrypted_title">Disattivare crittografia e ripristinare?</string>
-    <string name="confirm_restore_unencrypted_message">Questo disattiverà la crittografia sul dispositivo e scaricherà il backup nel cloud non crittografato. Vuoi continuare?</string>
     <string name="confirm_wipe_cloud_title">Cancellare il backup nel cloud?</string>
     <string name="confirm_wipe_unencrypted_message">Questo eliminerà definitivamente il backup nel cloud non crittografato e lo sostituirà con una nuova copia crittografata. Vuoi continuare?</string>
     <string name="confirm_wipe_encrypted_message">Questo eliminerà definitivamente il backup nel cloud crittografato e lo sostituirà con una nuova copia non crittografata. Vuoi continuare?</string>
     <string name="wipe_and_upload">Cancella e carica</string>
     <string name="continue_text">Continua</string>
+    <string name="sync_and_backup">Sincronizzazione e backup</string>
+    <string name="cloud_sync">Sincronizzazione in cloud</string>
+    <string name="manage_your_cloud_sync">Gestisci la sincronizzazione in cloud</string>
+    <string name="export_data">Esporta dati</string>
+    <string name="export_data_desc">Crea un file .zip con tutti i dati dell\'app</string>
+    <string name="import_data">Importa dati</string>
+    <string name="import_data_desc">Ripristina i dati da un file .zip</string>
+    <string name="export_success">Dati esportati con successo</string>
+    <string name="export_error">Errore durante l\'esportazione dei dati</string>
+    <string name="import_success">Dati importati con successo</string>
+    <string name="import_error">Errore durante l\'importazione dei dati</string>
+    <string name="import_backup_dialog_title">Importa backup</string>
+    <string name="import_backup_dialog_message">I dati del backup verranno uniti ai dati attuali. Gli elementi corrispondenti verranno aggiornati con le informazioni del file importato.</string>
 </resources>
