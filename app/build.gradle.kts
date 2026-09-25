@@ -30,18 +30,20 @@ android {
         versionCode = 12
         versionName = "1.2.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        val googleDriveClientId = localProperties.getProperty("google.drive.client.id") ?: ""
-        resValue("string", "google_drive_client_id", googleDriveClientId)
     }
 
     flavorDimensions += "distribution"
     productFlavors {
         create("foss") {
             dimension = "distribution"
+
+            resValue("string", "google_drive_client_id", "")
         }
         create("full") {
             dimension = "distribution"
+
+            val googleDriveClientId = localProperties.getProperty("google.drive.client.id") ?: ""
+            resValue("string", "google_drive_client_id", googleDriveClientId)
         }
     }
 
