@@ -1,44 +1,59 @@
 # Privacy Policy for Pile
 
-**Last updated:** June 11, 2026
+**Last updated:** September 25, 2026
 
 Rubén Alfonso ("the Developer") built the **Pile** application as a free app. This service is provided at no cost and is intended for use as is.
 
-This page is used to inform visitors regarding the policies regarding the collection, use, and disclosure of personal information for anyone who decides to use this service.
+This page is used to inform visitors regarding the policies regarding the collection, use, and disclosure of personal information when using this service.
 
-## Information Collection and Use
 
-**Pile does not collect, store, transmit, or share any personal information or user data.**
+## 1. Core Principle: Local-First and Privacy-First
 
-All data created or managed within the app — including documents, tags, and any other content — is stored **locally on the user's device** and is never transmitted to any external server, cloud service, or third party.
+Pile is designed with a **local-first** approach.
 
-The application does not require an internet connection to function.
+By default, all data created or managed within the application — including imported documents, images, tags ("piles"), drafts, and database entries — is stored **exclusively on your device's internal storage**. 
 
-## Third-Party Services
+The Developer operates no servers, databases, or cloud infrastructure. Pile does not collect, sell, monetize, or transmit your personal documents to the Developer or any unauthorized third party.
 
-Pile does **not** use any third-party services, including but not limited to:
-- Analytics services
-- Advertising networks
-- Crash reporting tools
-- Cloud storage providers
-- Authentication providers
 
-## Permissions
+## 2. Optional Cloud Backup (Google Drive)
 
-Pile may request the following permissions on your device, used exclusively for local functionality:
-- **Storage access**: required to read, save, and manage your documents locally on the device.
+Pile offers an **optional** cloud backup and restore feature using Google Drive. This feature is disabled by default and requires explicit activation by the user.
 
-These permissions are used only for the app's core functionality and no information related to them is collected, transmitted, or shared.
+### How Google Drive Integration Works
+* **Direct Transfer:** When you enable Google Drive backup, data is transferred directly between your device and your personal Google Drive storage. No data ever passes through or resides on servers owned or operated by the Developer.
+* **Minimal Access (`drive.file` Scope):** Pile requests strictly scoped access (`https://www.googleapis.com/auth/drive.file`). This technical restriction ensures the application can **only** access, create, and modify files and folders that Pile itself created. Pile cannot view, read, modify, or delete any other files, photos, or documents in your Google Drive.
+* **Account Information:** To authenticate with Google Drive, the app uses standard Google Sign-In / Credential Manager services. The user's email address and authentication tokens are processed solely on your device to maintain session state and display connected account information. They are never sent to external servers or logged by the Developer.
+* **Optional End-to-End Encryption (E2EE):** When encryption is enabled for backups, your data is encrypted locally using AES-GCM before transmission. The Developer does not hold or store encryption keys; you are solely responsible for retaining your recovery key.
 
-## Data Storage and Security
 
-All data is stored locally on the user's device using the device's internal storage. The Developer has no access to this data.
+## 3. Third-Party Services and Analytics
 
-If you uninstall the app, all locally stored data will be removed from your device.
+Pile does **not** integrate third-party tracking or advertising services:
+* No analytics SDKs (e.g., Firebase Analytics, Google Analytics)
+* No advertising networks
+* No third-party crash reporting tools
 
-## Children's Privacy
+The only third-party network interaction occurs if you explicitly connect your personal Google Drive account for backups.
 
-This application does not collect any personal information from anyone, including children under the age of 13.
+
+## 4. Permissions
+
+Pile requests only the minimum device permissions necessary to perform its features:
+* **Storage / Media Access (or system file picker):** Used strictly to import and export your documents, PDFs, and images locally.
+* **Internet Access:** Used exclusively to interact with the official Google Drive API when you perform backup or restore operations.
+
+
+## 5. Data Retention and Deletion
+
+* **Local Data:** All local data remains on your device until you delete individual items within the app or uninstall the application.
+* **Google Drive Data:** Backups stored in your Google Drive remain under your control. You can delete them directly through Google Drive or disconnect Pile's access at any time via your [Google Account Security Settings](https://myaccount.google.com/permissions).
+
+
+## 6. Children's Privacy
+
+Pile does not knowingly collect or solicit personal information from anyone, including children under the age of 13. In compliance with Google's API policies, Google Sign-In features within this app are not directed to children under 13.
+
 
 ## Changes to This Privacy Policy
 
@@ -52,4 +67,4 @@ If you have any questions or suggestions about this Privacy Policy, do not hesit
 
 ---
 
-This Privacy Policy is effective as of June 11, 2026.
+This Privacy Policy is effective as of September 25, 2026.
