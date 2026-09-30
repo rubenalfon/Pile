@@ -27,8 +27,8 @@ android {
         applicationId = "es.pile"
         minSdk = 28
         targetSdk = 37
-        versionCode = 14
-        versionName = "1.2.2"
+        versionCode = 15
+        versionName = "1.2.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -185,5 +185,12 @@ sqldelight {
         create("Database") {
             packageName.set("es.pile")
         }
+    }
+}
+
+// Deactivate the generation of ART profiles for FOSS variants
+tasks.whenTaskAdded {
+    if (name.contains("Foss") && name.contains("ArtProfile")) {
+        enabled = false
     }
 }
