@@ -188,9 +188,9 @@ sqldelight {
     }
 }
 
-// Deactivate the generation of ART profiles for FOSS variants
+// Deactivate the generation of ART profiles for FOSS variants and strip debug symbols for FOSS variants
 tasks.whenTaskAdded {
-    if (name.contains("Foss") && name.contains("ArtProfile")) {
+    if (name.contains("Foss") && (name.contains("ArtProfile") || name.contains("Strip"))) {
         enabled = false
     }
 }
