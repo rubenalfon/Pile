@@ -3,7 +3,8 @@ name: Build and Release FOSS APK
 on:
   push:
     tags:
-      - 'v*'
+      - '*'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -36,11 +37,12 @@ jobs:
 
       - name: Rename Signed APK
         run: |
-          mv ${{ steps.sign_app.outputs.signedReleaseFile }} /tmp/Pile-foss-${{ github.ref_name }}.apk
+          mv ${{ steps.sign_app.outputs.signedReleaseFile }} "/tmp/Pile-foss-${{ github.ref_name }}.apk"
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: /tmp/Pile-foss-${{ github.ref_name }}.apk
+          tag_name: ${{ github.ref_name }}
+          files: /tmp/Pile-foss-*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
