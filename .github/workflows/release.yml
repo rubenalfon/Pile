@@ -6,6 +6,9 @@ on:
       - '*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,18 +29,31 @@ jobs:
         run: ./gradlew :app:assembleFossRelease --no-daemon
 
       - name: Sign APK
-        uses: r0adkll/sign-android-release@v1
-        id: sign_app
-        with:
-          releaseDirectory: app/build/outputs/apk/foss/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-
-      - name: Rename Signed APK
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          ALIAS: ${{ secrets.ALIAS }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          mv ${{ steps.sign_app.outputs.signedReleaseFile }} "/tmp/Pile-foss-${{ github.ref_name }}.apk"
+          echo "$SIGNING_KEY" | base64 -d > /tmp/keystore.jks
+          SDK_PATH="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          BUILD_TOOLS=$(ls -d $SDK_PATH/build-tools/* | sort -V | tail -n 1)
+          
+          TAG_NAME="${{ github.ref_name }}"
+          CLEAN_VERSION="${TAG_NAME#v}"
+          APK_NAME="Pile-foss-v${CLEAN_VERSION}.apk"
+          
+          $BUILD_TOOLS/apksigner sign \
+            --v1-signing-enabled true \
+            --v2-signing-enabled true \
+            --ks /tmp/keystore.jks \
+            --ks-key-alias "$ALIAS" \
+            --ks-pass "pass:$KEY_STORE_PASSWORD" \
+            --key-pass "pass:$KEY_PASSWORD" \
+            --out "/tmp/$APK_NAME" \
+            app/build/outputs/apk/foss/release/app-foss-release-unsigned.apk
+          
+          rm /tmp/keystore.jks
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
