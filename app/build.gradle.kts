@@ -38,12 +38,15 @@ android {
             dimension = "distribution"
 
             resValue("string", "google_drive_client_id", "")
+
         }
         create("full") {
             dimension = "distribution"
 
             val googleDriveClientId = localProperties.getProperty("google.drive.client.id") ?: ""
             resValue("string", "google_drive_client_id", googleDriveClientId)
+
+            ndk.debugSymbolLevel = "FULL" // todo check
         }
     }
 
@@ -60,7 +63,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            ndk.debugSymbolLevel = "FULL"
         }
     }
     compileOptions {
