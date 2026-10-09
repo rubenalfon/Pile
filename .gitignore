@@ -14,3 +14,8 @@
 *.aab
 *.apk
 mapping.txt
+
+# Keystore files
+*.jks
+*.keystore
+keystore.properties
