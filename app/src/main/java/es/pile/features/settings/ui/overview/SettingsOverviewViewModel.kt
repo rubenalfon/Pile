@@ -47,6 +47,7 @@ class SettingsOverviewViewModel(
             SettingsOverviewEvent.OnBackClicked -> {}
             SettingsOverviewEvent.OnResolutionClicked -> {}
             SettingsOverviewEvent.OnBackupClicked -> {}
+            SettingsOverviewEvent.OnLibrariesClicked -> {}
 
             is SettingsOverviewEvent.OnThemeChanged -> updateTheme(event.newTheme)
             SettingsOverviewEvent.OnMaterialColorToggled -> updateMaterialColor()

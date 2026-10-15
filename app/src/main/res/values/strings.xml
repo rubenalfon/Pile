@@ -25,6 +25,7 @@
     <string name="selected_">Selected</string>
     <string name="keep_editing">Keep editing</string>
     <string name="discard">Discard</string>
+    <string name="open_menu">Open Menu</string>
 
 
     <string name="new_pile">New Pile</string>
@@ -254,4 +255,6 @@
     <string name="export_error">Error exporting data</string>
     <string name="import_success">Data imported successfully</string>
     <string name="import_error">Error importing data</string>
+
+    <string name="open_source_licences">Open source licences</string>
 </resources>

@@ -27,6 +27,8 @@ kotlinxSerializationJson = "1.11.0"
 exifinterface = "1.4.2"
 reorderable = "3.1.0"
 cropKit = "1.0.7-BETA02"
+aboutlibraries = "15.3.0"
+
 
 play-services-auth = "22.0.0"
 credentials = "1.6.0"
@@ -83,6 +85,7 @@ koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = 
 
 # --- Otros ---
 napier = { module = "io.github.aakira:napier", version.ref = "napier" }
+aboutlibraries = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 
 # Google Drive & Auth
 google-play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "play-services-auth" }
@@ -105,3 +108,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 parcelize = { id = "kotlin-parcelize" }
 sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
+aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }

@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.sqlDelight)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.parcelize)
+    alias(libs.plugins.aboutlibraries)
 }
 
 // Load keystore properties
@@ -182,6 +183,8 @@ dependencies {
 
     // Reorderable List
     implementation(libs.reorderable.list)
+
+    implementation(libs.aboutlibraries)
 
     // Crop images - My fork
     implementation(libs.crop.kit)

@@ -23,6 +23,7 @@ import es.pile.features.editDocument.ui.EditDocumentScreen
 import es.pile.features.home.ui.HomeScreen
 import es.pile.features.pileDetail.ui.PileDetailScreen
 import es.pile.features.search.ui.SearchScreen
+import es.pile.features.settings.ui.libraries.LibrariesScreen
 import es.pile.features.settings.ui.overview.SettingsOverviewScreen
 import es.pile.features.settings.ui.resolution.SettingsResolutionScreen
 
@@ -177,6 +178,9 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                     },
                     navigateToBackup = {
                         backStack.add(Pane.Backup)
+                    },
+                    navigateToLibraries = {
+                        backStack.add(Pane.Libraries)
                     }
                 )
             }
@@ -207,6 +211,12 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
 
             entry<Pane.WipeCloud> {
                 WipeCloudScreen(
+                    popBackStack = { backStack.removeLastOrNull() }
+                )
+            }
+
+            entry<Pane.Libraries> {
+                LibrariesScreen(
                     popBackStack = { backStack.removeLastOrNull() }
                 )
             }

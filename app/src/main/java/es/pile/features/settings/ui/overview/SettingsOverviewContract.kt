@@ -26,7 +26,9 @@ sealed interface SettingsOverviewEvent {
     data object OnLocalAiToggled : SettingsOverviewEvent
 
     data object OnBackupClicked : SettingsOverviewEvent
-    
+
+    data object OnLibrariesClicked : SettingsOverviewEvent
+
     data class OnExportUriSelected(val uri: Uri) : SettingsOverviewEvent
     data class OnImportUriSelected(val uri: Uri) : SettingsOverviewEvent
     data object OnSnackbarMessageShown : SettingsOverviewEvent

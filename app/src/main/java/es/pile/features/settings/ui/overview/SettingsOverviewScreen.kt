@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -54,7 +53,8 @@ fun SettingsOverviewScreen(
     viewModel: SettingsOverviewViewModel = koinViewModel(),
     popBackStack: () -> Unit,
     navigateToSettingsResolution: () -> Unit,
-    navigateToBackup: () -> Unit
+    navigateToBackup: () -> Unit,
+    navigateToLibraries: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -65,6 +65,7 @@ fun SettingsOverviewScreen(
                 is SettingsOverviewEvent.OnBackClicked -> popBackStack()
                 is SettingsOverviewEvent.OnResolutionClicked -> navigateToSettingsResolution()
                 is SettingsOverviewEvent.OnBackupClicked -> navigateToBackup()
+                is SettingsOverviewEvent.OnLibrariesClicked -> navigateToLibraries()
                 else -> viewModel.handleEvent(event)
             }
         }
@@ -87,7 +88,6 @@ fun SettingsOverviewPreview() {
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsOverviewContent(
     state: SettingsOverviewState,
@@ -129,6 +129,7 @@ fun SettingsOverviewContent(
             SettingsTopBar(
                 title = stringResource(R.string.settings),
                 popBackStack = { onEvent(SettingsOverviewEvent.OnBackClicked) },
+                onLibrariesClick = { onEvent(SettingsOverviewEvent.OnLibrariesClicked) },
                 scrollBehavior = scrollBehavior
             )
         }
