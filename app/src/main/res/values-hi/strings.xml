@@ -23,6 +23,7 @@
     <string name="selected_">चुना गया</string>
     <string name="keep_editing">संपादन जारी रखें</string>
     <string name="discard">खारिज करें</string>
+    <string name="open_menu">मेन्यू खोलें</string>
 
 
     <string name="new_pile">नया ढेर</string>
@@ -247,4 +248,6 @@
     <string name="import_error">डेटा आयात करने में त्रुटि</string>
     <string name="import_backup_dialog_title">बैकअप आयात करें</string>
     <string name="import_backup_dialog_message">बैकअप डेटा आपके वर्तमान डेटा के साथ मिला दिया जाएगा। किसी भी मेल खाने वाले आइटम को आयात की गई फ़ाइल की जानकारी से अपडेट किया जाएगा。</string>
+
+    <string name="open_source_licences">ओपन सोर्स लाइसेंस</string>
 </resources>

@@ -23,6 +23,7 @@
     <string name="selected_">Выбрано</string>
     <string name="keep_editing">Продолжить редактирование</string>
     <string name="discard">Отклонить</string>
+    <string name="open_menu">Открыть меню</string>
 
 
     <string name="new_pile">Новая стопка</string>
@@ -247,4 +248,6 @@
     <string name="import_error">Ошибка при импорте данных</string>
     <string name="import_backup_dialog_title">Импорт резервной копии</string>
     <string name="import_backup_dialog_message">Данные резервной копии будут объединены с текущими данными. Совпадающие элементы будут обновлены информацией из импортируемого файла.</string>
+
+    <string name="open_source_licences">Лицензии открытого ПО</string>
 </resources>

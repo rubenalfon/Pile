@@ -23,6 +23,7 @@
     <string name="selected_">Hautatuta</string>
     <string name="keep_editing">Jarraitu editatzen</string>
     <string name="discard">Baztertu</string>
+    <string name="open_menu">Ireki menua</string>
 
 
     <string name="new_pile">Pila berria</string>
@@ -247,4 +248,6 @@
     <string name="import_error">Errorea datuak inportatzean</string>
     <string name="import_backup_dialog_title">Inportatu babeskopia</string>
     <string name="import_backup_dialog_message">Babeskopiako datuak uneko datuekin konbinatuko dira. Bikoiztutako elementurik badago, inportatutako fitxategiko informazioarekin eguneratuko dira.</string>
+
+    <string name="open_source_licences">Iturburu irekiko lizentziak</string>
 </resources>

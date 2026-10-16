@@ -23,6 +23,7 @@
     <string name="selected_">選択済み</string>
     <string name="keep_editing">編集を続ける</string>
     <string name="discard">破棄</string>
+    <string name="open_menu">メニューを開く</string>
 
 
     <string name="new_pile">新規パイル</string>
@@ -247,4 +248,6 @@
     <string name="import_error">データのインポート中にエラーが発生しました</string>
     <string name="import_backup_dialog_title">バックアップをインポート</string>
     <string name="import_backup_dialog_message">バックアップデータは現在のデータと統合されます。一致する項目はインポートされたファイルの情報で更新されます。</string>
+
+    <string name="open_source_licences">オープンソースライセンス</string>
 </resources>

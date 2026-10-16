@@ -23,6 +23,7 @@
     <string name="selected_">Selezionato</string>
     <string name="keep_editing">Continua a modificare</string>
     <string name="discard">Scarta</string>
+    <string name="open_menu">Apri menu</string>
 
 
     <string name="new_pile">Nuovo mucchio</string>
@@ -247,4 +248,6 @@
     <string name="import_error">Errore durante l\'importazione dei dati</string>
     <string name="import_backup_dialog_title">Importa backup</string>
     <string name="import_backup_dialog_message">I dati del backup verranno uniti ai dati attuali. Gli elementi corrispondenti verranno aggiornati con le informazioni del file importato.</string>
+
+    <string name="open_source_licences">Licenze open source</string>
 </resources>

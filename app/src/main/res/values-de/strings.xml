@@ -23,6 +23,7 @@
     <string name="selected_">Ausgewählt</string>
     <string name="keep_editing">Weiter bearbeiten</string>
     <string name="discard">Verwerfen</string>
+    <string name="open_menu">Menü öffnen</string>
 
 
     <string name="new_pile">Neuer Pile</string>
@@ -247,4 +248,6 @@
     <string name="import_error">Fehler beim Importieren der Daten</string>
     <string name="import_backup_dialog_title">Sicherung importieren</string>
     <string name="import_backup_dialog_message">Die Sicherungsdaten werden mit Ihren aktuellen Daten zusammengeführt. Übereinstimmende Elemente werden mit den Informationen aus der importierten Datei aktualisiert.</string>
+
+    <string name="open_source_licences">Open-Source-Lizenzen</string>
 </resources>

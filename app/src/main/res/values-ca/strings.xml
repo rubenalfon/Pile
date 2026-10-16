@@ -23,6 +23,7 @@
     <string name="selected_">Seleccionat</string>
     <string name="keep_editing">Continua editant</string>
     <string name="discard">Descartar</string>
+    <string name="open_menu">Obrir menú</string>
 
 
     <string name="new_pile">Nova pila</string>
@@ -247,4 +248,6 @@
     <string name="import_error">Error en importar les dades</string>
     <string name="import_backup_dialog_title">Importar còpia de seguretat</string>
     <string name="import_backup_dialog_message">Les dades de la còpia de seguretat es combinaran amb les dades actuals. Si hi ha elements duplicats, s’actualitzaran amb la informació del fitxer importat.</string>
+
+    <string name="open_source_licences">Llicències de codi obert</string>
 </resources>

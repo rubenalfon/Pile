@@ -23,6 +23,7 @@
     <string name="selected_">Seleccionado</string>
     <string name="keep_editing">Seguir editando</string>
     <string name="discard">Desbotar</string>
+    <string name="open_menu">Abrir menú</string>
 
 
     <string name="new_pile">Nova pila</string>
@@ -247,4 +248,6 @@
     <string name="import_error">Erro ao importar os datos</string>
     <string name="import_backup_dialog_title">Importar copia de seguranza</string>
     <string name="import_backup_dialog_message">Os datos da copia de seguranza combinaranse cos datos actuais. Se existen elementos duplicados, actualizaranse coa información do ficheiro importado.</string>
+
+    <string name="open_source_licences">Licenzas de código aberto</string>
 </resources>
