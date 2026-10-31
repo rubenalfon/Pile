@@ -873,10 +873,16 @@ private fun DocumentNoteSection(
         )
     }
 
+    LaunchedEffect(documentModel?.documentNote) {
+        if (!isFocused) {
+            unsavedDocumentNoteDetail = documentModel?.documentNote ?: ""
+        }
+    }
+
     LaunchedEffect(unsavedDocumentNoteDetail) {
         delay(200.milliseconds)
 
-        if (unsavedDocumentNoteDetail == documentModel?.documentNote) return@LaunchedEffect
+        if (unsavedDocumentNoteDetail == (documentModel?.documentNote ?: "")) return@LaunchedEffect
 
         onUpdateDocumentNote.invoke(unsavedDocumentNoteDetail)
     }
@@ -913,7 +919,9 @@ private fun DocumentNoteSection(
                         if (isFocused) {
                             onFocused()
                         } else {
-                            onUpdateDocumentNote.invoke(unsavedDocumentNoteDetail)
+                            if (unsavedDocumentNoteDetail != (documentModel?.documentNote ?: "")) {
+                                onUpdateDocumentNote.invoke(unsavedDocumentNoteDetail)
+                            }
                         }
                     },
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
