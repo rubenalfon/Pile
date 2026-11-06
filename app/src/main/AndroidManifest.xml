@@ -77,6 +77,11 @@
                 android:value="androidx.startup"
                 tools:node="remove" />
         </provider>
+
+        <provider
+            android:name="ai.onnxruntime.TelemetryInitializer"
+            android:authorities="${applicationId}.onnxruntime_telemetry_initializer"
+            tools:node="remove" />
     </application>
 
 </manifest>

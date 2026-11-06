@@ -1,6 +1,5 @@
 package es.pile.features.settings.ui.composables
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,9 +9,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -20,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -146,17 +151,18 @@ fun SettingsItem(
 
     Card(
         modifier = modifier
-            .fillMaxWidth()
-            .clickable(enabled) { onAction() },
+            .fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = containerColor,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
         ),
-        shape = itemPosition.getShape()
+        shape = itemPosition.getShape(),
+        enabled = enabled,
+        onClick = { onAction() }
     ) {
         val paddingValues = if (subtitle != null)
             PaddingValues(16.dp)
-        else PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+        else PaddingValues(horizontal = 16.dp, vertical = 12.dp)
 
         Row(
             modifier = Modifier.padding(paddingValues),
@@ -203,4 +209,74 @@ fun SettingsItem(
             }
         }
     }
+}
+
+@Composable
+fun SettingsRadioItem(
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    itemPosition: ItemPosition,
+    title: String,
+    subtitle: String? = null,
+    selected: Boolean,
+    onAction: () -> Unit,
+    hasError: Boolean
+) {
+    SettingsItem(
+        modifier = modifier,
+        enabled = enabled,
+        itemPosition = itemPosition,
+        title = title,
+        subtitle = subtitle,
+        onAction = onAction,
+        leadingIcon = {
+            CompositionLocalProvider(
+                LocalMinimumInteractiveComponentSize provides Dp.Unspecified
+            ) {
+                RadioButton(
+                    selected = selected,
+                    onClick = null,
+                    enabled = enabled,
+                    colors = RadioButtonDefaults.colors(
+                        unselectedColor = if (hasError) MaterialTheme.colorScheme.error else Color.Unspecified
+                    )
+                )
+            }
+        }
+    )
+}
+
+@Composable
+fun SettingsCheckboxItem(
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    itemPosition: ItemPosition,
+    title: String,
+    subtitle: String? = null,
+    checked: Boolean,
+    onAction: () -> Unit,
+    hasError: Boolean
+) {
+    SettingsItem(
+        modifier = modifier,
+        enabled = enabled,
+        itemPosition = itemPosition,
+        title = title,
+        subtitle = subtitle,
+        onAction = onAction,
+        leadingIcon = {
+            CompositionLocalProvider(
+                LocalMinimumInteractiveComponentSize provides Dp.Unspecified
+            ) {
+                Checkbox(
+                    checked = checked,
+                    onCheckedChange = null,
+                    enabled = enabled,
+                    colors = CheckboxDefaults.colors(
+                        uncheckedColor = if (hasError) MaterialTheme.colorScheme.error else Color.Unspecified
+                    )
+                )
+            }
+        }
+    )
 }

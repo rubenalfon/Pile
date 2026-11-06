@@ -19,6 +19,7 @@ import es.pile.DocumentImage
 import es.pile.DocumentModel
 import es.pile.core.data.util.ImageTransformationHelper
 import es.pile.core.data.util.PdfRenderHelper
+import es.pile.core.data.util.calculateInSampleSize
 import es.pile.core.domain.models.ImageFilterType
 import es.pile.core.domain.repositories.FileRepository
 import es.pile.core.domain.repositories.FileRepository.StorageType
@@ -342,7 +343,7 @@ class FileRepositoryImpl(
                 BitmapFactory.decodeStream(it, null, options)
             }
 
-            options.inSampleSize = imageTransformationHelper.calculateInSampleSize(options, maxSize)
+            options.inSampleSize = options.calculateInSampleSize(maxSize)
             options.inJustDecodeBounds = false
 
             val bitmap = contentResolver.openInputStream(uri)?.use {

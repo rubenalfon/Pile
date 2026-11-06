@@ -58,7 +58,7 @@ class ImageTransformationHelper(
 
             // Subsampling
             options.inSampleSize = if (reqSize > 0) {
-                calculateInSampleSize(options, reqSize)
+                options.calculateInSampleSize(reqSize)
             } else 1
 
             options.inJustDecodeBounds = false
@@ -243,28 +243,5 @@ class ImageTransformationHelper(
             source.recycle()
         }
         return result
-    }
-
-    /**
-     * Calculates the optimal sample size for decoding a bitmap.
-     *
-     * @param options The [BitmapFactory.Options] object containing bitmap metadata.
-     * @param maxSize The maximum size of the bitmap in pixels.
-     * @return The optimal sample size.
-     */
-    fun calculateInSampleSize(options: BitmapFactory.Options, maxSize: Int): Int {
-        val height = options.outHeight
-        val width = options.outWidth
-        var inSampleSize = 1
-
-        if (height > maxSize || width > maxSize) {
-            val halfHeight = height / 2
-            val halfWidth = width / 2
-
-            while (halfHeight / inSampleSize >= maxSize || halfWidth / inSampleSize >= maxSize) {
-                inSampleSize *= 2
-            }
-        }
-        return inSampleSize
     }
 }

@@ -24,6 +24,8 @@
     <string name="keep_editing">संपादन जारी रखें</string>
     <string name="discard">खारिज करें</string>
     <string name="open_menu">मेन्यू खोलें</string>
+    <string name="data">डेटा</string>
+    <string name="not_available">उपलब्ध नहीं</string>
 
 
     <string name="new_pile">नया ढेर</string>
@@ -139,10 +141,22 @@
 
     <string name="use_system_theme_color">सिस्टम थीम रंग का प्रयोग करें</string>
 
-    <string name="activate_local_ai_tittle">स्थानीय एआई सुविधाएं सक्रिय करें</string>
+    <string name="local_ai_features">स्थानीय AI सुविधाएँ</string>
     <string name="activate_local_ai_body">अपने दस्तावेज़ों से डेटा निकालने के लिए डिवाइस में एआई का उपयोग करें।</string>
     <string name="select_language_model">भाषा मॉडल चुनें</string>
     <string name="no_model_selected">कोई मॉडल नहीं चुना गया</string>
+    <string name="local_ai_features_body">AI सुविधाएँ आपके दस्तावेज़ों को स्वचालित रूप से वर्गीकृत करके और आपके ढेरों में प्रासंगिक विवरण जोड़कर उन्हें व्यवस्थित करने में आपकी सहायता करती हैं।</string>
+    <string name="use_ai_features">AI सुविधाओं का उपयोग करें</string>
+    <string name="ocr_languages">OCR भाषाएँ</string>
+    <string name="llm_models">LLM मॉडल</string>
+    <string name="manage_downloaded_language_models">डाउनलोड की गई भाषाओं और मॉडलों को प्रबंधित करें</string>
+    <string name="downloaded_language_models">डाउनलोड की गई भाषाएँ और मॉडल</string>
+    <string name="hugging_face_token">हगिंग फेस टोकन</string>
+    <string name="recommended_for_you">आपके लिए अनुशंसित</string>
+    <string name="in_use">उपयोग में</string>
+    <string name="best_overall">कुल मिलाकर सर्वश्रेष्ठ</string>
+    <string name="model_size">%1$s %2$s</string>
+    <string name="model_subtitle_with_tag">%1$s - %2$s</string>
 
     <string name="document_resolution">दस्तावेज़ रिज़ॉल्यूशन</string>
     <string name="original_quality_tittle">मूल गुणवत्ता</string>
@@ -250,4 +264,5 @@
     <string name="import_backup_dialog_message">बैकअप डेटा आपके वर्तमान डेटा के साथ मिला दिया जाएगा। किसी भी मेल खाने वाले आइटम को आयात की गई फ़ाइल की जानकारी से अपडेट किया जाएगा。</string>
 
     <string name="open_source_licences">ओपन सोर्स लाइसेंस</string>
+    <string name="no_downloaded_ocr_models">कोई भाषा मॉडल डाउनलोड नहीं किया गया</string>
 </resources>

@@ -173,6 +173,7 @@ fun DocumentDetailPreview() {
         documentDetails = emptyList(),
         documentNote = "Esta es una nota de prueba para el documento.",
         documentOrganizationIds = emptyList(),
+        ocrText = "",
         isIncomingPdf = false
     )
 

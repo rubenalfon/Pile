@@ -68,6 +68,7 @@ class BackupRepositoryImplTest {
             every { this@mockk.documentNote } returns ""
             every { this@mockk.documentOrganizationIds } returns emptyList()
             every { this@mockk.isIncomingPdf } returns false
+            every { this@mockk.ocrText } returns ""
         }
     }
 
@@ -193,7 +194,8 @@ class BackupRepositoryImplTest {
             modificationDateTime = "2024-01-01T12:00:00",
             documentStatus = 0, documentPileIds = emptyList(),
             documentDetails = emptyList(), documentNote = "",
-            documentOrganizationIds = emptyList(), isIncomingPdf = false
+            documentOrganizationIds = emptyList(),
+            ocrText = "", isIncomingPdf = false
         )
         val remoteMetadata = BackupDto(
             timestamp = "2024-01-01T12:00:00",
@@ -232,7 +234,8 @@ class BackupRepositoryImplTest {
             modificationDateTime = "2024-01-01T12:00:00",
             documentStatus = 0, documentPileIds = emptyList(),
             documentDetails = emptyList(), documentNote = "",
-            documentOrganizationIds = emptyList(), isIncomingPdf = false
+            documentOrganizationIds = emptyList(),
+            ocrText = "", isIncomingPdf = false
         )
         val remoteMetadata = BackupDto(
             timestamp = "2024-01-01T12:00:00",

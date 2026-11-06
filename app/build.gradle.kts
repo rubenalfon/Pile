@@ -99,6 +99,10 @@ android {
     }
 
     packaging {
+        jniLibs {
+            useLegacyPackaging = true
+            keepDebugSymbols += "**/*.so"
+        }
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "META-INF/INDEX.LIST"
@@ -145,7 +149,7 @@ dependencies {
 
     // Preview & Tooling
     implementation(libs.compose.ui.tooling.preview)
-    debugImplementation(libs.compose.ui.tooling)
+    implementation(libs.compose.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
     // Unit tests
@@ -178,6 +182,9 @@ dependencies {
     // Serialization
     implementation(libs.kotlinx.serialization.json)
 
+    // Coroutines Play Services
+    implementation(libs.kotlinx.coroutines.play.services)
+
     // ExifInterface
     implementation(libs.androidx.exifinterface)
 
@@ -188,6 +195,9 @@ dependencies {
 
     // Crop images - My fork
     implementation(libs.crop.kit)
+
+    // ONNX Runtime
+    implementation(libs.onnxruntime.android)
 
     // Logging
     implementation(libs.napier)
@@ -216,10 +226,10 @@ sqldelight {
     }
 }
 
-// Deactivate the generation of ART profiles for FOSS variants and strip debug symbols for FOSS variants
+// Deactivate the generation of ART profiles for FOSS variants
 tasks.whenTaskAdded {
     val taskName = name.lowercase()
-    if (taskName.contains("foss") && (taskName.contains("artprofile") || taskName.contains("strip"))) {
+    if (taskName.contains("foss") && taskName.contains("artprofile")) {
         enabled = false
     }
 }

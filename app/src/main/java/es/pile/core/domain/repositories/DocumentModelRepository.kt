@@ -77,6 +77,11 @@ interface DocumentModelRepository {
     suspend fun updateDetails(id: String, details: List<DocumentDetail>)
 
     /**
+     * Updates the ocr text of a document.
+     */
+    suspend fun updateOcrText(id: String, ocrText: String)
+
+    /**
      * Removes a document model record from the database and registers tombstone records
      * for the document and its associated images for synchronization.
      * 

@@ -156,6 +156,7 @@ fun EditDocumentPreview() {
         documentDetails = emptyList(),
         documentNote = "",
         documentOrganizationIds = emptyList(),
+        ocrText = "",
         isIncomingPdf = false
     )
 

@@ -74,7 +74,6 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import java.time.LocalDateTime
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PileDetailScreen(
     modifier: Modifier = Modifier,
@@ -148,6 +147,7 @@ private fun PileDetailPrev() {
                             documentDetails = emptyList(),
                             documentNote = "",
                             documentOrganizationIds = emptyList(),
+                            ocrText = "",
                             isIncomingPdf = false
                         ),
                         coverImageCacheKey = "key1"

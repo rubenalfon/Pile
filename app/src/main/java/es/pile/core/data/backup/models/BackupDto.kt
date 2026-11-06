@@ -30,6 +30,7 @@ data class DocumentModelDto(
     val documentPileIds: List<String>,
     val documentDetails: List<DocumentDetail>,
     val documentNote: String,
+    val ocrText: String = "",
     val documentOrganizationIds: List<String>,
     val isIncomingPdf: Boolean
 )

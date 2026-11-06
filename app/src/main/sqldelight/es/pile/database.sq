@@ -105,13 +105,14 @@ CREATE TABLE IF NOT EXISTS DocumentModel(
     documentPileIds             TEXT AS List<String>            NOT NULL,
     documentDetails             TEXT AS List<DocumentDetail>    NOT NULL,
     documentNote                TEXT                            NOT NULL,
+    ocrText                     TEXT                            NOT NULL DEFAULT '',
     documentOrganizationIds     TEXT AS List<String>            NOT NULL,
     isIncomingPdf               INTEGER AS Boolean              NOT NULL
 );
 
 insertDocumentModel:
-INSERT OR REPLACE INTO DocumentModel(id, title, imageIds, creationDateTime, modificationDateTime, documentStatus, documentPileIds, documentDetails, documentNote, documentOrganizationIds, isIncomingPdf)
-VALUES(?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO DocumentModel(id, title, imageIds, creationDateTime, modificationDateTime, documentStatus, documentPileIds, documentDetails, documentNote, ocrText, documentOrganizationIds, isIncomingPdf)
+VALUES(?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?);
 
 selectAllDocumentModels:
 SELECT *
@@ -145,6 +146,7 @@ SET title = ?,
     documentPileIds = ?,
     documentDetails = ?,
     documentNote = ?,
+    ocrText = ?,
     documentOrganizationIds = ?,
     isIncomingPdf = ?
 WHERE id = ?;
@@ -188,6 +190,11 @@ updateDocumentNote:
 UPDATE DocumentModel
 SET documentNote = ?,
     modificationDateTime = ?
+WHERE id = ?;
+
+updateDocumentOcrText:
+UPDATE DocumentModel
+SET ocrText = ?
 WHERE id = ?;
 
 updateDocumentOrganizationIds:

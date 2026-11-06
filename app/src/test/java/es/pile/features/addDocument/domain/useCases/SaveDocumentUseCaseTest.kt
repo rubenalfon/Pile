@@ -36,6 +36,7 @@ class SaveDocumentUseCaseTest {
             documentNote = "",
             documentPileIds = emptyList(),
             documentOrganizationIds = emptyList(),
+            ocrText = "",
             isIncomingPdf = false
         )
         val name = "My Document"
@@ -67,6 +68,7 @@ class SaveDocumentUseCaseTest {
             documentNote = "",
             documentPileIds = emptyList(),
             documentOrganizationIds = emptyList(),
+            ocrText = "",
             isIncomingPdf = false
         )
         val name = "  "

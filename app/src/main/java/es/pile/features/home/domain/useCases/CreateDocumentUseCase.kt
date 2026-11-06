@@ -8,6 +8,7 @@ import es.pile.core.domain.repositories.DocumentImageRepository
 import es.pile.core.domain.repositories.DocumentModelRepository
 import es.pile.core.domain.repositories.FileRepository
 import es.pile.core.domain.useCases.SaveImagesUseCase
+import es.pile.features.ocr.domain.schedulers.OcrService
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -20,21 +21,24 @@ import java.util.UUID
  *
  * It manages the lifecycle of document creation from various sources (PDFs or Images),
  * handles the cleanup of previous temporary sessions, and ensures data integrity
- * by providing a rollback mechanism if storage or database operations fail.
+ * by providing a rollback mechanism if storage or database operations fail. It also triggers
+ * background OCR extraction for the newly created documents.
  */
 class CreateDocumentUseCase(
     private val ioDispatcher: CoroutineDispatcher,
     private val saveImagesUseCase: SaveImagesUseCase,
     private val fileRepository: FileRepository,
     private val documentModelRepository: DocumentModelRepository,
-    private val documentImageRepository: DocumentImageRepository
+    private val documentImageRepository: DocumentImageRepository,
+    private val ocrService: OcrService
 ) {
 
     /**
      * Creates a new document from a single PDF file.
      *
      * This process involves cleaning up existing temporary documents, copying the PDF to
-     * internal storage, and persisting the document metadata in the database.
+     * internal storage, persisting the document metadata in the database, and scheduling
+     * OCR extraction.
      *
      * @param uri The source [android.net.Uri] of the PDF file.
      * @param initialPileIds Optional list of Pile IDs to associate with the new document.
@@ -51,7 +55,10 @@ class CreateDocumentUseCase(
             fileRepository.copyPdfToInternalStorage(uri, newDocument.id)
 
             val finalDocument = newDocument.copy(title = fileName)
+
             documentModelRepository.updateDocumentModel(finalDocument)
+
+            ocrService.scheduleOcrExtraction(finalDocument.id) // TODO extract directly from PDF
 
             return@withContext finalDocument
 
@@ -65,8 +72,8 @@ class CreateDocumentUseCase(
      * Creates a new document from a list of image files.
      *
      * This process involves cleaning up existing temporary documents, saving all images
-     * to internal storage, creating records for each individual image, and persisting
-     * the main document metadata.
+     * to internal storage, creating records for each individual image, persisting
+     * the main document metadata, and scheduling OCR extraction.
      *
      * @param uris A list of source [Uri]s for the images to be included in the document.
      * @param initialPileIds Optional list of Pile IDs to associate with the new document.
@@ -96,7 +103,10 @@ class CreateDocumentUseCase(
             documentImages.forEach { documentImageRepository.insertDocumentImage(it) }
 
             val finalDocument = newDocument.copy(imageIds = documentImages.map { it.id })
+
             documentModelRepository.updateDocumentModel(finalDocument)
+
+            ocrService.scheduleOcrExtraction(finalDocument.id)
 
             return@withContext finalDocument
 
@@ -123,6 +133,7 @@ class CreateDocumentUseCase(
             documentStatus = DocumentStatusConstants.TEMPORARY,
             documentDetails = emptyList(),
             documentOrganizationIds = emptyList(),
+            ocrText = "",
             documentNote = "",
             documentPileIds = initialPileIds,
             isIncomingPdf = isPdf

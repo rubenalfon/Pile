@@ -24,6 +24,8 @@ import es.pile.features.home.ui.HomeScreen
 import es.pile.features.pileDetail.ui.PileDetailScreen
 import es.pile.features.search.ui.SearchScreen
 import es.pile.features.settings.ui.libraries.LibrariesScreen
+import es.pile.features.settings.ui.localAI.SettingsLocalAIScreen
+import es.pile.features.settings.ui.manageModels.SettingsManageModelsScreen
 import es.pile.features.settings.ui.overview.SettingsOverviewScreen
 import es.pile.features.settings.ui.resolution.SettingsResolutionScreen
 
@@ -82,7 +84,7 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                     navigateToDocumentDetail = { id ->
                         backStack.add(Pane.DocumentDetail(documentId = id))
                     },
-                    navigateToSearchScreen = {id ->
+                    navigateToSearchScreen = { id ->
                         backStack.add(Pane.Search(pileId = id))
                     },
                     navigateToEditDocument = { id ->
@@ -176,6 +178,9 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
                     navigateToSettingsResolution = {
                         backStack.add(Pane.SettingsResolution)
                     },
+                    navigateToLocalAI = {
+                        backStack.add(Pane.LocalAI)
+                    },
                     navigateToBackup = {
                         backStack.add(Pane.Backup)
                     },
@@ -217,6 +222,19 @@ fun PileNavigation(modifier: Modifier = Modifier, backStack: NavBackStack<NavKey
 
             entry<Pane.Libraries> {
                 LibrariesScreen(
+                    popBackStack = { backStack.removeLastOrNull() }
+                )
+            }
+
+            entry<Pane.LocalAI> {
+                SettingsLocalAIScreen(
+                    popBackStack = { backStack.removeLastOrNull() },
+                    navigateToManageModels = { backStack.add(Pane.ManageModels) }
+                )
+            }
+
+            entry<Pane.ManageModels> {
+                SettingsManageModelsScreen(
                     popBackStack = { backStack.removeLastOrNull() }
                 )
             }

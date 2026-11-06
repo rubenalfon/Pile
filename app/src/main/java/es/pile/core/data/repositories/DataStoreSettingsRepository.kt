@@ -55,6 +55,12 @@ class DataStoreSettingsRepository(
         }
     }
 
+    override suspend fun updateSelectedOcrModelGroups(groups: Set<String>) {
+        withContext(ioDispatcher) {
+            dataStore.updateData { it.copy(selectedOcrModelGroups = groups) }
+        }
+    }
+
     override suspend fun updateImageResolution(resolution: ImageResolution) {
         withContext(ioDispatcher) {
             dataStore.updateData { it.copy(imageResolution = resolution) }

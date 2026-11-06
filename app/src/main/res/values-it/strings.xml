@@ -24,6 +24,8 @@
     <string name="keep_editing">Continua a modificare</string>
     <string name="discard">Scarta</string>
     <string name="open_menu">Apri menu</string>
+    <string name="data">Dati</string>
+    <string name="not_available">Non disponibile</string>
 
 
     <string name="new_pile">Nuovo mucchio</string>
@@ -139,10 +141,22 @@
 
     <string name="use_system_theme_color">Usa colore del tema di sistema</string>
 
-    <string name="activate_local_ai_tittle">Attiva funzioni AI locale</string>
+    <string name="local_ai_features">Funzionalità IA locali</string>
     <string name="activate_local_ai_body">Usa l\'IA del dispositivo per estrarre i dati dai tuoi documenti.</string>
     <string name="select_language_model">Seleziona modello linguistico</string>
     <string name="no_model_selected">Nessun modello selezionato</string>
+    <string name="local_ai_features_body">Le funzionalità IA ti aiutano a organizzare i tuoi documenti categorizzandoli automaticamente e aggiungendo dettagli rilevanti alle tue pile.</string>
+    <string name="use_ai_features">Usa funzionalità IA</string>
+    <string name="ocr_languages">Lingue OCR</string>
+    <string name="llm_models">Modelli LLM</string>
+    <string name="manage_downloaded_language_models">Gestisci lingue e modelli scaricati</string>
+    <string name="downloaded_language_models">Lingue e modelli scaricati</string>
+    <string name="hugging_face_token">Token Hugging Face</string>
+    <string name="recommended_for_you">Consigliato per te</string>
+    <string name="in_use">In uso</string>
+    <string name="best_overall">Il migliore in assoluto</string>
+    <string name="model_size">%1$s %2$s</string>
+    <string name="model_subtitle_with_tag">%1$s - %2$s</string>
 
     <string name="document_resolution">Risoluzione documento</string>
     <string name="original_quality_tittle">Qualità originale</string>
@@ -250,4 +264,5 @@
     <string name="import_backup_dialog_message">I dati del backup verranno uniti ai dati attuali. Gli elementi corrispondenti verranno aggiornati con le informazioni del file importato.</string>
 
     <string name="open_source_licences">Licenze open source</string>
+    <string name="no_downloaded_ocr_models">Nessun modello di lingua scaricato</string>
 </resources>

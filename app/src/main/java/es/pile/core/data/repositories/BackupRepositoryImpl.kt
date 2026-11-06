@@ -63,16 +63,16 @@ class BackupRepositoryImpl(
                 val remoteBackupDto = if (metadataFile != null) {
                     onProgress(SyncState.Downloading)
                     val remoteInput = provider.downloadFile(metadataFile.id).getOrThrow()
-                    
+
                     // Peek first 4 bytes to check for PILE magic bytes (encryption)
                     val bufferedInput = remoteInput.buffered()
                     bufferedInput.mark(4)
                     val header = ByteArray(4)
                     val read = bufferedInput.read(header)
                     bufferedInput.reset()
-                    
+
                     val isCloudEncrypted = read == 4 && String(header) == "PILE"
-                    
+
                     if (isCloudEncrypted != settings.isBackupEncryptionEnabled) {
                         throw EncryptionStateMismatchException(isCloudEncrypted)
                     }
@@ -341,9 +341,10 @@ class BackupRepositoryImpl(
         }
     }
 
-    override suspend fun wipeCloudData(provider: BackupProvider): Result<Unit> = withContext(ioDispatcher) {
-        provider.wipeCloudStorage()
-    }
+    override suspend fun wipeCloudData(provider: BackupProvider): Result<Unit> =
+        withContext(ioDispatcher) {
+            provider.wipeCloudStorage()
+        }
 
     // Mappers
     private fun DocumentModel.toDto() = DocumentModelDto(
@@ -352,6 +353,7 @@ class BackupRepositoryImpl(
         modificationDateTime = modificationDateTime.format(dateTimeFormatter),
         documentStatus = documentStatus, documentPileIds = documentPileIds,
         documentDetails = documentDetails, documentNote = documentNote,
+        ocrText = ocrText,
         documentOrganizationIds = documentOrganizationIds, isIncomingPdf = isIncomingPdf
     )
 
@@ -364,6 +366,7 @@ class BackupRepositoryImpl(
         ),
         documentStatus = documentStatus, documentPileIds = documentPileIds,
         documentDetails = documentDetails, documentNote = documentNote,
+        ocrText = ocrText,
         documentOrganizationIds = documentOrganizationIds, isIncomingPdf = isIncomingPdf
     )
 

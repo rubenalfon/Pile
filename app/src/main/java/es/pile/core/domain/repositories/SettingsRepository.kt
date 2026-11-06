@@ -54,6 +54,13 @@ interface SettingsRepository {
     suspend fun updateSelectedModel(model: String?)
 
     /**
+     * Updates the selected OCR model groups.
+     *
+     * @param groups The updated set of selected OCR model group IDs.
+     */
+    suspend fun updateSelectedOcrModelGroups(groups: Set<String>)
+
+    /**
      * Updates the image quality setting.
      *
      * @param resolution The new [ImageResolution] to be applied.

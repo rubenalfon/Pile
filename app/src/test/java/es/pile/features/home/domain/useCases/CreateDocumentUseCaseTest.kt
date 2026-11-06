@@ -6,6 +6,7 @@ import es.pile.core.domain.repositories.DocumentImageRepository
 import es.pile.core.domain.repositories.DocumentModelRepository
 import es.pile.core.domain.repositories.FileRepository
 import es.pile.core.domain.useCases.SaveImagesUseCase
+import es.pile.features.ocr.domain.schedulers.OcrService
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -31,6 +32,7 @@ class CreateDocumentUseCaseTest {
     private val fileRepository: FileRepository = mockk()
     private val documentModelRepository: DocumentModelRepository = mockk()
     private val documentImageRepository: DocumentImageRepository = mockk()
+    private val ocrService: OcrService = mockk(relaxed = true)
     private val testDispatcher = UnconfinedTestDispatcher()
 
     private val createDocumentUseCase = CreateDocumentUseCase(
@@ -38,7 +40,8 @@ class CreateDocumentUseCaseTest {
         saveImagesUseCase = saveImagesUseCase,
         fileRepository = fileRepository,
         documentModelRepository = documentModelRepository,
-        documentImageRepository = documentImageRepository
+        documentImageRepository = documentImageRepository,
+        ocrService = ocrService
     )
 
     @Before
@@ -78,6 +81,7 @@ class CreateDocumentUseCaseTest {
         // Then
         assertEquals("new-doc-id", result.id)
         assertEquals(fileName, result.title)
+        coVerify { ocrService.scheduleOcrExtraction("new-doc-id") }
         coVerify { documentModelRepository.insertDocumentModel(match { it.id == "new-doc-id" && it.isIncomingPdf }) }
         coVerify { documentModelRepository.updateDocumentModel(match { it.id == "new-doc-id" && it.title == fileName }) }
     }
@@ -122,6 +126,7 @@ class CreateDocumentUseCaseTest {
 
         // Then
         assertEquals(pileIds, result.documentPileIds)
+        coVerify { ocrService.scheduleOcrExtraction("new-doc-id") }
         coVerify { documentModelRepository.insertDocumentModel(match { it.documentPileIds == pileIds }) }
     }
 
@@ -143,6 +148,7 @@ class CreateDocumentUseCaseTest {
 
         // Then
         assertEquals(pileIds, result.documentPileIds)
+        coVerify { ocrService.scheduleOcrExtraction("new-doc-id") }
         coVerify { documentModelRepository.insertDocumentModel(match { it.documentPileIds == pileIds }) }
     }
 }

@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -53,6 +55,7 @@ fun SettingsOverviewScreen(
     viewModel: SettingsOverviewViewModel = koinViewModel(),
     popBackStack: () -> Unit,
     navigateToSettingsResolution: () -> Unit,
+    navigateToLocalAI: () -> Unit,
     navigateToBackup: () -> Unit,
     navigateToLibraries: () -> Unit
 ) {
@@ -64,6 +67,7 @@ fun SettingsOverviewScreen(
             when (event) {
                 is SettingsOverviewEvent.OnBackClicked -> popBackStack()
                 is SettingsOverviewEvent.OnResolutionClicked -> navigateToSettingsResolution()
+                is SettingsOverviewEvent.OnLocalAIClicked -> navigateToLocalAI()
                 is SettingsOverviewEvent.OnBackupClicked -> navigateToBackup()
                 is SettingsOverviewEvent.OnLibrariesClicked -> navigateToLibraries()
                 else -> viewModel.handleEvent(event)
@@ -79,7 +83,6 @@ fun SettingsOverviewPreview() {
         SettingsOverviewContent(
             state = SettingsOverviewState(
                 isLoading = false,
-                isLocalAiEnabled = true,
                 isBackupSupported = true
             ),
             onEvent = {}
@@ -149,17 +152,14 @@ fun SettingsOverviewContent(
                     onAppThemeChange = { showAppThemeDialog = true },
                     onMaterialColorToggle = { onEvent(SettingsOverviewEvent.OnMaterialColorToggled) }
                 )
-//                  todo implement AI
-//                AISection(
-//                    isLocalAiEnabled = state.isLocalAiEnabled,
-//                    selectedModel = state.selectedModel,
-//                    onToggleLocalAi = { onEvent(SettingsOverviewEvent.OnLocalAiToggled) },
-//                    onSelectLanguageModel = { }
-//                )
 
                 ResolutionSection(
                     imageResolution = state.imageResolution,
                     onResolutionChange = { onEvent(SettingsOverviewEvent.OnResolutionClicked) }
+                )
+
+                AISection(
+                    onLocalAIClicked = { onEvent(SettingsOverviewEvent.OnLocalAIClicked) },
                 )
 
                 BackupSection(
@@ -265,33 +265,6 @@ private fun AppearanceSection(
 }
 
 @Composable
-private fun AISection(
-    modifier: Modifier = Modifier,
-    isLocalAiEnabled: Boolean,
-    selectedModel: String?,
-    onToggleLocalAi: () -> Unit,
-    onSelectLanguageModel: () -> Unit
-) {
-    SettingsSection(modifier = modifier, title = stringResource(R.string.artificial_intelligence)) {
-        SettingsItem(
-            itemPosition = ItemPosition.TOP,
-            title = stringResource(R.string.activate_local_ai_tittle),
-            subtitle = stringResource(R.string.activate_local_ai_body),
-            checked = isLocalAiEnabled,
-            onAction = onToggleLocalAi
-        )
-
-        SettingsItem(
-            enabled = isLocalAiEnabled,
-            itemPosition = ItemPosition.BOTTOM,
-            title = stringResource(R.string.select_language_model),
-            subtitle = selectedModel ?: stringResource(R.string.no_model_selected),
-            onAction = onSelectLanguageModel
-        )
-    }
-}
-
-@Composable
 private fun ResolutionSection(
     modifier: Modifier = Modifier,
     imageResolution: ImageResolution,
@@ -307,7 +280,34 @@ private fun ResolutionSection(
             itemPosition = ItemPosition.SINGLE,
             title = stringResource(R.string.document_resolution),
             subtitle = subtitle,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null
+                )
+            },
             onAction = onResolutionChange
+        )
+    }
+}
+
+@Composable
+private fun AISection(
+    modifier: Modifier = Modifier,
+    onLocalAIClicked: () -> Unit,
+) {
+    SettingsSection(modifier = modifier, title = stringResource(R.string.artificial_intelligence)) {
+        SettingsItem(
+            itemPosition = ItemPosition.SINGLE,
+            title = stringResource(R.string.local_ai_features),
+            subtitle = stringResource(R.string.activate_local_ai_body),
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null
+                )
+            },
+            onAction = onLocalAIClicked
         )
     }
 }
@@ -329,6 +329,12 @@ private fun BackupSection(
                 leadingIcon = {
                     Icon(
                         painter = painterResource(R.drawable.cloud_sync_24px),
+                        contentDescription = null
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
                         contentDescription = null
                     )
                 },

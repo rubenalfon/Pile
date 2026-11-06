@@ -82,6 +82,7 @@ class SearchViewModelTest {
             documentDetails = emptyList(),
             documentNote = "",
             documentOrganizationIds = emptyList(),
+            ocrText = "",
             isIncomingPdf = false
         ))
         

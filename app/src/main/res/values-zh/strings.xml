@@ -24,6 +24,8 @@
     <string name="keep_editing">继续编辑</string>
     <string name="discard">舍弃</string>
     <string name="open_menu">打开菜单</string>
+    <string name="data">数据</string>
+    <string name="not_available">不可用</string>
 
 
     <string name="new_pile">新建堆叠</string>
@@ -139,10 +141,22 @@
 
     <string name="use_system_theme_color">使用系统主题色</string>
 
-    <string name="activate_local_ai_tittle">启用本地 AI 功能</string>
+    <string name="local_ai_features">本地 AI 功能</string>
     <string name="activate_local_ai_body">使用设备上的 AI 从文档中提取数据。</string>
     <string name="select_language_model">选择语言模型</string>
     <string name="no_model_selected">未选择模型</string>
+    <string name="local_ai_features_body">AI 功能通过自动分类并在您的文件堆中添加相关详细信息，协助您整理文档。</string>
+    <string name="use_ai_features">使用 AI 功能</string>
+    <string name="ocr_languages">OCR 语言</string>
+    <string name="llm_models">LLM 模型</string>
+    <string name="manage_downloaded_language_models">管理已下载的语言和模型</string>
+    <string name="downloaded_language_models">已下载的语言和模型</string>
+    <string name="hugging_face_token">Hugging Face 令牌</string>
+    <string name="recommended_for_you">为您推荐</string>
+    <string name="in_use">正在使用</string>
+    <string name="best_overall">综合最佳</string>
+    <string name="model_size">%1$s %2$s</string>
+    <string name="model_subtitle_with_tag">%1$s - %2$s</string>
 
     <string name="document_resolution">文档分辨率</string>
     <string name="original_quality_tittle">原始质量</string>
@@ -250,4 +264,5 @@
     <string name="import_backup_dialog_message">备份数据将与您当前的数据合并。任何匹配的项都将更新为导入文件中的信息。</string>
 
     <string name="open_source_licences">开源许可证</string>
+    <string name="no_downloaded_ocr_models">没有下载的语言模型</string>
 </resources>

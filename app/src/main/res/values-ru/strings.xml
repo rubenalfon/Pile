@@ -24,6 +24,8 @@
     <string name="keep_editing">Продолжить редактирование</string>
     <string name="discard">Отклонить</string>
     <string name="open_menu">Открыть меню</string>
+    <string name="data">Данные</string>
+    <string name="not_available">Недоступно</string>
 
 
     <string name="new_pile">Новая стопка</string>
@@ -139,10 +141,22 @@
 
     <string name="use_system_theme_color">Использовать системный цвет темы</string>
 
-    <string name="activate_local_ai_tittle">Активировать локальные функции ИИ</string>
+    <string name="local_ai_features">Локальные функции ИИ</string>
     <string name="activate_local_ai_body">Использовать ИИ на устройстве для извлечения данных из ваших документов.</string>
     <string name="select_language_model">Выберите языковую модель</string>
     <string name="no_model_selected">Модель не выбрана</string>
+    <string name="local_ai_features_body">Функции ИИ помогают упорядочивать документы, автоматически классифицируя их и добавляя соответствующие детали в ваши стопки.</string>
+    <string name="use_ai_features">Использовать функции ИИ</string>
+    <string name="ocr_languages">Языки OCR</string>
+    <string name="llm_models">Модели LLM</string>
+    <string name="manage_downloaded_language_models">Управление загруженными языками и моделями</string>
+    <string name="downloaded_language_models">Загруженные языки и модели</string>
+    <string name="hugging_face_token">Токен Hugging Face</string>
+    <string name="recommended_for_you">Рекомендуется для вас</string>
+    <string name="in_use">Используется</string>
+    <string name="best_overall">Лучший в целом</string>
+    <string name="model_size">%1$s %2$s</string>
+    <string name="model_subtitle_with_tag">%1$s - %2$s</string>
 
     <string name="document_resolution">Разрешение документа</string>
     <string name="original_quality_tittle">Оригинальное качество</string>
@@ -250,4 +264,5 @@
     <string name="import_backup_dialog_message">Данные резервной копии будут объединены с текущими данными. Совпадающие элементы будут обновлены информацией из импортируемого файла.</string>
 
     <string name="open_source_licences">Лицензии открытого ПО</string>
+    <string name="no_downloaded_ocr_models">Нет скачанных языковых моделей</string>
 </resources>

@@ -24,6 +24,8 @@
     <string name="keep_editing">編集を続ける</string>
     <string name="discard">破棄</string>
     <string name="open_menu">メニューを開く</string>
+    <string name="data">データ</string>
+    <string name="not_available">利用不可</string>
 
 
     <string name="new_pile">新規パイル</string>
@@ -139,10 +141,22 @@
 
     <string name="use_system_theme_color">システムテーマカラーを使用</string>
 
-    <string name="activate_local_ai_tittle">ローカルAI機能を有効にする</string>
+    <string name="local_ai_features">ローカルAI機能</string>
     <string name="activate_local_ai_body">デバイス上のAIを使用して、ドキュメントからデータを抽出します。</string>
     <string name="select_language_model">言語モデルを選択</string>
     <string name="no_model_selected">モデルが選択されていません</string>
+    <string name="local_ai_features_body">AI機能は、ドキュメントを自動的に分類し、パイルに関連する詳細を追加することで、ドキュメントの整理を支援します。</string>
+    <string name="use_ai_features">AI機能を使用する</string>
+    <string name="ocr_languages">OCR言語</string>
+    <string name="llm_models">LLMモデル</string>
+    <string name="manage_downloaded_language_models">ダウンロードした言語とモデルを管理する</string>
+    <string name="downloaded_language_models">ダウンロードした言語とモデル</string>
+    <string name="hugging_face_token">Hugging Faceトークン</string>
+    <string name="recommended_for_you">あなたへのおすすめ</string>
+    <string name="in_use">使用中</string>
+    <string name="best_overall">総合ベスト</string>
+    <string name="model_size">%1$s %2$s</string>
+    <string name="model_subtitle_with_tag">%1$s - %2$s</string>
 
     <string name="document_resolution">ドキュメントの解像度</string>
     <string name="original_quality_tittle">オリジナル品質</string>
@@ -250,4 +264,5 @@
     <string name="import_backup_dialog_message">バックアップデータは現在のデータと統合されます。一致する項目はインポートされたファイルの情報で更新されます。</string>
 
     <string name="open_source_licences">オープンソースライセンス</string>
+    <string name="no_downloaded_ocr_models">ダウンロードされた言語モデルはありません</string>
 </resources>

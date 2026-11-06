@@ -44,6 +44,7 @@ class ManageTemporaryDocumentUseCaseTest {
         documentStatus = DocumentStatusConstants.TEMPORARY,
         documentDetails = emptyList(),
         documentOrganizationIds = emptyList(),
+        ocrText = "",
         documentNote = "",
         documentPileIds = emptyList(),
         isIncomingPdf = false

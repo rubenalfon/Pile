@@ -1,0 +1,1 @@
+ALTER TABLE DocumentModel ADD COLUMN ocrText TEXT NOT NULL DEFAULT '';

@@ -81,5 +81,13 @@ sealed interface Pane : Parcelable, NavKey {
     @Parcelize
     @Serializable
     data object Libraries : Pane
+
+    @Parcelize
+    @Serializable
+    data object LocalAI : Pane
+
+    @Parcelize
+    @Serializable
+    data object ManageModels : Pane
 }
 

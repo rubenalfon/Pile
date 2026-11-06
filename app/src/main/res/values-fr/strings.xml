@@ -24,6 +24,8 @@
     <string name="keep_editing">Continuer l\'édition</string>
     <string name="discard">Abandonner</string>
     <string name="open_menu">Ouvrir le menu</string>
+    <string name="data">Données</string>
+    <string name="not_available">Indisponible</string>
 
 
     <string name="new_pile">Nouvelle Pile</string>
@@ -139,10 +141,22 @@
 
     <string name="use_system_theme_color">Utiliser la couleur du système</string>
 
-    <string name="activate_local_ai_tittle">Activer l\'IA locale</string>
+    <string name="local_ai_features">Fonctionnalités d\'IA locales</string>
     <string name="activate_local_ai_body">Utiliser l\'IA de l\'appareil pour extraire les données de vos documents.</string>
     <string name="select_language_model">Sélectionner le modèle de langue</string>
     <string name="no_model_selected">Aucun modèle sélectionné</string>
+    <string name="local_ai_features_body">Les fonctionnalités d\'IA vous aident à organiser vos documents en les classant automatiquement et en ajoutant des détails pertinents à vos piles.</string>
+    <string name="use_ai_features">Utiliser les fonctionnalités d\'IA</string>
+    <string name="ocr_languages">Langues OCR</string>
+    <string name="llm_models">Modèles LLM</string>
+    <string name="manage_downloaded_language_models">Gérer les langues et modèles téléchargés</string>
+    <string name="downloaded_language_models">Langues et modèles téléchargés</string>
+    <string name="hugging_face_token">Jeton Hugging Face</string>
+    <string name="recommended_for_you">Recommandé pour vous</string>
+    <string name="in_use">En cours d\'utilisation</string>
+    <string name="best_overall">Le meilleur dans l\'ensemble</string>
+    <string name="model_size">%1$s %2$s</string>
+    <string name="model_subtitle_with_tag">%1$s - %2$s</string>
 
     <string name="document_resolution">Résolution du document</string>
     <string name="original_quality_tittle">Qualité originale</string>
@@ -250,4 +264,5 @@
     <string name="import_backup_dialog_message">Les données de la sauvegarde seront fusionnées avec vos données actuelles. Tout élément correspondant sera mis à jour avec les informations du fichier importé.</string>
 
     <string name="open_source_licences">Licences open source</string>
+    <string name="no_downloaded_ocr_models">Aucun modèle de langue téléchargé</string>
 </resources>

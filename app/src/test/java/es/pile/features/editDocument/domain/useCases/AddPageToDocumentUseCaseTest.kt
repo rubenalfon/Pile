@@ -35,7 +35,8 @@ class AddPageToDocumentUseCaseTest {
             documentDetails = emptyList(),
             documentNote = "",
             documentOrganizationIds = emptyList(),
-            isIncomingPdf = false
+            isIncomingPdf = false,
+            ocrText = ""
         )
         val mockUris = listOf(mockk<android.net.Uri>())
         val mockFile = File("newImg.jpg")

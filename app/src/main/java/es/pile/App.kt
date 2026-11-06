@@ -14,6 +14,8 @@ import es.pile.features.documentDetail.di.documentDetailModule
 import es.pile.features.editDocument.di.editDocumentModule
 import es.pile.features.externalImport.di.externalImportModule
 import es.pile.features.home.di.homeModule
+import es.pile.features.ocr.di.ocrModule
+import es.pile.features.ocr.domain.schedulers.OcrService
 import es.pile.features.onboarding.di.onboardingModule
 import es.pile.features.pileDetail.di.pileDetailModule
 import es.pile.features.search.di.searchModule
@@ -44,6 +46,7 @@ class App : Application() {
                 dataModule,
                 domainModule,
                 activitiesModule,
+                ocrModule,
                 onboardingModule,
                 searchModule,
                 homeModule,
@@ -60,5 +63,8 @@ class App : Application() {
 
         val syncManager: SyncManager by inject()
         syncManager.startAutoSync()
+
+        val ocrService: OcrService by inject()
+        ocrService.processPendingScans()
     }
 }

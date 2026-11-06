@@ -24,6 +24,8 @@
     <string name="keep_editing">Seguir editando</string>
     <string name="discard">Desbotar</string>
     <string name="open_menu">Abrir menú</string>
+    <string name="data">Datos</string>
+    <string name="not_available">Non dispoñible</string>
 
 
     <string name="new_pile">Nova pila</string>
@@ -139,10 +141,22 @@
 
     <string name="use_system_theme_color">Usar cor do tema do sistema</string>
 
-    <string name="activate_local_ai_tittle">Activar funcións de IA local</string>
+    <string name="local_ai_features">Funcións de IA local</string>
     <string name="activate_local_ai_body">Usa a IA do dispositivo para extraer datos dos teus documentos.</string>
     <string name="select_language_model">Seleccionar modelo de linguaxe</string>
     <string name="no_model_selected">Ningún modelo seleccionado</string>
+    <string name="local_ai_features_body">As funcións de IA axúdanche a organizar os teus documentos categorizándoos automaticamente e engadindo detalles relevantes ás túas pilas.</string>
+    <string name="use_ai_features">Usar funcións de IA</string>
+    <string name="ocr_languages">Idiomas de OCR</string>
+    <string name="llm_models">Modelos LLM</string>
+    <string name="manage_downloaded_language_models">Xestionar idiomas e modelos descargados</string>
+    <string name="downloaded_language_models">Idiomas e modelos descargados</string>
+    <string name="hugging_face_token">Token de Hugging Face</string>
+    <string name="recommended_for_you">Recomendado para ti</string>
+    <string name="in_use">En uso</string>
+    <string name="best_overall">O mellor en xeral</string>
+    <string name="model_size">%1$s %2$s</string>
+    <string name="model_subtitle_with_tag">%1$s - %2$s</string>
 
     <string name="document_resolution">Resolución do documento</string>
     <string name="original_quality_tittle">Calidade orixinal</string>
@@ -250,4 +264,5 @@
     <string name="import_backup_dialog_message">Os datos da copia de seguranza combinaranse cos datos actuais. Se existen elementos duplicados, actualizaranse coa información do ficheiro importado.</string>
 
     <string name="open_source_licences">Licenzas de código aberto</string>
+    <string name="no_downloaded_ocr_models">Ningún modelo de idioma descargado</string>
 </resources>

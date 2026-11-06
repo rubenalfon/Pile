@@ -24,6 +24,8 @@
     <string name="keep_editing">Continua editant</string>
     <string name="discard">Descartar</string>
     <string name="open_menu">Obrir menú</string>
+    <string name="data">Dades</string>
+    <string name="not_available">No disponible</string>
 
 
     <string name="new_pile">Nova pila</string>
@@ -139,10 +141,22 @@
 
     <string name="use_system_theme_color">Utilitzar color del tema del sistema</string>
 
-    <string name="activate_local_ai_tittle">Activar funcions d’IA local</string>
+    <string name="local_ai_features">Funcions d\'IA local</string>
     <string name="activate_local_ai_body">Utilitza la IA del dispositiu per extreure dades dels teus documents.</string>
     <string name="select_language_model">Seleccionar model de llenguatge</string>
     <string name="no_model_selected">Cap model seleccionat</string>
+    <string name="local_ai_features_body">Les funcions d\'IA us ajuden a organitzar els documents classificant-los automàticament i afegint detalls rellevants a les vostres piles.</string>
+    <string name="use_ai_features">Utilitzar funcions d\'IA</string>
+    <string name="ocr_languages">Idiomes d\'OCR</string>
+    <string name="llm_models">Models LLM</string>
+    <string name="manage_downloaded_language_models">Gestionar idiomes i models baixats</string>
+    <string name="downloaded_language_models">Idiomes i models baixats</string>
+    <string name="hugging_face_token">Testimoni de Hugging Face</string>
+    <string name="recommended_for_you">Recomanat per a tu</string>
+    <string name="in_use">En ús</string>
+    <string name="best_overall">Millor en general</string>
+    <string name="model_size">%1$s %2$s</string>
+    <string name="model_subtitle_with_tag">%1$s - %2$s</string>
 
     <string name="document_resolution">Resolució del document</string>
     <string name="original_quality_tittle">Qualitat original</string>
@@ -250,4 +264,5 @@
     <string name="import_backup_dialog_message">Les dades de la còpia de seguretat es combinaran amb les dades actuals. Si hi ha elements duplicats, s’actualitzaran amb la informació del fitxer importat.</string>
 
     <string name="open_source_licences">Llicències de codi obert</string>
+    <string name="no_downloaded_ocr_models">Cap model d\'idioma descarregat</string>
 </resources>

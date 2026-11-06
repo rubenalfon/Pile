@@ -116,6 +116,7 @@ class ImportLocalBackupUseCase(
         ),
         documentStatus = documentStatus, documentPileIds = documentPileIds,
         documentDetails = documentDetails, documentNote = documentNote,
+        ocrText = ocrText,
         documentOrganizationIds = documentOrganizationIds, isIncomingPdf = isIncomingPdf
     )
 

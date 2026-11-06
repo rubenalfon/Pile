@@ -48,6 +48,7 @@ class ExportLocalBackupUseCase(
                         documentPileIds = doc.documentPileIds,
                         documentDetails = doc.documentDetails,
                         documentNote = doc.documentNote,
+                        ocrText = doc.ocrText,
                         documentOrganizationIds = doc.documentOrganizationIds,
                         isIncomingPdf = doc.isIncomingPdf
                     )

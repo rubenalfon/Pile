@@ -1,5 +1,6 @@
 package es.pile.features.settings.di
 
+import es.pile.features.settings.ui.localAI.SettingsLocalAIViewModel
 import es.pile.features.settings.ui.overview.SettingsOverviewViewModel
 import es.pile.features.settings.ui.resolution.SettingsResolutionViewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -9,4 +10,5 @@ val settingsModule = module {
 
     viewModelOf(::SettingsOverviewViewModel)
     viewModelOf(::SettingsResolutionViewModel)
+    viewModelOf(::SettingsLocalAIViewModel)
 }

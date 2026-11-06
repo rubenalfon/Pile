@@ -5,6 +5,7 @@ import es.pile.DocumentModel
 import es.pile.core.domain.repositories.DocumentImageRepository
 import es.pile.core.domain.repositories.DocumentModelRepository
 import es.pile.core.domain.repositories.FileRepository
+import es.pile.features.ocr.domain.schedulers.OcrService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -20,13 +21,15 @@ import java.time.LocalDateTime
  * 2. **File Cleanup**: Deletes images from PERSISTENT storage that were removed by the user
  *    during the current edit session.
  * 3. **Metadata Update**: Updates the [DocumentModel] in the database, refreshing the [DocumentModel.modificationDateTime].
- * 4. **Image Record Sync**: Inserts new image records (removing the draft flag) or updates existing ones.
+ * 4. **OCR Extraction**: Schedules a background OCR task to process the finalized document.
+ * 5. **Image Record Sync**: Inserts new image records (removing the draft flag) or updates existing ones.
  */
 class FinalizeDocumentUpdateUseCase(
     private val ioDispatcher: CoroutineDispatcher,
     private val fileRepository: FileRepository,
     private val documentModelRepository: DocumentModelRepository,
-    private val documentImageRepository: DocumentImageRepository
+    private val documentImageRepository: DocumentImageRepository,
+    private val ocrService: OcrService
 ) {
     /**
      * Executes the finalization process.
@@ -70,6 +73,9 @@ class FinalizeDocumentUpdateUseCase(
         documentModelRepository.updateDocumentModel(
             documentModel.copy(modificationDateTime = LocalDateTime.now())
         )
+
+        // Schedule a  background OCR task to process the finalized document.
+        ocrService.scheduleOcrExtraction(documentModel.id)
 
         // Update image records
         imageList.forEach { image ->

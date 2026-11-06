@@ -9,6 +9,7 @@ data class UserSettings(
     val isLocalAiEnabled: Boolean = false,
     val selectedModel: String? = null,
     val imageResolution: ImageResolution = ImageResolution.ORIGINAL,
+    val selectedOcrModelGroups: Set<String> = emptySet(),
     val selectedBackupProviderName: String? = null,
     val isBackupOverCellularEnabled: Boolean = false,
     val isBackupEncryptionEnabled: Boolean = false,

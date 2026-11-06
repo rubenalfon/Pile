@@ -38,6 +38,7 @@ fun ItemDocumentsCompleteListPreview() {
                 documentDetails = emptyList(),
                 documentNote = "",
                 documentOrganizationIds = emptyList(),
+                ocrText = "",
                 isIncomingPdf = false
             ),
             coverImageCacheKey = "key1"
@@ -54,6 +55,7 @@ fun ItemDocumentsCompleteListPreview() {
                 documentDetails = emptyList(),
                 documentNote = "",
                 documentOrganizationIds = emptyList(),
+                ocrText = "",
                 isIncomingPdf = false
             ),
             coverImageCacheKey = "key2"

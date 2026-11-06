@@ -24,6 +24,8 @@
     <string name="keep_editing">Jarraitu editatzen</string>
     <string name="discard">Baztertu</string>
     <string name="open_menu">Ireki menua</string>
+    <string name="data">Datuak</string>
+    <string name="not_available">Ez dago erabilgarri</string>
 
 
     <string name="new_pile">Pila berria</string>
@@ -139,10 +141,22 @@
 
     <string name="use_system_theme_color">Erabili sistemako gaiaren kolorea</string>
 
-    <string name="activate_local_ai_tittle">Aktibatu tokiko AI funtzioak</string>
+    <string name="local_ai_features">Tokiko AI funtzioak</string>
     <string name="activate_local_ai_body">Erabili gailuko AIa zure dokumentuetatik datuak ateratzeko.</string>
     <string name="select_language_model">Hautatu hizkuntza-eredua</string>
     <string name="no_model_selected">Ez da eredurik hautatu</string>
+    <string name="local_ai_features_body">AI funtzioek zure dokumentuak antolatzen laguntzen dizute, automatikoki sailkatuz eta zure piletan xehetasun garrantzitsuak gehituz.</string>
+    <string name="use_ai_features">Erabili AI funtzioak</string>
+    <string name="ocr_languages">OCR hizkuntzak</string>
+    <string name="llm_models">LLM ereduak</string>
+    <string name="manage_downloaded_language_models">Kudeatu deskargatutako hizkuntzak eta ereduak</string>
+    <string name="downloaded_language_models">Deskargatutako hizkuntzak eta ereduak</string>
+    <string name="hugging_face_token">Hugging Face token-a</string>
+    <string name="recommended_for_you">Zuretzat gomendatua</string>
+    <string name="in_use">Erabiltzen</string>
+    <string name="best_overall">Oro har onena</string>
+    <string name="model_size">%1$s %2$s</string>
+    <string name="model_subtitle_with_tag">%1$s - %2$s</string>
 
     <string name="document_resolution">Dokumentuaren rezoluzioa</string>
     <string name="original_quality_tittle">Jatorrizko kalitatea</string>
@@ -250,4 +264,5 @@
     <string name="import_backup_dialog_message">Babeskopiako datuak uneko datuekin konbinatuko dira. Bikoiztutako elementurik badago, inportatutako fitxategiko informazioarekin eguneratuko dira.</string>
 
     <string name="open_source_licences">Iturburu irekiko lizentziak</string>
+    <string name="no_downloaded_ocr_models">Ez dago deskargatutako hizkuntza-eredurik</string>
 </resources>

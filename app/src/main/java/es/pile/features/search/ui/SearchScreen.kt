@@ -101,7 +101,6 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     pileId: String? = null,
@@ -152,6 +151,7 @@ fun SearchScreenPreview() {
         documentDetails = emptyList(),
         documentNote = "Nota de prueba",
         documentOrganizationIds = emptyList(),
+        ocrText = "",
         isIncomingPdf = false
     )
 

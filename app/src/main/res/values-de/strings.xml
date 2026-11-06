@@ -24,6 +24,8 @@
     <string name="keep_editing">Weiter bearbeiten</string>
     <string name="discard">Verwerfen</string>
     <string name="open_menu">Menü öffnen</string>
+    <string name="data">Daten</string>
+    <string name="not_available">Nicht verfügbar</string>
 
 
     <string name="new_pile">Neuer Pile</string>
@@ -139,10 +141,22 @@
 
     <string name="use_system_theme_color">Systemfarbe verwenden</string>
 
-    <string name="activate_local_ai_tittle">Lokale KI-Funktionen aktivieren</string>
+    <string name="local_ai_features">Lokale KI-Funktionen</string>
     <string name="activate_local_ai_body">Verwenden Sie KI auf dem Gerät, um Daten aus Ihren Dokumenten zu extrahieren.</string>
     <string name="select_language_model">Sprachmodell auswählen</string>
     <string name="no_model_selected">Kein Modell ausgewählt</string>
+    <string name="local_ai_features_body">Die KI-Funktionen unterstützen Sie bei der Organisation Ihrer Dokumente, indem sie diese automatisch kategorisieren und Ihren Stapeln relevante Details hinzufügen.</string>
+    <string name="use_ai_features">KI-Funktionen nutzen</string>
+    <string name="ocr_languages">OCR-Sprachen</string>
+    <string name="llm_models">LLM-Modelle</string>
+    <string name="manage_downloaded_language_models">Heruntergeladene Sprachen und Modelle verwalten</string>
+    <string name="downloaded_language_models">Heruntergeladene Sprachen und Modelle</string>
+    <string name="hugging_face_token">Hugging-Face-Token</string>
+    <string name="recommended_for_you">Für Sie empfohlen</string>
+    <string name="in_use">In Verwendung</string>
+    <string name="best_overall">Insgesamt am besten</string>
+    <string name="model_size">%1$s %2$s</string>
+    <string name="model_subtitle_with_tag">%1$s - %2$s</string>
 
     <string name="document_resolution">Dokumentauflösung</string>
     <string name="original_quality_tittle">Originalqualität</string>
@@ -250,4 +264,5 @@
     <string name="import_backup_dialog_message">Die Sicherungsdaten werden mit Ihren aktuellen Daten zusammengeführt. Übereinstimmende Elemente werden mit den Informationen aus der importierten Datei aktualisiert.</string>
 
     <string name="open_source_licences">Open-Source-Lizenzen</string>
+    <string name="no_downloaded_ocr_models">Keine Sprachmodelle heruntergeladen</string>
 </resources>

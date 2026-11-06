@@ -26,6 +26,10 @@
     <string name="keep_editing">Keep editing</string>
     <string name="discard">Discard</string>
     <string name="open_menu">Open Menu</string>
+    <string name="data">Data</string>
+    <string name="not_available">Not available</string>
+    <string name="mb" translatable="false">MB</string>
+    <string name="gb" translatable="false">GB</string>
 
 
     <string name="new_pile">New Pile</string>
@@ -141,10 +145,22 @@
 
     <string name="use_system_theme_color">Use system theme color</string>
 
-    <string name="activate_local_ai_tittle">Activate local AI features</string>
+    <string name="local_ai_features">Local AI features</string>
     <string name="activate_local_ai_body">Use AI in device to extract data from your documents.</string>
     <string name="select_language_model">Select language model</string>
     <string name="no_model_selected">No model selected</string>
+    <string name="local_ai_features_body">The AI features assist you in organizing your documents by automatically categorizing them and adding relevant details to your piles.</string>
+    <string name="use_ai_features">Use AI features</string>
+    <string name="ocr_languages">OCR languages</string>
+    <string name="llm_models">LLM models</string>
+    <string name="manage_downloaded_language_models">Manage downloaded languages and models</string>
+    <string name="downloaded_language_models">Downloaded languages and models</string>
+    <string name="hugging_face_token">Hugging face token</string>
+    <string name="recommended_for_you">Recommended for you</string>
+    <string name="in_use">In use</string>
+    <string name="best_overall">Best overall</string>
+    <string name="model_size">%1$s %2$s</string>
+    <string name="model_subtitle_with_tag">%1$s - %2$s</string>
 
     <string name="document_resolution">Document resolution</string>
     <string name="original_quality_tittle">Original quality</string>
@@ -196,10 +212,10 @@
     <string name="danger_zone">Danger Zone</string>
     <string name="wipe_cloud_data">Wipe cloud data</string>
     <string name="this_action_is_irreversible">This action is irreversible.</string>
-    <string name="error_cloud_is_encrypted" >The cloud backup is encrypted, but encryption is disabled locally. Enable encryption or wipe cloud data to continue.</string>
-    <string name="error_cloud_not_encrypted" >The cloud backup is not encrypted, but encryption is enabled locally. Disable encryption or wipe cloud data to continue.</string>
+    <string name="error_cloud_is_encrypted">The cloud backup is encrypted, but encryption is disabled locally. Enable encryption or wipe cloud data to continue.</string>
+    <string name="error_cloud_not_encrypted">The cloud backup is not encrypted, but encryption is enabled locally. Disable encryption or wipe cloud data to continue.</string>
     <string name="wipe_cloud_data_alert_message">This will permanently delete all backup files from your cloud storage. \n\nThis action cannot be undone.</string>
-    <string name="wipe" >Wipe</string>
+    <string name="wipe">Wipe</string>
     <string name="are_you_sure">Are you sure?</string>
     <string name="wipe_cloud_dialog_message">This action is permanent and cannot be undone. All your backup data stored in the cloud will be erased.</string>
     <string name="encryption_mismatch_title">Encryption Mismatch</string>
@@ -257,4 +273,5 @@
     <string name="import_error">Error importing data</string>
 
     <string name="open_source_licences">Open source licences</string>
+    <string name="no_downloaded_ocr_models">No language models downloaded</string>
 </resources>

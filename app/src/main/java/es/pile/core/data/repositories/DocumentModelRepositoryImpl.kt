@@ -54,6 +54,7 @@ class DocumentModelRepositoryImpl(
                 documentPileIds = documentModel.documentPileIds,
                 documentDetails = documentModel.documentDetails,
                 documentNote = documentModel.documentNote,
+                ocrText = documentModel.ocrText,
                 documentOrganizationIds = documentModel.documentOrganizationIds,
                 isIncomingPdf = documentModel.isIncomingPdf
             )
@@ -70,6 +71,7 @@ class DocumentModelRepositoryImpl(
                 documentPileIds = documentModel.documentPileIds,
                 documentDetails = documentModel.documentDetails,
                 documentNote = documentModel.documentNote,
+                ocrText = documentModel.ocrText,
                 documentOrganizationIds = documentModel.documentOrganizationIds,
                 isIncomingPdf = documentModel.isIncomingPdf,
                 id = documentModel.id
@@ -104,6 +106,12 @@ class DocumentModelRepositoryImpl(
                 modificationDateTime = LocalDateTime.now(),
                 id = id
             )
+        }
+    }
+
+    override suspend fun updateOcrText(id: String, ocrText: String) {
+        withContext(ioDispatcher) {
+            databaseQueries.updateDocumentOcrText(ocrText = ocrText, id = id)
         }
     }
 

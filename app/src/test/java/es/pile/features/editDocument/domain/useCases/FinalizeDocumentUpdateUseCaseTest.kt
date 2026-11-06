@@ -6,6 +6,7 @@ import es.pile.core.domain.models.DocumentStatusConstants
 import es.pile.core.domain.repositories.DocumentImageRepository
 import es.pile.core.domain.repositories.DocumentModelRepository
 import es.pile.core.domain.repositories.FileRepository
+import es.pile.features.ocr.domain.schedulers.OcrService
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -21,6 +22,7 @@ class FinalizeDocumentUpdateUseCaseTest {
     private val fileRepository: FileRepository = mockk()
     private val documentModelRepository: DocumentModelRepository = mockk()
     private val documentImageRepository: DocumentImageRepository = mockk()
+    private val ocrService: OcrService = mockk(relaxed = true)
     @OptIn(ExperimentalCoroutinesApi::class)
     private val testDispatcher = UnconfinedTestDispatcher()
 
@@ -28,7 +30,8 @@ class FinalizeDocumentUpdateUseCaseTest {
         testDispatcher,
         fileRepository,
         documentModelRepository,
-        documentImageRepository
+        documentImageRepository,
+        ocrService
     )
 
     @Test
@@ -44,6 +47,7 @@ class FinalizeDocumentUpdateUseCaseTest {
             documentStatus = DocumentStatusConstants.SAVED,
             documentDetails = emptyList(),
             documentOrganizationIds = emptyList(),
+            ocrText = "",
             documentNote = "",
             documentPileIds = emptyList(),
             isIncomingPdf = false
@@ -76,6 +80,7 @@ class FinalizeDocumentUpdateUseCaseTest {
         coVerify { fileRepository.deleteDocumentImage(FileRepository.StorageType.CACHE, docId, "newImg") }
         coVerify { fileRepository.deleteDocumentImage(FileRepository.StorageType.PERSISTENT, docId, "oldImg") }
         coVerify { documentModelRepository.updateDocumentModel(match { it.id == docId && it.title == "Updated Title" }) }
+        coVerify { ocrService.scheduleOcrExtraction(docId) }
         coVerify { documentImageRepository.insertDocumentImage(match { it.id == "newImg" && !it.isDraft }) }
     }
 }

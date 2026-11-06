@@ -32,7 +32,6 @@ class SettingsOverviewViewModel(
                         isLoading = false,
                         theme = userSettings.theme,
                         isMaterialColor = userSettings.isMaterialColor,
-                        isLocalAiEnabled = userSettings.isLocalAiEnabled,
                         selectedModel = userSettings.selectedModel,
                         imageResolution = userSettings.imageResolution,
                         isBackupSupported = backupRepository.availableProviders.isNotEmpty()
@@ -48,10 +47,10 @@ class SettingsOverviewViewModel(
             SettingsOverviewEvent.OnResolutionClicked -> {}
             SettingsOverviewEvent.OnBackupClicked -> {}
             SettingsOverviewEvent.OnLibrariesClicked -> {}
+            SettingsOverviewEvent.OnLocalAIClicked -> {}
 
             is SettingsOverviewEvent.OnThemeChanged -> updateTheme(event.newTheme)
             SettingsOverviewEvent.OnMaterialColorToggled -> updateMaterialColor()
-            SettingsOverviewEvent.OnLocalAiToggled -> updateLocalAi()
 
             is SettingsOverviewEvent.OnExportUriSelected -> {
                 exportData(event.uri)
@@ -106,12 +105,6 @@ class SettingsOverviewViewModel(
     private fun updateMaterialColor() {
         viewModelScope.launch {
             settingsRepository.updateMaterialColor(!state.value.isMaterialColor)
-        }
-    }
-
-    private fun updateLocalAi() {
-        viewModelScope.launch {
-            settingsRepository.updateLocalAi(!state.value.isLocalAiEnabled)
         }
     }
 }
