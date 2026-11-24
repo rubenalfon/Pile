@@ -39,6 +39,10 @@ class MainActivity : FragmentActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
 
         val mainViewModel: MainViewModel by viewModel()
         
