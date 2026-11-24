@@ -9,9 +9,7 @@ import es.pile.core.domain.repositories.SettingsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.runBlocking
 
 class MainViewModel(
     settingsRepository: SettingsRepository,
@@ -29,14 +27,8 @@ class MainViewModel(
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = runBlocking {
-            MainState(
-                settings = settingsRepository.userSettings.first(),
-                appPreferences = appPreferencesRepository.appPreferences.first(),
-                isLoading = false
-            )
-        }
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = MainState(isLoading = true)
     )
 }
 

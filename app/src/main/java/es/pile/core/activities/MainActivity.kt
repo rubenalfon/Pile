@@ -36,14 +36,21 @@ import org.koin.java.KoinJavaComponent
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         val mainViewModel: MainViewModel by viewModel()
+        
+        splashScreen.setKeepOnScreenCondition {
+            mainViewModel.state.value.isLoading
+        }
 
         setContent {
             val state by mainViewModel.state.collectAsStateWithLifecycle()
+            
+            if (state.isLoading) return@setContent
+            
             val settings = state.settings
             val appPreferences = state.appPreferences
 
