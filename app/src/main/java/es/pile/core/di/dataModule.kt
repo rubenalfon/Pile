@@ -15,6 +15,7 @@ import es.pile.core.data.repositories.DocumentModelRepositoryImpl
 import es.pile.core.data.repositories.FileRepositoryImpl
 import es.pile.core.data.repositories.PileModelRepositoryImpl
 import es.pile.core.data.sync.SyncManagerImpl
+import es.pile.core.data.sync.SyncWorker
 import es.pile.core.data.util.CryptographyManager
 import es.pile.core.data.util.CryptographyManagerImpl
 import es.pile.core.data.util.ImageTransformationHelper
@@ -36,6 +37,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.workmanager.dsl.workerOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
@@ -77,6 +79,8 @@ val dataModule = module {
 
     single { PerformSyncUseCase(backupRepository = get(), settingsRepository = get()) }
 
+    workerOf(::SyncWorker)
+
     single<SyncManager> {
         SyncManagerImpl(
             context = androidContext(),
@@ -84,7 +88,8 @@ val dataModule = module {
             pileModelRepository = get(),
             settingsRepository = get(),
             performSyncUseCase = get(),
-            externalScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+            externalScope = CoroutineScope(SupervisorJob() + Dispatchers.Main),
+            workManager = get()
         )
     }
 

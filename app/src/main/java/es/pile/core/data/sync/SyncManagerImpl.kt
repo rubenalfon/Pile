@@ -42,10 +42,9 @@ class SyncManagerImpl(
     private val pileModelRepository: PileModelRepository,
     private val settingsRepository: SettingsRepository,
     private val performSyncUseCase: PerformSyncUseCase,
-    private val externalScope: CoroutineScope
+    private val externalScope: CoroutineScope,
+    private val workManager: WorkManager
 ) : SyncManager {
-
-    private val workManager = WorkManager.getInstance(context)
 
     private val _syncState = MutableStateFlow<SyncState>(SyncState.Idle)
     override val syncState: StateFlow<SyncState> = _syncState.asStateFlow()

@@ -11,14 +11,12 @@ import es.pile.core.domain.models.SyncState
 import es.pile.core.domain.usecases.sync.PerformSyncUseCase
 import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 class SyncWorker(
     context: Context,
-    params: WorkerParameters
+    params: WorkerParameters,
+    private val performSyncUseCase: PerformSyncUseCase
 ) : CoroutineWorker(context, params), KoinComponent {
-
-    private val performSyncUseCase: PerformSyncUseCase by inject()
 
     override suspend fun doWork(): Result {
         val result = performSyncUseCase { state ->
