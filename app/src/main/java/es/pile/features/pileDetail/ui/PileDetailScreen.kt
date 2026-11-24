@@ -60,6 +60,7 @@ import es.pile.DocumentModel
 import es.pile.PileModel
 import es.pile.R
 import es.pile.core.domain.models.DocumentCoverItem
+import es.pile.core.ui.components.ImportFabMenu
 import es.pile.core.ui.composables.AlertDraftDocumentWarning
 import es.pile.core.ui.composables.AlertEditPile
 import es.pile.core.ui.composables.LoadingAlert
@@ -68,13 +69,11 @@ import es.pile.core.ui.composables.Pile
 import es.pile.core.ui.composables.itemDocumentsCompleteList
 import es.pile.core.ui.controllers.rememberDocumentImportController
 import es.pile.core.ui.theme.PileTheme
-import es.pile.features.home.ui.FabMenuWithController
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import java.time.LocalDateTime
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PileDetailScreen(
     modifier: Modifier = Modifier,
@@ -164,7 +163,6 @@ private fun PileDetailPrev() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PileDetailContent(
     modifier: Modifier = Modifier,
@@ -225,7 +223,7 @@ fun PileDetailContent(
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                FabMenuWithController(
+                ImportFabMenu(
                     modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
                     fabMenuExpanded = fabMenuExpanded,
                     updateFabMenuExpanded = { fabMenuExpanded = it },

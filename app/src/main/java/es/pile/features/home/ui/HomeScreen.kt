@@ -1,7 +1,6 @@
 package es.pile.features.home.ui
 
 import android.view.MotionEvent
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -32,17 +31,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButtonMenu
-import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -51,14 +44,11 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.material3.ToggleFloatingActionButton
-import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,24 +60,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.CustomAccessibilityAction
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.customActions
-import androidx.compose.ui.semantics.isTraversalGroup
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.pile.R
 import es.pile.core.domain.models.SyncState
+import es.pile.core.ui.components.ImportFabMenu
 import es.pile.core.ui.composables.AlertDraftDocumentWarning
 import es.pile.core.ui.composables.AlertNewPile
 import es.pile.core.ui.composables.LoadingAlert
@@ -95,7 +78,6 @@ import es.pile.core.ui.composables.LoadingWrapper
 import es.pile.core.ui.composables.SwipeBox
 import es.pile.core.ui.composables.itemDocumentsCompleteList
 import es.pile.core.ui.composables.itemPileGrid
-import es.pile.core.ui.controllers.ImportActions
 import es.pile.core.ui.controllers.rememberDocumentImportController
 import es.pile.features.home.ui.compostables.HomeScreenSectionTitle
 import es.pile.features.search.ui.SearchContent
@@ -171,7 +153,7 @@ fun HomeScreen(
                 !isSearchBarExpanded,
                 enter = fadeIn(), exit = fadeOut()
             ) {
-                FabMenuWithController(
+                ImportFabMenu(
                     modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
                     fabMenuExpanded = fabMenuExpanded,
                     updateFabMenuExpanded = { fabMenuExpanded = it },
@@ -420,97 +402,6 @@ fun HomeScreen(
         LoadingAlert(stringResource(R.string.loading_new_document))
     }
 }
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-fun FabMenuWithController(
-    modifier: Modifier = Modifier,
-    fabMenuExpanded: Boolean,
-    updateFabMenuExpanded: (Boolean) -> Unit = {},
-    importActions: ImportActions
-) {
-    val items = listOf(
-        Triple(
-            painterResource(R.drawable.ic_clip),
-            stringResource(R.string.import_pdf_file),
-            importActions.launchPdfPicker
-        ),
-        Triple(
-            rememberVectorPainter(Icons.Filled.Photo),
-            stringResource(R.string.import_from_gallery),
-            importActions.launchGallery
-        ),
-        Triple(
-            rememberVectorPainter(Icons.Filled.CameraAlt),
-            stringResource(R.string.take_a_photo),
-            importActions.launchCamera
-        )
-    )
-
-    BackHandler(fabMenuExpanded) { updateFabMenuExpanded(false) }
-
-    val expandedString = stringResource(R.string.expanded)
-    val collapsedString = stringResource(R.string.collapsed)
-    val toggleMenuString = stringResource(R.string.toggle_menu)
-    val closeMenuString = stringResource(R.string.close_menu)
-
-    FloatingActionButtonMenu(
-        modifier = modifier,
-        expanded = fabMenuExpanded,
-        button = {
-            ToggleFloatingActionButton(
-                modifier = Modifier
-                    .semantics {
-                        traversalIndex = -1f
-                        stateDescription =
-                            if (fabMenuExpanded) expandedString else collapsedString
-                        contentDescription = toggleMenuString
-                    },
-                checked = fabMenuExpanded,
-                onCheckedChange = { updateFabMenuExpanded(it) }
-            ) {
-                val imageVector by remember {
-                    derivedStateOf {
-                        if (checkedProgress > 0.5f) Icons.Filled.Close else Icons.Filled.Add
-                    }
-                }
-                Icon(
-                    painter = rememberVectorPainter(imageVector),
-                    contentDescription = null,
-                    modifier = Modifier.animateIcon({ checkedProgress })
-                )
-            }
-        }
-    ) {
-        items.forEachIndexed { i, (icon, label, action) ->
-            FloatingActionButtonMenuItem(
-                modifier =
-                    Modifier.semantics {
-                        isTraversalGroup = true
-                        if (i == items.size - 1) {
-                            customActions = listOf(
-                                CustomAccessibilityAction(
-                                    label = closeMenuString,
-                                    action = {
-                                        action()
-                                        updateFabMenuExpanded(false)
-                                        true
-                                    }
-                                )
-                            )
-                        }
-                    },
-                onClick = {
-                    action()
-                    updateFabMenuExpanded(false)
-                },
-                icon = { Icon(icon, contentDescription = null) },
-                text = { Text(text = label) }
-            )
-        }
-    }
-}
-
 @Composable
 private fun HomeEmptyState(
     icon: Painter,
