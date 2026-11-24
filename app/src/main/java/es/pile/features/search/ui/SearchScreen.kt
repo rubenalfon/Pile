@@ -101,16 +101,19 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     pileId: String? = null,
     onBack: () -> Unit,
-    navigateToDocumentDetail: (documentId: String) -> Unit
+    navigateToDocumentDetail: (documentId: String) -> Unit,
+    viewModel: SearchViewModel = koinViewModel { parametersOf(pileId) }
 ) {
     val showKeyboard = remember { mutableStateOf(true) }
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
+
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         if (showKeyboard.value) {
@@ -124,12 +127,14 @@ fun SearchScreen(
         contentWindowInsets = WindowInsets.displayCutout,
         topBar = {
             SearchContent(
-                pileId = pileId,
+                state = state,
+                bitmapCache = bitmapCache,
                 expanded = true,
                 onExpandedChange = { expanded ->
                     if (!expanded) onBack()
                 },
                 onSettingsClick = {}, // Do not
+                onEvent = { viewModel.handleEvent(it) },
                 navigateToDocumentDetail = navigateToDocumentDetail,
                 focusRequester = focusRequester
             )
@@ -171,38 +176,6 @@ fun SearchScreenPreview() {
             navigateToDocumentDetail = {}
         )
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SearchContent(
-    modifier: Modifier = Modifier,
-    pileId: String? = null,
-    expanded: Boolean,
-    onExpandedChange: (Boolean) -> Unit,
-    onSettingsClick: () -> Unit,
-    onSyncClick: () -> Unit = {},
-    syncState: SyncState = SyncState.Idle,
-    viewModel: SearchViewModel = koinViewModel { parametersOf(pileId) },
-    navigateToDocumentDetail: (documentId: String) -> Unit,
-    focusRequester: FocusRequester? = null
-) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
-
-    SearchContent(
-        modifier = modifier,
-        state = state,
-        bitmapCache = bitmapCache,
-        expanded = expanded,
-        onExpandedChange = onExpandedChange,
-        onSettingsClick = onSettingsClick,
-        onSyncClick = onSyncClick,
-        syncState = syncState,
-        onEvent = { viewModel.handleEvent(it) },
-        navigateToDocumentDetail = navigateToDocumentDetail,
-        focusRequester = focusRequester
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

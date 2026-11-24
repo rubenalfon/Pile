@@ -1,5 +1,6 @@
 package es.pile.features.home.ui
 
+import android.graphics.Bitmap
 import android.view.MotionEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
@@ -66,6 +67,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.pile.R
@@ -79,12 +81,15 @@ import es.pile.core.ui.composables.SwipeBox
 import es.pile.core.ui.composables.itemDocumentsCompleteList
 import es.pile.core.ui.composables.itemPileGrid
 import es.pile.core.ui.controllers.rememberDocumentImportController
+import es.pile.core.ui.theme.PileTheme
 import es.pile.features.home.ui.compostables.HomeScreenSectionTitle
 import es.pile.features.search.ui.SearchContent
+import es.pile.features.search.ui.SearchEvent
+import es.pile.features.search.ui.SearchState
+import es.pile.features.search.ui.SearchViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -94,10 +99,14 @@ fun HomeScreen(
     navigateToAddDocument: (documentId: String) -> Unit,
     navigateToSettings: () -> Unit,
     navigateToBackup: () -> Unit,
-    viewModel: HomeViewModel = koinViewModel()
+    viewModel: HomeViewModel = koinViewModel(),
+    searchViewModel: SearchViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val bitmapCache by viewModel.bitmapCache.collectAsStateWithLifecycle()
+
+    val searchState by searchViewModel.state.collectAsStateWithLifecycle()
+    val searchBitmapCache by searchViewModel.bitmapCache.collectAsStateWithLifecycle()
 
     var isNavigating by remember { mutableStateOf(false) }
 
@@ -109,6 +118,56 @@ fun HomeScreen(
         }
     }
 
+    HomeScreenContent(
+        modifier = modifier,
+        state = state,
+        bitmapCache = bitmapCache,
+        searchState = searchState,
+        searchBitmapCache = searchBitmapCache,
+        isNavigating = isNavigating,
+        onEvent = { event ->
+            when(event) {
+                is HomeEvent.OnNavigateToPileDetail -> navigateToPileDetail(event.pileId)
+                is HomeEvent.OnNavigateToDocumentDetail -> navigateToDocumentDetail(event.documentId)
+                is HomeEvent.OnNavigateToEditDocument -> navigateToEditDocument(event.documentId)
+                is HomeEvent.OnNavigateToAddDocument -> navigateToAddDocument(event.documentId)
+                is HomeEvent.OnNavigateToSettings -> navigateToSettings()
+                is HomeEvent.OnNavigateToBackup -> navigateToBackup()
+                else -> viewModel.handleEvent(event)
+            }
+        },
+        onSearchEvent = { searchViewModel.handleEvent(it) }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    PileTheme {
+        HomeScreenContent(
+            state = HomeState(isInitialLoading = false),
+            bitmapCache = emptyMap(),
+            searchState = SearchState(),
+            searchBitmapCache = emptyMap(),
+            isNavigating = false,
+            onEvent = {},
+            onSearchEvent = {}
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun HomeScreenContent(
+    modifier: Modifier = Modifier,
+    state: HomeState,
+    bitmapCache: Map<String, Bitmap>,
+    searchState: SearchState,
+    searchBitmapCache: Map<String, Bitmap>,
+    isNavigating: Boolean,
+    onEvent: (HomeEvent) -> Unit,
+    onSearchEvent: (SearchEvent) -> Unit
+) {
     val listState = rememberLazyListState()
 
     var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
@@ -116,10 +175,10 @@ fun HomeScreen(
 
     val importActions = rememberDocumentImportController(
         cameraUri = state.cameraUri,
-        onUriConsumed = { viewModel.handleEvent(HomeEvent.OnCameraUriConsumed) },
-        onPdfSelected = { viewModel.handleEvent(HomeEvent.OnPdfImported(it)) },
-        onImagesSelected = { viewModel.handleEvent(HomeEvent.OnImagesImported(it)) },
-        onCameraClick = { viewModel.handleEvent(HomeEvent.OnCameraClick) }
+        onUriConsumed = { onEvent(HomeEvent.OnCameraUriConsumed) },
+        onPdfSelected = { onEvent(HomeEvent.OnPdfImported(it)) },
+        onImagesSelected = { onEvent(HomeEvent.OnImagesImported(it)) },
+        onCameraClick = { onEvent(HomeEvent.OnCameraClick) }
     )
 
     var isSearchBarExpanded by rememberSaveable { mutableStateOf(false) }
@@ -139,7 +198,7 @@ fun HomeScreen(
                 message = uiText.asString(context),
                 duration = SnackbarDuration.Short
             )
-            viewModel.handleEvent(HomeEvent.OnErrorDismissed)
+            onEvent(HomeEvent.OnErrorDismissed)
         }
     }
 
@@ -183,12 +242,15 @@ fun HomeScreen(
                     .padding(bottom = bottomPaddingAnimated)
                     .padding(start = displayCutoutStartPaddingAnimated)
                     .padding(end = displayCutoutEndPaddingAnimated),
+                state = searchState,
+                bitmapCache = searchBitmapCache,
                 expanded = isSearchBarExpanded,
                 onExpandedChange = { isSearchBarExpanded = it },
-                onSettingsClick = navigateToSettings,
-                onSyncClick = navigateToBackup,
+                onSettingsClick = { onEvent(HomeEvent.OnNavigateToSettings) },
+                onSyncClick = { onEvent(HomeEvent.OnNavigateToBackup) },
                 syncState = state.syncState,
-                navigateToDocumentDetail = navigateToDocumentDetail
+                onEvent = onSearchEvent,
+                navigateToDocumentDetail = { onEvent(HomeEvent.OnNavigateToDocumentDetail(it)) }
             )
         },
         snackbarHost = {
@@ -225,7 +287,7 @@ fun HomeScreen(
                 val pullToRefreshState = rememberPullToRefreshState()
                 PullToRefreshBox(
                     isRefreshing = isRefreshing,
-                    onRefresh = { viewModel.handleEvent(HomeEvent.OnRefreshSync) },
+                    onRefresh = { onEvent(HomeEvent.OnRefreshSync) },
                     modifier = Modifier.fillMaxSize(),
                     state = pullToRefreshState,
                     enabled = state.syncState != SyncState.NoProvider,
@@ -265,12 +327,12 @@ fun HomeScreen(
                                         if (tempDocument == null) return@UnsavedDocumentCard
 
                                         if (tempDocument.isIncomingPdf)
-                                            navigateToAddDocument(tempDocument.id)
+                                            onEvent(HomeEvent.OnNavigateToAddDocument(tempDocument.id))
                                         else
-                                            navigateToEditDocument(tempDocument.id)
+                                            onEvent(HomeEvent.OnNavigateToEditDocument(tempDocument.id))
                                     },
                                     onDismiss = {
-                                        viewModel.handleEvent(HomeEvent.OnRemoveDraftDocument)
+                                        onEvent(HomeEvent.OnRemoveDraftDocument)
 
                                         scope.launch {
                                             val result = snackbarHostState
@@ -281,11 +343,11 @@ fun HomeScreen(
                                                 )
                                             when (result) {
                                                 SnackbarResult.ActionPerformed -> { // restore
-                                                    viewModel.handleEvent(HomeEvent.OnRestoreDraftDocument)
+                                                    onEvent(HomeEvent.OnRestoreDraftDocument)
                                                 }
 
                                                 SnackbarResult.Dismissed -> {
-                                                    viewModel.handleEvent(HomeEvent.OnPurgeDraftDocument)
+                                                    onEvent(HomeEvent.OnPurgeDraftDocument)
                                                 }
                                             }
                                         }
@@ -307,7 +369,7 @@ fun HomeScreen(
                         itemPileGrid(
                             availableWidth = availableWidth,
                             piles = state.pileModels,
-                            onPileClick = navigateToPileDetail,
+                            onPileClick = { onEvent(HomeEvent.OnNavigateToPileDetail(it)) },
                             onNewPileClick = { isNewPileAlertExpanded = true },
                             coloredPileIds = state.coloredPileIds
                         )
@@ -349,9 +411,9 @@ fun HomeScreen(
                                 availableWidth = availableWidth,
                                 backgroundColor = backgroundDocuments,
                                 documents = state.documentCoverItems,
-                                onDocumentClick = navigateToDocumentDetail,
+                                onDocumentClick = { onEvent(HomeEvent.OnNavigateToDocumentDetail(it)) },
                                 bitmapCache = bitmapCache,
-                                onLoadBitmap = { viewModel.handleEvent(HomeEvent.OnImageDisplayed(it)) }
+                                onLoadBitmap = { onEvent(HomeEvent.OnImageDisplayed(it)) }
                             )
                         }
 
@@ -374,7 +436,7 @@ fun HomeScreen(
             onDismiss = { isNewPileAlertExpanded = false },
             onConfirm = { pileName, pileIconId, pileColorNumber ->
                 isNewPileAlertExpanded = false
-                viewModel.handleEvent(HomeEvent.OnCreatePile(pileName, pileIconId, pileColorNumber))
+                onEvent(HomeEvent.OnCreatePile(pileName, pileIconId, pileColorNumber))
             }
         )
     }
@@ -382,17 +444,17 @@ fun HomeScreen(
     if (state.showDraftWarning) {
         val tempDocument = state.temporaryDocument
         AlertDraftDocumentWarning(
-            onDismiss = { viewModel.handleEvent(HomeEvent.OnDismissDraftWarning) },
+            onDismiss = { onEvent(HomeEvent.OnDismissDraftWarning) },
             onDiscardAndContinue = {
-                viewModel.handleEvent(HomeEvent.OnConfirmImport)
+                onEvent(HomeEvent.OnConfirmImport)
             },
             onNavigateToDraft = {
-                viewModel.handleEvent(HomeEvent.OnDismissDraftWarning)
+                onEvent(HomeEvent.OnDismissDraftWarning)
                 if (tempDocument != null) {
                     if (tempDocument.isIncomingPdf)
-                        navigateToAddDocument(tempDocument.id)
+                        onEvent(HomeEvent.OnNavigateToAddDocument(tempDocument.id))
                     else
-                        navigateToEditDocument(tempDocument.id)
+                        onEvent(HomeEvent.OnNavigateToEditDocument(tempDocument.id))
                 }
             }
         )

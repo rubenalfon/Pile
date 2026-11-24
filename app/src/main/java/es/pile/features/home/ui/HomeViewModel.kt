@@ -95,6 +95,13 @@ class HomeViewModel(
 
     fun handleEvent(event: HomeEvent) {
         when (event) {
+            is HomeEvent.OnNavigateToAddDocument -> {}
+            HomeEvent.OnNavigateToBackup -> {}
+            is HomeEvent.OnNavigateToDocumentDetail -> {}
+            is HomeEvent.OnNavigateToEditDocument -> {}
+            is HomeEvent.OnNavigateToPileDetail -> {}
+            HomeEvent.OnNavigateToSettings -> {}
+
             is HomeEvent.OnImageDisplayed -> requestBitmapLoad(event.document)
 
             is HomeEvent.OnRemoveDraftDocument -> removeDraftDocument()

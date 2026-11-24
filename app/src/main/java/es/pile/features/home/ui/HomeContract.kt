@@ -23,6 +23,13 @@ data class HomeState(
 )
 
 sealed interface HomeEvent {
+    data class OnNavigateToPileDetail(val pileId: String) : HomeEvent
+    data class OnNavigateToDocumentDetail(val documentId: String) : HomeEvent
+    data class OnNavigateToEditDocument(val documentId: String) : HomeEvent
+    data class OnNavigateToAddDocument(val documentId: String) : HomeEvent
+    data object OnNavigateToSettings : HomeEvent
+    data object OnNavigateToBackup : HomeEvent
+
     data class OnImageDisplayed(val document: DocumentModel) : HomeEvent
 
     data object OnRemoveDraftDocument : HomeEvent
