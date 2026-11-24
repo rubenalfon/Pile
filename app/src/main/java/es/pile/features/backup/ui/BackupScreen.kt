@@ -36,7 +36,6 @@ import androidx.compose.material3.CheckableDropdownMenuItem
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -276,7 +275,7 @@ fun BackupContent(
         contentWindowInsets = WindowInsets.displayCutout,
         topBar = {
             SettingsTopBar(
-                title = stringResource(R.string.backup_and_sync),
+                title = stringResource(R.string.cloud_sync),
                 popBackStack = { onEvent(BackupEvent.OnBackClicked) },
                 scrollBehavior = scrollBehavior
             )
@@ -770,7 +769,6 @@ private fun EncryptionMismatchBottomSheet(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun EncryptionMismatchSheetContent(
     syncState: SyncState.EncryptionMismatch,
