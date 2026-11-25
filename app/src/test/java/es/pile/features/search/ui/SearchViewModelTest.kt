@@ -50,6 +50,7 @@ class SearchViewModelTest {
         val mockDocs = listOf(mockk<DocumentModel>(relaxed = true) { every { id } returns "d1" })
         every { pileRepository.pileModels } returns flowOf(mockPiles)
         every { documentRepository.documentModels } returns flowOf(mockDocs)
+        every { searchDocumentsUseCase.execute(any(), any(), any(), any()) } returns mockDocs
 
         // When
         val viewModel = SearchViewModel(
