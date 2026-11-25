@@ -38,7 +38,6 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -209,7 +208,6 @@ fun HomeScreenContent(
         modifier = modifier,
         containerColor = Color.Transparent,
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Horizontal),
-        floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             AnimatedVisibility(
                 visible = !isSearchBarExpanded,
