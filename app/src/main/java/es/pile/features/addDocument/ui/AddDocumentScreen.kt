@@ -12,11 +12,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,6 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFloatingActionButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
@@ -131,12 +137,16 @@ fun AddDocumentScreen(
     KeyboardAware {
         Scaffold(
             modifier = modifier,
+            contentWindowInsets = ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Horizontal),
             containerColor = MaterialTheme.colorScheme.surface,
             topBar = {
                 ScreenTopAppBar(popBackStack = popBackStack)
             },
             floatingActionButton = {
                 MediumFloatingActionButton(
+                    modifier = Modifier.padding(
+                        WindowInsets.navigationBars.only(WindowInsetsSides.Bottom).asPaddingValues()
+                    ).padding(end = 16.dp),
                     onClick = { viewModel.handleEvent(AddDocumentEvent.OnSaveDocument) },
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -217,7 +227,11 @@ fun AddDocumentScreen(
                                             contentDescription = stringResource(R.string.delete_text),
                                             modifier = Modifier.clickable {
                                                 textFieldValue = textFieldValue.copy(text = "")
-                                                viewModel.handleEvent(AddDocumentEvent.OnNameChanged(""))
+                                                viewModel.handleEvent(
+                                                    AddDocumentEvent.OnNameChanged(
+                                                        ""
+                                                    )
+                                                )
                                             })
                                     }
                                 },
@@ -292,7 +306,13 @@ fun AddDocumentScreen(
             onDismiss = { isNewPileAlertExpanded = false },
             onConfirm = { pileName, pileIconId, pileColorNumber ->
                 isNewPileAlertExpanded = false
-                viewModel.handleEvent(AddDocumentEvent.OnCreateNewPile(pileName, pileIconId, pileColorNumber))
+                viewModel.handleEvent(
+                    AddDocumentEvent.OnCreateNewPile(
+                        pileName,
+                        pileIconId,
+                        pileColorNumber
+                    )
+                )
             }
         )
     }
