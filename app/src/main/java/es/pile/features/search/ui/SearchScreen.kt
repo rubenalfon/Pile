@@ -652,7 +652,7 @@ private fun FilterDateAlert(
 
     val datePickerState: DatePickerState
 
-    if (years != null && years.isNotEmpty()) {
+    if (!years.isNullOrEmpty()) {
         val yearRange = years.min()..years.max()
         datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = millis?.times(1000), yearRange = yearRange
