@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
@@ -24,13 +25,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -86,7 +92,6 @@ import es.pile.core.ui.composables.LoadingWrapper
 import es.pile.core.ui.composables.SelectPilesBottomSheet
 import es.pile.core.ui.composables.adaptiveSizeItemsGrid
 import es.pile.core.ui.theme.PileTheme
-import es.pile.core.ui.util.horizontalPaddingValues
 import es.pile.features.home.ui.compostables.SyncStatusIcon
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
@@ -123,29 +128,25 @@ fun SearchScreen(
         }
     }
 
-    Scaffold(
-        contentWindowInsets = WindowInsets.displayCutout,
-        topBar = {
-            SearchContent(
-                state = state,
-                bitmapCache = bitmapCache,
-                expanded = true,
-                onExpandedChange = { expanded ->
-                    if (!expanded) onBack()
-                },
-                onSettingsClick = {}, // Do not
-                onEvent = { viewModel.handleEvent(it) },
-                navigateToDocumentDetail = navigateToDocumentDetail,
-                focusRequester = focusRequester
-            )
-        },
-        content = {}
-    )
+    Scaffold(contentWindowInsets = WindowInsets.displayCutout, topBar = {
+        SearchContent(
+            state = state,
+            bitmapCache = bitmapCache,
+            expanded = true,
+            onExpandedChange = { expanded ->
+                if (!expanded) onBack()
+            },
+            onSettingsClick = {}, // Do not
+            onEvent = { viewModel.handleEvent(it) },
+            navigateToDocumentDetail = navigateToDocumentDetail,
+            focusRequester = focusRequester
+        )
+    }, content = {})
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Collapsed Search")
 @Composable
-fun SearchScreenPreview() {
+fun SearchScreenCollapsedPreview() {
     val document = DocumentModel(
         id = "1",
         title = "Factura de la luz",
@@ -170,6 +171,41 @@ fun SearchScreenPreview() {
             ),
             bitmapCache = emptyMap(),
             expanded = false,
+            onExpandedChange = {},
+            onSettingsClick = {},
+            onEvent = {},
+            navigateToDocumentDetail = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Expanded Search")
+@Composable
+fun SearchScreenExpandedPreview() {
+    val document = DocumentModel(
+        id = "1",
+        title = "Factura de la luz",
+        imageIds = emptyList(),
+        creationDateTime = LocalDateTime.now(),
+        modificationDateTime = LocalDateTime.now(),
+        documentStatus = 0,
+        documentPileIds = emptyList(),
+        documentDetails = emptyList(),
+        documentNote = "Nota de prueba",
+        documentOrganizationIds = emptyList(),
+        isIncomingPdf = false
+    )
+
+    PileTheme {
+        SearchContent(
+            state = SearchState(
+                isLoading = false,
+                searchQuery = "Luz",
+                filteredDocumentList = listOf(SearchItem(document, "")),
+                pileList = listOf(PileModel("1", "Pilas", "icon", 0xFF0000L, LocalDateTime.now()))
+            ),
+            bitmapCache = emptyMap(),
+            expanded = true,
             onExpandedChange = {},
             onSettingsClick = {},
             onEvent = {},
@@ -203,40 +239,28 @@ fun SearchContent(
     var showFilterPilesBottomSheet by remember { mutableStateOf(false) }
     var showFilterDateAlert by remember { mutableStateOf(false) }
 
-    SearchBar(
-        modifier = modifier
-            .fillMaxWidth(),
-        inputField = {
-            val focusRequester = focusRequester ?: remember { FocusRequester() }
+    SearchBar(modifier = modifier.fillMaxWidth(), inputField = {
+        val focusRequester = focusRequester ?: remember { FocusRequester() }
 
-            SearchInputField(
-                searchQuery = state.searchQuery,
-                onQueryChange = { onEvent(SearchEvent.OnUpdateSearchQuery(it)) },
-                onSearch = { onEvent(SearchEvent.OnSearch) },
-                expanded = expanded,
-                onExpandedChange = { onExpandedChange(it) },
-                onSettingsClick = onSettingsClick,
-                onSyncClick = onSyncClick,
-                syncState = syncState,
-                focusRequester = focusRequester
-            )
-        },
-        expanded = expanded,
-        onExpandedChange = { onExpandedChange(it) }
-    ) {
-        Column(
-            modifier = Modifier.padding(
-                WindowInsets.displayCutout.asPaddingValues()
-                    .horizontalPaddingValues(LocalLayoutDirection.current)
-            )
-        ) {
+        SearchInputField(
+            searchQuery = state.searchQuery,
+            onQueryChange = { onEvent(SearchEvent.OnUpdateSearchQuery(it)) },
+            onSearch = { onEvent(SearchEvent.OnSearch) },
+            expanded = expanded,
+            onExpandedChange = { onExpandedChange(it) },
+            onSettingsClick = onSettingsClick,
+            onSyncClick = onSyncClick,
+            syncState = syncState,
+            focusRequester = focusRequester
+        )
+    }, expanded = expanded, onExpandedChange = { onExpandedChange(it) }) {
+        Column {
             FilterChipsRow(
                 selectedFilterPiles = state.selectedFilterPiles,
                 pileList = state.pileList,
                 selectedFilterDate = state.selectedFilterDate,
                 onShowFilterPilesBottomSheet = { showFilterPilesBottomSheet = true },
-                onSHowFilterDateAlert = { showFilterDateAlert = true }
-            )
+                onSHowFilterDateAlert = { showFilterDateAlert = true })
 
             LoadingWrapper(state.isLoading) {
                 val isSearchEmpty =
@@ -244,23 +268,23 @@ fun SearchContent(
 
                 KeyboardAware {
                     AnimatedContent(
-                        targetState = isSearchEmpty,
-                        transitionSpec = {
-                            (fadeIn(animationSpec = tween(300, delayMillis = 90)) +
-                                    slideInVertically(
-                                        initialOffsetY = { it / 12 },
-                                        animationSpec = spring(
-                                            dampingRatio = Spring.DampingRatioLowBouncy,
-                                            stiffness = Spring.StiffnessLow
-                                        )
-                                    )).togetherWith(fadeOut(animationSpec = tween(150)))
-                        },
-                        label = "SearchContentAnimation"
+                        targetState = isSearchEmpty, transitionSpec = {
+                            (fadeIn(
+                                animationSpec = tween(
+                                    300,
+                                    delayMillis = 90
+                                )
+                            ) + slideInVertically(
+                                initialOffsetY = { it / 12 }, animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioLowBouncy,
+                                    stiffness = Spring.StiffnessLow
+                                )
+                            )).togetherWith(fadeOut(animationSpec = tween(150)))
+                        }, label = "SearchContentAnimation"
                     ) { empty ->
                         if (empty) {
                             Box(
-                                modifier = Modifier
-                                    .fillMaxSize(),
+                                modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Column(
@@ -283,7 +307,27 @@ fun SearchContent(
                                 }
                             }
                         } else {
-                            BoxWithConstraints {
+                            val layoutDirection = LocalLayoutDirection.current
+                            val safeHorizontalPadding =
+                                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
+                                    .asPaddingValues()
+                            val startPadding = safeHorizontalPadding.calculateStartPadding(
+                                layoutDirection
+                            )
+                            val endPadding = safeHorizontalPadding.calculateEndPadding(
+                                layoutDirection
+                            )
+
+                            Spacer(
+                                Modifier.width(
+                                    safeHorizontalPadding.calculateStartPadding(
+                                        layoutDirection
+                                    ) + 8.dp
+                                )
+                            )
+                            BoxWithConstraints(
+                                Modifier.padding(start = startPadding, end = endPadding)
+                            ) {
                                 val availableWidth = maxWidth
 
                                 LazyColumn(
@@ -300,8 +344,7 @@ fun SearchContent(
                                         bitmapCache = bitmapCache,
                                         onLoadBitmap = { document ->
                                             onEvent(SearchEvent.OnImageDisplayed(document))
-                                        }
-                                    )
+                                        })
                                     item {
                                         Spacer(Modifier.height(50.dp))
                                     }
@@ -320,8 +363,7 @@ fun SearchContent(
             pileList = state.pileList,
             selectedFilterPiles = state.selectedFilterPiles,
             onDismissBottomSheet = { showFilterPilesBottomSheet = false },
-            onPileClick = { onEvent(SearchEvent.OnUpdateFilterPiles(it)) }
-        )
+            onPileClick = { onEvent(SearchEvent.OnUpdateFilterPiles(it)) })
     }
 
 
@@ -330,8 +372,7 @@ fun SearchContent(
             onDateSelected = { onEvent(SearchEvent.OnUpdateFilterDate(it)) },
             selectedFilterDate = state.selectedFilterDate,
             documentList = state.documentList,
-            onDismiss = { showFilterDateAlert = false }
-        )
+            onDismiss = { showFilterDateAlert = false })
     }
 }
 
@@ -349,7 +390,25 @@ private fun SearchInputField(
     syncState: SyncState = SyncState.Idle,
     focusRequester: FocusRequester
 ) {
+    val layoutDirection = LocalLayoutDirection.current
+
+    val horizontalInsets =
+        WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal).asPaddingValues()
+
+    val animatedStartPadding by animateDpAsState(
+        targetValue = if (expanded) horizontalInsets.calculateStartPadding(layoutDirection) else 0.dp,
+        label = "startPadding"
+    )
+
+    val animatedEndPadding by animateDpAsState(
+        targetValue = if (expanded) horizontalInsets.calculateEndPadding(layoutDirection) else 0.dp,
+        label = "endPadding"
+    )
+
     InputField(
+        modifier = modifier
+            .padding(start = animatedStartPadding, end = animatedEndPadding)
+            .focusRequester(focusRequester),
         query = searchQuery,
         onQueryChange = onQueryChange,
         onSearch = { onSearch() },
@@ -370,8 +429,7 @@ private fun SearchInputField(
                 when (targetState) {
                     true -> {
                         IconButton(
-                            onClick = { onExpandedChange(false) }
-                        ) {
+                            onClick = { onExpandedChange(false) }) {
                             Icon(
                                 painter = painterResource(R.drawable.arrow_back_24px),
                                 contentDescription = stringResource(R.string.return_)
@@ -416,8 +474,7 @@ private fun SearchInputField(
                         exit = fadeOut() + shrinkHorizontally()
                     ) {
                         SyncStatusIcon(
-                            state = syncState,
-                            onClick = onSyncClick
+                            state = syncState, onClick = onSyncClick
                         )
                     }
 
@@ -432,28 +489,17 @@ private fun SearchInputField(
                 }
             }
             AnimatedVisibility(
-                expanded && searchQuery.isNotEmpty(),
-                enter = fadeIn(),
-                exit = fadeOut()
+                expanded && searchQuery.isNotEmpty(), enter = fadeIn(), exit = fadeOut()
             ) {
                 IconButton(
-                    onClick = { onQueryChange("") }
-                ) {
+                    onClick = { onQueryChange("") }) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = stringResource(R.string.settings)
                     )
                 }
             }
-        },
-        modifier = modifier
-            .padding(
-                WindowInsets.displayCutout.asPaddingValues()
-                    .horizontalPaddingValues(LocalLayoutDirection.current)
-
-            )
-            .focusRequester(focusRequester)
-    )
+        })
 }
 
 @Composable
@@ -465,17 +511,21 @@ private fun FilterChipsRow(
     onShowFilterPilesBottomSheet: () -> Unit,
     onSHowFilterDateAlert: () -> Unit
 ) {
+    val layoutDirection = LocalLayoutDirection.current
+    val safeHorizontalPadding =
+        WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal).asPaddingValues()
+
     Row(
         modifier
             .horizontalScroll(rememberScrollState())
             .padding(bottom = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.width(safeHorizontalPadding.calculateStartPadding(layoutDirection) + 8.dp))
+
         val chipModifier = Modifier.animateContentSize(
             animationSpec = spring(
-                dampingRatio = Spring.DampingRatioLowBouncy,
-                stiffness = Spring.StiffnessLow
+                dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow
             )
         )
         if (pileList?.isNotEmpty() == true) {
@@ -484,60 +534,70 @@ private fun FilterChipsRow(
                 onClick = onShowFilterPilesBottomSheet,
                 selected = selectedFilterPiles.isNotEmpty(),
                 label = {
-                    val chipText = if (selectedFilterPiles.isEmpty())
-                        stringResource(R.string.piles)
-                    else
-                        "${pileList.firstOrNull { it.id == selectedFilterPiles.firstOrNull() }?.name ?: ""} ${if (selectedFilterPiles.size > 1) " + ${selectedFilterPiles.size - 1}" else ""}"
+                    val chipText = if (selectedFilterPiles.isEmpty()) stringResource(R.string.piles)
+                    else "${pileList.firstOrNull { it.id == selectedFilterPiles.firstOrNull() }?.name ?: ""} ${if (selectedFilterPiles.size > 1) " + ${selectedFilterPiles.size - 1}" else ""}"
 
                     AnimatedContent(
-                        targetState = chipText,
-                        transitionSpec = {
-                            (fadeIn(tween(220, delayMillis = 90)) + scaleIn(initialScale = 0.92f))
-                                .togetherWith(fadeOut(animationSpec = tween(90)))
-                        },
-                        label = "PileChipTextAnimation"
+                        targetState = chipText, transitionSpec = {
+                            (fadeIn(
+                                tween(
+                                    220,
+                                    delayMillis = 90
+                                )
+                            ) + scaleIn(initialScale = 0.92f)).togetherWith(
+                                fadeOut(
+                                    animationSpec = tween(
+                                        90
+                                    )
+                                )
+                            )
+                        }, label = "PileChipTextAnimation"
                     ) { targetText ->
                         Text(targetText, modifier)
                     }
                 },
                 trailingIcon = {
                     Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = null
+                        imageVector = Icons.Default.ArrowDropDown, contentDescription = null
                     )
-                }
-            )
+                })
         }
         FilterChip(
             modifier = chipModifier,
             onClick = onSHowFilterDateAlert,
             selected = selectedFilterDate != null,
             label = {
-                val chipText = if (selectedFilterDate == null)
-                    stringResource(R.string.date)
+                val chipText = if (selectedFilterDate == null) stringResource(R.string.date)
                 else {
                     selectedFilterDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
                 }
 
                 AnimatedContent(
-                    targetState = chipText,
-                    transitionSpec = {
-                        (fadeIn(tween(220, delayMillis = 90)) + scaleIn(initialScale = 0.92f))
-                            .togetherWith(fadeOut(animationSpec = tween(90)))
-                    },
-                    label = "DateChipTextAnimation"
+                    targetState = chipText, transitionSpec = {
+                        (fadeIn(
+                            tween(
+                                220,
+                                delayMillis = 90
+                            )
+                        ) + scaleIn(initialScale = 0.92f)).togetherWith(
+                            fadeOut(
+                                animationSpec = tween(
+                                    90
+                                )
+                            )
+                        )
+                    }, label = "DateChipTextAnimation"
                 ) { targetText ->
                     Text(targetText)
                 }
             },
             trailingIcon = {
                 Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = null
+                    imageVector = Icons.Default.ArrowDropDown, contentDescription = null
                 )
-            }
-        )
-        Spacer(Modifier.width(8.dp))
+            })
+
+        Spacer(Modifier.width(safeHorizontalPadding.calculateEndPadding(layoutDirection) + 8.dp))
     }
 }
 
@@ -573,8 +633,7 @@ private fun LazyListScope.itemDocumentsCustomList(
                 modifier = modifier,
                 onClick = onDocumentClick
             )
-        }
-    )
+        })
     item { Spacer(Modifier.height(16.dp)) }
 }
 
@@ -596,17 +655,14 @@ private fun FilterDateAlert(
     if (years != null && years.isNotEmpty()) {
         val yearRange = years.min()..years.max()
         datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = millis?.times(1000),
-            yearRange = yearRange
+            initialSelectedDateMillis = millis?.times(1000), yearRange = yearRange
         )
     } else {
         datePickerState = rememberDatePickerState(initialSelectedDateMillis = millis?.times(1000))
     }
 
     DatePickerDialog(
-        modifier = modifier,
-        onDismissRequest = onDismiss,
-        confirmButton = {
+        modifier = modifier, onDismissRequest = onDismiss, confirmButton = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -617,8 +673,7 @@ private fun FilterDateAlert(
                     onClick = {
                         onDateSelected(null)
                         onDismiss()
-                    },
-                    enabled = selectedFilterDate != null
+                    }, enabled = selectedFilterDate != null
                 ) {
                     Text(stringResource(R.string.clear))
                 }
@@ -641,8 +696,7 @@ private fun FilterDateAlert(
                 }
 
             }
-        }
-    ) {
+        }) {
         DatePicker(state = datePickerState)
     }
 }
