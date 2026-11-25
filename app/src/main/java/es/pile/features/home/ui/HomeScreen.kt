@@ -18,15 +18,17 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -40,6 +42,7 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -126,7 +129,7 @@ fun HomeScreen(
         searchBitmapCache = searchBitmapCache,
         isNavigating = isNavigating,
         onEvent = { event ->
-            when(event) {
+            when (event) {
                 is HomeEvent.OnNavigateToPileDetail -> navigateToPileDetail(event.pileId)
                 is HomeEvent.OnNavigateToDocumentDetail -> navigateToDocumentDetail(event.documentId)
                 is HomeEvent.OnNavigateToEditDocument -> navigateToEditDocument(event.documentId)
@@ -205,15 +208,17 @@ fun HomeScreenContent(
     Scaffold(
         modifier = modifier,
         containerColor = Color.Transparent,
-        contentWindowInsets = WindowInsets.displayCutout,
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Horizontal),
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             AnimatedVisibility(
-                !isSearchBarExpanded,
+                visible = !isSearchBarExpanded,
                 enter = fadeIn(), exit = fadeOut()
             ) {
                 ImportFabMenu(
-                    modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
+                    modifier = Modifier.padding(
+                        WindowInsets.navigationBars.only(WindowInsetsSides.Bottom).asPaddingValues()
+                    ),
                     fabMenuExpanded = fabMenuExpanded,
                     updateFabMenuExpanded = { fabMenuExpanded = it },
                     importActions = importActions
@@ -221,27 +226,36 @@ fun HomeScreenContent(
             }
         },
         topBar = {
-            val horizontalPaddingAnimated by animateDpAsState(
-                targetValue = if (isSearchBarExpanded) 0.dp else 16.dp,
-            )
             val bottomPaddingAnimated by animateDpAsState(
                 targetValue = if (isSearchBarExpanded) 0.dp else 8.dp,
+                label = "bottomPadding"
             )
-            val displayCutoutStartPaddingAnimated by animateDpAsState(
-                targetValue = if (isSearchBarExpanded) 0.dp else WindowInsets.displayCutout.asPaddingValues()
-                    .calculateStartPadding(LocalLayoutDirection.current)
+
+            val layoutDirection = LocalLayoutDirection.current
+
+            val horizontalInsets = WindowInsets.safeDrawing
+                .only(WindowInsetsSides.Horizontal)
+                .asPaddingValues()
+
+            val animatedStartPadding by animateDpAsState(
+                targetValue = if (isSearchBarExpanded) 0.dp
+                else 16.dp + horizontalInsets.calculateStartPadding(layoutDirection),
+                label = "startPadding"
             )
-            val displayCutoutEndPaddingAnimated by animateDpAsState(
-                targetValue = if (isSearchBarExpanded) 0.dp else WindowInsets.displayCutout.asPaddingValues()
-                    .calculateEndPadding(LocalLayoutDirection.current)
+
+            val animatedEndPadding by animateDpAsState(
+                targetValue = if (isSearchBarExpanded) 0.dp
+                else 16.dp + horizontalInsets.calculateEndPadding(layoutDirection),
+                label = "endPadding"
             )
 
             SearchContent(
                 modifier = Modifier
-                    .padding(horizontal = horizontalPaddingAnimated)
-                    .padding(bottom = bottomPaddingAnimated)
-                    .padding(start = displayCutoutStartPaddingAnimated)
-                    .padding(end = displayCutoutEndPaddingAnimated),
+                    .padding(
+                        start = animatedStartPadding,
+                        end = animatedEndPadding,
+                        bottom = bottomPaddingAnimated
+                    ),
                 state = searchState,
                 bitmapCache = searchBitmapCache,
                 expanded = isSearchBarExpanded,
@@ -252,6 +266,7 @@ fun HomeScreenContent(
                 onEvent = onSearchEvent,
                 navigateToDocumentDetail = { onEvent(HomeEvent.OnNavigateToDocumentDetail(it)) }
             )
+
         },
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
@@ -464,6 +479,7 @@ fun HomeScreenContent(
         LoadingAlert(stringResource(R.string.loading_new_document))
     }
 }
+
 @Composable
 private fun HomeEmptyState(
     icon: Painter,
