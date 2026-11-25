@@ -25,7 +25,11 @@ class SearchViewModel(
     private val documentRepository: DocumentModelRepository,
     private val bitmapCacheRepository: BitmapCacheRepository
 ) : ViewModel() {
-    private val _state = MutableStateFlow(SearchState())
+    private val _state = MutableStateFlow(
+        SearchState(
+            selectedFilterPiles = if (pileId != null) listOf(pileId) else emptyList()
+        )
+    )
     val state: StateFlow<SearchState> = _state.asStateFlow()
 
     val bitmapCache = bitmapCacheRepository.bitmapCache
@@ -41,10 +45,10 @@ class SearchViewModel(
                     it.copy(
                         isLoading = false,
                         pileList = piles,
-                        documentList = documents,
-                        selectedFilterPiles = if (pileId != null) listOf(pileId) else emptyList()
+                        documentList = documents
                     )
                 }
+                filterResults()
             }.collect()
         }
     }
@@ -64,9 +68,10 @@ class SearchViewModel(
     private fun filterResults() {
         val currentState = state.value
 
-        if (currentState.documentList.isEmpty()) return
-
-        _state.update { it.copy(isLoading = true) }
+        if (currentState.documentList.isEmpty()) {
+            _state.update { it.copy(filteredDocumentList = emptyList()) }
+            return
+        }
 
         val filteredDocuments = searchDocumentsUseCase.execute(
             documentList = currentState.documentList,
