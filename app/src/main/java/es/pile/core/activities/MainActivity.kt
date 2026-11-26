@@ -39,22 +39,22 @@ class MainActivity : FragmentActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
 
         val mainViewModel: MainViewModel by viewModel()
-        
+
         splashScreen.setKeepOnScreenCondition {
             mainViewModel.state.value.isLoading
         }
 
         setContent {
             val state by mainViewModel.state.collectAsStateWithLifecycle()
-            
+
             if (state.isLoading) return@setContent
-            
+
             val settings = state.settings
             val appPreferences = state.appPreferences
 
@@ -93,9 +93,7 @@ class MainActivity : FragmentActivity() {
                                 handleIntent(intent, backStack)
                             }
 
-                            PileNavigation(
-                                backStack = backStack
-                            )
+                            PileNavigation(backStack = backStack)
                         } else {
                             OnboardingScreen()
                         }
