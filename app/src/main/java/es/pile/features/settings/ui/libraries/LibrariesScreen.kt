@@ -1,15 +1,19 @@
 package es.pile.features.settings.ui.libraries
 
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.mikepenz.aboutlibraries.Libs
@@ -54,7 +58,7 @@ fun LibrariesContent(
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        contentWindowInsets = WindowInsets.displayCutout,
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Horizontal),
         topBar = {
             SettingsTopBar(
                 title = stringResource(R.string.open_source_licences),
@@ -62,10 +66,17 @@ fun LibrariesContent(
                 scrollBehavior = scrollBehavior
             )
         }
-    ) { paddingValues ->
+    ) { innerPadding ->
+        val layoutDirection = LocalLayoutDirection.current
+
         LibrariesContainer(
-            libraries, Modifier
-                .padding(paddingValues)
+            libraries = libraries,
+            modifier = Modifier
+                .padding(
+                    top = innerPadding.calculateTopPadding(),
+                    start = innerPadding.calculateStartPadding(layoutDirection),
+                    end = innerPadding.calculateEndPadding(layoutDirection)
+                )
                 .fillMaxSize()
         )
 
