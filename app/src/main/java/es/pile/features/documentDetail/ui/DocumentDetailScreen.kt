@@ -20,16 +20,23 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,6 +48,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -48,8 +56,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingActionButton
@@ -62,6 +68,7 @@ import androidx.compose.material3.IconButtonDefaults.smallContainerSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -93,6 +100,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -110,8 +118,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.pile.DocumentModel
 import es.pile.PileModel
 import es.pile.R
-import es.pile.core.domain.models.DocumentDetail
-import es.pile.core.domain.models.StringDetail
 import es.pile.core.ui.composables.AlertNewPile
 import es.pile.core.ui.composables.LoadingAlert
 import es.pile.core.ui.composables.LoadingWrapper
@@ -121,6 +127,7 @@ import es.pile.core.ui.composables.SwipeBox
 import es.pile.core.ui.theme.PileTheme
 import es.pile.features.documentDetail.ui.composables.SectionTitleBar
 import es.pile.features.documentDetail.ui.composables.SimpleTextField
+import es.pile.features.documentDetail.ui.models.DetailItemUiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -181,7 +188,7 @@ fun DocumentDetailPreview() {
         documentPileModels = listOf(
             PileModel("1", "Pilas", "icon", 0xFF0000L, LocalDateTime.now())
         ),
-        localDocumentDetails = emptyList(),
+        detailItems = emptyList(),
         pageCacheKeys = listOf("key1")
     )
 
@@ -197,7 +204,7 @@ fun DocumentDetailPreview() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun DocumentDetailContent(
     modifier: Modifier = Modifier,
@@ -206,7 +213,7 @@ private fun DocumentDetailContent(
     onEvent: (DocumentDetailEvent) -> Unit,
     navigateToPileDetail: (pileId: String) -> Unit,
     navigateToEditDocument: (documentId: String) -> Unit,
-    popBackStack: () -> Unit,
+    popBackStack: () -> Unit
 ) {
     var showRenameDocumentAlert by rememberSaveable { mutableStateOf(false) }
     var showDeleteDocumentAlert by rememberSaveable { mutableStateOf(false) }
@@ -252,9 +259,7 @@ private fun DocumentDetailContent(
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets.displayCutout,
         modifier = modifier
-            .fillMaxSize()
             .clickable(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
@@ -262,6 +267,7 @@ private fun DocumentDetailContent(
                 onEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                 focusManager.clearFocus()
             },
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Horizontal),
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             ScreenTopAppBar(
@@ -276,7 +282,10 @@ private fun DocumentDetailContent(
                 enter = fadeIn(), exit = fadeOut()
             ) {
                 ToolBar(
-                    modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
+                    modifier = Modifier.padding(
+                        WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)
+                            .asPaddingValues()
+                    ),
                     showEditDocument = !(state.documentModel?.isIncomingPdf ?: true),
                     onRenameDocument = {
                         onEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
@@ -313,12 +322,23 @@ private fun DocumentDetailContent(
         },
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
-        },
+        }
     ) { innerPadding ->
-        Box(Modifier.padding(innerPadding)) {
-            LoadingWrapper(state.documentModel == null || state.documentPileModels == null) {
+        LoadingWrapper(state.documentModel == null || state.documentPileModels == null) {
+            val layoutDirection = LocalLayoutDirection.current
+
+            Box(
+                Modifier
+                    .padding(
+                        top = innerPadding.calculateTopPadding(),
+                        start = innerPadding.calculateStartPadding(layoutDirection),
+                        end = innerPadding.calculateEndPadding(layoutDirection)
+                    )
+                    .consumeWindowInsets(innerPadding)
+                    .imePadding()
+                    .fillMaxSize()
+            ) {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
                     state = lazyListState,
                     horizontalAlignment = Alignment.Start
                 ) {
@@ -340,7 +360,7 @@ private fun DocumentDetailContent(
 
                     documentDetailsSection(
                         reorderableLazyListState = reorderableLazyListState,
-                        documentDetails = state.localDocumentDetails,
+                        documentDetails = state.detailItems,
                         isEditingMode = state.isDetailsEditing,
                         updateEditingMode = {
                             focusManager.clearFocus()
@@ -384,10 +404,7 @@ private fun DocumentDetailContent(
 
                     item {
                         DocumentNoteSection(
-                            documentModel = state.documentModel,
-                            onUpdateDocumentNote = {
-                                onEvent(DocumentDetailEvent.OnUpdateNote(it))
-                            },
+                            noteState = state.noteState,
                             onFocused = {
                                 onEvent(DocumentDetailEvent.OnUpdateEditingMode(false))
                             }
@@ -421,7 +438,18 @@ private fun DocumentDetailContent(
                         }
                     }
 
-                    item { Spacer(Modifier.height(140.dp)) }
+                    item {
+                        val isImeVisible = WindowInsets.isImeVisible
+
+                        val extraPadding by animateDpAsState(
+                            targetValue = if (isImeVisible) 50.dp
+                            else WindowInsets.navigationBars.asPaddingValues()
+                                .calculateBottomPadding() + 100.dp,
+                            label = "spacerHeightAnimation"
+                        )
+
+                        Spacer(Modifier.height(extraPadding))
+                    }
                 }
             }
         }
@@ -478,7 +506,6 @@ private fun DocumentDetailContent(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 private fun ScreenTopAppBar(
     modifier: Modifier = Modifier,
     title: String,
@@ -513,7 +540,6 @@ private fun ScreenTopAppBar(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ImagePager(
     modifier: Modifier = Modifier,
@@ -600,7 +626,7 @@ private fun ImagePager(
 
 private fun LazyListScope.documentDetailsSection(
     reorderableLazyListState: ReorderableLazyListState,
-    documentDetails: List<DocumentDetail>?,
+    documentDetails: List<DetailItemUiState>,
     isEditingMode: Boolean,
     updateEditingMode: (state: Boolean) -> Unit,
     onEvent: (event: DetailsActionEvent) -> Unit
@@ -616,7 +642,7 @@ private fun LazyListScope.documentDetailsSection(
         )
     }
 
-    if (documentDetails.isNullOrEmpty()) {
+    if (documentDetails.isEmpty()) {
         item {
             Card(
                 modifier = Modifier
@@ -652,7 +678,7 @@ private fun LazyListScope.documentDetailsSection(
                     enabled = isEditingMode,
                     modifier = Modifier.padding(bottom = if (index != documentDetails.size - 1) 2.dp else 0.dp)
                 ) {
-                    if (documentDetail !is StringDetail) return@SwipeBox
+                    if (documentDetail !is DetailItemUiState.Text) return@SwipeBox
                     DocumentDetailItem(
                         documentDetail = documentDetail,
                         index = index,
@@ -663,15 +689,6 @@ private fun LazyListScope.documentDetailsSection(
                         onUpdateEditingMode = updateEditingMode,
                         onMove = { from, to ->
                             onEvent(DetailsActionEvent.OnIndexMove(from, to))
-                        },
-                        onTextChange = { newName, newValue ->
-                            onEvent(
-                                DetailsActionEvent.OnUpdateText(
-                                    documentDetail.id,
-                                    newName,
-                                    newValue
-                                )
-                            )
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -712,7 +729,7 @@ private fun LazyListScope.documentDetailsSection(
 
 @Composable
 private fun ReorderableCollectionItemScope.DocumentDetailItem(
-    documentDetail: StringDetail,
+    documentDetail: DetailItemUiState.Text,
     index: Int,
     isDragging: Boolean,
     isFirstItem: Boolean,
@@ -720,7 +737,6 @@ private fun ReorderableCollectionItemScope.DocumentDetailItem(
     isEditingMode: Boolean,
     onUpdateEditingMode: (Boolean) -> Unit,
     onMove: (from: Int, to: Int) -> Unit,
-    onTextChange: (newName: String, newValue: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val topCornersDp by animateDpAsState(
@@ -818,10 +834,7 @@ private fun ReorderableCollectionItemScope.DocumentDetailItem(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             SimpleTextField(
-                value = documentDetail.name,
-                onValueChange = { newText ->
-                    onTextChange(newText, documentDetail.value)
-                },
+                state = documentDetail.nameState,
                 modifier = Modifier,
                 textStyle = MaterialTheme.typography.bodyMedium.copy(color = contentColor),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
@@ -833,10 +846,7 @@ private fun ReorderableCollectionItemScope.DocumentDetailItem(
             Spacer(Modifier.weight(1f))
 
             SimpleTextField(
-                value = documentDetail.value,
-                onValueChange = { newText ->
-                    onTextChange(documentDetail.name, newText)
-                },
+                state = documentDetail.valueState,
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
                     color = contentColor
                 ),
@@ -852,9 +862,8 @@ private fun ReorderableCollectionItemScope.DocumentDetailItem(
 
 @Composable
 private fun DocumentNoteSection(
-    documentModel: DocumentModel?,
-    onUpdateDocumentNote: (newText: String) -> Unit,
-    onFocused: () -> Unit = {},
+    noteState: TextFieldState,
+    onFocused: () -> Unit = {}
 ) {
     var isFocused by rememberSaveable { mutableStateOf(false) }
 
@@ -867,62 +876,31 @@ private fun DocumentNoteSection(
         label = "contentColor"
     )
 
-    var unsavedDocumentNoteDetail by rememberSaveable {
-        mutableStateOf(
-            documentModel?.documentNote ?: ""
+    Column(modifier = Modifier.fillMaxWidth()) {
+        SectionTitleBar(
+            title = stringResource(R.string.note),
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
-    }
 
-    LaunchedEffect(documentModel?.documentNote) {
-        if (!isFocused) {
-            unsavedDocumentNoteDetail = documentModel?.documentNote ?: ""
-        }
-    }
-
-    LaunchedEffect(unsavedDocumentNoteDetail) {
-        delay(200.milliseconds)
-
-        if (unsavedDocumentNoteDetail == (documentModel?.documentNote ?: "")) return@LaunchedEffect
-
-        onUpdateDocumentNote.invoke(unsavedDocumentNoteDetail)
-    }
-
-    SectionTitleBar(
-        title = stringResource(R.string.note),
-        modifier = Modifier.padding(horizontal = 16.dp)
-    )
-
-    Card(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = containerColor,
-            contentColor = contentColor
-        ),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Box(
+        Card(
             modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = containerColor,
+                contentColor = contentColor
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
+
             SimpleTextField(
-                value = unsavedDocumentNoteDetail,
-                onValueChange = { newText ->
-                    unsavedDocumentNoteDetail = newText
-                },
+                state = noteState,
                 modifier = Modifier
+                    .padding(16.dp)
                     .fillMaxWidth()
                     .onFocusChanged { focusState ->
                         isFocused = focusState.isFocused
-                        if (isFocused) {
-                            onFocused()
-                        } else {
-                            if (unsavedDocumentNoteDetail != (documentModel?.documentNote ?: "")) {
-                                onUpdateDocumentNote.invoke(unsavedDocumentNoteDetail)
-                            }
-                        }
+                        if (isFocused) onFocused()
                     },
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface
@@ -1021,7 +999,9 @@ private fun AddedSection(
 
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        modifier = modifier.padding(horizontal = 16.dp).padding(start = 8.dp)
+        modifier = modifier
+            .padding(horizontal = 16.dp)
+            .padding(start = 8.dp)
     ) {
         Text(
             text = stringResource(
@@ -1045,7 +1025,6 @@ private fun AddedSection(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun ToolBar(
     modifier: Modifier = Modifier,
     showEditDocument: Boolean,

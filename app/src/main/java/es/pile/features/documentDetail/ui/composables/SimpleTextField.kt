@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,8 +18,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 @Composable
 fun SimpleTextField(
     modifier: Modifier = Modifier,
-    value: String,
-    onValueChange: (newValue: String) -> Unit,
+    state: TextFieldState,
     textStyle: TextStyle,
     cursorBrush: Brush = SolidColor(MaterialTheme.colorScheme.primary),
     keyboardOptions: KeyboardOptions = KeyboardOptions(
@@ -28,16 +29,15 @@ fun SimpleTextField(
     enabled: Boolean = true,
 ) {
     BasicTextField(
-        value = value,
-        onValueChange = onValueChange,
+        state = state,
         modifier = modifier.width(IntrinsicSize.Min),
         textStyle = textStyle,
         cursorBrush = cursorBrush,
         keyboardOptions = keyboardOptions,
-        singleLine = singleLine,
+        lineLimits = if (singleLine) TextFieldLineLimits.SingleLine else TextFieldLineLimits.MultiLine(),
         enabled = enabled,
-        decorationBox = { innerTextField ->
-            if (value.isEmpty() && hint != null) {
+        decorator = { innerTextField ->
+            if (state.text.isEmpty() && hint != null) {
                 Text(
                     text = hint,
                     style = textStyle,

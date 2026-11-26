@@ -1,14 +1,15 @@
 package es.pile.features.documentDetail.ui
 
+import androidx.compose.foundation.text.input.TextFieldState
 import es.pile.DocumentModel
 import es.pile.PileModel
-import es.pile.core.domain.models.DocumentDetail
 import es.pile.core.ui.util.UiText
-
+import es.pile.features.documentDetail.ui.models.DetailItemUiState
 
 data class DocumentDetailState(
     val documentModel: DocumentModel? = null,
-    val localDocumentDetails: List<DocumentDetail>? = null,
+    val detailItems: List<DetailItemUiState> = emptyList(),
+    val noteState: TextFieldState = TextFieldState(),
     val documentPileModels: List<PileModel>? = null,
     val pageCacheKeys: List<String> = emptyList(),
     val pdfPageCount: Int? = null,
@@ -24,7 +25,6 @@ sealed interface DocumentDetailEvent {
 
     data class OnRenameDocument(val newName: String) : DocumentDetailEvent
     data class OnUpdateDetails(val event: DetailsActionEvent) : DocumentDetailEvent
-    data class OnUpdateNote(val newNote: String) : DocumentDetailEvent
     data class OnUpdatePileSelection(val pileId: String) : DocumentDetailEvent
     data class OnNewPile(val pileName: String, val iconId: String, val color: Long) :
         DocumentDetailEvent

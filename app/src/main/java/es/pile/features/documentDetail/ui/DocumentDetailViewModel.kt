@@ -1,5 +1,7 @@
 package es.pile.features.documentDetail.ui
 
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.pile.R
@@ -16,16 +18,23 @@ import es.pile.features.documentDetail.domain.useCases.ManageDocumentPileUseCase
 import es.pile.features.documentDetail.domain.useCases.UpdateDocumentDetailsUseCase
 import es.pile.features.documentDetail.domain.useCases.export.ExportDocumentUseCase
 import es.pile.features.documentDetail.domain.useCases.export.GetPdfUriUseCase
+import es.pile.features.documentDetail.ui.models.toDomain
+import es.pile.features.documentDetail.ui.models.toUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class DocumentDetailViewModel(
     private val documentId: String,
     private val requestBitmapLoadUseCase: RequestBitmapLoadUseCase,
@@ -48,6 +57,12 @@ class DocumentDetailViewModel(
     private var recentlyDeletedDetails: List<DocumentDetail> = emptyList()
 
     init {
+        observeDocumentData()
+        observeNoteChanges()
+        observeDetailTextChanges()
+    }
+
+    private fun observeDocumentData() {
         viewModelScope.launch {
             getDocumentDetailDataUseCase(documentId).collect { data ->
                 if (data == null) return@collect
@@ -55,27 +70,70 @@ class DocumentDetailViewModel(
                 val document = data.document
                 val pdfPages = data.pdfPageCount
 
-                val pageCacheKeys = if (document.isIncomingPdf) {
-                    (0 until (pdfPages ?: 0)).map { index ->
-                        bitmapCacheRepository.getImageKey(document, index)
-                    }
-                } else {
-                    List(document.imageIds.size) { index ->
-                        bitmapCacheRepository.getImageKey(document, index)
-                    }
+                if (state.value.documentModel == null) {
+                    state.value.noteState.setTextAndPlaceCursorAtEnd(document.documentNote)
                 }
 
                 _state.update { currentState ->
+                    val updatedDetails = if (currentState.documentModel == null) {
+                        document.documentDetails.map { it.toUiState() }
+                    } else currentState.detailItems
+
+                    val pageCacheKeys = if (document.isIncomingPdf) {
+                        (0 until (pdfPages ?: 0)).map { index ->
+                            bitmapCacheRepository.getImageKey(document, index)
+                        }
+                    } else {
+                        List(document.imageIds.size) { index ->
+                            bitmapCacheRepository.getImageKey(document, index)
+                        }
+                    }
+
                     currentState.copy(
                         documentModel = document,
                         documentPileModels = data.documentPiles,
+                        detailItems = updatedDetails,
                         pageCacheKeys = pageCacheKeys,
                         pdfPageCount = currentState.pdfPageCount ?: pdfPages,
-                        localDocumentDetails = currentState.localDocumentDetails ?: document.documentDetails,
                         allPiles = data.allPiles
                     )
                 }
             }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    private fun observeDetailTextChanges() {
+        viewModelScope.launch {
+            _state
+                .map { it.detailItems }
+                .distinctUntilChanged()
+                .flatMapLatest { items ->
+                    snapshotFlow { items.map { it.toDomain() } }
+                }
+                .distinctUntilChanged()
+                .debounce(150.milliseconds)
+                .collect { domainDetails ->
+                    val currentSavedDetails = state.value.documentModel?.documentDetails
+                    if (currentSavedDetails != null && domainDetails != currentSavedDetails) {
+                        documentModelRepository.updateDetails(id = documentId, details = domainDetails)
+                    }
+                }
+        }
+    }
+
+    @OptIn(FlowPreview::class)
+    private fun observeNoteChanges() {
+        viewModelScope.launch {
+            snapshotFlow { state.value.noteState.text.toString() }
+                .distinctUntilChanged()
+                .debounce(150.milliseconds)
+                .collect { currentText ->
+                    val currentSavedNote = state.value.documentModel?.documentNote
+                    if (currentSavedNote != null && currentText != currentSavedNote) {
+                        documentModelRepository.updateNote(documentId, currentText)
+                    }
+                }
         }
     }
 
@@ -85,7 +143,6 @@ class DocumentDetailViewModel(
             is DocumentDetailEvent.OnUpdateEditingMode -> _state.update { it.copy(isDetailsEditing = event.isEditing) }
 
             is DocumentDetailEvent.OnRenameDocument -> renameDocument(event.newName)
-            is DocumentDetailEvent.OnUpdateNote -> updateNote(event.newNote)
             is DocumentDetailEvent.OnUpdateDetails -> handleDetailsActionEvent(event.event)
             is DocumentDetailEvent.OnUpdatePileSelection -> updatePileSelection(event.pileId)
             is DocumentDetailEvent.OnNewPile -> newPile(event.pileName, event.iconId, event.color)
@@ -112,30 +169,23 @@ class DocumentDetailViewModel(
         }
     }
 
-    private fun updateNote(newNote: String) {
-        viewModelScope.launch {
-            documentModelRepository.updateNote(documentId, newNote)
-        }
-    }
-
     private fun handleDetailsActionEvent(event: DetailsActionEvent) {
         val currentState = state.value
 
+        val currentDomainDetails = currentState.detailItems.map { it.toDomain() }
         val updatedCollectionDetails = updateDocumentDetailsUseCase(
-            currentDetails = currentState.localDocumentDetails ?: emptyList(),
+            currentDetails = currentDomainDetails,
             deletedStack = recentlyDeletedDetails,
             event = event
         )
 
-        _state.update { it.copy(localDocumentDetails = updatedCollectionDetails.updatedDetails) }
-        recentlyDeletedDetails = updatedCollectionDetails.updatedDeletedStack
-
-        viewModelScope.launch {
-            documentModelRepository.updateDetails(
-                id = documentId,
-                details = updatedCollectionDetails.updatedDetails
-            )
+        val existingDetailUiItems = currentState.detailItems.associateBy { it.id }
+        val newDetailUiItems = updatedCollectionDetails.updatedDetails.map { domainDetail ->
+            existingDetailUiItems[domainDetail.id] ?: domainDetail.toUiState()
         }
+
+        _state.update { it.copy(detailItems = newDetailUiItems) }
+        recentlyDeletedDetails = updatedCollectionDetails.updatedDeletedStack
     }
 
     private fun updatePileSelection(pileId: String) {

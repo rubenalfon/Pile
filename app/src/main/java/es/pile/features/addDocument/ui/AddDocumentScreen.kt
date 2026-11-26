@@ -2,6 +2,7 @@ package es.pile.features.addDocument.ui
 
 import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -9,8 +10,10 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -20,6 +23,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -30,8 +34,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -80,7 +82,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.time.Duration.Companion.milliseconds
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AddDocumentScreen(
     modifier: Modifier = Modifier,
@@ -136,17 +138,30 @@ fun AddDocumentScreen(
 
     KeyboardAware {
         Scaffold(
-            modifier = modifier,
+            modifier = modifier
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    focusManager.clearFocus()
+                },
             contentWindowInsets = ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Horizontal),
             containerColor = MaterialTheme.colorScheme.surface,
             topBar = {
                 ScreenTopAppBar(popBackStack = popBackStack)
             },
             floatingActionButton = {
+                val isImeVisible = WindowInsets.isImeVisible
+
+                val fabBottomPadding by animateDpAsState(
+                    targetValue = if (isImeVisible) 16.dp
+                    else WindowInsets.navigationBars.asPaddingValues()
+                        .calculateBottomPadding(),
+                    label = "fabBottomPaddingAnimation"
+                )
+
                 MediumFloatingActionButton(
-                    modifier = Modifier.padding(
-                        WindowInsets.navigationBars.only(WindowInsetsSides.Bottom).asPaddingValues()
-                    ).padding(end = 16.dp),
+                    modifier = Modifier.padding(bottom = fabBottomPadding, end = 16.dp),
                     onClick = { viewModel.handleEvent(AddDocumentEvent.OnSaveDocument) },
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -178,7 +193,6 @@ fun AddDocumentScreen(
 
                     LazyColumn(
                         modifier = Modifier
-                            .padding(bottom = innerPadding.calculateBottomPadding())
                             .background(colorScheme.surface),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
@@ -281,6 +295,7 @@ fun AddDocumentScreen(
                             onPileClick = { pileId ->
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentTick)
                                 viewModel.handleEvent(AddDocumentEvent.OnAddPile(pileId))
+                                focusManager.clearFocus()
                             },
                             onNewPileClick = { isNewPileAlertExpanded = true },
                             coloredPileIds = state.documentModel?.documentPileIds ?: emptyList(),
@@ -290,7 +305,10 @@ fun AddDocumentScreen(
                         item {
                             Box(
                                 Modifier
-                                    .height(104.dp)
+                                    .height(
+                                        WindowInsets.navigationBars.asPaddingValues()
+                                            .calculateBottomPadding() + 108.dp
+                                    )
                                     .fillMaxWidth()
                                     .background(colorScheme.surfaceContainer)
                             )
@@ -319,7 +337,6 @@ fun AddDocumentScreen(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 private fun ScreenTopAppBar(
     modifier: Modifier = Modifier,
     popBackStack: () -> Unit,
