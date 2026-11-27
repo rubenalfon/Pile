@@ -37,8 +37,8 @@ android {
         applicationId = "es.pile"
         minSdk = 28
         targetSdk = 37
-        versionCode = 22
-        versionName = "1.2.10"
+        versionCode = 23
+        versionName = "1.2.11"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
